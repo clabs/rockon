@@ -1,0 +1,95 @@
+{% extends "base.html" %} {% block content %}
+
+<script language="javascript">
+  $(document).ready(function () {
+    $('select.dropdown').dropdown()
+    $('.ui.checkbox').checkbox()
+
+    $('.ui.form')
+    .form({
+      on: 'blur',
+      fields: {
+        person_lastname: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gibt deinen Nachnamen an.'
+            }
+          ]
+        },
+        contact_email: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deine E-Mail-Adresse an.'
+            },
+            {
+              type: 'email',
+              prompt: 'Bitte gib eine gültige E-Mail-Adresse an.'
+            }
+          ]
+        },
+      },
+      onSuccess: (event, fields) => {
+        send_form(fields)
+        return false
+      }
+    })
+  })
+
+  ajax_success = (data) => {
+    console.info(data)
+    // FIXME: this should be in the CRM module
+    window.location.href = "{% url "crm_request_magic_link_submitted" %}"
+  }
+  ajax_error = (data) => {
+    // FIXMIE: needs error handling
+    console.error(data)
+  }
+  ajax_complete = (data) => {
+    // hopenfully this is never triggered
+    console.info(data)
+  }
+
+  const send_form = (fields) => {
+    console.debug(fields)
+    $.ajax({
+      type: "POST",
+      url: "{% url "api_request_magic_link" %}",
+      data: JSON.stringify(fields),
+      contentType: "application/json",
+      headers: {
+        "X-CSRFToken": fields.csrfmiddlewaretoken
+      },
+      dataType: "json",
+      success: (data) => ajax_success(data),
+      error: (data) => ajax_error(data),
+      complete: (data) => ajax_complete(data)
+    })
+  }
+
+</script>
+
+<div class="ui raised very padded text container segment">
+  <h2 class="ui header">Login anfordern</h2>
+  <form class="ui form">
+    {% csrf_token %}
+    <h4 class="ui dividing header">Konto</h4>
+    <div class="field">
+      <div class="equal width fields">
+        <div class="field">
+          <label>E-Mail Adresse</label>
+          <input type="email" name="contact_email" placeholder="E-Mail Adresse" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label>Nachname</label>
+          <input type="text" name="person_lastname" placeholder="Nachname" autocomplete="family-name" />
+        </div>
+      </div>
+    </div>
+    <div id="form_submit" class="ui submit button teal" tabindex="0">Absenden</div>
+    <div class="ui error message"></div>
+  </form>
+</div>
+
+{% endblock content %}

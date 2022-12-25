@@ -1,0 +1,386 @@
+{% extends "base.html" %} {% block content %}
+
+<script language="javascript">
+  $(document).ready(function () {
+    $('select.dropdown').dropdown()
+    $('.ui.checkbox').checkbox()
+
+    $('.ui.form')
+    .form({
+      on: 'blur',
+      fields: {
+        person_firstname: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gibt deinen Vornamen an.'
+            }
+          ]
+        },
+        person_lastname: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gibt deinen Nachnamen an.'
+            }
+          ]
+        },
+        person_nickname: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gibt deinen Spitznamen an.'
+            }
+          ]
+        },
+        person_birthday: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib dein Geburtsdatum an.'
+            }
+          ]
+        },
+        person_address: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deine Straße an.'
+            }
+          ]
+        },
+        person_housenumber: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deine Hausnummer an.'
+            },
+            {
+              type: 'regExp[/^[0-9]+[a-zA-Z]?$/]',
+              prompt: 'Bitte gib eine gültige Hausnummer an.'
+            }
+          ]
+        },
+        person_zipcode: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deine Postleitzahl an.'
+            },
+            {
+              type: 'integer',
+              prompt: 'Bitte gib eine gültige Postleitzahl an.'
+            },
+            {
+              type: 'exactLength[5]',
+              prompt: 'Bitte gib eine gültige Postleitzahl an.'
+            }
+          ]
+        },
+        person_place: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deinen Wohnort an.'
+            }
+          ]
+        },
+        person_email: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deine E-Mail-Adresse an.'
+            },
+            {
+              type: 'email',
+              prompt: 'Bitte gib eine gültige E-Mail-Adresse an.'
+            }
+          ]
+        },
+        person_email_confirmation: {
+          rules: [
+            {
+              type: 'match[person_email]',
+              prompt: 'Die E-Mail-Adressen stimmen nicht überein.'
+            }
+          ]
+        },
+        person_mobile: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deine Handynummer an.'
+            },
+            {
+              type: 'integer',
+              prompt: 'Bitte gib eine gültige Handynummer an.'
+            }
+          ]
+        },
+        nutriton_type: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib an, ob du Vegetarier oder Veganer bist.'
+            }
+          ]
+        },
+        skill_note: {
+          rules: [
+            {
+              type: 'maxLength[511]'
+            }
+          ]
+        },
+        crew_shirt: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib an, welche Größe du für dein T-Shirt brauchst.'
+            }
+          ]
+        },
+        skill_note: {
+          rules: [
+            {
+              type: 'maxLength[1023]'
+            }
+          ]
+        },
+      },
+      onSuccess: (event, fields) => {
+        send_form(fields)
+        return false
+      }
+    })
+  })
+
+  ajax_success = (data) => {
+    console.info(data)
+    window.location.href = "{% url "crew_signup_submitted" slug=slug %}"
+  }
+  ajax_error = (data) => {
+    // FIXMIE: needs error handling
+    console.error(data)
+  }
+  ajax_complete = (data) => {
+    // hopenfully this is never triggered
+    console.info(data)
+  }
+
+  const send_form = (fields) => {
+    console.debug(fields)
+    $.ajax({
+      type: "POST",
+      url: "{% url "api_signup" slug=slug %}",
+      data: JSON.stringify(fields),
+      contentType: "application/json",
+      headers: {
+        "X-CSRFToken": fields.csrfmiddlewaretoken
+      },
+      dataType: "json",
+      success: (data) => ajax_success(data),
+      error: (data) => ajax_error(data),
+      complete: (data) => ajax_complete(data)
+    })
+  }
+
+</script>
+
+<div class="ui raised very padded text container segment">
+  <h2 class="ui header">Neue Crewanmeldung</h2>
+  <form class="ui form">
+    {% csrf_token %}
+    <h4 class="ui dividing header">Persönliches</h4>
+    <div class="field">
+      <label>Name</label>
+      <div class="equal width fields">
+        <div class="field">
+          <input type="text" name="person_firstname" placeholder="Vorname" autocomplete="given-name" />
+        </div>
+        <div class="field">
+          <input type="text" name="person_lastname" placeholder="Nachname" autocomplete="family-name" />
+        </div>
+      </div>
+    </div>
+    <div class="equal width fields">
+      <div class="field">
+        <input type="text" name="person_nickname" placeholder="Spitzname" />
+      </div>
+      <div class="field">
+        <input type="date" name="person_birthday" autocomplete="bday"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Anschrift</label>
+      <div class="fields">
+        <div class="twelve wide field">
+          <input type="text" name="person_address" placeholder="Straße" autocomplete="street-address" />
+        </div>
+        <div class="four wide field">
+          <input
+            type="text"
+            name="person_housenumber"
+            placeholder="Hausnummer"
+          />
+        </div>
+      </div>
+      <div class="field">
+          <input type="text" name="person_address_extension" placeholder="Addresszusatz" autocomplete="off" />
+      </div>
+    </div>
+    <div class="two fields">
+      <div class="field">
+        <label>Postleitzahl</label>
+        <input type="number" min="1" max="99999" name="person_zipcode" placeholder="Postleitzahl" autocomplete="postal-code" />
+      </div>
+      <div class="field">
+        <label>Ort</label>
+        <input type="text" name="person_place" placeholder="Ort" />
+      </div>
+    </div>
+    <h4 class="ui dividing header">Kontakt</h4>
+    <div class="field">
+      <label>E-Mail Adresse</label>
+      <div class="fields">
+        <div class="eight wide field">
+          <input type="email" name="person_email" placeholder="E-Mail Adresse" autocomplete="email" />
+        </div>
+        <div class="eight wide field">
+          <input
+            type="email"
+            name="person_email_confirmation"
+            placeholder="E-Mail Adresse bestätigen"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="one fields">
+      <div class="field">
+        <label>Handynummer</label>
+        <input type="tel" name="person_mobile" placeholder="Handynummer" autocomplete="tel" />
+      </div>
+    </div>
+    <h4 class="ui dividing header">Essen &ampersand; T-Shirt</h4>
+    <div class="field">
+      <label>Essensgewohnheit</label>
+      <div class="ui selection dropdown">
+        <input type="hidden" name="nutriton_type" />
+        <i class="dropdown icon"></i>
+        <div class="default text">Essensgewohnheit</div>
+        <div class="menu">
+          <div class="item" data-value="omnivore">Alles-Esser</div>
+          <div class="item" data-value="vegetarian">Vegatrisch</div>
+          <div class="item" data-value="vegan">Vegan</div>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Anmerkungen zu Essensgewohnheiten</label>
+      <textarea name="nutrition_note" rows="2"></textarea>
+    </div>
+    <div class="field">
+      <label>T-Shirt</label>
+      <div class="ui selection dropdown">
+        <input type="hidden" name="crew_shirt" />
+        <i class="dropdown icon" name="shirt"></i>
+        <div class="default text">Schnitt und Größe</div>
+        <div class="menu">
+          {% for shirt in shirts %}
+          <div class="item" data-value="{{ shirt.id }}">{{ shirt }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="ui message">
+        <div class="header">Erklärung Schnitt und Größe</div>
+        <ul class="list">
+          <li>fitted: figurbetonter Schnitt</li>
+          <li>straight: normaler Schnitt</li>
+        </ul>
+      </div>
+    </div>
+    <h4 class="ui dividing header">Formale Qualifikationen</h4>
+    <div class="field">
+      <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
+      <!-- FIXME: render dynmic list of skills in a grid -->
+      <!-- FIXME: skills with a comment box need a input box next to it for additional information -->
+      <div class="field">
+        {% for skill in skills %}
+        <div class="ui checkbox">
+        <input type="checkbox" tabindex="0" class="hidden" name="skill_{{ skill.id }}">
+        <label>{{ skill }}</label>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="field">
+      <label>Anmerkungen zu deinen Fähigkeiten</label>
+      <textarea rows="2" name="skills_note"></textarea>
+    </div>
+    <h4 class="ui dividing header">Anwesenheit</h4>
+    <div class="field">
+      <label>An welchen Tagen kannst du vor Ort sein?</label>
+      <!-- FIXME: render days in 3x3 grid-->
+      <div class="equal width fields">
+        {% for day in attendance %}
+        <div class="inline field">
+          <div class="ui checkbox">
+            <input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}">
+            <label>{{ day }}</label>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="field">
+      <label>Anmerkungen zu deiner Anwesenheit</label>
+      <textarea rows="2" name="attendance_note"></textarea>
+    </div>
+    <div class="inline field">
+      <div class="ui toggle checkbox">
+        <input type="checkbox" tabindex="0" class="hidden" name="overnight">
+        <label>Ich übernachte vor Ort.</label>
+      </div>
+    </div>
+    <h4 class="ui dividing header">Tätigkeiten</h4>
+    <div class="field">
+    <label>Für welche Teams interessierst du dich?</label>
+    <!-- FIXME: render teams with details-->
+    <div class="ui items">
+      {% for team in teams %}
+      <div class="item">
+        <div class="image">
+          <img src="/static/assets/4_3_placeholder.png">
+        </div>
+        <div class="content">
+          <a class="header">{{ team }}</a>
+          <div class="meta">
+            <span>{{ team.lead|default_if_none:"Kein Gewerkeleiter" }}</span>
+          </div>
+          <div class="description">
+            <p>{{ team.description }}</p>
+          </div>
+          <div class="extra">
+            <div class="extra">
+              <div class="ui toggle checkbox">
+                <input type="checkbox" tabindex="0" class="hidden" name="team_{{ team.id }}">
+                <label>Interesse</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <h4 class="ui dividing header">Verschiedenes</h4>
+      <div class="field">
+        <label>Möchtest du uns noch etwas mitteilen?</label>
+        <textarea name="general_note"></textarea>
+      </div>
+      <div id="form_submit" class="ui submit button teal" tabindex="0">Absenden</div>
+      <div class="ui reset button grey">Neustart</div>
+      <div class="ui error message"></div>
+  </form>
+</div>
+
+{% endblock content %}

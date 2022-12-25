@@ -1,0 +1,30 @@
+{% if user.is_authenticated %}
+<nav class="ui menu stackable">
+  <div class="header item">
+    rockon
+  </div>
+  {% comment %} <a class="item" href="{% url "crew_signup" %}">
+    <i class="home icon"></i> Home
+  </a> {% endcomment %}
+  <div class="right menu">
+    {% include "userdropdown.html" %}
+  </div>
+</nav>
+<script language='javascript'>
+  $(document).ready(function(){
+    $('.ui.dropdown')
+    .dropdown();
+  });
+</script>
+{% else %}
+<nav class="ui menu stackable">
+  <div class="header item">
+    Explorer
+  </div>
+  <div class="right menu">
+  <a class="item" href="{% url "login" %}">
+    <i class="sign-in icon"></i> Login
+  </a>
+  </div>
+</nav>
+{% endif %}

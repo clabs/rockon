@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+
+<script language='javascript'>
+  $(document).ready(function () {
+    $('.ui.form').form({
+      fields: {
+        username: {
+          identifier: 'username',
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Please enter your e-mail address'
+            }
+          ]
+        },
+        password: {
+          identifier: 'password',
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Please enter your password'
+            }
+          ]
+        }
+      }
+    })
+  })
+</script>
+
+<div class="ui middle aligned center aligned grid">
+  <div class="column">
+    <h2 class="ui image header">
+      <div class="content">
+        Log-in to your account
+      </div>
+    </h2>
+    <form class="ui large form" method="post">
+      {% csrf_token %}
+      <div class="ui stacked segment">
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            <input type="text" name="username" placeholder="E-mail address" autofocus="" autocapitalize="none" autocomplete="username" maxlength="150" placeholder="Username" required="">
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            <input type="password" name="password" placeholder="Password" autocomplete="current-password" required="">
+          </div>
+        </div>
+        <div class="ui primary submit button large fluid">Submit</div>
+        <div class="ui error message"></div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock content %}
