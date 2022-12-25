@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: ${POSTGRES_INITDB_ARGS}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PGTZ: ${POSTGRES_PGTZ}
+      POSTGRES_TZ: ${POSTGRES_TZ}
+      POSTGRES_USER: ${POSTGRES_USER}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data:rw
+    ports:
+      - "${DOCKER_BIND_INTERFACE}:5432:5432"
+
+  mailhog:
+      image: mailhog/mailhog:latest
+      restart: unless-stopped
+      ports:
+        - "${DOCKER_BIND_INTERFACE}:1025:1025"
+        - "${DOCKER_BIND_INTERFACE}:8025:8025"
+
+volumes:
+  postgres-data:
+    driver: local
