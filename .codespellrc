@@ -1,0 +1,2 @@
+[codespell]
+skip = *.js,*.css,*.map,.git,./src/dist,*.svg,README.md,src/event/models/event.py
