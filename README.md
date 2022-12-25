@@ -2,7 +2,7 @@
 
 Hyper customized Rocktreff data entry and lists thingamajig (Django)
 
-## ChatGPT über rock.on
+## ChatGPT über rockon
 
 Eine Festivalverwaltung könnte Folgendes beinhalten:
 
@@ -31,12 +31,34 @@ Create environment and install requirements
 
 ### Precommit
 
-Install `pre-commit` hooks to git
+Install `pre-commit` hooks to git: `pre-commit install`
 
-`pre-commit install`
+Create `pre-commit` environment and install dependencies: `pre-commit`
 
-Create `pre-commit` environment and install dependencies
+If you want to run `pre-commit` before commits: `pre-commit run --all-files`
 
-`pre-commit`
+## Prepare environment
 
-`pre-commit run --all-files`
+Copy `.env.example` to `.env` and adjust acording to your local enivronment.
+
+## Database
+
+Run `docker compose up -d` to start Postgres and Mailhog.
+
+## Django
+
+### Collect statics
+
+This needs to be run once and everything assets are added to `src/static`: `python src/manage.py collectstatic`
+
+### Run migrations
+
+`python src/manage.py migrate`
+
+### Create super user
+
+`python src/manage.py createsuperuser`
+
+### Run server
+
+Either use the provied VScode launch configurations or run `python src/manage.py runserver`
