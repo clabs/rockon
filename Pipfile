@@ -15,7 +15,7 @@ pillow = "*"
 
 [dev-packages]
 django-debug-toolbar = "==3.8.1"
-pre-commit = "==2.20.0"
+pre-commit = "==2.21.0"
 
 [requires]
 python_version = "3.11"
