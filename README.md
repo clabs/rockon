@@ -43,7 +43,11 @@ Copy `.env.example` to `.env` and adjust acording to your local enivronment.
 
 ## Database
 
-Run `docker compose up -d` to start Postgres and Mailhog.
+Run `docker compose up -d postgres` to start Postgres, or use the `.env` file to configure the use of the SQLite3 backend.
+
+## Debug mailserver
+
+Run `docker compose up -d mailhog` to start the debug mail server.
 
 ## Django
 
