@@ -11,7 +11,9 @@ class EmailVerification(models.Model):
     """EmailVerification model."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="email_verifications")
+    person = models.ForeignKey(
+        Person, on_delete=models.CASCADE, related_name="email_verifications"
+    )
     token = models.UUIDField(default=uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

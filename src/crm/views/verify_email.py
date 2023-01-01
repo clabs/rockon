@@ -1,20 +1,22 @@
 from __future__ import annotations
 
-from crm.models import Person, EmailVerification
-
 from django.http import JsonResponse
+
+from crm.models import EmailVerification, Person
+
 
 def verify_email(request, token):
     """Verify email."""
     try:
-        verficiation = EmailVerification.objects.get(token=token)
-        print(verficiation)
-        person = Person.objects.get(id=verficiation.person.id)
+        verification = EmailVerification.objects.get(token=token)
+        person = Person.objects.get(id=verification.person.id)
         person.email_verified = True
         person.save()
-        verficiation.delete()
+        verification.delete()
         # FIXME: redirect to a page that says "Email verified"
         return JsonResponse({"status": "success", "message": "Email verified"})
     except (EmailVerification.DoesNotExist, Person.DoesNotExist):
         # FIXME: redirect to a page that says "Token not found"
-        return JsonResponse({"status": "error", "message": "Token not found"}, status=400)
+        return JsonResponse(
+            {"status": "error", "message": "Token not found"}, status=400
+        )
