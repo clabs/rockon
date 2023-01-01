@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-# FIxME: stop black and isort from fighting each other
+# WONTFIX: stop black and isort from fighting each other
 # fmt: off
 from .models import (EmailVerification, Exhibitor, LinkShortener, MagicLink,
                      Organisation, Person, Sponsoring, Type)
