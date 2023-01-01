@@ -22,11 +22,13 @@ from django.urls import include, path
 from django.views.generic.base import TemplateView
 
 # from api.routers import router
+from crm.views import link_shortener
 
 admin.site.site_header = "rockon"
 admin.site.site_title = "rockon Admin"
 
 urlpatterns = [
+    path("to/<str:slug>", link_shortener, name="crm_link_shortener"),
     path("crew/", include("crew.urls")),
     path("crm/", include("crm.urls")),
     path("admin/", admin.site.urls),
