@@ -107,6 +107,11 @@ DATABASES = {
     },
 }
 
+if DEBUG and getenv("DJANGO_USE_SQLITE", False) == "True":
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": path.join(BASE_DIR, "db.sqlite3"),
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
