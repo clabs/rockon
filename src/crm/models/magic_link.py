@@ -11,7 +11,9 @@ class MagicLink(models.Model):
     """MagicLink model."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="magic_links")
+    person = models.ForeignKey(
+        Person, on_delete=models.CASCADE, related_name="magic_links"
+    )
     token = models.UUIDField(default=uuid4, editable=False)
     expires_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)

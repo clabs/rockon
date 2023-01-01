@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from django.contrib.auth.decorators import login_required
 from django.urls import path
-from django.views.decorators.cache import cache_page
 
 # fmt: off
 # FIXME stop isort and black from fighting each other
-from .views import signup, preselect, signup_submitted, signup_root
+from .views import preselect, signup, signup_root, signup_submitted
 
 # fmt: on
 
@@ -19,5 +17,7 @@ urlpatterns = [
     path("signup/<slug:slug>", signup_root, name="crew_root"),
     path("signup/<slug:slug>/preselect", preselect, name="crew_preselect"),
     path("signup/<slug:slug>/signup", signup, name="crew_signup"),
-    path("signup/<slug:slug>/submitted", signup_submitted, name="crew_signup_submitted"),
+    path(
+        "signup/<slug:slug>/submitted", signup_submitted, name="crew_signup_submitted"
+    ),
 ]

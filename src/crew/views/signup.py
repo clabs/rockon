@@ -3,11 +3,9 @@ from __future__ import annotations
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
+
+from crew.models import Attendance, Shirt, Skill, Team
 from event.models import Event
-from crew.models import Shirt
-from crew.models import Skill
-from crew.models import Attendance
-from crew.models import Team
 
 
 def signup_root(request, slug):

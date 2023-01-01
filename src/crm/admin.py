@@ -4,8 +4,8 @@ from django.contrib import admin
 
 # FIxME: stop black and isort from fighting each other
 # fmt: off
-from .models import (EmailVerification, Exhibitor, MagicLink, Organisation,
-                     Person, Sponsoring, Type)
+from .models import (EmailVerification, Exhibitor, LinkShortener, MagicLink,
+                     Organisation, Person, Sponsoring, Type)
 
 # fmt: on
 
@@ -32,6 +32,19 @@ class PersonAdmin(admin.ModelAdmin):
     list_filter = ("created_at", "updated_at")
 
 
+class LinkShortenerAdmin(admin.ModelAdmin):
+    list_display = ("url", "slug", "comment", "counter", "created_at")
+    search_fields = ("url", "slug", "comment")
+    ordering = (
+        "url",
+        "slug",
+        "comment",
+        "counter",
+        "created_at",
+    )
+    readonly_fields = ("counter", "created_at", "updated_at", "slug")
+
+
 admin.site.register(EmailVerification, EmailVerificationAdmin)
 admin.site.register(Exhibitor)
 admin.site.register(MagicLink, MagicLinkAdmin)
@@ -39,3 +52,4 @@ admin.site.register(Organisation)
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Sponsoring)
 admin.site.register(Type)
+admin.site.register(LinkShortener, LinkShortenerAdmin)
