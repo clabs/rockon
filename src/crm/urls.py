@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.urls import path
 
-# FIXME: stop black and isort from messing up the imports
+# WONTFIX: stop black and isort from messing up the imports
 # fmt: off
 from .views import (magic_link, request_magic_link,
                     request_magic_link_submitted, verify_email)

@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.urls import path
 
 # fmt: off
-# FIXME stop isort and black from fighting each other
+# WONTFIX: stop isort and black from fighting each other
 from .views import preselect, signup, signup_root, signup_submitted
 
 # fmt: on
