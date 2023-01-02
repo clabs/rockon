@@ -12,7 +12,13 @@
 
     $.fn.form.settings.rules.age_over = (value, age) => {
       // javascript dates are broken
-      const _age = parseInt(age)
+      var _age = parseInt(age)
+      var el = null
+      // if age requirement is _ we need to modify the overnight checkbox
+      if (age === "_") {
+        _age = 18
+        el = document.getElementsByName("overnight")[0]
+      }
       const event = {
         year: parseInt("{{ event.start|date:"Y" }}"),
         month: parseInt("{{ event.start|date:"m" }}") - 1,
@@ -23,12 +29,40 @@
       const value_arr = value.split("-")
       const int_value_arry = value_arr.map((value) => parseInt(value))
       const date_value = new Date(int_value_arry[0], int_value_arry[1] - 1, int_value_arry[2])
-      return (offset_year.getTime() - date_value.getTime() > 0)
+      const is_old_enough = (offset_year.getTime() - date_value.getTime() > 0)
+      // if age is >= 18 we need to modify the overnight checkbox
+      if (age === "_" && is_old_enough) {
+        el.disabled = false
+      } else if (el) {
+        el.checked = false
+        el.disabled = true
+      }
+      return is_old_enough
     };
 
     $.fn.form.settings.rules.leave_of_absence_note = (value) => {
       const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
       return (checkbox_loa.checked && value > 0)
+    };
+
+    $.fn.form.settings.rules.loa_checkbox = (value) => {
+      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
+      const note_loa = document.getElementsByName("leave_of_absence_note")[0]
+      if (checkbox_loa.checked) {
+        note_loa.disabled = false
+      } else if (!checkbox_loa.checked) {
+        note_loa.value = ""
+        note_loa.disabled = true
+      }
+      return true
+    };
+
+    $.fn.form.settings.rules.loa_note = (value) => {
+      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
+      if (checkbox_loa.checked && value.length > 0) {
+        return true
+      }
+      return false
     };
 
     $('.ui.form')
@@ -68,6 +102,9 @@
             {
               type: 'age_over[16]',
               prompt: 'Du musst mindestens 16 Jahre alt sein, um dich für die Crew zu bewerben.'
+            },
+            {
+              type: 'age_over[_]'
             }
           ]
         },
@@ -135,19 +172,26 @@
             }
           ]
         },
-        // FIXME: neeeds conditional validation
-        // leave_of_absence_note: {
-        //   rules: [
-        //     {
-        //       type: 'leave_of_absence_note',
-        //       prompt: 'Gibt bitte Details für deine Befreiung an.'
-        //     },
-        //     {
-        //       type: 'maxLength[1023]',
-        //       prompt: 'Deine Erklärung zur Befreiung ist zu lang, bitte verwende weniger als 1023 Zeichen.'
-        //     }
-        //   ]
-        // },
+        leave_of_absence: {
+          rules: [
+            {
+              type: 'loa_checkbox',
+              prompt: 'Bitte gib deine Ernährungspräferenz an.'
+            }
+          ]
+        },
+        leave_of_absence_note: {
+          rules: [
+            {
+              type: 'loa_note',
+              prompt: 'Gibt bitte Details für deine Befreiung an.'
+            },
+            {
+              type: 'maxLength[1023]',
+              prompt: 'Deine Erklärung zur Befreiung ist zu lang, bitte verwende weniger als 1023 Zeichen.'
+            }
+          ]
+        },
         skill_note: {
           rules: [
             {
@@ -164,15 +208,6 @@
             }
           ]
         },
-        // FIXME: neeeds conditional validation
-        // overnight: {
-        //   rules: [
-        //     {
-        //       type: 'age_over[18]',
-        //       prompt: 'Du musst volljährig sein, um Vor ort zu übernachten.'
-        //     }
-        //   ]
-        // },
         allow_contact: {
           rules: [
             {
@@ -381,7 +416,7 @@
     </div>
     <div class="inline field">
       <div class="ui toggle checkbox">
-        <input type="checkbox" tabindex="0" class="hidden" name="overnight">
+        <input type="checkbox" tabindex="0" class="hidden" name="overnight" disabled>
         <label>Ich übernachte vor Ort.</label>
       </div>
     </div>
@@ -394,7 +429,7 @@
     <div class="field">
       <label>Anmerkungen zu meiner Befreiung</label>
       <!-- FIXME: This should only be active if leave_of_absence is checked-->
-      <textarea id="leave_of_absence_note" rows="2" name="leave_of_absence_note"></textarea>
+      <textarea id="leave_of_absence_note" rows="2" name="leave_of_absence_note" disabled></textarea>
     </div>
     <h4 class="ui dividing header">Tätigkeiten</h4>
     <div class="field">
