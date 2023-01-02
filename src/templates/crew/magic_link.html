@@ -39,7 +39,6 @@
 
   ajax_success = (data) => {
     console.info(data)
-    // FIXME: this should be in the CRM module
     window.location.href = "{% url "crm_request_magic_link_submitted" %}"
   }
   ajax_error = (data) => {
