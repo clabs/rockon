@@ -359,17 +359,20 @@
     <h4 class="ui dividing header">Anwesenheit</h4>
     <div class="field">
       <label>An welchen Tagen kannst du vor Ort sein?</label>
-      <!-- FIXME: render days in 3x3 grid-->
+      <!-- FIXME: render days somewhat nicer-->
+      {% for phase in attendance_phases %}
+      <label>{{ phase.name }}</label>
       <div class="equal width fields">
-        {% for day in attendance %}
-        <div class="inline field">
-          <div class="ui checkbox">
-            <input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}">
-            <label>{{ day }}</label>
-          </div>
+      {% for day in phase.days %}
+      <div class="inline field">
+        <div class="ui checkbox">
+          <input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}">
+          <label>{{ day }}</label>
         </div>
-        {% endfor %}
       </div>
+      {% endfor %}
+      </div>
+      {% endfor %}
     </div>
     <div class="field">
       <label>Anmerkungen zu deiner Anwesenheit</label>

@@ -26,16 +26,16 @@ def signup(request, slug):
     event = Event.objects.get(slug=slug)
     shirts = Shirt.objects.all()
     skills = Skill.objects.all()
-    attendance = Attendance.objects.filter(event=event)
+    attendance_phases = Attendance.get_phases(event=event)
     teams = Team.objects.filter(is_public=True)
     context = {
-        "attendance": attendance,
         "event": event,
         "shirts": shirts,
         "site_title": "Anmeldung",
         "skills": skills,
         "slug": slug,
         "teams": teams,
+        "attendance_phases": attendance_phases,
     }
     return HttpResponse(template.render(context, request))
 
