@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 from django.core.mail import send_mail
 from django.http import JsonResponse
+from django.template import loader
 from django.utils.timezone import make_aware
 
 from crew.models import Crew, CrewMember, Shirt
@@ -13,6 +14,7 @@ from event.models import Event
 
 
 def signup(request, slug):
+    created_person = False
     # FIXME: refactor to Django forms to validate input and use Django's CSRF protection
     body = json.loads(request.body)
 
@@ -36,7 +38,7 @@ def signup(request, slug):
         Person.objects.get(
             email=body.get("person_email"), last_name=body.get("person_lastname")
         )
-        return JsonResponse({"status": "exists", "message": "Person already exists"})
+        created_person = True
     except Person.DoesNotExist:
         # FIXME: need try create and catch IntegrityError
         person = Person.objects.create(
@@ -55,6 +57,35 @@ def signup(request, slug):
         person.events.add(event)
         person.save()
 
+        email_verifcation = EmailVerification.objects.create(person=person)
+        email_verifcation.save()
+
+        # FIXME: this should use a worker queue in redis or something
+        # FIXME: import the scheme, domain and rest of things from Django settings
+        # FIXME: use absolute URLs in templates
+        # FIXME: create a helper class for mailings with defined textfields to replace.
+        template = loader.get_template("mail/confirm_email_address.html")
+
+        context = {
+            "name": person.first_name,
+            "email_verification_token": email_verifcation.token,
+        }
+
+        send_mail(
+            "Bitte bestätige deine E-Mail-Adresse",
+            f"Hallo {person.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\nhttp://localhost:8000/crm/verify-email/{email_verifcation.token}",
+            "rockon@example.com",
+            [f"{person.email}"],
+            html_message=template.render(context),
+            fail_silently=False,
+        )
+
+    try:
+        crew_member = CrewMember.objects.get(
+            person__last_name=body.get("person_lastname"),
+            person__email=body.get("person_email"),
+        )
+    except CrewMember.DoesNotExist:
         _birthday = make_aware(
             datetime.strptime(body.get("person_birthday"), "%Y-%m-%d")
         )
@@ -82,22 +113,16 @@ def signup(request, slug):
             crew_member.teams.add(team)
         crew_member.save()
 
-        email_verifcation = EmailVerification.objects.create(person=person)
-        email_verifcation.save()
-
-        # FIXME: this should use a worker queue in redis or something
-        # FIXME: this should be a template and more verbose
-        # FIXME: import the scheme, domain and rest of things from Django settings
-        send_mail(
-            "Bitte bestätige deine E-Mail-Adresse",
-            f"Hallo {person.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\nhttp://localhost:8000/crm/verify-email/{email_verifcation.token}",
-            "rockon@example.com",
-            [f"{person.email}"],
-            html_message=f"Hallo {person.first_name},<br />bitte bestätige deine E-Mail-Adresse in dem du <a href='http://localhost:8000/crm/verify-email/{email_verifcation.token}'>diesen Link</a> aufrufst",
-            fail_silently=False,
-        )
-
+    if created_person:
         return JsonResponse({"status": "created", "message": "Person created"})
+    elif not created_person:
+        return JsonResponse(
+            {"status": "exists", "message": "Person already exists"}, status=201
+        )
+    else:
+        return JsonResponse(
+            {"status": "error", "message": "Something went horribly wrong"}, status=500
+        )
 
 
 def request_magic_link(request):
@@ -111,22 +136,29 @@ def request_magic_link(request):
         if old_links:
             old_links.delete()
 
+        _expires_at = make_aware(datetime.now() + timedelta(weeks=4))
+
         # FIXME: this should be a setting
         # FIXME: improve timedelta handling
-        magic_link = MagicLink.objects.create(
-            person=person, expires_at=datetime.now() + timedelta(weeks=4)
-        )
+        magic_link = MagicLink.objects.create(person=person, expires_at=_expires_at)
         magic_link.save()
 
         # FIXME: this should use a worker queue in redis or something
-        # FIXME: this should be a template and more verbose
         # FIXME: import the scheme, domain and rest of things from Django settings
+        # FIXME: use absolute URLs in templates
+        # FIXME: create a helper class for mailings with defined textfields to replace.
+        template = loader.get_template("mail/magic_link.html")
+        context = {
+            "name": person.first_name,
+            "magic_link_token": magic_link.token,
+            "expires_at": _expires_at,
+        }
         send_mail(
             "Dein rockon Magic Link",
             f"Hallo {person.first_name},\nhier findest du deinen persönlichen Link zum einsehen und ändern deiner persönlichen Daten:\nhttp://localhost:8000/crm/magic-link/{magic_link.token}",
             "rockon@example.com",
             [f"{person.email}"],
-            html_message=f"Hallo {person.first_name},<br />hier findest du deinen persönlichen Link zum einsehen und ändern deiner <a href='http://localhost:8000/crm/magic-link/{magic_link.token}'>persönlichen Daten</a>.",
+            html_message=template.render(context),
             fail_silently=False,
         )
     except person.DoesNotExist:
