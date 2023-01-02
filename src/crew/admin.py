@@ -13,7 +13,15 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 
 class CrewMemberAdmin(admin.ModelAdmin):
-    list_display = ("person", "crew", "shirt", "nutrition", "overnight", "updated_at")
+    list_display = (
+        "person",
+        "crew",
+        "shirt",
+        "nutrition",
+        "overnight",
+        "is_underaged",
+        "updated_at",
+    )
     search_fields = (
         "person__first_name",
         "person__last_name",
@@ -27,6 +35,7 @@ class CrewMemberAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
+    readonly_fields = ("is_underaged",)
 
 
 class CrewAdmin(admin.ModelAdmin):
