@@ -14,10 +14,10 @@ from .views import preselect, signup, signup_root, signup_submitted
 # FIXME: add handler for call without slug
 
 urlpatterns = [
-    path("signup/<slug:slug>", signup_root, name="crew_root"),
-    path("signup/<slug:slug>/preselect", preselect, name="crew_preselect"),
-    path("signup/<slug:slug>/signup", signup, name="crew_signup"),
+    path("signup/<slug:slug>/", signup_root, name="crew_root"),
+    path("signup/<slug:slug>/preselect/", preselect, name="crew_preselect"),
+    path("signup/<slug:slug>/signup/", signup, name="crew_signup"),
     path(
-        "signup/<slug:slug>/submitted", signup_submitted, name="crew_signup_submitted"
+        "signup/<slug:slug>/submitted/", signup_submitted, name="crew_signup_submitted"
     ),
 ]
