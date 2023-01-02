@@ -6,10 +6,10 @@ from .models import Attendance, Crew, CrewMember, Shirt, Skill, Team
 
 
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ("day", "event", "updated_at")
+    list_display = ("day", "event", "phase", "updated_at")
     search_fields = ("day", "event")
     ordering = ("day", "event", "created_at", "updated_at")
-    list_filter = ("day", "event")
+    list_filter = ("day", "event", "phase")
 
 
 class CrewMemberAdmin(admin.ModelAdmin):
