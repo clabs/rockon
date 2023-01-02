@@ -63,6 +63,8 @@ This needs to be run once and everything assets are added to `src/static`: `pyth
 
 `python src/manage.py loaddate examples/example_data.json`
 
+The sample data includes a superuser `admin` with password `admin`.
+
 ### Create super user
 
 `python src/manage.py createsuperuser`
@@ -76,3 +78,12 @@ Either use the provied VScode launch configurations or run `python src/manage.py
 Source of template: <https://github.com/leemunroe/responsive-html-email-template>
 
 Copy the `base_template.html` and modify to your liking, then use <https://htmlemail.io/inline/> to inline the CSS, save result (HTML+inlined CSS) as mail template.
+
+## Docker
+
+For easy setup there is a compose file included for running the app without a local tool chain, setup your environment as follows:
+
+```bash
+docker compose -f docker-compose.deploy.yml up -d app
+docker compose -f docker-compose.deploy.yml exec -it app ./manage.py loaddata examples/example_data.json
+```
