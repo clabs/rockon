@@ -37,11 +37,11 @@ Create `pre-commit` environment and install dependencies: `pre-commit`
 
 If you want to run `pre-commit` before commits: `pre-commit run --all-files`
 
-## Prepare environment
+### Prepare environment
 
 Copy `.env.example` to `.env` and adjust acording to your local enivronment.
 
-## Database
+### Database
 
 Run `docker compose up -d postgres` to start Postgres, or use the `.env` file to configure the use of the SQLite3 backend.
 
@@ -58,6 +58,10 @@ This needs to be run once and everything assets are added to `src/static`: `pyth
 ### Run migrations
 
 `python src/manage.py migrate`
+
+### Load sample data
+
+`python src/manage.py loaddate examples/example_data.json`
 
 ### Create super user
 
