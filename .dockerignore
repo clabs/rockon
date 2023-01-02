@@ -1,0 +1,10 @@
+.github
+.vscode
+.git
+.gitingore
+.gitattributes
+
+__pycache__/
+*.pyc
+db.sqlite3
+.env
