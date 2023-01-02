@@ -344,16 +344,15 @@
     <h4 class="ui dividing header">Formale Qualifikationen</h4>
     <div class="field">
       <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
-      <!-- FIXME: render dynmic list of skills in a grid -->
       <!-- FIXME: skills with a comment box need a input box next to it for additional information -->
-      <div class="field">
         {% for skill in skills %}
-        <div class="ui checkbox">
-        <input type="checkbox" tabindex="0" class="hidden" name="skill_{{ skill.id }}">
-        <label>{{ skill }}</label>
+        <div class="field">
+          <div class="ui checkbox">
+          <input type="checkbox" tabindex="0" class="hidden" name="skill_{{ skill.id }}">
+          <label>{{ skill }} - {{ skill.explanation }}</label>
+          </div>
         </div>
         {% endfor %}
-    </div>
     <div class="field">
       <label>Anmerkungen zu deinen Fähigkeiten</label>
       <textarea rows="2" name="skills_note"></textarea>
