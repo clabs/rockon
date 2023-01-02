@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from uuid import uuid4
 
 from django.db import models
+from django.utils.timezone import make_aware
 
 from crm.models import Person
 
@@ -42,8 +44,21 @@ class CrewMember(models.Model):
     overnight = models.BooleanField(default=False)
     teams = models.ManyToManyField(Team, blank=True)
     general_note = models.CharField(max_length=1023, null=True, blank=True)
+    is_underaged = models.BooleanField(default=True)
+    needs_leave_of_absence = models.BooleanField(default=False)
+    has_leave_of_absence = models.BooleanField(default=False)
+    leave_of_absence_note = models.CharField(max_length=1023, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.person.first_name} {self.person.last_name}"
+
+    def save(self, *args, **kwargs):
+        _birthday_as_datetime = make_aware(
+            datetime(self.birthday.year, self.birthday.month, self.birthday.day)
+        )
+        self.is_underaged = _birthday_as_datetime > make_aware(
+            datetime.now()
+        ) - timedelta(days=365 * 18)
+        super().save(*args, **kwargs)

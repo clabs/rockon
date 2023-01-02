@@ -1,9 +1,35 @@
 {% extends "base.html" %} {% block content %}
 
 <script language="javascript">
-  $(document).ready(function () {
+  $(document).ready(() => {
     $('select.dropdown').dropdown()
     $('.ui.checkbox').checkbox()
+
+    $.fn.form.settings.rules.date_validation = (value) => {
+      const date_regex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/
+      return (value.match(date_regex))
+    };
+
+    $.fn.form.settings.rules.age_over = (value, age) => {
+      // javascript dates are broken
+      const _age = parseInt(age)
+      const event = {
+        year: parseInt("{{ event.start|date:"Y" }}"),
+        month: parseInt("{{ event.start|date:"m" }}") - 1,
+        day: parseInt("{{ event.start|date:"d" }}")
+      }
+      const event_start = new Date(event.year, event.month, event.day)
+      const offset_year = new Date(event.year - _age, event.month, event.day)
+      const value_arr = value.split("-")
+      const int_value_arry = value_arr.map((value) => parseInt(value))
+      const date_value = new Date(int_value_arry[0], int_value_arry[1] - 1, int_value_arry[2])
+      return (offset_year.getTime() - date_value.getTime() > 0)
+    };
+
+    $.fn.form.settings.rules.leave_of_absence_note = (value) => {
+      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
+      return (checkbox_loa.checked && value > 0)
+    };
 
     $('.ui.form')
     .form({
@@ -36,8 +62,12 @@
         person_birthday: {
           rules: [
             {
-              type: 'empty',
+              type: 'date_validation',
               prompt: 'Bitte gib dein Geburtsdatum an.'
+            },
+            {
+              type: 'age_over[16]',
+              prompt: 'Du musst mindestens 16 Jahre alt sein, um dich für die Crew zu bewerben.'
             }
           ]
         },
@@ -52,27 +82,15 @@
         person_housenumber: {
           rules: [
             {
-              type: 'empty',
-              prompt: 'Bitte gib deine Hausnummer an.'
-            },
-            {
               type: 'regExp[/^[0-9]+[a-zA-Z]?$/]',
-              prompt: 'Bitte gib eine gültige Hausnummer an.'
+              prompt: 'Bitte gib deine Hausnummer an.'
             }
           ]
         },
         person_zipcode: {
           rules: [
             {
-              type: 'empty',
-              prompt: 'Bitte gib deine Postleitzahl an.'
-            },
-            {
-              type: 'integer',
-              prompt: 'Bitte gib eine gültige Postleitzahl an.'
-            },
-            {
-              type: 'exactLength[5]',
+              type: 'regExp[/^[0-9]{5}$/]',
               prompt: 'Bitte gib eine gültige Postleitzahl an.'
             }
           ]
@@ -87,10 +105,6 @@
         },
         person_email: {
           rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gib deine E-Mail-Adresse an.'
-            },
             {
               type: 'email',
               prompt: 'Bitte gib eine gültige E-Mail-Adresse an.'
@@ -108,10 +122,6 @@
         person_mobile: {
           rules: [
             {
-              type: 'empty',
-              prompt: 'Bitte gib deine Handynummer an.'
-            },
-            {
               type: 'integer',
               prompt: 'Bitte gib eine gültige Handynummer an.'
             }
@@ -121,14 +131,28 @@
           rules: [
             {
               type: 'empty',
-              prompt: 'Bitte gib an, ob du Vegetarier oder Veganer bist.'
+              prompt: 'Bitte gib deine Ernährungspräferenz an.'
             }
           ]
         },
+        // FIXME: neeeds conditional validation
+        // leave_of_absence_note: {
+        //   rules: [
+        //     {
+        //       type: 'leave_of_absence_note',
+        //       prompt: 'Gibt bitte Details für deine Befreiung an.'
+        //     },
+        //     {
+        //       type: 'maxLength[1023]',
+        //       prompt: 'Deine Erklärung zur Befreiung ist zu lang, bitte verwende weniger als 1023 Zeichen.'
+        //     }
+        //   ]
+        // },
         skill_note: {
           rules: [
             {
-              type: 'maxLength[511]'
+              type: 'maxLength[1023]',
+              prompt: 'Deine Erklärung zu deinen Fähigkeiten ist zu lang, bitte verwende weniger als 1023 Zeichen.'
             }
           ]
         },
@@ -140,13 +164,15 @@
             }
           ]
         },
-        skill_note: {
-          rules: [
-            {
-              type: 'maxLength[1023]'
-            }
-          ]
-        },
+        // FIXME: neeeds conditional validation
+        // overnight: {
+        //   rules: [
+        //     {
+        //       type: 'age_over[18]',
+        //       prompt: 'Du musst volljährig sein, um Vor ort zu übernachten.'
+        //     }
+        //   ]
+        // },
       },
       onSuccess: (event, fields) => {
         send_form(fields)
@@ -187,7 +213,7 @@
 
 </script>
 
-<div class="ui raised very padded text container segment">
+<div class="ui raised text container segment">
   <h2 class="ui header">Neue Crewanmeldung</h2>
   <form class="ui form">
     {% csrf_token %}
@@ -208,12 +234,11 @@
         <input type="text" name="person_nickname" placeholder="Spitzname" />
       </div>
       <div class="field">
-        <input type="date" name="person_birthday" autocomplete="bday"/>
+        <input id="person_birthday" type="date" name="person_birthday" autocomplete="bday"/>
       </div>
     </div>
     <div class="field">
       <label>Anschrift</label>
-      <div class="fields">
         <div class="twelve wide field">
           <input type="text" name="person_address" placeholder="Straße" autocomplete="street-address" />
         </div>
@@ -224,7 +249,6 @@
             placeholder="Hausnummer"
           />
         </div>
-      </div>
       <div class="field">
           <input type="text" name="person_address_extension" placeholder="Addresszusatz" autocomplete="off" />
       </div>
@@ -232,7 +256,7 @@
     <div class="two fields">
       <div class="field">
         <label>Postleitzahl</label>
-        <input type="number" min="1" max="99999" name="person_zipcode" placeholder="Postleitzahl" autocomplete="postal-code" />
+        <input type="text" pattern="[\d+]{5}" name="person_zipcode" placeholder="Postleitzahl" maxlength="5" autocomplete="postal-code" />
       </div>
       <div class="field">
         <label>Ort</label>
@@ -240,20 +264,19 @@
       </div>
     </div>
     <h4 class="ui dividing header">Kontakt</h4>
-    <div class="field">
-      <label>E-Mail Adresse</label>
-      <div class="fields">
-        <div class="eight wide field">
+    <div class="two fields">
+        <div class="field">
+          <label>E-Mail Adresse</label>
           <input type="email" name="person_email" placeholder="E-Mail Adresse" autocomplete="email" />
         </div>
-        <div class="eight wide field">
+        <div class="field">
+          <label>E-Mail Adresse bestätigen</label>
           <input
             type="email"
             name="person_email_confirmation"
             placeholder="E-Mail Adresse bestätigen"
             autocomplete="off"
           />
-        </div>
       </div>
     </div>
     <div class="one fields">
@@ -342,6 +365,17 @@
         <label>Ich übernachte vor Ort.</label>
       </div>
     </div>
+    <div class="inline field">
+      <div class="ui toggle checkbox">
+        <input id="leave_of_absence" type="checkbox" tabindex="0" class="hidden" name="leave_of_absence">
+        <label>Ich brauche eine Befreiung von Schule, Universiät oder ähnlichem.</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Anmerkungen zu meiner Befreiung</label>
+      <!-- FIXME: This should only be active if leave_of_absence is checked-->
+      <textarea id="leave_of_absence_note" rows="2" name="leave_of_absence_note"></textarea>
+    </div>
     <h4 class="ui dividing header">Tätigkeiten</h4>
     <div class="field">
     <label>Für welche Teams interessierst du dich?</label>
@@ -350,6 +384,7 @@
       {% for team in teams %}
       <div class="item">
         <div class="image">
+          <!-- FIXME: this should not be static-->
           <img src="/static/assets/4_3_placeholder.png">
         </div>
         <div class="content">
@@ -381,6 +416,7 @@
       <div class="ui reset button grey">Neustart</div>
       <div class="ui error message"></div>
   </form>
+  </div>
 </div>
 
 {% endblock content %}

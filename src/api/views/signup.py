@@ -55,11 +55,13 @@ def signup(request, slug):
         person.events.add(event)
         person.save()
 
+        _birthday = make_aware(
+            datetime.strptime(body.get("person_birthday"), "%Y-%m-%d")
+        )
+
         crew_member = CrewMember.objects.create(
             person=person,
-            birthday=make_aware(
-                datetime.strptime(body.get("person_birthday"), "%Y-%m-%d")
-            ),
+            birthday=_birthday,
             crew=crew,
             shirt=Shirt.objects.get(id=body.get("crew_shirt")),
             nutrition=body.get("nutriton_type"),
@@ -68,6 +70,8 @@ def signup(request, slug):
             attendance_note=body.get("attendance_note"),
             overnight=body.get("overnight") == "on",
             general_note=body.get("general_note"),
+            needs_leave_of_absence=body.get("leave_of_absence") == "on",
+            leave_of_absence_note=body.get("leave_of_absence_note"),
         )
 
         for skill in _skills:
