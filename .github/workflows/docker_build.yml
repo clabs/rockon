@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - dev
-    #  - main
+      - main
 
 jobs:
   docker_build:
