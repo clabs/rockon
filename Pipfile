@@ -11,7 +11,7 @@ djangorestframework = "==3.14.0"
 markdown = "==3.4.1"
 psycopg2-binary = "==2.9.5"
 python-dotenv = "==0.21.0"
-pillow = "*"
+pillow = "==9.4.0"
 
 [dev-packages]
 django-debug-toolbar = "==3.8.1"
