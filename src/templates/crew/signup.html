@@ -173,6 +173,22 @@
         //     }
         //   ]
         // },
+        allow_contact: {
+          rules: [
+            {
+              type: 'checked',
+              prompt: 'Bitte bestätige, dass wir dich kontaktieren dürfen.'
+            }
+          ]
+        },
+        read_privacy: {
+          rules: [
+            {
+              type: 'checked',
+              prompt: 'Bitte bestätige, dass du die Datenschutzerklärung zur Kenntnis genommen hast und mit der Verarbeitung und Speicherung deiner Daten einverstanden bist.'
+            }
+          ]
+        },
       },
       onSuccess: (event, fields) => {
         send_form(fields)
@@ -411,6 +427,20 @@
       <div class="field">
         <label>Möchtest du uns noch etwas mitteilen?</label>
         <textarea name="general_note"></textarea>
+      </div>
+      <div class="inline field">
+        <div class="ui toggle checkbox">
+          <input id="allow_contact" type="checkbox" tabindex="0" class="hidden" name="allow_contact">
+          <!-- FIXME: needs more fluff text-->
+          <label>Ich bin einverstanden mit der Kontaktaufnahme für Dinge rund um den Rocktreff.</label>
+        </div>
+      </div>
+      <div class="inline field">
+        <div class="ui toggle checkbox">
+          <input id="read_privacy" type="checkbox" tabindex="0" class="hidden" name="read_privacy">
+          <!-- FIXME: needs more fluff text-->
+          <label>Ich habe die Datenschutzbestimmungen zur Kenntnis genommen und erkläre mich mit dem Verarbeiten und Speichern meiner Daten im Rahmen dieser einverstanden.</label>
+        </div>
       </div>
       <div id="form_submit" class="ui submit button teal" tabindex="0">Absenden</div>
       <div class="ui reset button grey">Neustart</div>
