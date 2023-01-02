@@ -66,3 +66,9 @@ This needs to be run once and everything assets are added to `src/static`: `pyth
 ### Run server
 
 Either use the provied VScode launch configurations or run `python src/manage.py runserver`
+
+## Mail templates
+
+Source of template: <https://github.com/leemunroe/responsive-html-email-template>
+
+Copy the `base_template.html` and modify to your liking, then use <https://htmlemail.io/inline/> to inline the CSS, save result (HTML+inlined CSS) as mail template.
