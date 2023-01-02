@@ -26,7 +26,7 @@ class CrewMember(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    birthday = models.DateField()
+    birthday = models.DateField(null=True)
     crew = models.ForeignKey(Crew, on_delete=models.CASCADE)
     shirt = models.ForeignKey(
         Shirt,
@@ -35,7 +35,7 @@ class CrewMember(models.Model):
         blank=True,
         related_name="crewmember_shirt",
     )
-    nutrition = models.CharField(max_length=12, choices=NUTRION)
+    nutrition = models.CharField(max_length=12, choices=NUTRION, null=True)
     nutrition_note = models.CharField(max_length=511, null=True, blank=True)
     skills = models.ManyToManyField(Skill, blank=True)
     skills_note = models.CharField(max_length=1023, null=True, blank=True)
@@ -44,7 +44,7 @@ class CrewMember(models.Model):
     overnight = models.BooleanField(default=False)
     teams = models.ManyToManyField(Team, blank=True)
     general_note = models.CharField(max_length=1023, null=True, blank=True)
-    is_underaged = models.BooleanField(default=True)
+    is_underaged = models.BooleanField(default=True, null=True)
     needs_leave_of_absence = models.BooleanField(default=False)
     has_leave_of_absence = models.BooleanField(default=False)
     leave_of_absence_note = models.CharField(max_length=1023, null=True, blank=True)
@@ -55,6 +55,11 @@ class CrewMember(models.Model):
         return f"{self.person.first_name} {self.person.last_name}"
 
     def save(self, *args, **kwargs):
+        if self.birthday is None:
+            self.is_underaged = None
+            super().save(*args, **kwargs)
+            return
+
         _birthday_as_datetime = make_aware(
             datetime(self.birthday.year, self.birthday.month, self.birthday.day)
         )
