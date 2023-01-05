@@ -12,10 +12,12 @@ from .models import (EmailVerification, Exhibitor, LinkShortener, MagicLink,
 
 class EmailVerificationAdmin(admin.ModelAdmin):
     list_display = ("person", "id", "created_at")
+    readonly_fields = ("created_at", "updated_at")
 
 
 class MagicLinkAdmin(admin.ModelAdmin):
     list_display = ("person", "id", "created_at", "expires_at")
+    readonly_fields = ("created_at", "updated_at")
 
 
 class PersonAdmin(admin.ModelAdmin):
@@ -30,6 +32,7 @@ class PersonAdmin(admin.ModelAdmin):
         "updated_at",
     )
     list_filter = ("created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
 
 
 class LinkShortenerAdmin(admin.ModelAdmin):
@@ -43,6 +46,7 @@ class LinkShortenerAdmin(admin.ModelAdmin):
         "created_at",
     )
     readonly_fields = ("counter", "created_at", "updated_at", "slug")
+    readonly_fields = ("created_at", "updated_at")
 
 
 admin.site.register(EmailVerification, EmailVerificationAdmin)
