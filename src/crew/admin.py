@@ -10,6 +10,7 @@ class AttendanceAdmin(admin.ModelAdmin):
     search_fields = ("day", "event")
     ordering = ("day", "event", "created_at", "updated_at")
     list_filter = ("day", "event", "phase")
+    readonly_fields = ("created_at", "updated_at")
 
 
 class CrewMemberAdmin(admin.ModelAdmin):
@@ -35,7 +36,7 @@ class CrewMemberAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    readonly_fields = ("is_underaged",)
+    readonly_fields = ("is_underaged", "created_at", "updated_at")
 
 
 class CrewAdmin(admin.ModelAdmin):
@@ -43,6 +44,7 @@ class CrewAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     ordering = ("name", "event", "created_at", "updated_at")
     list_filter = ("name", "event", "created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
 
 
 class ShirtAdmin(admin.ModelAdmin):
@@ -50,12 +52,14 @@ class ShirtAdmin(admin.ModelAdmin):
     search_fields = ("size", "cut")
     ordering = ("size", "cut", "updated_at")
     list_filter = ("size", "cut", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
 
 
 class SkillAdmin(admin.ModelAdmin):
     list_display = ("name", "explanation", "icon", "updated_at")
     search_fields = ("name", "explanation")
     ordering = ("name", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
 
 
 class TeamAdmin(admin.ModelAdmin):
@@ -70,6 +74,7 @@ class TeamAdmin(admin.ModelAdmin):
     search_fields = ("name", "lead", "vize_lead", "description")
     ordering = ("name", "lead", "vize_lead", "is_public", "updated_at")
     list_filter = ("name", "lead", "vize_lead", "is_public", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
 
 
 admin.site.register(Attendance, AttendanceAdmin)
