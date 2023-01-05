@@ -63,7 +63,15 @@ This needs to be run once and everything assets are added to `src/static`: `pyth
 
 `python src/manage.py loaddate examples/example_data.json`
 
-The sample data includes a superuser `admin` with password `admin`.
+The sample data does not contain a user, you still need to create a super user.
+
+### Update sample data
+
+Use this to update the sample data:
+
+`python .\src\manage.py dumpdata --exclude=auth --exclude=contenttypes --exclude=admin --exclude=sessions > .\examples\example_data.json`
+
+Certain database entries must be excluded, the file must be utf8 encoded.
 
 ### Create super user
 
