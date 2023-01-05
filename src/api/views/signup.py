@@ -116,9 +116,7 @@ def signup(request, slug):
     if created_person:
         return JsonResponse({"status": "created", "message": "Person created"})
     elif not created_person:
-        return JsonResponse(
-            {"status": "exists", "message": "Person already exists"}, status=201
-        )
+        return JsonResponse({"status": "exists", "message": "Person already exists"})
     else:
         return JsonResponse(
             {"status": "error", "message": "Something went horribly wrong"}, status=500
