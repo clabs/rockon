@@ -423,14 +423,17 @@
       </div>
       {% for phase in attendance_phases %}
       <label>{{ phase.name }}</label>
-      <div class="equal width fields">
+      <div class="ui large aligned divided list">
       {% for day in phase.days %}
-      <div class="inline field">
-        <div class="ui checkbox">
-          <input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}">
-          <label>{{ day }}</label>
+        <div class="item">
+          <div class="right floated content">
+            <div class="ui checkbox"><input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}"></div>
+          </div>
+          <i class="{{ skill.icon }} icon"></i>
+          <div class="content">
+            <label>{{ day }}</label>
+          </div>
         </div>
-      </div>
       {% endfor %}
       </div>
       {% endfor %}
