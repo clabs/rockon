@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% block content %}{% load static %}
 
 <script language="javascript">
   $(document).ready(() => {
@@ -468,8 +468,11 @@
       {% for team in teams %}
       <div class="item">
         <div class="image">
-          <!-- FIXME: this should not be static-->
-          <img src="/static/assets/4_3_placeholder.png">
+          {% if not team.image %}
+            <img src="{% static "assets/4_3_placeholder.png" %}">
+          {% else %}
+            <img src="{{ team.image.url }}">
+          {% endif %}
         </div>
         <div class="content">
           <a class="header">{{ team }}</a>
