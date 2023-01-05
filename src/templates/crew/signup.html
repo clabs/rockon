@@ -65,6 +65,20 @@
       return false
     };
 
+    $('#select_all_attendance').click((event) => {
+      event.preventDefault()
+      for (const el of $('[name^=attendance_]')) {
+        el.checked = true
+      }
+    })
+
+    $('#select_none_attendance').click((event) => {
+      event.preventDefault()
+      for (const el of $('[name^=attendance_]')) {
+        el.checked = false
+      }
+    })
+
     $('.ui.form')
     .form({
       on: 'blur',
@@ -395,7 +409,14 @@
     <h4 class="ui dividing header">Anwesenheit</h4>
     <div class="field">
       <label>An welchen Tagen kannst du vor Ort sein?</label>
-      <!-- FIXME: render days somewhat nicer-->
+      <div class="equal width fields">
+        <div class="field">
+          <button id="select_all_attendance" class="fluid ui tiny teal button">Alle Tage auswählen</button>
+        </div>
+        <div class="field">
+          <button id="select_none_attendance" class="fluid ui tiny grey button">Alle Tage abwählen</button>
+        </div>
+      </div>
       {% for phase in attendance_phases %}
       <label>{{ phase.name }}</label>
       <div class="equal width fields">
