@@ -393,15 +393,19 @@
     <h4 class="ui dividing header">Formale Qualifikationen</h4>
     <div class="field">
       <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
-      <!-- FIXME: skills with a comment box need a input box next to it for additional information -->
+      <div class="ui large aligned divided list">
         {% for skill in skills %}
-        <div class="field">
-          <div class="ui checkbox">
-          <input type="checkbox" tabindex="0" class="hidden" name="skill_{{ skill.id }}">
-          <label>{{ skill }} - {{ skill.explanation }}</label>
+        <div class="item">
+          <div class="right floated content">
+            <div class="ui checkbox"><input type="checkbox" tabindex="0" class="hidden" name="skill_{{ skill.id }}"></div>
+          </div>
+          <i class="{{ skill.icon }} icon"></i>
+          <div class="content">
+            <label>{{ skill }} - <i>{{ skill.explanation }}</i></label>
           </div>
         </div>
         {% endfor %}
+      </div>
     <div class="field">
       <label>Anmerkungen zu deinen Fähigkeiten</label>
       <textarea rows="2" name="skills_note"></textarea>
