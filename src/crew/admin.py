@@ -53,10 +53,9 @@ class ShirtAdmin(admin.ModelAdmin):
 
 
 class SkillAdmin(admin.ModelAdmin):
-    list_display = ("name", "comment", "explanation", "updated_at")
-    search_fields = ("name", "comment", "explanation")
+    list_display = ("name", "explanation", "icon", "updated_at")
+    search_fields = ("name", "explanation")
     ordering = ("name", "updated_at")
-    list_filter = ("name", "explanation", "updated_at")
 
 
 class TeamAdmin(admin.ModelAdmin):
