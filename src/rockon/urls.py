@@ -43,6 +43,8 @@ urlpatterns = [
     ),
 ]
 
+handler404 = "rockon.views.error_404_view"
+
 # enable debug toolbar if DEBUG is True
 if settings.DEBUG:
     debug_overlay = path("__debug__/", include("debug_toolbar.urls"))
