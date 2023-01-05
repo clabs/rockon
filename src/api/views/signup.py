@@ -10,7 +10,6 @@ from django.utils.timezone import make_aware
 
 from crew.models import Crew, CrewMember, Shirt
 from crm.models import EmailVerification, MagicLink, Person
-from event.models import Event
 
 
 def signup(request, slug):
@@ -31,14 +30,13 @@ def signup(request, slug):
         k.split("_")[1] for k, v in body.items() if k.startswith("team_") and v == "on"
     ]
 
-    event = Event.objects.get(slug=slug)
-    crew = Crew.objects.get(event=event)
+    crew = Crew.objects.get(event__slug=slug)
+    event = crew.event
 
     try:
-        Person.objects.get(
+        person = Person.objects.get(
             email=body.get("person_email"), last_name=body.get("person_lastname")
         )
-        created_person = True
     except Person.DoesNotExist:
         # FIXME: need try create and catch IntegrityError
         person = Person.objects.create(
@@ -53,9 +51,6 @@ def signup(request, slug):
             zip_code=body.get("person_zipcode"),
             place=body.get("person_place"),
         )
-
-        person.events.add(event)
-        person.save()
 
         email_verifcation = EmailVerification.objects.create(person=person)
         email_verifcation.save()
@@ -79,6 +74,11 @@ def signup(request, slug):
             html_message=template.render(context),
             fail_silently=False,
         )
+
+        created_person = True
+
+    person.events.add(event)
+    person.save()
 
     try:
         crew_member = CrewMember.objects.get(
@@ -105,13 +105,13 @@ def signup(request, slug):
             leave_of_absence_note=body.get("leave_of_absence_note"),
         )
 
-        for skill in _skills:
-            crew_member.skills.add(skill)
-        for attendance in _attendance:
-            crew_member.attendance.add(attendance)
-        for team in _teams:
-            crew_member.teams.add(team)
-        crew_member.save()
+    for skill in _skills:
+        crew_member.skills.add(skill)
+    for attendance in _attendance:
+        crew_member.attendance.add(attendance)
+    for team in _teams:
+        crew_member.teams.add(team)
+    crew_member.save()
 
     if created_person:
         return JsonResponse({"status": "created", "message": "Person created"})
