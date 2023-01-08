@@ -56,7 +56,6 @@ def signup(request, slug):
         email_verifcation = EmailVerification.objects.create(person=person)
         email_verifcation.save()
 
-        # FIXME: this should use a worker queue in redis or something
         # FIXME: import the scheme, domain and rest of things from Django settings
         # FIXME: use absolute URLs in templates
         # FIXME: create a helper class for mailings with defined textfields to replace.
