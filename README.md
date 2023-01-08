@@ -49,7 +49,7 @@ Run `docker compose up -d postgres` to start Postgres, or use the `.env` file to
 
 Run `docker compose up -d mailhog` to start the debug mail server.
 
-## Django
+## Dev Django
 
 ### Collect statics
 
@@ -81,6 +81,8 @@ Certain database entries must be excluded, the file must be utf8 encoded.
 
 Either use the provied VScode launch configurations or run `python src/manage.py runserver`
 
+Start the async queue cluster with `python src/manage.py qcluster`
+
 ## Mail templates
 
 Source of template: <https://github.com/leemunroe/responsive-html-email-template>
@@ -95,3 +97,17 @@ For easy setup there is a compose file included for running the app without a lo
 docker compose -f docker-compose.deploy.yml up -d app
 docker compose -f docker-compose.deploy.yml exec -it app ./manage.py loaddata examples/example_data.json
 ```
+
+## Docs
+
+### Semantic UI
+
+<https://semantic-ui.com/introduction/getting-started.html>
+
+### Django
+
+<https://docs.djangoproject.com/en/4.1/>
+
+### Django Q2
+
+<https://django-q2.readthedocs.io/en/master/index.html>
