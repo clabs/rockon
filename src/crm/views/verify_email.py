@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.http import Http404, HttpResponse
 from django.template import loader
 
 from crm.models import EmailVerification, Person
@@ -15,24 +14,8 @@ def verify_email(request, token):
         person.email_verified = True
         person.save()
         verification.delete()
-        return redirect(email_confirmed, token=token)
+        template = loader.get_template("crm/mail_confirmed.html")
+        context = {"site_title": "E-Mail bestätigt"}
+        return HttpResponse(template.render(context))
     except (EmailVerification.DoesNotExist, Person.DoesNotExist):
-        return redirect(email_not_confirmed, token=token)
-
-
-def email_confirmed(request, token):
-    template = loader.get_template("crm/mail_confirmed.html")
-    context = {
-        "site_title": "E-Mail bestätigt",
-        "success": True,
-    }
-    return HttpResponse(template.render(context))
-
-
-def email_not_confirmed(request, token):
-    template = loader.get_template("crm/mail_confirmed.html")
-    context = {
-        "site_title": "E-Mail bestätigt",
-        "success": False,
-    }
-    return HttpResponse(template.render(context))
+        raise Http404("Der angefrate Schlüssel wurde nicht gefunden...")

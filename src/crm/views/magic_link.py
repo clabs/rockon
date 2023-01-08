@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.http import HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.template import loader
 
 from crm.models import MagicLink, Person
@@ -32,7 +32,4 @@ def magic_link(request, token):
             {"status": "success", "message": "Magic link found", "person": str(person)}
         )
     except (MagicLink.DoesNotExist, Person.DoesNotExist):
-        # FIXME: this should be a redirect to a page that says "Token not found"
-        return JsonResponse(
-            {"status": "error", "message": "Token not found"}, status=400
-        )
+        raise Http404("Der angefrate Schlüssel wurde nicht gefunden...")
