@@ -20,10 +20,6 @@
         contact_email: {
           rules: [
             {
-              type: 'empty',
-              prompt: 'Bitte gib deine E-Mail-Adresse an.'
-            },
-            {
               type: 'email',
               prompt: 'Bitte gib eine gültige E-Mail-Adresse an.'
             }
@@ -38,7 +34,7 @@
   })
 
   ajax_success = (data) => {
-    console.info(data)
+    console.debug(data)
     window.location.href = "{% url "crm_request_magic_link_submitted" %}"
   }
   ajax_error = (data) => {
