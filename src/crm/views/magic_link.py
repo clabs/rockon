@@ -7,7 +7,7 @@ from crm.models import MagicLink, Person
 
 
 def request_magic_link(request):
-    template = loader.get_template("crew/magic_link.html")
+    template = loader.get_template("crm/magic_link.html")
     context = {
         "site_title": "Magic Link",
     }
@@ -15,7 +15,7 @@ def request_magic_link(request):
 
 
 def request_magic_link_submitted(request):
-    template = loader.get_template("crew/magic_link_requested.html")
+    template = loader.get_template("crm/magic_link_requested.html")
     context = {
         "site_title": "Magic Link angefordert",
     }

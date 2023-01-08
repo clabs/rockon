@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.template import loader
 from django.utils.timezone import make_aware
+from django_q.tasks import async_task
 
 from crew.models import Crew, CrewMember, Shirt
-from crm.models import EmailVerification, MagicLink, Person
+from crm.models import EmailVerification, Person
 
 
 def signup(request, slug):
@@ -66,11 +67,12 @@ def signup(request, slug):
             "email_verification_token": email_verifcation.token,
         }
 
-        send_mail(
-            "Bitte bestätige deine E-Mail-Adresse",
-            f"Hallo {person.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\nhttp://localhost:8000/crm/verify-email/{email_verifcation.token}",
-            "rockon@example.com",
-            [f"{person.email}"],
+        async_task(
+            send_mail,
+            subject="Bitte bestätige deine E-Mail-Adresse",
+            message=f"Hallo {person.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\nhttp://localhost:8000/crm/verify-email/{email_verifcation.token}",
+            from_email="rockon@example.com",
+            recipient_list=[f"{person.email}"],
             html_message=template.render(context),
             fail_silently=False,
         )
@@ -121,48 +123,3 @@ def signup(request, slug):
         return JsonResponse(
             {"status": "error", "message": "Something went horribly wrong"}, status=500
         )
-
-
-def request_magic_link(request):
-    try:
-        body = json.loads(request.body)
-        person = Person.objects.get(
-            email=body.get("contact_email"), last_name=body.get("person_lastname")
-        )
-
-        old_links = MagicLink.objects.filter(person=person)
-        if old_links:
-            old_links.delete()
-
-        _expires_at = make_aware(datetime.now() + timedelta(weeks=4))
-
-        # FIXME: this should be a setting
-        # FIXME: improve timedelta handling
-        magic_link = MagicLink.objects.create(person=person, expires_at=_expires_at)
-        magic_link.save()
-
-        # FIXME: this should use a worker queue in redis or something
-        # FIXME: import the scheme, domain and rest of things from Django settings
-        # FIXME: use absolute URLs in templates
-        # FIXME: create a helper class for mailings with defined textfields to replace.
-        template = loader.get_template("mail/magic_link.html")
-        context = {
-            "name": person.first_name,
-            "magic_link_token": magic_link.token,
-            "expires_at": _expires_at,
-        }
-        send_mail(
-            "Dein rockon Magic Link",
-            f"Hallo {person.first_name},\nhier findest du deinen persönlichen Link zum einsehen und ändern deiner persönlichen Daten:\nhttp://localhost:8000/crm/magic-link/{magic_link.token}",
-            "rockon@example.com",
-            [f"{person.email}"],
-            html_message=template.render(context),
-            fail_silently=False,
-        )
-    except person.DoesNotExist:
-        pass
-
-    # FIXME: this should be a page
-    return JsonResponse(
-        {"status": "ok", "message": "Magic link sent if mail and lastname match"}
-    )
