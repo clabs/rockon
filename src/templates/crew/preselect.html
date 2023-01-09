@@ -2,24 +2,30 @@
 {% block content %}
 
 <div class="ui raised very padded text container segment">
-  <!-- FIXME: needs a fluff text -->
-  <h2 class="ui header">Dogs Roles with Humans</h2>
-  <p>Domestic dogs inherited complex behaviors, such as bite inhibition, from their wolf ancestors, which would have been pack hunters with complex body language. These sophisticated forms of social cognition and communication may account for their trainability, playfulness, and ability to fit into human households and social situations, and these attributes have given dogs a relationship with humans that has enabled them to become one of the most successful species on the planet today.</p>
+  <h2 class="ui header">Registrierung</h2>
+  <p>
+    Hier kannst du dich bei ROCKON registrieren und so Teil der Crew für
+    den kommenden ROCKTREFF werden!
+  </p>
+  <p>
+    Warst du schonmal einmal Teil der Crew?
+    Dann wähle <strong>Wiederholungstäterin</strong>!
+  </p>
   <div class="ui two column doubling stackable grid container">
     <div class="column">
       <a class="fluid large ui teal button preselect" href="{% url "crew_signup" slug=slug %}">
-      Neue Anmeldung
+        🤘 Neue Registrierung
       </a></div>
     <div class="column">
-        <a class="fluid large ui purple button preselect" href="{% url "crm_request_magic_link" %}">
-        Wiederholungstäterin
-        </a>
+      <a class="fluid large ui purple button preselect" href="{% url "crm_request_magic_link" %}">
+        ❤️ Wiederholungstäterin
+      </a>
     </div>
   </div>
   <div class="ui center aligned container" style="padding-top: 5%">
     <!-- FIXME: this should be imported from Django config -->
     <div class="ui very padded text">
-      <p class="item">Fragen? <a href="mailto:crew@example.net">crew@example.net</a></p>
+      <p class="item">Fragen? <a href="mailto:crew@rocktreff.de">crew@rocktreff.de</a></p>
     </div>
   </div>
 </div>
