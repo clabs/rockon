@@ -1,0 +1,21 @@
+{% extends "base.html" %} {% block content %} {% load static %}
+<script src="{% static 'js/qrcode.min.js' %}"></script>
+
+<script>
+  $(document).ready(() => {
+    const url = '{{ link_shortener.url }}'
+    console.debug(url)
+    qrcode = new QRCode(document.getElementById('qrcode'), url)
+  })
+</script>
+
+<div class="ui container">
+  <center>
+    <div class="ui massive message">{{ link_shortener.url }}</div>
+  </center>
+  <div id="qrcode">
+    <canvas style="display: none" height="1024" width="1024"></canvas>
+  </div>
+</div>
+
+{% endblock content %}

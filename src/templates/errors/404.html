@@ -3,7 +3,7 @@
 <div class="ui raised very padded text container segment">
   <div class="ui negative message">
     <div class="header">Oh noes! Fehler 404 - Seite nicht gefunden</div>
-    <p>{{ reason }}</p>
+    <p>{{ reason|default_if_none:"Es fehlt etwas..." }}</p>
   </div>
 </div>
 
