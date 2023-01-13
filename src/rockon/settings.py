@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "event.apps.EventConfig",
     "crew.apps.CrewConfig",
     "crm.apps.CrmConfig",
+    "tools.apps.ToolsConfig",
 ]
 
 if DEBUG:

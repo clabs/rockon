@@ -1,0 +1,46 @@
+{% extends "base.html" %} {% block content %} {% load static %}
+<script src="{% static 'js/qrcode.min.js' %}"></script>
+
+<script>
+  var qrcode
+  var elText
+  const generateQR = () => {
+    url = elText.value
+    if (!qrcode) {
+      qrcode = new QRCode(document.getElementById('qrcode'), url)
+    } else {
+      qrcode.clear()
+      qrcode.makeCode(url)
+    }
+  }
+
+  $(document).ready(() => {
+    window.addEventListener('hashchange', () => {
+      elText.value = decodeURIComponent(location.hash.substring(1))
+      generateQR()
+    })
+    elText = document.getElementById('content')
+    elText.oninput = () => {
+      window.location.hash = encodeURIComponent(elText.value)
+    }
+    elText.value = decodeURIComponent(location.hash.substring(1))
+
+    generateQR()
+  })
+</script>
+
+<div class="ui container">
+  <div class="ui raised padded text container segment">
+    <form class="ui form">
+      <div class="field">
+        <label>QR Code Inhalt</label>
+        <input type="text" id="content" placeholder="Inhalt" />
+      </div>
+    </form>
+  </div>
+  <div id="qrcode">
+    <canvas style="display: none" height="1024" width="1024"></canvas>
+  </div>
+</div>
+
+{% endblock content %}
