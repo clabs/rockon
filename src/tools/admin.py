@@ -15,8 +15,7 @@ class LinkShortenerAdmin(admin.ModelAdmin):
         "counter",
         "created_at",
     )
-    readonly_fields = ("counter", "created_at", "updated_at", "slug")
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("counter", "created_at", "updated_at")
 
 
 admin.site.register(LinkShortener, LinkShortenerAdmin)
