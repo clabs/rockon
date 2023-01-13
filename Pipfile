@@ -16,7 +16,7 @@ markdown = "==3.4.1"
 pillow = "==9.4.0"
 psycopg2-binary = "==2.9.5"
 python-dotenv = "==0.21.0"
-redis = "==4.4.1"
+redis = "==4.4.2"
 
 [dev-packages]
 django-debug-toolbar = "==3.8.1"
