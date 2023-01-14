@@ -61,7 +61,7 @@ This needs to be run once and everything assets are added to `src/static`: `pyth
 
 ### Load sample data
 
-`python src/manage.py loaddate examples/example_data.json`
+`python src/manage.py loaddata examples/example_data.json`
 
 The sample data does not contain a user, you still need to create a super user.
 
