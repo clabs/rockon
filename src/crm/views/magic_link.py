@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from django.http import Http404, HttpResponse, JsonResponse
+from django.contrib.auth import authenticate, login
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import redirect
 from django.template import loader
-
-from crm.models import MagicLink, Person
+from django.urls import reverse
 
 
 def request_magic_link(request):
@@ -24,12 +25,16 @@ def request_magic_link_submitted(request):
 
 def magic_link(request, token):
     """Shows information corresponding to the magic link token."""
-    try:
-        magic_link = MagicLink.objects.get(token=token)
-        person = Person.objects.get(id=magic_link.person.id)
-        # FIXME: this should be a redirect to a page that shows the information
-        return JsonResponse(
-            {"status": "success", "message": "Magic link found", "person": str(person)}
-        )
-    except (MagicLink.DoesNotExist, Person.DoesNotExist):
-        raise Http404("Der angefrate Schlüssel wurde nicht gefunden...")
+    user = authenticate(request, token=token)
+    if not user:
+        template = loader.get_template("errors/403.html")
+        context = {
+            "site_title": "Magic Link angefordert",
+            "reason": "Der angefrate Schlüssel wurde nicht gefunden...",
+        }
+        return HttpResponseForbidden(template.render(context, request))
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    # if not user:
+    #     raise PermissionDenied
+    # return HttpResponseForbidden("Der angefrate Schlüssel wurde nicht gefunden...")
+    return redirect(reverse("crm_user_profile"))
