@@ -14,10 +14,10 @@
       // javascript dates are broken
       var _age = parseInt(age)
       var el = null
-      // if age requirement is _ we need to modify the overnight checkbox
+      // if age requirement is _ we need to modify the stays_overnight checkbox
       if (age === "_") {
         _age = 18
-        el = document.getElementsByName("overnight")[0]
+        el = document.getElementsByName("stays_overnight")[0]
       }
       const event = {
         year: parseInt("{{ event.start|date:"Y" }}"),
@@ -30,7 +30,7 @@
       const int_value_arry = value_arr.map((value) => parseInt(value))
       const date_value = new Date(int_value_arry[0], int_value_arry[1] - 1, int_value_arry[2])
       const is_old_enough = (offset_year.getTime() - date_value.getTime() > 0)
-      // if age is >= 18 we need to modify the overnight checkbox
+      // if age is >= 18 we need to modify the stays_overnight checkbox
       if (age === "_" && is_old_enough) {
         el.disabled = false
       } else if (el) {
@@ -83,7 +83,7 @@
     .form({
       on: 'blur',
       fields: {
-        person_firstname: {
+        user_first_name: {
           rules: [
             {
               type: 'empty',
@@ -91,7 +91,7 @@
             }
           ]
         },
-        person_lastname: {
+        user_last_name: {
           rules: [
             {
               type: 'empty',
@@ -99,7 +99,7 @@
             }
           ]
         },
-        person_nickname: {
+        user_nick_name: {
           rules: [
             {
               type: 'empty',
@@ -107,7 +107,7 @@
             }
           ]
         },
-        person_birthday: {
+        user_birthday: {
           rules: [
             {
               type: 'date_validation',
@@ -123,7 +123,7 @@
             }
           ]
         },
-        person_address: {
+        user_address: {
           rules: [
             {
               type: 'empty',
@@ -131,7 +131,7 @@
             }
           ]
         },
-        person_housenumber: {
+        user_address_housenumber: {
           rules: [
             {
               type: 'regExp[/^[0-9]+[a-zA-Z]?$/]',
@@ -139,7 +139,7 @@
             }
           ]
         },
-        person_zipcode: {
+        user_zipcode: {
           rules: [
             {
               type: 'regExp[/^[0-9]{5}$/]',
@@ -147,7 +147,7 @@
             }
           ]
         },
-        person_place: {
+        user_place: {
           rules: [
             {
               type: 'empty',
@@ -155,7 +155,7 @@
             }
           ]
         },
-        person_email: {
+        user_email: {
           rules: [
             {
               type: 'email',
@@ -163,15 +163,15 @@
             }
           ]
         },
-        person_email_confirmation: {
+        user_email_confirmation: {
           rules: [
             {
-              type: 'match[person_email]',
+              type: 'match[user_email]',
               prompt: 'Die E-Mail-Adressen stimmen nicht überein.'
             }
           ]
         },
-        person_mobile: {
+        user_mobile: {
           rules: [
             {
               type: 'integer',
@@ -264,7 +264,7 @@
     console.debug(fields)
     $.ajax({
       type: "POST",
-      url: "{% url "api_signup" slug=slug %}",
+      url: "{% url "api_crew_signup" slug=slug %}",
       data: JSON.stringify(fields),
       contentType: "application/json",
       headers: {
@@ -288,60 +288,60 @@
       <label>Name</label>
       <div class="equal width fields">
         <div class="field">
-          <input type="text" name="person_firstname" placeholder="Vorname" autocomplete="given-name" />
+          <input type="text" name="user_first_name" placeholder="Vorname" autocomplete="given-name" />
         </div>
         <div class="field">
-          <input type="text" name="person_lastname" placeholder="Nachname" autocomplete="family-name" />
+          <input type="text" name="user_last_name" placeholder="Nachname" autocomplete="family-name" />
         </div>
       </div>
     </div>
     <div class="equal width fields">
       <div class="field">
-        <input type="text" name="person_nickname" placeholder="Spitzname" />
+        <input type="text" name="user_nick_name" placeholder="Spitzname" />
       </div>
       <div class="field">
-        <input id="person_birthday" type="date" name="person_birthday" autocomplete="bday"/>
+        <input id="user_birthday" type="date" name="user_birthday" autocomplete="bday"/>
       </div>
     </div>
     <div class="field">
       <label>Anschrift</label>
         <div class="fields">
           <div class="twelve wide field">
-            <input type="text" name="person_address" placeholder="Straße" autocomplete="street-address" />
+            <input type="text" name="user_address" placeholder="Straße" autocomplete="street-address" />
           </div>
           <div class="four wide field">
             <input
               type="text"
-              name="person_housenumber"
+              name="user_address_housenumber"
               placeholder="Hausnummer"
             />
           </div>
         </div>
         <div class="field">
-          <input type="text" name="person_address_extension" placeholder="Addresszusatz" autocomplete="off" />
+          <input type="text" name="user_address_extension" placeholder="Addresszusatz" autocomplete="off" />
         </div>
     </div>
     <div class="two fields">
       <div class="field">
         <label>Postleitzahl</label>
-        <input type="text" pattern="[\d+]{5}" name="person_zipcode" placeholder="Postleitzahl" maxlength="5" autocomplete="postal-code" />
+        <input type="text" pattern="[\d+]{5}" name="user_zipcode" placeholder="Postleitzahl" maxlength="5" autocomplete="postal-code" />
       </div>
       <div class="field">
         <label>Ort</label>
-        <input type="text" name="person_place" placeholder="Ort" />
+        <input type="text" name="user_place" placeholder="Ort" />
       </div>
     </div>
     <h4 class="ui dividing header">Kontakt</h4>
     <div class="two fields">
         <div class="field">
           <label>E-Mail Adresse</label>
-          <input type="email" name="person_email" placeholder="E-Mail Adresse" autocomplete="email" />
+          <input type="email" name="user_email" placeholder="E-Mail Adresse" autocomplete="email" />
         </div>
         <div class="field">
           <label>E-Mail Adresse bestätigen</label>
           <input
             type="email"
-            name="person_email_confirmation"
+            name="user_email_confirmation"
             placeholder="E-Mail Adresse bestätigen"
             autocomplete="off"
           />
@@ -350,7 +350,7 @@
     <div class="one fields">
       <div class="field">
         <label>Handynummer</label>
-        <input type="tel" name="person_mobile" placeholder="Handynummer" autocomplete="tel" />
+        <input type="tel" name="user_mobile" placeholder="Handynummer" autocomplete="tel" />
       </div>
     </div>
     <h4 class="ui dividing header">Essen &amp; T-Shirt</h4>
@@ -430,7 +430,6 @@
           <div class="right floated content">
             <div class="ui checkbox"><input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}"></div>
           </div>
-          <i class="{{ skill.icon }} icon"></i>
           <div class="content">
             <label>{{ day }}</label>
           </div>
@@ -445,7 +444,7 @@
     </div>
     <div class="inline field">
       <div class="ui toggle checkbox">
-        <input type="checkbox" tabindex="0" class="hidden" name="overnight" disabled>
+        <input type="checkbox" tabindex="0" class="hidden" name="stays_overnight" disabled>
         <label>Ich übernachte vor Ort.</label>
       </div>
     </div>

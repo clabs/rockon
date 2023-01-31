@@ -39,7 +39,7 @@ class Event(models.Model):
         blank=True,
         null=True,
     )
-    sub_event_of = models.ForeignKey(
+    sub_event_of = models.OneToOneField(
         "self", on_delete=models.CASCADE, blank=True, null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)

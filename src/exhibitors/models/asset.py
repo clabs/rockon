@@ -4,20 +4,20 @@ from uuid import uuid4
 
 from django.db import models
 
-from event.models import Event
 
-from .organisation import Organisation
-
-
-class Exhibitor(models.Model):
-    """Exhibitor model."""
+class Asset(models.Model):
+    """Asset model."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    organization = models.ForeignKey(
-        Organisation, on_delete=models.CASCADE, related_name="exhibitors"
-    )
     name = models.CharField(max_length=255)
+    explanation = models.TextField(blank=True)
+    is_bool = models.BooleanField(default=False)
+    icon = models.CharField(
+        max_length=255,
+        help_text='<a target="_blank" href="https://semantic-ui.com/elements/icon.html">Wähle ein Icon aus</a>',
+        default="heart",
+    )
+    internal_comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

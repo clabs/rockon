@@ -50,9 +50,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_q",
     "band.apps.BandConfig",
-    "event.apps.EventConfig",
     "crew.apps.CrewConfig",
     "crm.apps.CrmConfig",
+    "event.apps.EventConfig",
+    "exhibitors.apps.ExhibitorsConfig",
     "tools.apps.ToolsConfig",
 ]
 
@@ -67,6 +68,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "crm.magic_link_auth.MagicLinkAuth",
 ]
 
 if DEBUG:
@@ -109,7 +115,7 @@ DATABASES = {
     },
 }
 
-if DEBUG and getenv("DJANGO_USE_SQLITE", False) == "True":
+if getenv("DJANGO_USE_SQLITE", False) == "True":
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": path.join(BASE_DIR, "db.sqlite3"),
@@ -189,6 +195,13 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = getenv("DJANGO_MEDIA_ROOT", "uploads/")
 MEDIA_URL = getenv("DJANGO_MEDIA_URL", "/")
+
+DOMAIN = getenv("DJANGO_DOMAIN", "http://localhost:8000/")
+
+LOGIN_URL = "crm_request_magic_link"
+LOGIN_REDIRECT_URL = "crm_user_profile"
+LOGOUT_REDIRECT_URL = "crm_logout"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

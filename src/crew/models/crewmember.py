@@ -3,10 +3,9 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from uuid import uuid4
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import make_aware
-
-from crm.models import Person
 
 from .attendance import Attendance
 from .crew import Crew
@@ -24,11 +23,19 @@ class CrewMember(models.Model):
         ("omnivore", "Omnivor"),
     ]
 
+    STATE = [
+        ("unknown", "Unbekannt"),
+        ("confirmed", "Bestätigt"),
+        ("rejected", "Abgelehnt"),
+        ("arrived", "Angekommen"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     birthday = models.DateField(null=True)
-    crew = models.ForeignKey(Crew, on_delete=models.CASCADE)
-    shirt = models.ForeignKey(
+    crew = models.OneToOneField(Crew, on_delete=models.CASCADE)
+    state = models.CharField(max_length=12, choices=STATE, default="unknown")
+    shirt = models.OneToOneField(
         Shirt,
         on_delete=models.CASCADE,
         null=True,
@@ -36,23 +43,24 @@ class CrewMember(models.Model):
         related_name="crewmember_shirt",
     )
     nutrition = models.CharField(max_length=12, choices=NUTRION, null=True)
-    nutrition_note = models.CharField(max_length=511, null=True, blank=True)
+    nutrition_note = models.TextField(null=True, blank=True)
     skills = models.ManyToManyField(Skill, blank=True)
-    skills_note = models.CharField(max_length=1023, null=True, blank=True)
+    skills_note = models.TextField(null=True, blank=True)
     attendance = models.ManyToManyField(Attendance, blank=True)
-    attendance_note = models.CharField(max_length=1023, null=True, blank=True)
-    overnight = models.BooleanField(default=False)
+    attendance_note = models.TextField(null=True, blank=True)
+    stays_overnight = models.BooleanField(default=False)
     teams = models.ManyToManyField(Team, blank=True)
-    general_note = models.CharField(max_length=1023, null=True, blank=True)
+    general_note = models.TextField(null=True, blank=True)
     is_underaged = models.BooleanField(default=True, null=True)
     needs_leave_of_absence = models.BooleanField(default=False)
     has_leave_of_absence = models.BooleanField(default=False)
-    leave_of_absence_note = models.CharField(max_length=1023, null=True, blank=True)
+    leave_of_absence_note = models.TextField(null=True, blank=True)
+    internal_note = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.person.first_name} {self.person.last_name}"
+        return f"{self.user.first_name} {self.user.last_name}"
 
     def save(self, *args, **kwargs):
         if self.birthday is None:

@@ -11,7 +11,7 @@ class Crew(models.Model):
     """Crew model."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="crews")
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name="crews")
     name = models.CharField(max_length=255)
     year = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)

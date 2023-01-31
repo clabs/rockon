@@ -15,24 +15,24 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 class CrewMemberAdmin(admin.ModelAdmin):
     list_display = (
-        "person",
+        "user",
         "crew",
         "shirt",
         "nutrition",
-        "overnight",
+        "stays_overnight",
         "is_underaged",
         "updated_at",
     )
     search_fields = (
-        "person__first_name",
-        "person__last_name",
+        "user__first_name",
+        "user__last_name",
     )
-    ordering = ("person", "shirt", "nutrition", "overnight", "updated_at")
+    ordering = ("user", "shirt", "nutrition", "stays_overnight", "updated_at")
     list_filter = (
-        "person",
+        "user",
         "shirt",
         "nutrition",
-        "overnight",
+        "stays_overnight",
         "created_at",
         "updated_at",
     )

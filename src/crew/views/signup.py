@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from math import copysign
-
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
-from django_q.tasks import async_task, result
 
 from crew.models import Attendance, Shirt, Skill, Team
 from event.models import Event
@@ -21,9 +18,6 @@ def preselect(request, slug):
         "site_title": "Vorauswahl",
         "slug": slug,
     }
-    task_id = async_task(copysign, 2, -1)
-    task_result = result(task_id, 200)
-    print(task_result)
     return HttpResponse(template.render(context, request))
 
 

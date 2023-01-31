@@ -9,7 +9,7 @@
     .form({
       on: 'blur',
       fields: {
-        person_lastname: {
+        user_last_name: {
           rules: [
             {
               type: 'empty',
@@ -62,7 +62,6 @@
       complete: (data) => ajax_complete(data)
     })
   }
-
 </script>
 
 <div class="ui raised very padded text container segment">
@@ -74,15 +73,27 @@
       <div class="equal width fields">
         <div class="field">
           <label>E-Mail Adresse</label>
-          <input type="email" name="contact_email" placeholder="E-Mail Adresse" autocomplete="email" />
+          <input
+            type="email"
+            name="contact_email"
+            placeholder="E-Mail Adresse"
+            autocomplete="email"
+          />
         </div>
         <div class="field">
           <label>Nachname</label>
-          <input type="text" name="person_lastname" placeholder="Nachname" autocomplete="family-name" />
+          <input
+            type="text"
+            name="user_last_name"
+            placeholder="Nachname"
+            autocomplete="family-name"
+          />
         </div>
       </div>
     </div>
-    <div id="form_submit" class="ui submit button teal" tabindex="0">Absenden</div>
+    <div id="form_submit" class="ui submit button teal" tabindex="0">
+      Absenden
+    </div>
     <div class="ui error message"></div>
   </form>
 </div>
