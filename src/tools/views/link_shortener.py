@@ -15,7 +15,7 @@ def link_shortener(request, slug):
         link_shortener.save()
         return redirect(link_shortener.url, permanent=False)
     except LinkShortener.DoesNotExist:
-        raise Http404("Der angefrate Schlüssel wurde nicht gefunden...")
+        raise Http404("Der angefragte Link wurde nicht gefunden...")
 
 
 def display_qr_code(request, slug):
@@ -26,4 +26,4 @@ def display_qr_code(request, slug):
         context = {"site_title": "Shortlink QR", "link_shortener": link_shortener}
         return HttpResponse(template.render(context, request))
     except LinkShortener.DoesNotExist:
-        raise Http404("Der angefrate Schlüssel wurde nicht gefunden...")
+        raise Http404("Der angefragte Link wurde nicht gefunden...")

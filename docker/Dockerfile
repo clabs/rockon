@@ -7,6 +7,7 @@ FROM base as build
 ENV LC_ALL=C.UTF-8
 ENV DOCKER_UID=1000
 ENV PIPENV_VENV_IN_PROJECT=1
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \

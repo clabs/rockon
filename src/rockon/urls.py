@@ -28,22 +28,26 @@ admin.site.site_header = "rockon"
 admin.site.site_title = "rockon Admin"
 
 urlpatterns = [
-    path("to/", include("tools.urls_shortener")),
-    path("tools/", include("tools.urls")),
+    # path("api/", include(router.urls)),
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("admin/", admin.site.urls),
+    path("api-auth/", include("rest_framework.urls")),
+    path("api/", include("api.urls")),
     path("crew/", include("crew.urls")),
     path("crm/", include("crm.urls")),
-    path("admin/", admin.site.urls),
-    path("accounts/", include("django.contrib.auth.urls")),
-    path("api/", include("api.urls")),
-    # path("api/", include(router.urls)),
-    path("api-auth/", include("rest_framework.urls")),
+    path("exhibitors/", include("exhibitors.urls")),
+    path("to/", include("tools.urls_shortener")),
+    path("tools/", include("tools.urls")),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
 ]
 
-handler404 = "rockon.views.error_404_view"
+handler404 = "rockon.views.custom_page_not_found_view"
+handler500 = "rockon.views.custom_error_view"
+handler403 = "rockon.views.custom_permission_denied_view"
+handler400 = "rockon.views.custom_bad_request_view"
 
 # enable debug toolbar if DEBUG is True
 if settings.DEBUG:
