@@ -12,10 +12,10 @@ class TimeSlot(models.Model):
     """TimeSlot model."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
+    stage = models.OneToOneField(Stage, on_delete=models.CASCADE)
     start = models.DateTimeField()
     end = models.DateTimeField()
-    band = models.ForeignKey(
+    band = models.OneToOneField(
         Band, on_delete=models.CASCADE, null=True, blank=True, related_name="time_slot"
     )
     created_at = models.DateTimeField(auto_now_add=True)

@@ -3,10 +3,9 @@ from __future__ import annotations
 from os import path
 from uuid import uuid4
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.deconstruct import deconstructible
-
-from crm.models import Person
 
 
 @deconstructible
@@ -26,11 +25,11 @@ class Team(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=255)
     description = models.TextField()
-    lead = models.ForeignKey(
-        Person, on_delete=models.CASCADE, null=True, blank=True, related_name="lead"
+    lead = models.OneToOneField(
+        User, on_delete=models.CASCADE, null=True, blank=True, related_name="lead"
     )
-    vize_lead = models.ForeignKey(
-        Person,
+    vize_lead = models.OneToOneField(
+        User,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -41,6 +40,7 @@ class Team(models.Model):
         blank=True,
         null=True,
     )
+    contact_mail = models.EmailField(null=True, blank=True)
     is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

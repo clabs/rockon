@@ -1,0 +1,433 @@
+{% extends "base.html" %} {% block content %}{% load static %}
+
+<script language="javascript">
+  $(document).ready(() => {
+    $('select.dropdown').dropdown()
+    $('.ui.checkbox').checkbox()
+
+    $.fn.form.settings.rules.date_validation = (value) => {
+      const date_regex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/
+      return (value.match(date_regex))
+    };
+
+    $.fn.form.settings.rules.age_over = (value, age) => {
+      // javascript dates are broken
+      var _age = parseInt(age)
+      var el = null
+      // if age requirement is _ we need to modify the stays_overnight checkbox
+      if (age === "_") {
+        _age = 18
+        el = document.getElementsByName("stays_overnight")[0]
+      }
+      const event = {
+        year: parseInt("{{ event.start|date:"Y" }}"),
+        month: parseInt("{{ event.start|date:"m" }}") - 1,
+        day: parseInt("{{ event.start|date:"d" }}")
+      }
+      const event_start = new Date(event.year, event.month, event.day)
+      const offset_year = new Date(event.year - _age, event.month, event.day)
+      const value_arr = value.split("-")
+      const int_value_arry = value_arr.map((value) => parseInt(value))
+      const date_value = new Date(int_value_arry[0], int_value_arry[1] - 1, int_value_arry[2])
+      const is_old_enough = (offset_year.getTime() - date_value.getTime() > 0)
+      // if age is >= 18 we need to modify the stays_overnight checkbox
+      if (age === "_" && is_old_enough) {
+        el.disabled = false
+      } else if (el) {
+        el.checked = false
+        el.disabled = true
+      }
+      return is_old_enough
+    };
+
+    $.fn.form.settings.rules.leave_of_absence_note = (value) => {
+      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
+      return (checkbox_loa.checked && value > 0)
+    };
+
+    $.fn.form.settings.rules.loa_checkbox = (value) => {
+      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
+      const note_loa = document.getElementsByName("leave_of_absence_note")[0]
+      if (checkbox_loa.checked) {
+        note_loa.disabled = false
+      } else if (!checkbox_loa.checked) {
+        note_loa.value = ""
+        note_loa.disabled = true
+      }
+      return true
+    };
+
+    $.fn.form.settings.rules.loa_note = (value) => {
+      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
+      if (checkbox_loa.checked && value.length > 0) {
+        return true
+      }
+      return false
+    };
+
+    $('[name^=attendance_]').on('change', event => {
+      event.preventDefault()
+      const uuuid = event.currentTarget.dataset.uuid
+      console.debug(uuuid)
+      const el = $(`[name=attendance_count_${uuuid}]`)[0]
+      $(el).prop('disabled', !event.currentTarget.checked)
+      if ($(el).prop('disabled')) {
+        $(el).val('')
+      }
+    })
+
+    $('[name^=asset_]').on('change', event => {
+      event.preventDefault()
+      const uuuid = event.currentTarget.dataset.uuid
+      console.debug(uuuid)
+      const el = $(`[name=asset_count_${uuuid}]`)[0]
+      $(el).prop('disabled', !event.currentTarget.checked)
+      if ($(el).prop('disabled')) {
+        $(el).val('')
+      }
+    })
+
+    $('.ui.form')
+    .form({
+      on: 'blur',
+      fields: {
+        user_first_name: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gibt deinen Vornamen an.'
+            }
+          ]
+        },
+        user_last_name: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gibt deinen Nachnamen an.'
+            }
+          ]
+        },
+        user_nick_name: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gibt deinen Spitznamen an.'
+            }
+          ]
+        },
+        user_birthday: {
+          rules: [
+            {
+              type: 'date_validation',
+              prompt: 'Bitte gib dein Geburtsdatum an.'
+            },
+            {
+              type: 'age_over[16]',
+              prompt: 'Du musst mindestens 16 Jahre alt sein, um dich für die Crew zu bewerben.'
+            },
+            {
+              type: 'age_over[_]',
+              prompt: 'Du musst mindestens 18 Jahre alt sein, vor Ort zu übernachten.'
+            }
+          ]
+        },
+        user_address: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deine Straße an.'
+            }
+          ]
+        },
+        user_address_housenumber: {
+          rules: [
+            {
+              type: 'regExp[/^[0-9]+[a-zA-Z]?$/]',
+              prompt: 'Bitte gib deine Hausnummer an.'
+            }
+          ]
+        },
+        user_zipcode: {
+          rules: [
+            {
+              type: 'regExp[/^[0-9]{5}$/]',
+              prompt: 'Bitte gib eine gültige Postleitzahl an.'
+            }
+          ]
+        },
+        user_place: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deinen Wohnort an.'
+            }
+          ]
+        },
+        user_email: {
+          rules: [
+            {
+              type: 'email',
+              prompt: 'Bitte gib eine gültige E-Mail-Adresse an.'
+            }
+          ]
+        },
+        user_email_confirmation: {
+          rules: [
+            {
+              type: 'match[user_email]',
+              prompt: 'Die E-Mail-Adressen stimmen nicht überein.'
+            }
+          ]
+        },
+        user_mobile: {
+          rules: [
+            {
+              type: 'integer',
+              prompt: 'Bitte gib eine gültige Handynummer an.'
+            }
+          ]
+        },
+        nutriton_type: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib deine Ernährungspräferenz an.'
+            }
+          ]
+        },
+        leave_of_absence: {
+          rules: [
+            {
+              type: 'loa_checkbox',
+              prompt: 'Bitte gib Details zu deiner Befreiung an.'
+            }
+          ]
+        },
+        leave_of_absence_note: {
+          rules: [
+            {
+              type: 'loa_note',
+              prompt: 'Gibt bitte Details für deine Befreiung an.'
+            },
+            {
+              type: 'maxLength[1023]',
+              prompt: 'Deine Erklärung zur Befreiung ist zu lang, bitte verwende weniger als 1023 Zeichen.'
+            }
+          ]
+        },
+        skill_note: {
+          rules: [
+            {
+              type: 'maxLength[1023]',
+              prompt: 'Deine Erklärung zu deinen Fähigkeiten ist zu lang, bitte verwende weniger als 1023 Zeichen.'
+            }
+          ]
+        },
+        crew_shirt: {
+          rules: [
+            {
+              type: 'empty',
+              prompt: 'Bitte gib an, welche Größe du für dein T-Shirt brauchst.'
+            }
+          ]
+        },
+        allow_contact: {
+          rules: [
+            {
+              type: 'checked',
+              prompt: 'Bitte bestätige, dass wir dich kontaktieren dürfen.'
+            }
+          ]
+        },
+        read_privacy: {
+          rules: [
+            {
+              type: 'checked',
+              prompt: 'Bitte bestätige, dass du die Datenschutzerklärung zur Kenntnis genommen hast und mit der Verarbeitung und Speicherung deiner Daten einverstanden bist.'
+            }
+          ]
+        },
+      },
+      onSuccess: (event, fields) => {
+        send_form(fields)
+        return false
+      }
+    })
+  })
+
+  ajax_success = (data) => {
+    console.info(data)
+    window.location.href = ""
+  }
+  ajax_error = (data) => {
+    // FIXMIE: needs error handling
+    console.error(data)
+  }
+  ajax_complete = (data) => {
+    // hopenfully this is never triggered
+    console.info(data)
+  }
+
+  const send_form = (fields) => {
+    console.debug(fields)
+    $.ajax({
+      type: "POST",
+      url: "{% url "api_exhibitor_signup" slug=slug %}",
+      data: JSON.stringify(fields),
+      contentType: "application/json",
+      headers: {
+        "X-CSRFToken": fields.csrfmiddlewaretoken
+      },
+      dataType: "json",
+      success: (data) => ajax_success(data),
+      error: (data) => ajax_error(data),
+      complete: (data) => ajax_complete(data)
+    })
+  }
+
+</script>
+
+<div class="ui raised text container segment">
+  <h2 class="ui header">Neue Austelleranmeldung</h2>
+  <form class="ui form">
+    {% csrf_token %}
+    <h4 class="ui dividing header">Organisation</h4>
+    <div class="field">
+      <input type="text" name="organisation_name" placeholder="Organisation Name" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Anschrift</label>
+        <div class="fields">
+          <div class="twelve wide field">
+            <input type="text" name="organisation_address" placeholder="Straße" autocomplete="street-address" />
+          </div>
+          <div class="four wide field">
+            <input
+              type="text"
+              name="organisation_housenumber"
+              placeholder="Hausnummer"
+            />
+          </div>
+        </div>
+        <div class="field">
+          <input type="text" name="organisation_address_extension" placeholder="Addresszusatz" autocomplete="off" />
+        </div>
+    </div>
+    <div class="two fields">
+      <div class="field">
+        <label>Postleitzahl</label>
+        <input type="text" pattern="[\d+]{5}" name="organisation_zipcode" placeholder="Postleitzahl" maxlength="5" autocomplete="postal-code" />
+      </div>
+      <div class="field">
+        <label>Ort</label>
+        <input type="text" name="organisation_place" placeholder="Ort" />
+      </div>
+    </div>
+    <h4 class="ui dividing header">Kontakt</h4>
+    <div class="field">
+      <label>Name</label>
+      <div class="equal width fields">
+        <div class="field">
+          <input type="text" name="user_first_name" placeholder="Vorname" autocomplete="given-name" />
+        </div>
+        <div class="field">
+          <input type="text" name="user_last_name" placeholder="Nachname" autocomplete="family-name" />
+        </div>
+      </div>
+    </div>
+    <div class="two fields">
+        <div class="field">
+          <label>E-Mail Adresse</label>
+          <input type="email" name="user_email" placeholder="E-Mail Adresse" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label>E-Mail Adresse bestätigen</label>
+          <input
+            type="email"
+            name="user_email_confirmation"
+            placeholder="E-Mail Adresse bestätigen"
+            autocomplete="off"
+          />
+      </div>
+    </div>
+    <div class="two fields">
+      <div class="field">
+        <label>Festnetz</label>
+        <input type="tel" name="user_festnetz" placeholder="Festnetz" autocomplete="tel" />
+      </div>
+      <div class="field">
+        <label>Mobilnummer</label>
+        <input type="tel" name="user_mobile" placeholder="Mobilnummer" autocomplete="tel" />
+      </div>
+    </div>
+    <h4 class="ui dividing header">Anwesenheiten</h4>
+    <table class="ui very basic table">
+      <thead>
+        <tr><th>Tag</th>
+        <th>Aktiv</th>
+        <th>Personen</th>
+      </tr></thead>
+      <tbody>
+      {% for day in attendances %}
+        <tr>
+          <td data-label="Tag">{{ day }}</td>
+          <td data-label="Aktiv"><div class="ui checkbox"><input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}" data-uuid="{{ day.id }}"></div></td>
+          <td data-label="Personen"><input type="text" pattern="[\d+]{5}" name="attendance_count_{{ day.id }}" placeholder="Anzahl Personen" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <h4 class="ui dividing header">Ausstattungsbedarf</h4>
+    <table class="ui very basic table">
+      <thead>
+        <tr><th>Artikel</th>
+        <th>Bedarf</th>
+        <th>Menge</th>
+      </tr></thead>
+      <tbody>
+      {% for asset in assets %}
+        <tr>
+          <td data-label="Artikel"><i class="{{ asset.icon }} icon"></i>{{ asset }}<br /><i>{{ asset.explanation }}</i></td>
+          <td data-label="Bedarf"><div class="ui checkbox"><input type="checkbox" tabindex="0" class="hidden" name="asset_{{ asset.id }}" data-uuid="{{ asset.id }}"></div></td>
+          {% if asset.is_bool %}
+            <td data-label="Menge"></td>
+          {% else %}
+            <td data-label="Menge"><input type="text" pattern="[\d+]{5}" name="asset_count_{{ asset.id }}" placeholder="Menge" maxlength="5" autocomplete="off" disabled /></td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <h4 class="ui dividing header">Verschiedenes</h4>
+      <div class="field">
+        <label>Möchtest du uns noch etwas mitteilen?</label>
+        <textarea name="general_note"></textarea>
+      </div>
+      <h4 class="ui dividing header">Rechtliches</h4>
+      <div class="inline field">
+        <div class="ui toggle checkbox">
+          <input id="allow_contact" type="checkbox" tabindex="0" class="hidden" name="allow_contact">
+          <label>Ich bin damit einverstanden, dass der CPYE e.V. mich kontaktieren für Dinge rund um das Spielfest kontaktieren darf.</label>
+        </div>
+      </div>
+      <div class="inline field">
+        <div class="ui toggle checkbox">
+          <input id="read_privacy" type="checkbox" tabindex="0" class="hidden" name="read_privacy">
+          <!-- FIXME: link to privacy policy -->
+          <label>Ich habe die Datenschutzbestimmungen zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung persönlichen Daten im Rahmen des Spielfests einverstanden.</label>
+        </div>
+      </div>
+      <div class="equal width fields">
+        <div class="field">
+          <div id="form_submit" class="fluid ui submit button teal" tabindex="0">Absenden</div>
+        </div>
+        <div class="field">
+          <div class="fluid ui reset button grey">Neustart</div>
+        </div>
+      </div>
+      <div class="ui error message"></div>
+  </form>
+  </div>
+</div>
+
+{% endblock content %}
