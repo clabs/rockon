@@ -1,33 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="ui raised very padded text container segment">
-  <h2 class="ui header">Registrierung</h2>
-  <p>
-    Hier kannst du dich bei ROCKON registrieren und so Teil der Crew für
-    den kommenden ROCKTREFF werden!
-  </p>
-  <p>
-    Warst du schonmal einmal Teil der Crew?
-    Dann wähle <strong>Wiederholungstäterin</strong>!
-  </p>
-  <div class="ui two column doubling stackable grid container">
-    <div class="column">
-      <a class="fluid large ui teal button preselect" href="{% url "crew_signup" slug=slug %}">
-        🤘 Neue Registrierung
-      </a></div>
-    <div class="column">
-      <a class="fluid large ui purple button preselect" href="{% url "crm_request_magic_link" %}">
-        ❤️ Wiederholungstäterin
-      </a>
+<h1>Registrierung</h2>
+<p>
+  Hier kannst du dich bei ROCKON registrieren und so Teil der Crew für
+  den kommenden ROCKTREFF werden!
+</p>
+<p>
+  Warst du schonmal einmal Teil der Crew?
+  Dann wähle <strong>Wiederholungstäterin</strong>!
+</p>
+<div class="d-grid gap-2 col-6 mx-auto">
+  <div class="row g-2">
+    <div class="col">
+      <div class="d-grid gap-2 col-12 mx-auto">
+        <a class="btn btn-primary" role="button" href="{% url "crew_signup" slug=slug %}">🤘 Neue Registrierung</a>
+      </div>
     </div>
-  </div>
-  <div class="ui center aligned container" style="padding-top: 5%">
-    <!-- FIXME: this should be imported from Django config -->
-    <div class="ui very padded text">
-      <p class="item">Fragen? <a href="mailto:crew@rocktreff.de">crew@rocktreff.de</a></p>
+    <div class="col">
+      <div class="d-grid gap-2 col-12 mx-auto">
+        <a class="btn btn-primary" role="button" href="{% url "crm_request_magic_link" %}">❤️ Wiederholungstäterin</a>
+      </div>
     </div>
   </div>
 </div>
+<p class="has-text-centered">Fragen? <a href="mailto:crew@rocktreff.de">crew@rocktreff.de</a></p>
 
 {% endblock content %}

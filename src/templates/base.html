@@ -5,10 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ site_title }} | rockon</title>
-    <link rel="stylesheet" type="text/css" href="{% static "semantic-ui-2.5.0/semantic.min.css" %}">
-    <link rel="stylesheet" type="text/css" href="{% static "semantic-ui-2.5.0/overrides.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "bootstrap-5.3/bootstrap.min.css" %}">
+    <script src="{% static "bootstrap-5.3/bootstrap.bundle.min.js" %}"></script>
     <script src="{% static "js/jquery-3.1.1.min.js" %}"></script>
-    <script src="{% static "semantic-ui-2.5.0/semantic.min.js" %}"></script>
     <link rel="apple-touch-icon" sizes="180x180" href="{% static "favicon/apple-touch-icon.png" %}" />
     <link rel="icon" type="image/png" sizes="32x32" href="{% static "favicon/favicon-32x32.png" %}" />
     <link rel="icon" type="image/png" sizes="16x16" href="{% static "favicon/favicon-16x16.png" %}" />
@@ -16,16 +15,11 @@
   </head>
   <body>
     {% include "navbar.html" %}
-    <div class="ui container" style="min-height: 92vh">{% block content %}{% endblock content %}</div>
-    <div class="ui vertical footer" style="padding-top: 25px;">
-      <div class="ui center aligned container">
-        <div class="ui horizontal small divided link list">
-          <!-- FIXME: needs imprint and data privacy policy -->
-          <p class="item">Version: {% if APP_BUILD_HASH == "local-dev"%}{{ APP_BUILD_HASH }}{% else %}<span title="{{ APP_BUILD_HASH }}">{{ APP_BUILD_HASH|slice:7 }}</span>{% endif %}</p>
-          <p class="item">Build date: {{ APP_BUILD_DATE }}</p>
-          <p class="item"><i class="ui icon github"></i><a href="https://github.com/clabs/rockon" target="_blank" rel="noopener nofollow noreferrer">clabs/rockon</a></p>
-        </div>
-      </div>
+    <div class="container" style="min-height: 85vh">
+      {% block content %}{% endblock content %}
+    </div>
+    <div class="container">
+    {% include "footer.html" %}
     </div>
   </body>
 </html>

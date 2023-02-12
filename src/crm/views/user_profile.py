@@ -10,6 +10,7 @@ def get_user_profile(request):
     """A view that returns the user profile for logged in users."""
     template = loader.get_template("crm/user_profile.html")
     context = {
-        "site_title": "Benutzerprofil",
-    }
+        "site_title": "Benutzerprofil"
+        }
+    print(request.user.profile)
     return HttpResponse(template.render(context, request))
