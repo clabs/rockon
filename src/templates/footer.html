@@ -1,0 +1,10 @@
+<footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+  <span class="col-md-4 mb-0 text-muted">© 2023 by <a href="https://github.com/clabs/rockon">clabs and friends</a>, made with 🦝 in Berlin.</span>
+
+  <ul class="nav col-md-6 justify-content-end">
+    <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Impressum</a></li>
+    <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Datenschutz</a></li>
+    <li class="nav-item"><span class="nav-link px-2 text-muted">version: {% if APP_BUILD_HASH == "local-dev"%}{{ APP_BUILD_HASH }}{% else %}<span title="{{ APP_BUILD_HASH }}">{{ APP_BUILD_HASH|slice:7 }}</span>{% endif %}</span></li>
+    <li class="nav-item"><span class="nav-link px-2 text-muted">build date: {{ APP_BUILD_DATE }}</span></li>
+  </ul>
+</footer>

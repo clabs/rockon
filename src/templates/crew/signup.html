@@ -2,69 +2,6 @@
 
 <script language="javascript">
   $(document).ready(() => {
-    $('select.dropdown').dropdown()
-    $('.ui.checkbox').checkbox()
-
-    $.fn.form.settings.rules.date_validation = (value) => {
-      const date_regex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/
-      return (value.match(date_regex))
-    };
-
-    $.fn.form.settings.rules.age_over = (value, age) => {
-      // javascript dates are broken
-      var _age = parseInt(age)
-      var el = null
-      // if age requirement is _ we need to modify the stays_overnight checkbox
-      if (age === "_") {
-        _age = 18
-        el = document.getElementsByName("stays_overnight")[0]
-      }
-      const event = {
-        year: parseInt("{{ event.start|date:"Y" }}"),
-        month: parseInt("{{ event.start|date:"m" }}") - 1,
-        day: parseInt("{{ event.start|date:"d" }}")
-      }
-      const event_start = new Date(event.year, event.month, event.day)
-      const offset_year = new Date(event.year - _age, event.month, event.day)
-      const value_arr = value.split("-")
-      const int_value_arry = value_arr.map((value) => parseInt(value))
-      const date_value = new Date(int_value_arry[0], int_value_arry[1] - 1, int_value_arry[2])
-      const is_old_enough = (offset_year.getTime() - date_value.getTime() > 0)
-      // if age is >= 18 we need to modify the stays_overnight checkbox
-      if (age === "_" && is_old_enough) {
-        el.disabled = false
-      } else if (el) {
-        el.checked = false
-        el.disabled = true
-      }
-      return is_old_enough
-    };
-
-    $.fn.form.settings.rules.leave_of_absence_note = (value) => {
-      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
-      return (checkbox_loa.checked && value > 0)
-    };
-
-    $.fn.form.settings.rules.loa_checkbox = (value) => {
-      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
-      const note_loa = document.getElementsByName("leave_of_absence_note")[0]
-      if (checkbox_loa.checked) {
-        note_loa.disabled = false
-      } else if (!checkbox_loa.checked) {
-        note_loa.value = ""
-        note_loa.disabled = true
-      }
-      return true
-    };
-
-    $.fn.form.settings.rules.loa_note = (value) => {
-      const checkbox_loa = document.getElementsByName("leave_of_absence")[0]
-      if (checkbox_loa.checked && value.length > 0) {
-        return true
-      }
-      return false
-    };
-
     $('#select_all_attendance').click((event) => {
       event.preventDefault()
       for (const el of $('[name^=attendance_]')) {
@@ -76,173 +13,6 @@
       event.preventDefault()
       for (const el of $('[name^=attendance_]')) {
         el.checked = false
-      }
-    })
-
-    $('.ui.form')
-    .form({
-      on: 'blur',
-      fields: {
-        user_first_name: {
-          rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gibt deinen Vornamen an.'
-            }
-          ]
-        },
-        user_last_name: {
-          rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gibt deinen Nachnamen an.'
-            }
-          ]
-        },
-        user_nick_name: {
-          rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gibt deinen Spitznamen an.'
-            }
-          ]
-        },
-        user_birthday: {
-          rules: [
-            {
-              type: 'date_validation',
-              prompt: 'Bitte gib dein Geburtsdatum an.'
-            },
-            {
-              type: 'age_over[16]',
-              prompt: 'Du musst mindestens 16 Jahre alt sein, um dich für die Crew zu bewerben.'
-            },
-            {
-              type: 'age_over[_]',
-              prompt: 'Du musst mindestens 18 Jahre alt sein, vor Ort zu übernachten.'
-            }
-          ]
-        },
-        user_address: {
-          rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gib deine Straße an.'
-            }
-          ]
-        },
-        user_address_housenumber: {
-          rules: [
-            {
-              type: 'regExp[/^[0-9]+[a-zA-Z]?$/]',
-              prompt: 'Bitte gib deine Hausnummer an.'
-            }
-          ]
-        },
-        user_zipcode: {
-          rules: [
-            {
-              type: 'regExp[/^[0-9]{5}$/]',
-              prompt: 'Bitte gib eine gültige Postleitzahl an.'
-            }
-          ]
-        },
-        user_place: {
-          rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gib deinen Wohnort an.'
-            }
-          ]
-        },
-        user_email: {
-          rules: [
-            {
-              type: 'email',
-              prompt: 'Bitte gib eine gültige E-Mail-Adresse an.'
-            }
-          ]
-        },
-        user_email_confirmation: {
-          rules: [
-            {
-              type: 'match[user_email]',
-              prompt: 'Die E-Mail-Adressen stimmen nicht überein.'
-            }
-          ]
-        },
-        user_mobile: {
-          rules: [
-            {
-              type: 'integer',
-              prompt: 'Bitte gib eine gültige Handynummer an.'
-            }
-          ]
-        },
-        nutriton_type: {
-          rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gib deine Ernährungspräferenz an.'
-            }
-          ]
-        },
-        leave_of_absence: {
-          rules: [
-            {
-              type: 'loa_checkbox',
-              prompt: 'Bitte gib Details zu deiner Befreiung an.'
-            }
-          ]
-        },
-        leave_of_absence_note: {
-          rules: [
-            {
-              type: 'loa_note',
-              prompt: 'Gibt bitte Details für deine Befreiung an.'
-            },
-            {
-              type: 'maxLength[1023]',
-              prompt: 'Deine Erklärung zur Befreiung ist zu lang, bitte verwende weniger als 1023 Zeichen.'
-            }
-          ]
-        },
-        skill_note: {
-          rules: [
-            {
-              type: 'maxLength[1023]',
-              prompt: 'Deine Erklärung zu deinen Fähigkeiten ist zu lang, bitte verwende weniger als 1023 Zeichen.'
-            }
-          ]
-        },
-        crew_shirt: {
-          rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gib an, welche Größe du für dein T-Shirt brauchst.'
-            }
-          ]
-        },
-        allow_contact: {
-          rules: [
-            {
-              type: 'checked',
-              prompt: 'Bitte bestätige, dass wir dich kontaktieren dürfen.'
-            }
-          ]
-        },
-        read_privacy: {
-          rules: [
-            {
-              type: 'checked',
-              prompt: 'Bitte bestätige, dass du die Datenschutzerklärung zur Kenntnis genommen hast und mit der Verarbeitung und Speicherung deiner Daten einverstanden bist.'
-            }
-          ]
-        },
-      },
-      onSuccess: (event, fields) => {
-        send_form(fields)
-        return false
       }
     })
   })
@@ -279,250 +49,216 @@
 
 </script>
 
-<div class="ui raised text container segment">
-  <h2 class="ui header">Neue Crewanmeldung</h2>
-  <form class="ui form">
-    {% csrf_token %}
-    <h4 class="ui dividing header">Persönliches</h4>
-    <div class="field">
-      <label>Name</label>
-      <div class="equal width fields">
-        <div class="field">
-          <input type="text" name="user_first_name" placeholder="Vorname" autocomplete="given-name" />
-        </div>
-        <div class="field">
-          <input type="text" name="user_last_name" placeholder="Nachname" autocomplete="family-name" />
-        </div>
-      </div>
+<h1>Neue Crewanmeldung</h1>
+<form class="row g-3">
+  {% csrf_token %}
+  <h2>Persönliches</h2>
+  <div class="col-md-6">
+    <label for="user_first_name">Vorname</label>
+    <input type="text" name="user_first_name" class="form-control" id="user_first_name" placeholder="Jane" autocomplete="given-name" />
+  </div>
+  <div class="col-md-6">
+    <label for="user_last_name">Nachname</label>
+    <input type="text" name="user_last_name" class="form-control" id="user_last_name" placeholder="Doe" autocomplete="family-name" />
+  </div>
+  <div class="col-md-6">
+    <label for="user_nick_name">Nickname</label>
+    <input type="text" name="user_nick_name" class="form-control" id="user_nick_name" placeholder="Jane" autocomplete="given-name" />
+  </div>
+  <div class="col-md-6">
+    <label for="user_birthday">Geburtstag</label>
+    <input type="date" name="user_birthday" class="form-control" id="user_birthday" placeholder="01.01.1970" autocomplete="bday" />
+  </div>
+  <div class="col-md-9">
+    <label for="user_address">Straße</label>
+    <input type="text" name="user_address" class="form-control" id="user_address" placeholder="Straße" autocomplete="street-address" />
+  </div>
+  <div class="col-md-3">
+    <label for="user_address_housenumber">Hausnummer</label>
+    <input type="text" class="form-control" name="user_address_housenumber" id="user_address_housenumber" placeholder="Hausnummer" />
+  </div>
+  <div class="col-md-12">
+    <label for="user_address_extension">Addresszusatz</label>
+    <input type="text" class="form-control" name="user_address_extension" id="user_address_extension" placeholder="Addresszusatz" autocomplete="off" />
+  </div>
+  <div class="col-md-6">
+    <label for="user_zipcode">Postleitzahl</label>
+    <input type="text" pattern="[\d+]{5}" name="user_zipcode" id="user_zipcode" class="form-control" placeholder="Postleitzahl" maxlength="5" autocomplete="postal-code" />
+  </div>
+  <div class="col-md-6">
+    <label for="user_place">Ort</label>
+    <input type="text" class="form-control" name="user_place" id="user_place" placeholder="Ort" autocomplete="home city"/>
+  </div>
+  <h2>Kontakt</h2>
+  <div class="col-md-6">
+    <label for="user_zipcode">E-Mail Adresse</label>
+    <input type="email" name="user_email" id="user_email" class="form-control" placeholder="E-Mail Adresse" autocomplete="email" />
+  </div>
+  <div class="col-md-6">
+    <label for="user_place">E-Mail Adresse bestätigen</label>
+    <input type="email" name="user_email_confirmation" id="user_email_confirmation" class="form-control" placeholder="E-Mail Adresse bestätigen" autocomplete="off" />
+  </div>
+  <div class="col-md-12">
+    <label for="user_place">Handynummer</label>
+    <input type="tel" name="user_mobile" id="user_mobile" class="form-control" placeholder="Handynummer" autocomplete="tel" />
+  </div>
+  <h2>Essen &amp; T-Shirt</h2>
+  <div class="col-md-12">
+    <label for="nutriton_type" class="form-label">Essensgewohnheit</label>
+    <select id="nutriton_type" name="nutriton_type" class="form-select">
+      <option selected>Ernährung</option>
+      <option data-value="omnivore">Alles-Esser</option>
+      <option data-value="vegetarian">Vegatrisch</option>
+      <option data-value="vegan">Vegan</option>
+    </select>
+  </div>
+  <div class="col-md-12">
+    <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten, Unverträglichkeiten, etc.</label>
+    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+  </div>
+  <div class="col-md-12">
+    <label for="crew_shirt">T-Shirt</label>
+    <select id="crew_shirt" name="crew_shirt" class="form-select">
+      <option selected>Schnitt und Größe</option>
+      {% for shirt in shirts %}
+        <option data-value="{{ shirt.id }}">{{ shirt }}</option>
+      {% endfor %}
+    </select>
+    <div class="alert alert-info mt-3" role="alert">
+      <h4 class="alert-heading">Erklärung Schnitt</h4>
+      <hr>
+      <ul>
+        <li>fitted: figurbetonter Schnitt</li>
+        <li>straight: normaler Schnitt</li>
+      </ul>
     </div>
+  </div>
+  <h2>Formale Qualifikationen und Fähigkeiten</h2>
+  <div class="col-md-12">
+    <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
+      {% for skill in skills %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="skill_{{ skill.id }}" name="skill_{{ skill.id }}">
+        <label class="form-check-label" for="skill_{{ skill.id }}">
+          {{ skill }} - <i>{{ skill.explanation }}</i>
+        </label>
+      </div>
+      {% endfor %}
+  </div>
+  <div class="col-md-12">
+    <label for="skills_note" class="form-label">Anmerkungen zu deinen Fähigkeiten</label>
+    <textarea class="form-control" id="skills_note" name="skills_note" rows="3"></textarea>
+  </div>
+  <h4 class="ui dividing header">Anwesenheit</h4>
+  <div class="field">
+    <label>An welchen Tagen kannst du vor Ort sein?</label>
     <div class="equal width fields">
       <div class="field">
-        <input type="text" name="user_nick_name" placeholder="Spitzname" />
+        <button id="select_all_attendance" class="fluid ui tiny teal button">Alle Tage auswählen</button>
       </div>
       <div class="field">
-        <input id="user_birthday" type="date" name="user_birthday" autocomplete="bday"/>
+        <button id="select_none_attendance" class="fluid ui tiny grey button">Alle Tage abwählen</button>
       </div>
     </div>
-    <div class="field">
-      <label>Anschrift</label>
-        <div class="fields">
-          <div class="twelve wide field">
-            <input type="text" name="user_address" placeholder="Straße" autocomplete="street-address" />
-          </div>
-          <div class="four wide field">
-            <input
-              type="text"
-              name="user_address_housenumber"
-              placeholder="Hausnummer"
-            />
-          </div>
-        </div>
-        <div class="field">
-          <input type="text" name="user_address_extension" placeholder="Addresszusatz" autocomplete="off" />
-        </div>
-    </div>
-    <div class="two fields">
-      <div class="field">
-        <label>Postleitzahl</label>
-        <input type="text" pattern="[\d+]{5}" name="user_zipcode" placeholder="Postleitzahl" maxlength="5" autocomplete="postal-code" />
-      </div>
-      <div class="field">
-        <label>Ort</label>
-        <input type="text" name="user_place" placeholder="Ort" />
-      </div>
-    </div>
-    <h4 class="ui dividing header">Kontakt</h4>
-    <div class="two fields">
-        <div class="field">
-          <label>E-Mail Adresse</label>
-          <input type="email" name="user_email" placeholder="E-Mail Adresse" autocomplete="email" />
-        </div>
-        <div class="field">
-          <label>E-Mail Adresse bestätigen</label>
-          <input
-            type="email"
-            name="user_email_confirmation"
-            placeholder="E-Mail Adresse bestätigen"
-            autocomplete="off"
-          />
-      </div>
-    </div>
-    <div class="one fields">
-      <div class="field">
-        <label>Handynummer</label>
-        <input type="tel" name="user_mobile" placeholder="Handynummer" autocomplete="tel" />
-      </div>
-    </div>
-    <h4 class="ui dividing header">Essen &amp; T-Shirt</h4>
-    <div class="field">
-      <label>Essensgewohnheit</label>
-      <div class="ui selection dropdown">
-        <input type="hidden" name="nutriton_type" />
-        <i class="dropdown icon"></i>
-        <div class="default text">Essensgewohnheit</div>
-        <div class="menu">
-          <div class="item" data-value="omnivore">Alles-Esser</div>
-          <div class="item" data-value="vegetarian">Vegatrisch</div>
-          <div class="item" data-value="vegan">Vegan</div>
-        </div>
-      </div>
-    </div>
-    <div class="field">
-      <label>Anmerkungen zu Essensgewohnheiten, Unverträglichkeiten, etc.</label>
-      <textarea name="nutrition_note" rows="2"></textarea>
-    </div>
-    <div class="field">
-      <label>T-Shirt</label>
-      <div class="ui selection dropdown">
-        <input type="hidden" name="crew_shirt" />
-        <i class="dropdown icon" name="shirt"></i>
-        <div class="default text">Schnitt und Größe</div>
-        <div class="menu">
-          {% for shirt in shirts %}
-          <div class="item" data-value="{{ shirt.id }}">{{ shirt }}</div>
-          {% endfor %}
-        </div>
-      </div>
-      <div class="ui message">
-        <div class="header">Erklärung Schnitt</div>
-        <ul class="list">
-          <li>fitted: figurbetonter Schnitt</li>
-          <li>straight: normaler Schnitt</li>
-        </ul>
-      </div>
-    </div>
-    <h4 class="ui dividing header">Formale Qualifikationen und Fähigkeiten</h4>
-    <div class="field">
-      <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
-      <div class="ui large aligned divided list">
-        {% for skill in skills %}
-        <div class="item">
-          <div class="right floated content">
-            <div class="ui checkbox"><input type="checkbox" tabindex="0" class="hidden" name="skill_{{ skill.id }}"></div>
-          </div>
-          <i class="{{ skill.icon }} icon"></i>
-          <div class="content">
-            <label>{{ skill }} - <i>{{ skill.explanation }}</i></label>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    <div class="field">
-      <label>Anmerkungen zu deinen Fähigkeiten</label>
-      <textarea rows="2" name="skills_note"></textarea>
-    </div>
-    <h4 class="ui dividing header">Anwesenheit</h4>
-    <div class="field">
-      <label>An welchen Tagen kannst du vor Ort sein?</label>
-      <div class="equal width fields">
-        <div class="field">
-          <button id="select_all_attendance" class="fluid ui tiny teal button">Alle Tage auswählen</button>
-        </div>
-        <div class="field">
-          <button id="select_none_attendance" class="fluid ui tiny grey button">Alle Tage abwählen</button>
-        </div>
-      </div>
-      {% for phase in attendance_phases %}
-      <label>{{ phase.name }}</label>
-      <div class="ui large aligned divided list">
-      {% for day in phase.days %}
-        <div class="item">
-          <div class="right floated content">
-            <div class="ui checkbox"><input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}"></div>
-          </div>
-          <div class="content">
-            <label>{{ day }}</label>
-          </div>
-        </div>
-      {% endfor %}
-      </div>
-      {% endfor %}
-    </div>
-    <div class="field">
-      <label>Anmerkungen zu deiner Anwesenheit</label>
-      <textarea rows="2" name="attendance_note"></textarea>
-    </div>
-    <div class="inline field">
-      <div class="ui toggle checkbox">
-        <input type="checkbox" tabindex="0" class="hidden" name="stays_overnight" disabled>
-        <label>Ich übernachte vor Ort.</label>
-      </div>
-    </div>
-    <div class="inline field">
-      <div class="ui toggle checkbox">
-        <input id="leave_of_absence" type="checkbox" tabindex="0" class="hidden" name="leave_of_absence">
-        <label>Ich brauche eine Befreiung von Schule, Universiät oder ähnlichem.</label>
-      </div>
-    </div>
-    <div class="field">
-      <label>Anmerkungen zu meiner Befreiung</label>
-      <!-- FIXME: This should only be active if leave_of_absence is checked-->
-      <textarea id="leave_of_absence_note" rows="2" name="leave_of_absence_note" disabled></textarea>
-    </div>
-    <h4 class="ui dividing header">Tätigkeiten</h4>
-    <div class="field">
-    <label>Für welche Teams interessierst du dich?</label>
-    <!-- FIXME: render teams with details-->
-    <div class="ui items">
-      {% for team in teams %}
+    {% for phase in attendance_phases %}
+    <label>{{ phase.name }}</label>
+    <div class="ui large aligned divided list">
+    {% for day in phase.days %}
       <div class="item">
-        <div class="image">
-          {% if not team.image %}
-            <img src="{% static "assets/4_3_placeholder.png" %}">
-          {% else %}
-            <img src="{{ team.image.url }}">
-          {% endif %}
+        <div class="right floated content">
+          <div class="ui checkbox"><input type="checkbox" tabindex="0" class="hidden" name="attendance_{{ day.id }}"></div>
         </div>
         <div class="content">
-          <a class="header">{{ team }}</a>
-          <div class="meta">
-            <span>{{ team.lead|default_if_none:"Kein Gewerkeleiter" }}</span>
-          </div>
-          <div class="description">
-            <p>{{ team.description }}</p>
-          </div>
+          <label>{{ day }}</label>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  <div class="field">
+    <label>Anmerkungen zu deiner Anwesenheit</label>
+    <textarea rows="2" name="attendance_note"></textarea>
+  </div>
+  <div class="inline field">
+    <div class="ui toggle checkbox">
+      <input type="checkbox" tabindex="0" class="hidden" name="stays_overnight" disabled>
+      <label>Ich übernachte vor Ort.</label>
+    </div>
+  </div>
+  <div class="inline field">
+    <div class="ui toggle checkbox">
+      <input id="leave_of_absence" type="checkbox" tabindex="0" class="hidden" name="leave_of_absence">
+      <label>Ich brauche eine Befreiung von Schule, Universiät oder ähnlichem.</label>
+    </div>
+  </div>
+  <div class="field">
+    <label>Anmerkungen zu meiner Befreiung</label>
+    <!-- FIXME: This should only be active if leave_of_absence is checked-->
+    <textarea id="leave_of_absence_note" rows="2" name="leave_of_absence_note" disabled></textarea>
+  </div>
+  <h4 class="ui dividing header">Tätigkeiten</h4>
+  <div class="field">
+  <label>Für welche Teams interessierst du dich?</label>
+  <!-- FIXME: render teams with details-->
+  <div class="ui items">
+    {% for team in teams %}
+    <div class="item">
+      <div class="image">
+        {% if not team.image %}
+          <img class="img-fluid" src="{% static "assets/4_3_placeholder.png" %}">
+        {% else %}
+          <img class="img-fluid" src="{{ team.image.url }}">
+        {% endif %}
+      </div>
+      <div class="content">
+        <a class="header">{{ team }}</a>
+        <div class="meta">
+          <span>{{ team.lead|default_if_none:"Kein Gewerkeleiter" }}</span>
+        </div>
+        <div class="description">
+          <p>{{ team.description }}</p>
+        </div>
+        <div class="extra">
           <div class="extra">
-            <div class="extra">
-              <div class="ui toggle checkbox">
-                <input type="checkbox" tabindex="0" class="hidden" name="team_{{ team.id }}">
-                <label>Interesse</label>
-              </div>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" tabindex="0" class="hidden" name="team_{{ team.id }}">
+              <label>Interesse</label>
             </div>
           </div>
         </div>
       </div>
-      {% endfor %}
     </div>
-    <h4 class="ui dividing header">Verschiedenes</h4>
-      <div class="field">
-        <label>Möchtest du uns noch etwas mitteilen?</label>
-        <textarea name="general_note"></textarea>
-      </div>
-      <h4 class="ui dividing header">Rechtliches</h4>
-      <div class="inline field">
-        <div class="ui toggle checkbox">
-          <input id="allow_contact" type="checkbox" tabindex="0" class="hidden" name="allow_contact">
-          <label>Ich bin damit einverstanden, dass der CPYE e.V. mich kontaktieren für Dinge rund um den Rocktreff kontaktieren darf.</label>
-        </div>
-      </div>
-      <div class="inline field">
-        <div class="ui toggle checkbox">
-          <input id="read_privacy" type="checkbox" tabindex="0" class="hidden" name="read_privacy">
-          <!-- FIXME: link to privacy policy -->
-          <label>Ich habe die Datenschutzbestimmungen zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung persönlichen Daten im Rahmen des ROCKTREFFs einverstanden.</label>
-        </div>
-      </div>
-      <div class="equal width fields">
-        <div class="field">
-          <div id="form_submit" class="fluid ui submit button teal" tabindex="0">Absenden</div>
-        </div>
-        <div class="field">
-          <div class="fluid ui reset button grey">Neustart</div>
-        </div>
-      </div>
-      <div class="ui error message"></div>
-  </form>
+    {% endfor %}
   </div>
-</div>
+  <h4 class="ui dividing header">Verschiedenes</h4>
+    <div class="field">
+      <label>Möchtest du uns noch etwas mitteilen?</label>
+      <textarea name="general_note"></textarea>
+    </div>
+    <h4 class="ui dividing header">Rechtliches</h4>
+    <div class="inline field">
+      <div class="ui toggle checkbox">
+        <input id="allow_contact" type="checkbox" tabindex="0" class="hidden" name="allow_contact">
+        <label>Ich bin damit einverstanden, dass der CPYE e.V. mich kontaktieren für Dinge rund um den Rocktreff kontaktieren darf.</label>
+      </div>
+    </div>
+    <div class="inline field">
+      <div class="ui toggle checkbox">
+        <input id="read_privacy" type="checkbox" tabindex="0" class="hidden" name="read_privacy">
+        <!-- FIXME: link to privacy policy -->
+        <label>Ich habe die Datenschutzbestimmungen zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung persönlichen Daten im Rahmen des ROCKTREFFs einverstanden.</label>
+      </div>
+    </div>
+    <div class="equal width fields">
+      <div class="field">
+        <div id="form_submit" class="fluid ui submit button teal" tabindex="0">Absenden</div>
+      </div>
+      <div class="field">
+        <div class="fluid ui reset button grey">Neustart</div>
+      </div>
+    </div>
+    <div class="ui error message"></div>
+</form>
 
 {% endblock content %}

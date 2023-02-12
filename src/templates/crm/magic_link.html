@@ -1,35 +1,11 @@
 {% extends "base.html" %} {% block content %}
 
 <script language="javascript">
-  $(document).ready(function () {
-    $('select.dropdown').dropdown()
-    $('.ui.checkbox').checkbox()
+  $(document).ready(() => {
 
-    $('.ui.form')
-    .form({
-      on: 'blur',
-      fields: {
-        user_last_name: {
-          rules: [
-            {
-              type: 'empty',
-              prompt: 'Bitte gibt deinen Nachnamen an.'
-            }
-          ]
-        },
-        contact_email: {
-          rules: [
-            {
-              type: 'email',
-              prompt: 'Bitte gib eine gültige E-Mail-Adresse an.'
-            }
-          ]
-        },
-      },
-      onSuccess: (event, fields) => {
-        send_form(fields)
-        return false
-      }
+    $('#form_submit').click(function (event) {
+      event.preventDefault()
+      // $('.ui.form').form('validate form')
     })
   })
 
@@ -64,38 +40,20 @@
   }
 </script>
 
-<div class="ui raised very padded text container segment">
-  <h2 class="ui header">Login anfordern</h2>
-  <form class="ui form">
-    {% csrf_token %}
-    <h4 class="ui dividing header">Konto</h4>
-    <div class="field">
-      <div class="equal width fields">
-        <div class="field">
-          <label>E-Mail Adresse</label>
-          <input
-            type="email"
-            name="contact_email"
-            placeholder="E-Mail Adresse"
-            autocomplete="email"
-          />
-        </div>
-        <div class="field">
-          <label>Nachname</label>
-          <input
-            type="text"
-            name="user_last_name"
-            placeholder="Nachname"
-            autocomplete="family-name"
-          />
-        </div>
-      </div>
+<main>
+  <form>
+    <h1>Login anfordern</h1>
+
+    <div class="form-floating">
+      <input type="email" class="form-control" name="contact_email" id="contact_email" type="email" placeholder="jane.doe@example.net" autocomplete="email">
+      <label for="contact_email">E-Mail-Adresse</label>
     </div>
-    <div id="form_submit" class="ui submit button teal" tabindex="0">
-      Absenden
+    <div class="form-floating">
+      <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+      <label for="password">Password</label>
     </div>
-    <div class="ui error message"></div>
+    <button type="submit" id="form_submit" class="w-100 btn btn-lg btn-primary">Absenden</button>
   </form>
-</div>
+</main>
 
 {% endblock content %}

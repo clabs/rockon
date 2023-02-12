@@ -1,30 +1,47 @@
-{% if user.is_authenticated %}
-<nav class="ui menu stackable">
-  <div class="header item">
-    rockon
-  </div>
-  {% comment %} <a class="item" href="{% url "crew_signup" %}">
-    <i class="home icon"></i> Home
-  </a> {% endcomment %}
-  <div class="right menu">
-    {% include "userdropdown.html" %}
+<nav class="navbar navbar-expand-md navbar-light bg-light" aria-label="Fourth navbar example">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">rockon</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExample04">
+      <ul class="navbar-nav me-auto mb-2 mb-md-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url "crm_user_profile" %}#">Profil</a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link disabled">Disabled</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Werkzeug</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url "tools_qrcode_generator" %}">QR Code Generator</a></li>
+            <li><a class="dropdown-item" href="#">Link-Shortener</a></li>
+          </ul>
+        </li>
+      </ul>
+      {% if user.is_authenticated %}
+      <div class="navbar-item">
+          <span>
+            Hey, <strong>{{ user }}!</strong>
+          </span>
+          <a class="btn btn-primary" href="{% url "logout" %}">
+            Log out
+          </a>
+      </div>
+      {% else %}
+      <div class="navbar-item">
+        <a class="btn btn-primary" href="{% url "crm_request_magic_link" %}">
+          Log in
+        </a>
+      </div>
+      {% endif %}
+    </div>
   </div>
 </nav>
-<script language='javascript'>
-  $(document).ready(function(){
-    $('.ui.dropdown')
-    .dropdown();
-  });
-</script>
-{% else %}
-<nav class="ui menu stackable">
-  <div class="header item">
-    rockon
-  </div>
-  <div class="right menu">
-  <a class="item" href="{% url "crm_request_magic_link" %}">
-    <i class="sign-in icon"></i> Login
-  </a>
-  </div>
-</nav>
-{% endif %}
