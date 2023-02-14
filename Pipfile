@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 blessed = "==1.19.1"
-django = "==4.1.6"
+django = "==4.1.7"
 django-filter = "==22.1"
 django-health-check = "==3.17.0"
 django-q2 = "==1.4.11"
