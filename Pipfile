@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-blessed = "==1.19.1"
-django = "==4.1.6"
+blessed = "==1.20.0"
+django = "==4.1.7"
 django-filter = "==22.1"
 django-health-check = "==3.17.0"
 django-q2 = "==1.4.11"
@@ -16,7 +16,7 @@ markdown = "==3.4.1"
 pillow = "==9.4.0"
 psycopg2-binary = "==2.9.5"
 python-dotenv = "==0.21.1"
-redis = "==4.4.2"
+redis = "==4.5.1"
 
 [dev-packages]
 django-debug-toolbar = "==3.8.1"
