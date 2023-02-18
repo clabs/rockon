@@ -29,7 +29,7 @@
       {% if user.is_authenticated %}
       <div class="navbar-item">
           <span>
-            Hey, <strong>{{ user }}!</strong>
+            <i class="fa-solid fa-user"></i> Hey, <strong>{{ user }}!</strong>
           </span>
           <a class="btn btn-primary" href="{% url "logout" %}">
             Log out
