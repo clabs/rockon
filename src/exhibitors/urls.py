@@ -14,9 +14,9 @@ from .views import signup, signup_submitted
 # FIXME: add handler for call without slug
 
 urlpatterns = [
-    path("signup/<slug:slug>/", signup, name="exhibitor_signup"),
+    path("signup/<slug>/", signup, name="exhibitor_signup"),
     path(
-        "signup/<slug:slug>/submitted/",
+        "signup/<slug>/submitted/",
         signup_submitted,
         name="exhibitor_signup_submitted",
     ),
