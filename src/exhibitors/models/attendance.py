@@ -11,7 +11,7 @@ class Attendance(models.Model):
     """Attendance model."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    event = models.OneToOneField(
+    event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="exhibitor_attendances"
     )
     day = models.DateField()
