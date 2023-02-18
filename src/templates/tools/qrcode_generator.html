@@ -29,17 +29,24 @@
   })
 </script>
 
-<div class="ui container">
-  <div class="ui raised padded text container segment">
-    <form class="ui form">
-      <div class="field">
+<div class="jumbotron">
+  <div class="row pb-3">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+    <form>
         <label>QR Code Inhalt</label>
         <input type="text" id="content" placeholder="Inhalt" />
-      </div>
     </form>
   </div>
-  <div id="qrcode">
-    <canvas style="display: none" height="1024" width="1024"></canvas>
+    <div class="col-md-4"></div>
+  </div>
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <div id="qrcode">
+      </div>
+    </div>
+    <div class="col-md-4"></div>
   </div>
 </div>
 
