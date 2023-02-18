@@ -9,12 +9,19 @@
   })
 </script>
 
-<div class="ui container">
-  <center>
-    <div class="ui massive message">{{ link_shortener.url }}</div>
-  </center>
-  <div id="qrcode">
-    <canvas style="display: none" height="1024" width="1024"></canvas>
+<div class="jumbotron">
+  <div class="row pb-3">
+    <div class="col-md-12 text-center">
+    <h1>{{ link_shortener.url }}</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <div id="qrcode">
+      </div>
+    </div>
+    <div class="col-md-4"></div>
   </div>
 </div>
 
