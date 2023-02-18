@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_q",
-    "band.apps.BandConfig",
+    "bands.apps.BandsConfig",
     "crew.apps.CrewConfig",
     "crm.apps.CrmConfig",
     "event.apps.EventConfig",
