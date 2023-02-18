@@ -1,0 +1,224 @@
+{% extends "base.html" %} {% block content %}
+
+<h1>Techrider >>{{band.name}}<<</h1>
+<form class="row g-3">
+  <h2>Drums</h2>
+  <div class="col-md-6">
+    <label for="nutrition_note">Teile</label>
+    <select class="form-select" multiple aria-label="multiple select example">
+      <option value="1">Bassdrum</option>
+      <option value="2">Snare 1</option>
+      <option value="3">Snare 2</option>
+      <option value="4">Hi-Hat</option>
+      <option value="5">Tom 1</option>
+      <option value="6">Tom 2</option>
+      <option value="7">Tom 3</option>
+      <option value="8">Floor Tom</option>
+      <option value="9">Ride Becken</option>
+      <option value="10">China Becken</option>
+      <option value="11">Crash Becken 1</option>
+      <option value="12">Crash Becken 2</option>
+      <option value="13">E-Drum</option>
+      <option value="14">Sampler</option>
+      <option value="15">Vocal</option>
+    </select>
+  </div>
+  <div class="col-md-6">
+    <label for="nutrition_note">Anmerkungen zu den Drums</label>
+    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+  </div>
+  <h2>Vocals ohne Instrument</h2>
+  <div class="col-md-12">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Was</th>
+          <th scope="col">Benötigt</th>
+          <th scope="col">Menge</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Main Vocal</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Backing Vocal</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h2>Instrumente</h2>
+  <div class="col-md-12">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Was</th>
+          <th scope="col">Benötigt</th>
+          <th scope="col">Menge</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Acoustic Gitarre</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Violine</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Cello</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Kontrabass</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Trompete</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Saxophone</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Akkordeon</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Cajon</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Marching Snare</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-12">
+    <label for="nutrition_note">Anmerkungen zu den Instrumenten</label>
+    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+  </div>
+  <h2>Bass</h2>
+  <div class="col-md-12">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Was</th>
+          <th scope="col">Benötigt</th>
+          <th scope="col">Menge</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bass Gitarre</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Vocal Bass</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-12">
+    <label for="nutrition_note">Anmerkungen zum Bass</label>
+    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+  </div>
+  <h2>E-Gitarren</h2>
+  <div class="col-md-6">
+    <label for="nutrition_note">E-Gitarre links</label>
+    <select class="form-select" multiple aria-label="multiple select example">
+      <option value="1">One</option>
+      <option value="2">Two</option>
+      <option value="3">Three</option>
+    </select>
+  </div>
+  <div class="col-md-6">
+    <label for="nutrition_note">Anmerkungen zu E-Gitarre links</label>
+    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+  </div>
+  <div class="col-md-6">
+    <label for="nutrition_note">E-Gitarre rechts</label>
+    <select class="form-select" multiple aria-label="multiple select example">
+      <option value="1">One</option>
+      <option value="2">Two</option>
+      <option value="3">Three</option>
+    </select>
+  </div>
+  <div class="col-md-6">
+    <label for="nutrition_note">Anmerkungen zu E-Gitarre rechts</label>
+    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+  </div>
+  <h2>E-Piano / Keyboard / Synths</h2>
+  <div class="col-md-6">
+    <label for="nutrition_note">Anbindung</label>
+    <select class="form-select" multiple aria-label="multiple select example">
+      <option value="1">One</option>
+      <option value="2">Two</option>
+      <option value="3">Three</option>
+    </select>
+  </div>
+  <div class="col-md-6">
+    <label for="nutrition_note">Anmerkungen</label>
+    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+  </div>
+  <h2>Sonstige Technik</h2>
+  <div class="col-md-12">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Was</th>
+          <th scope="col">Ja</th>
+          <th scope="col">ggf. Menge</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>eigenes in ear monitoring</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>Click für in ear monitoring</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"></td>
+        </tr>
+        <tr>
+          <td>Intro/Zuspieler vom FOH</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Beschreibung" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+        <tr>
+          <td>eigener FOH Ingenieur / Techniker</td>
+          <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
+          <td data-label="Aktiv"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Beschreibung" maxlength="5" autocomplete="off" disabled /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h2>Informationen für die Technikcrew</h2>
+  <div class="col-md-12">
+    <label for="nutrition_note">Anmerkungen</label>
+    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+  </div>
+</form>
+
+{% endblock %}

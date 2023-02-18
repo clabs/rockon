@@ -28,20 +28,21 @@ admin.site.site_header = "rockon"
 admin.site.site_title = "rockon Admin"
 
 urlpatterns = [
-    # path("api/", include(router.urls)),
     path("accounts/", include("django.contrib.auth.urls")),
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include("api.urls")),
+    path("bands/", include("bands.urls")),
     path("crew/", include("crew.urls")),
     path("crm/", include("crm.urls")),
     path("exhibitors/", include("exhibitors.urls")),
-    path("to/", include("tools.urls_shortener")),
-    path("tools/", include("tools.urls")),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
+        name="robots",
     ),
+    path("to/", include("tools.urls_shortener")),
+    path("tools/", include("tools.urls")),
 ]
 
 handler404 = "rockon.views.custom_page_not_found_view"
