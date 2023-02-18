@@ -1,5 +1,6 @@
 uploads/
 .DS_Store
+src/_db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
