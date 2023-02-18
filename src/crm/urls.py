@@ -11,6 +11,8 @@ from .views import (
     request_magic_link,
     request_magic_link_submitted,
     verify_email,
+    impressum,
+    privacy,
 )
 
 # fmt: on
@@ -26,4 +28,6 @@ urlpatterns = [
     ),
     path("me/", get_user_profile, name="crm_user_profile"),
     path("logout/", logout_page, name="crm_logout"),
+    path("impressum/", impressum, name="crm_impressum"),
+    path("privacy/", privacy, name="crm_privacy"),
 ]
