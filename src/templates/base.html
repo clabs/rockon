@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ site_title }} | rockon</title>
-    <link rel="stylesheet" type="text/css" href="{% static "bootstrap-5.3/bootstrap.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/rockon.min.css" %}">
     <script src="{% static "bootstrap-5.3/bootstrap.bundle.min.js" %}"></script>
     <script src="{% static "js/jquery-3.1.1.min.js" %}"></script>
     <link rel="apple-touch-icon" sizes="180x180" href="{% static "favicon/apple-touch-icon.png" %}" />
@@ -18,7 +18,7 @@
   </head>
   <body>
     {% include "navbar.html" %}
-    <div class="container" style="min-height: 85vh">
+    <div class="container" style="min-height: 85vh; margin-top: 3rem;">
       {% block content %}{% endblock content %}
     </div>
     <div class="container">
