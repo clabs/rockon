@@ -152,12 +152,18 @@
   <h2>Anwesenheit</h2>
   <div class="field">
     <label>An welchen Tagen kannst du vor Ort sein?</label>
-    <div class="row">
-      <div class="col">
-        <button id="select_all_attendance" type="button" class="btn btn-primary btn-sm">Alle Tage auswählen</button>
-      </div>
-      <div class="col">
-        <button id="select_none_attendance" type="button" class="btn btn-primary btn-sm">Alle Tage abwählen</button>
+    <div class="d-grid gap-2 col-6 mx-auto">
+      <div class="row g-2">
+        <div class="col">
+          <div class="d-grid gap-2 col-12 mx-auto">
+            <button id="select_all_attendance" type="button" class="btn btn-primary btn-sm">Alle Tage auswählen</button>
+          </div>
+        </div>
+        <div class="col">
+          <div class="d-grid gap-2 col-12 mx-auto">
+            <button id="select_none_attendance" type="button" class="btn btn-primary btn-sm">Alle Tage abwählen</button>
+          </div>
+        </div>
       </div>
     </div>
     {% for phase in attendance_phases %}
@@ -225,17 +231,20 @@
     <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
   </div>
   {% include "snippets/rechtliches.html" %}
-  <div class="col-md-12">
-    <div class="row">
+  <div class="d-grid gap-2 col-12 mx-auto pt-3">
+    <div class="row g-2">
       <div class="col">
-        <button id="form_submit" type="button" class="btn btn-primary">Absenden</button>
+        <div class="d-grid gap-2 col-12 mx-auto">
+          <button id="form_submit" type="button" class="btn btn-primary" disabled>Absenden</button>
+        </div>
       </div>
       <div class="col">
-        <button id="form_reset" type="button" class="btn btn-secondary">Neustart</button>
+        <div class="d-grid gap-2 col-12 mx-auto">
+          <button id="form_reset" type="button" class="btn btn-secondary">Neustart</button>
+        </div>
       </div>
     </div>
   </div>
-  <div class="ui error message"></div>
   <div class="col-md-12" id="error_messages">
   </div>
 </form>
