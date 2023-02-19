@@ -15,6 +15,11 @@
         el.checked = false
       }
     })
+
+    $('#form_reset').click((event) => {
+      event.preventDefault()
+      $("#signup").trigger("reset")
+    })
   })
 
   ajax_success = (data) => {
@@ -50,7 +55,7 @@
 </script>
 
 <h1>Neue Crewanmeldung</h1>
-<form class="row g-3">
+<form id="signup" class="row g-3">
   {% csrf_token %}
   <h2>Persönliches</h2>
   <div class="col-md-6">
