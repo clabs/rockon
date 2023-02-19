@@ -1,47 +1,46 @@
-<nav class="navbar navbar-expand-md navbar-light bg-light" aria-label="Fourth navbar example">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">rockon</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary" aria-label="">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">rockon</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="collapse navbar-collapse" id="navbarsExample04">
-      <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
-        </li>
+      <div class="collapse navbar-collapse" id="navbar">
+        <ul class="navbar-nav me-auto mb-2 mb-md-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url "crm_user_profile" %}#">Profil</a>
+          </li>
+          {% endif %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Werkzeug</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url "tools_qrcode_generator" %}">QR Code Generator</a></li>
+              <li><a class="dropdown-item" href="#">Link-Shortener</a></li>
+            </ul>
+          </li>
+        </ul>
         {% if user.is_authenticated %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url "crm_user_profile" %}#">Profil</a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-          <a class="nav-link disabled">Disabled</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Werkzeug</a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url "tools_qrcode_generator" %}">QR Code Generator</a></li>
-            <li><a class="dropdown-item" href="#">Link-Shortener</a></li>
-          </ul>
-        </li>
-      </ul>
-      {% if user.is_authenticated %}
-      <div class="navbar-item">
-          <span>
-            <i class="fa-solid fa-user"></i> Hey, <strong>{{ user }}!</strong>
-          </span>
-          <a class="btn btn-primary" href="{% url "logout" %}">
-            Log out
+        <div class="navbar-item">
+            <span>
+              <i class="fa-solid fa-user"></i> Hey, <strong>{{ user }}!</strong>
+            </span>
+            <a class="btn btn-primary" href="{% url "logout" %}">
+              Log out
+            </a>
+        </div>
+        {% else %}
+        <div class="navbar-item">
+          <a class="btn btn-primary" href="{% url "crm_request_magic_link" %}">
+            Log in
           </a>
+        </div>
+        {% endif %}
       </div>
-      {% else %}
-      <div class="navbar-item">
-        <a class="btn btn-primary" href="{% url "crm_request_magic_link" %}">
-          Log in
-        </a>
-      </div>
-      {% endif %}
     </div>
-  </div>
-</nav>
+  </nav>
+</div>
