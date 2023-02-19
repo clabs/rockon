@@ -100,9 +100,9 @@ docker compose -f docker-compose.deploy.yml exec -it app ./manage.py loaddata ex
 
 ## Docs
 
-### Semantic UI
+### Bootstrap
 
-<https://semantic-ui.com/introduction/getting-started.html>
+<https://getbootstrap.com/docs/5.3/getting-started/introduction/>
 
 ### Django
 
