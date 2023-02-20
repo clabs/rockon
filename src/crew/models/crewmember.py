@@ -51,7 +51,7 @@ class CrewMember(models.Model):
     stays_overnight = models.BooleanField(default=False)
     teams = models.ManyToManyField(Team, blank=True)
     general_note = models.TextField(null=True, blank=True)
-    is_underaged = models.BooleanField(default=True, null=True)
+    is_adult = models.BooleanField(default=False)
     needs_leave_of_absence = models.BooleanField(default=False)
     has_leave_of_absence = models.BooleanField(default=False)
     leave_of_absence_note = models.TextField(null=True, blank=True)
@@ -64,14 +64,14 @@ class CrewMember(models.Model):
 
     def save(self, *args, **kwargs):
         if self.birthday is None:
-            self.is_underaged = None
+            self.is_adult = None
             super().save(*args, **kwargs)
             return
 
         _birthday_as_datetime = make_aware(
             datetime(self.birthday.year, self.birthday.month, self.birthday.day)
         )
-        self.is_underaged = _birthday_as_datetime > make_aware(
-            datetime.now()
-        ) - timedelta(days=365 * 18)
+        self.is_adult = make_aware(datetime.now()) > _birthday_as_datetime + timedelta(
+            days=365 * 18
+        )
         super().save(*args, **kwargs)

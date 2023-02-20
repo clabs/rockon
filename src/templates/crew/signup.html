@@ -6,6 +6,7 @@
       event.preventDefault()
       for (const el of $('[name^=attendance_]')) {
         el.checked = true
+        el.value = "on"
       }
     })
 
@@ -13,14 +14,163 @@
       event.preventDefault()
       for (const el of $('[name^=attendance_]')) {
         el.checked = false
+        el.value = ""
       }
     })
 
     $('#form_reset').click((event) => {
       event.preventDefault()
       $("#signup").trigger("reset")
+      $('#signup :input').val('')
+      $(".not-empty").removeClass('is-valid is-invalid')
+    })
+
+    $('#form_submit').on('click', (event) => {
+      event.preventDefault()
+      console.debug("submit")
+      const form = $('#signup')
+      var validated = false
+      el = form.find('.not-empty')
+      console.debug("not-empty elements", el)
+      for (const input of el) {
+        validate_input({target: input})
+        if (input.classList.contains('is-invalid')) {
+          validated = false
+          break
+        } else {
+          validated = true
+        }
+      }
+      console.debug("validated", validated)
+      const form_data = form.serializeArray()
+      console.debug("form data", form_data)
+      if (validated) {
+        send_form(form_data)
+      }
+    })
+
+    $('.not-empty').on('change', event => {
+      console.debug("not-empty handler triggered", event)
+      validate_input(event)
+    })
+
+    $('#leave_of_absence').on("change", (event) => {
+      event.preventDefault()
+      if (event.target.checked) {
+        $('#leave_of_absence_note').prop('disabled', false)
+      } else {
+        $('#leave_of_absence_note').val("")
+        $('#leave_of_absence_note').prop('disabled', true)
+      }
     })
   })
+
+  validate_input = (input) => {
+    if (input.target.type === "checkbox") {
+      console.debug("form check", input.target.id)
+      if (input.target.checked) {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "text") {
+      console.debug("input field", input.target.id)
+      if (input.target.id === "user_zipcode") {
+        if (input.target.value.length === 5 && !isNaN(input.target.value)) {
+          inputValid(input, true)
+        } else {
+          inputValid(input, false)
+        }
+      } else if (input.target.value !== "") {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "email") {
+      if (input.target.id === "user_email") {
+        if (validateEmail(input.target.value)) {
+          inputValid(input, true)
+        } else {
+          inputValid(input, false)
+        }
+        if ($('#user_email_confirmation').val()) {
+          validate_input({target: $('#user_email_confirmation')[0]})
+        }
+      } else if (input.target.id === "user_email_confirmation") {
+          if (validateEmail(input.target.value) && input.target.value === $('#user_email').val()) {
+            inputValid(input, true)
+          } else {
+            inputValid(input, false)
+          }
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "tel") {
+      if (!isNaN(input.target.value) && input.target.value !== "") {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "select-one") {
+      if (input.target.value !== "") {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "date") {
+      if (event.target.value && event.target.value !== "") {
+        console.debug("birthday date field", event.target.value)
+        const is_old_enough = age_validation(event.target.value)
+        console.debug("is over age", is_old_enough)
+        if (!is_old_enough[0]) {
+          $('#user_birthday').addClass('is-invalid').removeClass('is-valid')
+        } else {
+          $('#user_birthday').addClass('is-valid').removeClass('is-invalid')
+        }
+        if (!is_old_enough[1]) {
+          $('#stays_overnight').prop('disabled', true).prop('checked', false)
+        } else {
+          $('#stays_overnight').prop('disabled', false)
+        }
+      }
+    }
+  }
+
+  age_validation = (value) => {
+      // javascript dates are broken
+      const event = {
+        year: parseInt("{{ event.start|date:"Y" }}"),
+        month: parseInt("{{ event.start|date:"m" }}") - 1,
+        day: parseInt("{{ event.start|date:"d" }}")
+      }
+      const event_start = new Date(event.year, event.month, event.day)
+      const offset_year_16 = new Date(event.year - 16, event.month, event.day)
+      const offset_year_18 = new Date(event.year - 18, event.month, event.day)
+      const value_arr = value.split("-")
+      const int_value_arry = value_arr.map((value) => parseInt(value))
+      const date_value = new Date(int_value_arry[0], int_value_arry[1] - 1, int_value_arry[2])
+      const over_16 = (offset_year_16.getTime() - date_value.getTime() > 0)
+      const over_18 = (offset_year_18.getTime() - date_value.getTime() > 0)
+      return [over_16, over_18]
+  }
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      )
+  }
+
+  const inputValid = (input, is_valid) => {
+    if (is_valid) {
+      input.target.classList.add('is-valid')
+      input.target.classList.remove('is-invalid')
+    } else {
+      input.target.classList.add('is-invalid')
+      input.target.classList.remove('is-valid')
+    }
+  }
 
   ajax_success = (data) => {
     console.info(data)
@@ -43,7 +193,7 @@
       data: JSON.stringify(fields),
       contentType: "application/json",
       headers: {
-        "X-CSRFToken": fields.csrfmiddlewaretoken
+        "X-CSRFToken": fields[0].value
       },
       dataType: "json",
       success: (data) => ajax_success(data),
@@ -55,16 +205,26 @@
 </script>
 
 <h1>Neue Crewanmeldung</h1>
-<form id="signup" class="row g-3">
+<form id="signup" class="row g-3 needs-validation" novalidate>
   {% csrf_token %}
   <h2>Persönliches</h2>
   <div class="col-md-6">
     <label for="user_first_name">Vorname</label>
-    <input type="text" name="user_first_name" class="form-control" id="user_first_name" placeholder="Jane" autocomplete="given-name" />
+    <input type="text" name="user_first_name" class="form-control not-empty" id="user_first_name" placeholder="Jane" autocomplete="given-name" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Vorname darf nicht leer sein.
+    </div>
   </div>
   <div class="col-md-6">
     <label for="user_last_name">Nachname</label>
-    <input type="text" name="user_last_name" class="form-control" id="user_last_name" placeholder="Doe" autocomplete="family-name" />
+    <input type="text" name="user_last_name" class="form-control not-empty" id="user_last_name" placeholder="Doe" autocomplete="family-name" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Nachname darf nicht leer sein.
+    </div>
   </div>
   <div class="col-md-6">
     <label for="user_nick_name">Nickname</label>
@@ -72,15 +232,30 @@
   </div>
   <div class="col-md-6">
     <label for="user_birthday">Geburtstag</label>
-    <input type="date" name="user_birthday" class="form-control" id="user_birthday" placeholder="01.01.1970" autocomplete="bday" />
+    <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday" placeholder="01.01.1970" autocomplete="bday" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Du musst über 16 Jahre alt sein.
+    </div>
   </div>
   <div class="col-md-9">
     <label for="user_address">Straße</label>
-    <input type="text" name="user_address" class="form-control" id="user_address" placeholder="Straße" autocomplete="street-address" />
+    <input type="text" name="user_address" class="form-control not-empty" id="user_address" placeholder="Am Geldspeicher" autocomplete="street-address" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Straße darf nicht leer sein.
+    </div>
   </div>
   <div class="col-md-3">
     <label for="user_address_housenumber">Hausnummer</label>
-    <input type="text" class="form-control" name="user_address_housenumber" id="user_address_housenumber" placeholder="Hausnummer" />
+    <input type="text" class="form-control not-empty" name="user_address_housenumber" id="user_address_housenumber" placeholder="23a" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Hausnummer darf nicht leer sein.
+    </div>
   </div>
   <div class="col-md-12">
     <label for="user_address_extension">Addresszusatz</label>
@@ -88,34 +263,64 @@
   </div>
   <div class="col-md-6">
     <label for="user_zipcode">Postleitzahl</label>
-    <input type="text" pattern="[\d+]{5}" name="user_zipcode" id="user_zipcode" class="form-control" placeholder="Postleitzahl" maxlength="5" autocomplete="postal-code" />
+    <input type="text" pattern="[\d+]{5}" name="user_zipcode" id="user_zipcode" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Postleitzahl muss 5 Ziffern lang sein.
+    </div>
   </div>
   <div class="col-md-6">
     <label for="user_place">Ort</label>
-    <input type="text" class="form-control" name="user_place" id="user_place" placeholder="Ort" autocomplete="home city"/>
+    <input type="text" class="form-control not-empty" name="user_place" id="user_place" placeholder="Entenhausen" autocomplete="home city"/>
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Ort darf nicht leer sein.
+    </div>
   </div>
   <h2>Kontakt</h2>
   <div class="col-md-6">
     <label for="user_email">E-Mail Adresse</label>
-    <input type="email" name="user_email" id="user_email" class="form-control" placeholder="E-Mail Adresse" autocomplete="email" />
+    <input type="email" name="user_email" id="user_email" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="email" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Bitte gibt eine gültige E-Mail Adresse an.
+    </div>
   </div>
   <div class="col-md-6">
     <label for="user_email_confirmation">E-Mail Adresse bestätigen</label>
-    <input type="email" name="user_email_confirmation" id="user_email_confirmation" class="form-control" placeholder="E-Mail Adresse bestätigen" autocomplete="off" />
+    <input type="email" name="user_email_confirmation" id="user_email_confirmation" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="off" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Bitte wiederhole deine E-Mail Adresse.
+    </div>
   </div>
   <div class="col-md-12">
     <label for="user_mobile">Handynummer</label>
-    <input type="tel" name="user_mobile" id="user_mobile" class="form-control" placeholder="Handynummer" autocomplete="tel" />
+    <input type="tel" name="user_mobile" id="user_mobile" class="form-control not-empty" placeholder="0555678123" autocomplete="tel" />
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Bitte gibt eine gültige Telefonnummer an.
+    </div>
   </div>
   <h2>Essen &amp; T-Shirt</h2>
   <div class="col-md-12">
     <label for="nutriton_type" class="form-label">Essensgewohnheit</label>
-    <select id="nutriton_type" name="nutriton_type" class="form-select">
-      <option selected>Ernährung</option>
-      <option data-value="omnivore">Alles-Esser</option>
-      <option data-value="vegetarian">Vegatrisch</option>
-      <option data-value="vegan">Vegan</option>
+    <select id="nutriton_type" name="nutriton_type" class="form-select not-empty">
+      <option value="" selected></option>
+      <option value="omnivore">Alles-Esser</option>
+      <option value="vegetarian">Vegatrisch</option>
+      <option value="vegan">Vegan</option>
     </select>
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Bitte wähle deine Ernährungsgewohnheit aus.
+    </div>
   </div>
   <div class="col-md-12">
     <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten, Unverträglichkeiten, etc.</label>
@@ -123,12 +328,17 @@
   </div>
   <div class="col-md-12">
     <label for="crew_shirt">T-Shirt</label>
-    <select id="crew_shirt" name="crew_shirt" class="form-select">
-      <option selected>Schnitt und Größe</option>
+    <select id="crew_shirt" name="crew_shirt" class="form-select not-empty">
+      <option value="" selected></option>
       {% for shirt in shirts %}
-        <option data-value="{{ shirt.id }}">{{ shirt }}</option>
+        <option value="{{ shirt.id }}">{{ shirt }}</option>
       {% endfor %}
     </select>
+    <div class="valid-feedback">
+    </div>
+    <div class="invalid-feedback">
+      Bitte wähle T-Shirt Größe und Schnitt aus.
+    </div>
     <div class="alert alert-info mt-3" role="alert">
       <h4 class="alert-heading">Erklärung Schnitt</h4>
       <hr>
@@ -187,7 +397,7 @@
   </div>
   <div class="col-md-12">
     <label for="skills_note" class="form-label">Anmerkungen zu deiner Anwesenheit</label>
-    <textarea class="form-control" id="attendance_note" name="attendance_note" rows="2"></textarea>
+    <textarea class="form-control" id="note_attendance" name="note_attendance" rows="2"></textarea>
   </div>
   <div class="col-md-12">
     <input class="form-check-input" type="checkbox" value="" id="stays_overnight" name="stays_overnight" disabled>
@@ -240,7 +450,7 @@
     <div class="row g-2">
       <div class="col">
         <div class="d-grid gap-2 col-12 mx-auto">
-          <button id="form_submit" type="button" class="btn btn-primary" disabled>Absenden</button>
+          <button id="form_submit" type="button" class="btn btn-primary">Absenden</button>
         </div>
       </div>
       <div class="col">
@@ -249,8 +459,6 @@
         </div>
       </div>
     </div>
-  </div>
-  <div class="col-md-12" id="error_messages">
   </div>
 </form>
 
