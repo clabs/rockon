@@ -14,10 +14,13 @@ from crm.models import EmailVerification
 def crew_signup(request, slug):
     created_user = False
     # FIXME: refactor to Django forms to validate input
-    body = json.loads(request.body)
+    body_list = json.loads(request.body)
+    body = {}
+    for item in body_list:
+        body[item["name"]] = item["value"]
 
     _skills = [
-        k.split("_")[1] for k, v in body.items() if k.startswith("skill_") and v == "on"
+        k.split("_")[1] for k, v in body.items() if k.startswith("skill_") and v == ""
     ]
     _attendance = [
         k.split("_")[1]
@@ -78,10 +81,10 @@ def crew_signup(request, slug):
             nutrition=body.get("nutriton_type"),
             nutrition_note=body.get("nutrition_note"),
             skills_note=body.get("skills_note"),
-            attendance_note=body.get("attendance_note"),
-            stays_overnight=body.get("stays_overnight") == "on",
+            attendance_note=body.get("note_attendance"),
+            stays_overnight=body.get("stays_overnight") == "",
             general_note=body.get("general_note"),
-            needs_leave_of_absence=body.get("leave_of_absence") == "on",
+            needs_leave_of_absence=body.get("leave_of_absence") == "",
             leave_of_absence_note=body.get("leave_of_absence_note"),
         )
 

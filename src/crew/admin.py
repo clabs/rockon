@@ -20,7 +20,7 @@ class CrewMemberAdmin(admin.ModelAdmin):
         "shirt",
         "nutrition",
         "stays_overnight",
-        "is_underaged",
+        "is_adult",
         "updated_at",
     )
     search_fields = (
@@ -36,7 +36,7 @@ class CrewMemberAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    readonly_fields = ("is_underaged", "created_at", "updated_at")
+    readonly_fields = ("is_adult", "created_at", "updated_at")
 
 
 class CrewAdmin(admin.ModelAdmin):
