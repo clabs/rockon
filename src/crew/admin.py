@@ -15,9 +15,9 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 class CrewMemberAdmin(admin.ModelAdmin):
     list_display = (
-        "user",
+        "__str__",
         "crew",
-        "shirt",
+        "state",
         "nutrition",
         "stays_overnight",
         "is_adult",
