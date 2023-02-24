@@ -20,7 +20,7 @@ redis = "==4.5.1"
 
 [dev-packages]
 django-debug-toolbar = "==3.8.1"
-pre-commit = "==3.0.4"
+pre-commit = "==3.1.0"
 black = "==23.1.0"
 
 [requires]
