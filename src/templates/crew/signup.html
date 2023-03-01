@@ -358,7 +358,7 @@
       <div class="form-check">
         <input class="form-check-input" type="checkbox" value="" id="skill_{{ skill.id }}" name="skill_{{ skill.id }}">
         <label class="form-check-label" for="skill_{{ skill.id }}">
-          {{ skill }} - <i>{{ skill.explanation }}</i>
+          {{ skill.icon|safe }}&nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i>
         </label>
       </div>
       {% endfor %}

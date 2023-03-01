@@ -13,8 +13,8 @@ class Skill(models.Model):
     explanation = models.CharField(max_length=511)
     icon = models.CharField(
         max_length=255,
-        help_text='<a target="_blank" href="https://semantic-ui.com/elements/icon.html">Wähle ein Icon aus</a>',
-        default="heart",
+        help_text='<a target="_blank" href="https://fontawesome.com/search?m=free&o=r">Wähle ein Icon aus</a>',
+        default='<i class="fa-solid fa-heart"></i>',
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
