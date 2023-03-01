@@ -8,7 +8,7 @@
       "name": "Chrome",
       "request": "launch",
       "type": "chrome",
-      "url": "http://localhost:8000/admin/",
+      "url": "http://localhost:8000/backstage/",
       "webRoot": "${workspaceFolder}"
     },
     {
