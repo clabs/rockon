@@ -19,6 +19,7 @@ class EmailVerification(models.Model):
         User, on_delete=models.CASCADE, related_name="email_verification"
     )
     token = models.UUIDField(default=uuid4, editable=False)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

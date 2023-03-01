@@ -4,10 +4,10 @@ import json
 from datetime import datetime
 
 from django.contrib.auth.models import User
-from django.http import HttpResponseBadRequest, JsonResponse
+from django.http import JsonResponse
 from django.utils.timezone import make_aware
 
-from crew.models import Crew, CrewMember, Shirt
+from crew.models import Crew, CrewMember, Shirt, Team, TeamMember
 from crm.models import EmailVerification
 
 
@@ -36,7 +36,6 @@ def crew_signup(request, slug):
 
     try:
         user = User.objects.get(email=body["user_email"])
-        return HttpResponseBadRequest("User already exists")
     except User.DoesNotExist:
         user = User.objects.create_user(
             username=body["user_email"],
@@ -93,7 +92,8 @@ def crew_signup(request, slug):
     for attendance in _attendance:
         crew_member.attendance.add(attendance)
     for team in _teams:
-        crew_member.teams.add(team)
+        team_id = Team.objects.get(id=team)
+        TeamMember.objects.create(team=team_id, crewmember=crew_member)
     crew_member.save()
 
     if created_user:
