@@ -6,8 +6,8 @@ from django.template import loader
 
 
 @login_required
-def get_user_profile(request):
-    """A view that returns the user profile for logged in users."""
-    template = loader.get_template("crm/user_profile.html")
+def get_user_homeview(request):
+    """A view that returns the user homeview for logged in users."""
+    template = loader.get_template("crm/user_home.html")
     context = {"site_title": "Profil"}
     return HttpResponse(template.render(context, request))

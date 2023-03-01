@@ -1,8 +1,7 @@
-# from __future__ import annotations
-
 from __future__ import annotations
 
 from django.shortcuts import render
+from django.views.generic.base import TemplateView
 
 
 def custom_bad_request_view(request, exception=None):
@@ -23,3 +22,18 @@ def custom_page_not_found_view(request, exception):
 def custom_error_view(request, exception=None):
     context = {"site_title": "Fehler 500", "reason": exception}
     return render(request, "errors/500.html", context, status=500)
+
+
+class ImprintView(TemplateView):
+    template_name = "rockon/imprint.html"
+    extra_context = {"site_title": "Impressum"}
+
+
+class PrivacyView(TemplateView):
+    template_name = "rockon/privacy.html"
+    extra_context = {"site_title": "Privacy Policy"}
+
+
+class IndexView(TemplateView):
+    template_name = "rockon/landing_index.html"
+    extra_context = {"site_title": "Start"}

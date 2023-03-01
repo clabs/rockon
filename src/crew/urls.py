@@ -4,7 +4,7 @@ from django.urls import path
 
 # fmt: off
 # WONTFIX: stop isort and black from fighting each other
-from .views import preselect, signup, signup_root, signup_submitted
+from .views import PreselectView, SignupSubmittedView, signup, signup_root
 
 # fmt: on
 
@@ -15,9 +15,14 @@ from .views import preselect, signup, signup_root, signup_submitted
 
 urlpatterns = [
     path("signup/<slug:slug>/", signup_root, name="crew_root"),
-    path("signup/<slug:slug>/preselect/", preselect, name="crew_preselect"),
+    # path("signup/<slug:slug>/preselect/", preselect, name="crew_preselect"),
+    path(
+        "signup/<slug:slug>/preselect/", PreselectView.as_view(), name="crew_preselect"
+    ),
     path("signup/<slug:slug>/signup/", signup, name="crew_signup"),
     path(
-        "signup/<slug:slug>/submitted/", signup_submitted, name="crew_signup_submitted"
+        "signup/<slug:slug>/submitted/",
+        SignupSubmittedView.as_view(),
+        name="crew_signup_submitted",
     ),
 ]

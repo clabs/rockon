@@ -28,6 +28,7 @@ admin.site.site_header = "rockon"
 admin.site.site_title = "rockon Admin"
 
 urlpatterns = [
+    path("", include("rockon.urls_homepage")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),

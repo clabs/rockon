@@ -5,14 +5,13 @@ from django.urls import path
 # WONTFIX: stop black and isort from messing up the imports
 # fmt: off
 from .views import (
+    get_user_homeview,
     get_user_profile,
     logout_page,
     magic_link,
     request_magic_link,
     request_magic_link_submitted,
     verify_email,
-    impressum,
-    privacy,
 )
 
 # fmt: on
@@ -26,8 +25,7 @@ urlpatterns = [
         request_magic_link_submitted,
         name="crm_request_magic_link_submitted",
     ),
+    path("home/", get_user_homeview, name="crm_user_home"),
     path("me/", get_user_profile, name="crm_user_profile"),
     path("logout/", logout_page, name="crm_logout"),
-    path("impressum/", impressum, name="crm_impressum"),
-    path("privacy/", privacy, name="crm_privacy"),
 ]
