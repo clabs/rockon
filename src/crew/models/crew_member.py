@@ -11,7 +11,6 @@ from .attendance import Attendance
 from .crew import Crew
 from .shirt import Shirt
 from .skill import Skill
-from .team import Team
 
 
 class CrewMember(models.Model):
@@ -31,11 +30,11 @@ class CrewMember(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     birthday = models.DateField(null=True)
-    crew = models.OneToOneField(Crew, on_delete=models.CASCADE)
+    crew = models.ForeignKey(Crew, on_delete=models.CASCADE)
     state = models.CharField(max_length=12, choices=STATE, default="unknown")
-    shirt = models.OneToOneField(
+    shirt = models.ForeignKey(
         Shirt,
         on_delete=models.CASCADE,
         null=True,
@@ -49,7 +48,6 @@ class CrewMember(models.Model):
     attendance = models.ManyToManyField(Attendance, blank=True)
     attendance_note = models.TextField(null=True, blank=True)
     stays_overnight = models.BooleanField(default=False)
-    teams = models.ManyToManyField(Team, blank=True)
     general_note = models.TextField(null=True, blank=True)
     is_adult = models.BooleanField(default=False)
     needs_leave_of_absence = models.BooleanField(default=False)

@@ -26,7 +26,7 @@
     console.debug(fields)
     $.ajax({
       type: "POST",
-      url: "{% url "api_request_magic_link" %}",
+      url: "{% url "api_crm_request_magic_link" %}",
       data: JSON.stringify(fields),
       contentType: "application/json",
       headers: {
