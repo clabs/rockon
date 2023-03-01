@@ -144,14 +144,14 @@
         day: parseInt("{{ event.start|date:"d" }}")
       }
       const event_start = new Date(event.year, event.month, event.day)
-      const offset_year_16 = new Date(event.year - 16, event.month, event.day)
+      const offset_year_14 = new Date(event.year - 14, event.month, event.day)
       const offset_year_18 = new Date(event.year - 18, event.month, event.day)
       const value_arr = value.split("-")
       const int_value_arry = value_arr.map((value) => parseInt(value))
       const date_value = new Date(int_value_arry[0], int_value_arry[1] - 1, int_value_arry[2])
-      const over_16 = (offset_year_16.getTime() - date_value.getTime() > 0)
+      const over_14 = (offset_year_14.getTime() - date_value.getTime() > 0)
       const over_18 = (offset_year_18.getTime() - date_value.getTime() > 0)
-      return [over_16, over_18]
+      return [over_14, over_18]
   }
 
   const validateEmail = (email) => {
@@ -205,6 +205,9 @@
 </script>
 
 <h1>Neue Crewanmeldung</h1>
+<div class="alert alert-secondary" role="alert">
+  A simple secondary alert—check it out!
+</div>
 <form id="signup" class="row g-3 needs-validation" novalidate>
   {% csrf_token %}
   <h2>Persönliches</h2>
@@ -227,8 +230,8 @@
     </div>
   </div>
   <div class="col-md-6">
-    <label for="user_nick_name">Nickname</label>
-    <input type="text" name="user_nick_name" class="form-control" id="user_nick_name" placeholder="Jane" autocomplete="given-name" />
+    <label for="user_nick_name">Spitzname</label>
+    <input type="text" name="user_nick_name" class="form-control" id="user_nick_name" placeholder="Muffischlumpf" autocomplete="given-name" />
   </div>
   <div class="col-md-6">
     <label for="user_birthday">Geburtstag</label>
@@ -236,7 +239,7 @@
     <div class="valid-feedback">
     </div>
     <div class="invalid-feedback">
-      Du musst über 16 Jahre alt sein.
+      Du musst über 14 Jahre alt sein.
     </div>
   </div>
   <div class="col-md-9">
@@ -300,7 +303,7 @@
   </div>
   <div class="col-md-12">
     <label for="user_mobile">Handynummer</label>
-    <input type="tel" name="user_mobile" id="user_mobile" class="form-control not-empty" placeholder="0555678123" autocomplete="tel" />
+    <input type="tel" name="user_mobile" id="user_mobile" class="form-control not-empty" placeholder="017604069042" autocomplete="tel" />
     <div class="valid-feedback">
     </div>
     <div class="invalid-feedback">
