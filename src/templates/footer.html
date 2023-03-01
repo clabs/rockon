@@ -1,5 +1,5 @@
 <div class="container text-center">
-    <ul class="nav col-md-8 justify-content-end">
+    <ul class="nav justify-content-center">
       <li class="nav-item"><a href="{% url "rockon_impressum" %}" class="nav-link px-2 text-muted">Impressum</a></li>
       <li class="nav-item"><a href="{% url "rockon_privacy" %}" class="nav-link px-2 text-muted">Datenschutz</a></li>
       <li class="nav-item"><span class="nav-link px-2 text-muted">version: {% if APP_BUILD_HASH == "local-dev"%}{{ APP_BUILD_HASH }}{% else %}<span title="{{ APP_BUILD_HASH }}">{{ APP_BUILD_HASH|slice:7 }}</span>{% endif %}</span></li>
