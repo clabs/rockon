@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html class="h-100" lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,13 +16,22 @@
     <link href="{% static "fontawesome/css/brands.css" %}" rel="stylesheet">
     <link href="{% static "fontawesome/css/solid.css" %}" rel="stylesheet">
   </head>
-  <body>
-    {% include "navbar.html" %}
-    <div class="container" style="min-height: 85vh; margin-top: 3rem;">
-      {% block content %}{% endblock content %}
-    </div>
-    <div class="container">
-    {% include "footer.html" %}
-    </div>
-  </body>
+  <body class="d-flex flex-column h-100">
+    <!-- Begin page header -->
+    <header>
+      {% include "navbar.html" %}
+    </header>
+
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+      <div class="container pb-5" style="padding: 85px 15px 0;">
+        {% block content %}{% endblock content %}
+      </div>
+    </main>
+
+    <!-- Begin page footer -->
+    <footer class="footer mt-auto py-3 justify-content-between align-items-center border-top border-primary">
+      {% include "footer.html" %}
+    </footer>
+    </body>
 </html>
