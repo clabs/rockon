@@ -412,33 +412,32 @@
     <textarea class="form-control" id="leave_of_absence_note" name="leave_of_absence_note" rows="2" disabled></textarea>
   </div>
   <h2>Tätigkeiten</h2>
-  <div class="field">
   <label>Für welche Teams interessierst du dich?</label>
-  <div class="col-md-12">
-    <div class="row">
-      {% for team in teams %}
-      <div class="col-sm-4 pb-3">
-        <div class="card" style="width: 18rem;">
-          {% if not team.image %}
-            <img class="card-img-top" src="{% static "assets/4_3_placeholder.png" %}">
-          {% else %}
-            <img class="card-img-top" src="{{ team.image.url }}">
-          {% endif %}
-          <div class="card-header">
-            {{ team.lead|default_if_none:"Kein Gewerkeleiter" }}
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">{{ team }}</h5>
-            <p class="card-text">{{ team.description }}</p>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
-              <label class="form-check-label" for="team_{{ team.id }}">Interesse</label>
-            </div>
+  <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
+    {% for team in teams %}
+    <div class="col">
+      <div class="card h-100">
+        {% if not team.image %}
+          <img class="card-img-top img-fluid" src="{% static "assets/4_3_placeholder.png" %}" style="height: 300px !important; width: auto !important">
+        {% else %}
+          <img class="card-img-top img-fluid" src="{{ team.image.url }}" style="height: 300px !important; width: auto !important">
+        {% endif %}
+        <div class="card-header">
+          {{ team.lead|default_if_none:"Kein Gewerkeleiter" }}
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ team }}</h5>
+          <p class="card-text">{{ team.description }}</p>
+        </div>
+        <div class="card-footer">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
+            <label class="form-check-label" for="team_{{ team.id }}">Interesse</label>
           </div>
         </div>
       </div>
-      {% endfor %}
     </div>
+    {% endfor %}
   </div>
   <h2>Verschiedenes</h2>
   <div class="col-md-12">
