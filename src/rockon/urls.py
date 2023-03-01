@@ -22,15 +22,13 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from django.views.generic.base import TemplateView
 
-# from api.routers import router
-
-admin.site.site_header = "rockon"
-admin.site.site_title = "rockon Admin"
+admin.site.site_header = "rockon backstage"
+admin.site.site_title = "backstage | rockon"
 
 urlpatterns = [
     path("", include("rockon.urls_homepage")),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("admin/", admin.site.urls),
+    path("backstage/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include("api.urls")),
     path("bands/", include("bands.urls")),
