@@ -39,5 +39,10 @@ if [ "$1" == "app" -o "$STARTMODE" == "app" ]; then
       exit $?
 fi
 
-echo "Specify argument: app"
+if [ "$1" == "qcluster" -o "$STARTMODE" == "qcluster" ]; then
+    /app/.venv/bin/python /app/manage.py qcluster
+    exit $?
+fi
+
+echo "Specify argument: app qcluster version"
 exit 1
