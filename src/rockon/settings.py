@@ -185,7 +185,7 @@ EMAIL_SUBJECT_PREFIX = getenv("DJANGO_EMAIL_SUBJECT_PREFIX", "[Rockon] ")
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = getenv("DJANGO_STATIC_URL", "static/")
 
 STATIC_ROOT = path.join(BASE_DIR, "dist")
 
@@ -194,7 +194,7 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = getenv("DJANGO_MEDIA_ROOT", "uploads/")
-MEDIA_URL = getenv("DJANGO_MEDIA_URL", "/")
+MEDIA_URL = getenv("DJANGO_MEDIA_URL", "uploads/")
 
 DOMAIN = getenv("DJANGO_DOMAIN", "http://localhost:8000/")
 
