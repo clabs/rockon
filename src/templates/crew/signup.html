@@ -368,33 +368,27 @@
     <textarea class="form-control" id="skills_note" name="skills_note" rows="3"></textarea>
   </div>
   <h2>Anwesenheit</h2>
-  <div class="field">
-    <label>An welchen Tagen kannst du vor Ort sein?</label>
-    <div class="d-grid gap-2 col-6 mx-auto">
-      <div class="row g-2">
-        <div class="col">
-          <div class="d-grid gap-2 col-12 mx-auto">
-            <button id="select_all_attendance" type="button" class="btn btn-primary btn-sm">Alle Tage auswählen</button>
-          </div>
-        </div>
-        <div class="col">
-          <div class="d-grid gap-2 col-12 mx-auto">
-            <button id="select_none_attendance" type="button" class="btn btn-primary btn-sm">Alle Tage abwählen</button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <label>An welchen Tagen kannst du vor Ort sein?</label>
+  <div class="btn-group" role="group" aria-label="Basic example">
+    <button id="select_all_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage auswählen</button>
+    <button id="select_none_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage abwählen</button>
+  </div>
+  <div class="card-group">
     {% for phase in attendance_phases %}
-    <h3>{{ phase.name }}</h3>
-    <div class="row">
-    {% for day in phase.days %}
-          <div class="col">
-          <input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}">
-          <label class="form-check-label" for="attendance_{{ day.id }}">
-            {{ day }}
-          </label>
-          </div>
-    {% endfor %}
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ phase.name }}</h5>
+        <ul class="list-group list-group-flush">
+          {% for day in phase.days %}
+            <li class="list-group-item">
+              <input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}">
+              <label class="form-check-label" for="attendance_{{ day.id }}">
+                {{ day }}
+              </label>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
     {% endfor %}
   </div>
