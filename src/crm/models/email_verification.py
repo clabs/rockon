@@ -45,13 +45,13 @@ class EmailVerification(models.Model):
             "name": user.first_name,
             "email_verification_token": email_verifcation.token,
             "domain": settings.DOMAIN,
-            "subject": f"{settings.EMAIL_SUBJECT_PREFIX} Dein Magic Link",
+            "subject": f"{settings.EMAIL_SUBJECT_PREFIX} Bitte bestätige deine E-Mail-Adresse",
         }
 
         async_task(
             send_mail,
             subject=context["subject"],
-            message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{context["domain"]}{reverse("crm_verify_email", kwargs={"token": context["email_verification_token"]})}\n\n>Solltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
+            message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{context["domain"]}{reverse("crm_verify_email", kwargs={"token": context["email_verification_token"]})}\n\nSolltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[f"{user.email}"],
             html_message=template.render(context),
