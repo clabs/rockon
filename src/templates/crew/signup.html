@@ -205,12 +205,9 @@
 </script>
 
 <h1>Neue Crewanmeldung</h1>
-<div class="alert alert-secondary" role="alert">
-  A simple secondary alert—check it out!
-</div>
 <form id="signup" class="row g-3 needs-validation" novalidate>
   {% csrf_token %}
-  <h2>Persönliches</h2>
+  <div><h2>Persönliches</h2></div>
   <div class="col-md-6">
     <label for="user_first_name">Vorname</label>
     <input type="text" name="user_first_name" class="form-control not-empty" id="user_first_name" placeholder="Jane" autocomplete="given-name" />
@@ -282,7 +279,7 @@
       Ort darf nicht leer sein.
     </div>
   </div>
-  <h2>Kontakt</h2>
+  <div><h2>Kontakt</h2></div>
   <div class="col-md-6">
     <label for="user_email">E-Mail Adresse</label>
     <input type="email" name="user_email" id="user_email" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="email" />
@@ -310,7 +307,7 @@
       Bitte gibt eine gültige Telefonnummer an.
     </div>
   </div>
-  <h2>Essen &amp; T-Shirt</h2>
+  <div><h2>Essen &amp; T-Shirt</h2></div>
   <div class="col-md-12">
     <label for="nutriton_type" class="form-label">Essensgewohnheit</label>
     <select id="nutriton_type" name="nutriton_type" class="form-select not-empty">
@@ -351,7 +348,7 @@
       </ul>
     </div>
   </div>
-  <h2>Formale Qualifikationen und Fähigkeiten</h2>
+  <div><h2>Formale Qualifikationen und Fähigkeiten</h2></div>
   <div class="col-md-12">
     <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
       {% for skill in skills %}
@@ -367,7 +364,7 @@
     <label for="skills_note" class="form-label">Anmerkungen zu deinen Fähigkeiten</label>
     <textarea class="form-control" id="skills_note" name="skills_note" rows="3"></textarea>
   </div>
-  <h2>Anwesenheit</h2>
+  <div><h2>Anwesenheit</h2></div>
   <label>An welchen Tagen kannst du vor Ort sein?</label>
   <div class="btn-group" role="group" aria-label="Basic example">
     <button id="select_all_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage auswählen</button>
@@ -408,7 +405,7 @@
     <label for="leave_of_absence_note" class="form-label">Anmerkungen zu meiner Befreiung</label>
     <textarea class="form-control" id="leave_of_absence_note" name="leave_of_absence_note" rows="2" disabled></textarea>
   </div>
-  <h2>Tätigkeiten</h2>
+  <div><h2>Tätigkeiten</h2></div>
   <label>Für welche Teams interessierst du dich?</label>
   <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
     {% for team in teams %}
@@ -436,7 +433,7 @@
     </div>
     {% endfor %}
   </div>
-  <h2>Verschiedenes</h2>
+  <div><h2>Verschiedenes</h2></div>
   <div class="col-md-12">
     <label for="general_note" class="form-label">Möchtest du uns noch etwas mitteilen?</label>
     <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
