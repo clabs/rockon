@@ -15,14 +15,6 @@ def request_magic_link(request):
     return HttpResponse(template.render(context, request))
 
 
-def request_magic_link_submitted(request):
-    template = loader.get_template("crm/magic_link_requested.html")
-    context = {
-        "site_title": "Magic Link angefordert",
-    }
-    return HttpResponse(template.render(context, request))
-
-
 def magic_link(request, token):
     """Shows information corresponding to the magic link token."""
     user = authenticate(request, token=token)

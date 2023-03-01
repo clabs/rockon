@@ -2,16 +2,29 @@
 
 <script language="javascript">
   $(document).ready(() => {
-
-    $('#form_submit').click(function (event) {
+    $('form').on('submit', event => {
       event.preventDefault()
-      // $('.ui.form').form('validate form')
+    })
+    $('#form_submit').click((event) => {
+      event.preventDefault()
+      send_form()
+    })
+    $('.not-empty').on('blur', event => {
+      console.debug("not-empty handler triggered", event.target.value)
+      if (validateEmail(event.target.value)) {
+        event.target.classList.remove('is-invalid')
+        event.target.classList.add('is-valid')
+        $('#form_submit').prop('disabled', false)
+      } else {
+        event.target.classList.remove('is-valid')
+        event.target.classList.add('is-invalid')
+        $('#form_submit').prop('disabled', true)
+      }
     })
   })
 
   ajax_success = (data) => {
     console.debug(data)
-    window.location.href = "{% url "crm_request_magic_link_submitted" %}"
   }
   ajax_error = (data) => {
     // FIXMIE: needs error handling
@@ -20,17 +33,28 @@
   ajax_complete = (data) => {
     // hopenfully this is never triggered
     console.info(data)
+    $('#form_submit').prop('disabled', true)
+    $('#user_email').prop('disabled', true)
+    $('#message').removeClass('d-none')
   }
 
-  const send_form = (fields) => {
-    console.debug(fields)
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      )
+  }
+
+  const send_form = () => {
+    console.debug()
     $.ajax({
       type: "POST",
       url: "{% url "api_crm_request_magic_link" %}",
-      data: JSON.stringify(fields),
+      data: JSON.stringify({user_email: $("input[name=user_email]").val()}),
       contentType: "application/json",
       headers: {
-        "X-CSRFToken": fields.csrfmiddlewaretoken
+        "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val()
       },
       dataType: "json",
       success: (data) => ajax_success(data),
@@ -40,19 +64,42 @@
   }
 </script>
 
-<main>
-  <h1>Login anfordern</h1>
-  <form class="row g-3">
-    <div class="form-floating">
-      <input type="email" class="form-control" name="contact_email" id="contact_email" type="email" placeholder="jane.doe@example.net" autocomplete="email">
-      <label for="contact_email">E-Mail-Adresse</label>
+<h1>Login anfordern</h1>
+<form class="row g-3 needs-validation" novalidate>
+  {% csrf_token %}
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <label for="user_email">E-Mail Adresse</label>
+    <input type="email" name="user_email" id="user_email" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="email" />
+    <div class="valid-feedback">
     </div>
-    <div class="form-floating">
-      <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-      <label for="password">Password</label>
+    <div class="invalid-feedback">
+      Bitte gibt eine gültige E-Mail Adresse an.
     </div>
-    <button type="submit" id="form_submit" class="w-100 btn btn-primary">Absenden</button>
-  </form>
-</main>
+  </div>
+  <div class="col-md-4"></div>
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <button type="button" id="form_submit" class="w-100 btn btn-primary" disabled>Anfordern</button>
+  </div>
+  <div class="col-md-4"></div>
+  <div class="col-md-2"></div>
+  <div id="message" class="col-md-8 d-none">
+    <div class="alert alert-primary" role="alert">
+      <h4 class="alert-heading">🪄 Magic-Link versandt</h4>
+      <p>
+        Wir haben dir eine Mail mit einem Magic-Link zugeschickt. Bitte überprüfe
+        in den nächsten Minuten, ob Du eine entsprechende Mail von uns bekommen hast.
+      </p>
+      <hr>
+      <p>
+        ⚠️ Wie immer gilt: Im Zweifel solltest du auch den Spamverdacht-Ordner checken.
+        Sollte das der Fall sein, würden wir uns sehr über Feedback an
+        <a href="mailto:rockon@cpye.de">rockon@cpye.de</a> freuen.
+      </p>
+    </div>
+  </div>
+  <div class="col-md-2"></div>
+</form>
 
 {% endblock content %}

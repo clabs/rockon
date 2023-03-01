@@ -31,7 +31,6 @@ class MagicLink(models.Model):
 
     @classmethod
     def create_and_send(cls, user: User, expires_at: datetime) -> None:
-
         # FIXME: this should be a setting
         # MagicLink.objects.filter(user=user).delete()
 
@@ -50,7 +49,7 @@ class MagicLink(models.Model):
             "name": user.first_name,
             "magic_link_token": magic_link.token,
             "expires_at": _expires_at,
-            "expires_at_format": _expires_at.strftime("%d.%m.%Y, %H:%M"),
+            "expires_at_format": _expires_at.strftime("%d.%m.%Y - %H:%M"),
             "domain": settings.DOMAIN,
             "recipient": f"{user.email}",
             "subject": f"{settings.EMAIL_SUBJECT_PREFIX} Dein Magic Link",
