@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% block content %}{% load static %}
 
 <script language="javascript">
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   $(document).ready(() => {
     $('#select_all_attendance').click((event) => {
       event.preventDefault()
@@ -193,8 +194,9 @@
       data: JSON.stringify(fields),
       contentType: "application/json",
       headers: {
-        "X-CSRFToken": fields[0].value
+        "X-CSRFToken": csrftoken,
       },
+      mode: "same-origin",
       dataType: "json",
       success: (data) => ajax_success(data),
       error: (data) => ajax_error(data),
