@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% block content %}{% load static %}
 
 <script language="javascript">
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   ajax_success = (data) => {
     console.info(data)
     window.location.href = ""
@@ -22,8 +23,9 @@
       data: JSON.stringify(fields),
       contentType: "application/json",
       headers: {
-        "X-CSRFToken": fields.csrfmiddlewaretoken
+        "X-CSRFToken": csrftoken,
       },
+      mode: "same-origin",
       dataType: "json",
       success: (data) => ajax_success(data),
       error: (data) => ajax_error(data),
