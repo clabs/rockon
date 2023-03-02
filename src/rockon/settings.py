@@ -15,7 +15,9 @@ from __future__ import annotations
 from os import getenv, path
 from pathlib import Path
 
+import sentry_sdk
 from dotenv import load_dotenv
+from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
 
@@ -242,3 +244,18 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
+
+if getenv("DJANGO_ENABLE_SENTRY", False) == "True":
+    sentry_sdk.init(
+        dsn=getenv("SENTRY_DSN", ""),
+        integrations=[
+            DjangoIntegration(),
+        ],
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=float(getenv("SENTRY_TRACES_SAMPLE_RATE", "1.0")),
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=getenv("SENTRY_SEND_DEFAULT_PII", False) == "True",
+    )
