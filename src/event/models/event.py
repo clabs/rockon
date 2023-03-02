@@ -42,6 +42,7 @@ class Event(models.Model):
     sub_event_of = models.OneToOneField(
         "self", on_delete=models.CASCADE, blank=True, null=True
     )
+    show_on_landing_page = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

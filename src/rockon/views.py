@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from django.http import HttpResponse
 from django.shortcuts import render
+from django.template import loader
 from django.views.generic.base import TemplateView
+
+from event.models import Event
 
 
 def custom_bad_request_view(request, exception=None):
@@ -34,6 +38,8 @@ class PrivacyView(TemplateView):
     extra_context = {"site_title": "Privacy Policy"}
 
 
-class IndexView(TemplateView):
-    template_name = "rockon/landing_index.html"
-    extra_context = {"site_title": "Start"}
+def index_view(request):
+    template = loader.get_template("rockon/landing_index.html")
+    events = Event.objects.filter(show_on_landing_page=True)
+    extra_context = {"site_title": "Start", "events": events}
+    return HttpResponse(template.render(extra_context, request))
