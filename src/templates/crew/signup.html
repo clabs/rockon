@@ -1,7 +1,6 @@
 {% extends "base.html" %} {% block content %}{% load static %}
 
 <script language="javascript">
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   $(document).ready(() => {
     $('#select_all_attendance').click((event) => {
       event.preventDefault()
@@ -37,8 +36,10 @@
         validate_input({target: input})
         if (input.classList.contains('is-invalid')) {
           validated = false
+          $('#form_message').html('<div class="alert alert-danger" role="alert">Bitte korregiere die Fehler in den markierten Feldern.</div>')
           break
         } else {
+          $('#form_message').html("")
           validated = true
         }
       }
@@ -167,9 +168,11 @@
     if (is_valid) {
       input.target.classList.add('is-valid')
       input.target.classList.remove('is-invalid')
+      $('#form_message').html("")
     } else {
       input.target.classList.add('is-invalid')
       input.target.classList.remove('is-valid')
+      $('#form_message').html('<div class="alert alert-danger" role="alert">Bitte korregiere die Fehler in den markierten Feldern.</div>')
     }
   }
 
@@ -194,7 +197,7 @@
       data: JSON.stringify(fields),
       contentType: "application/json",
       headers: {
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
       },
       mode: "same-origin",
       dataType: "json",
@@ -234,7 +237,7 @@
   </div>
   <div class="col-md-6">
     <label for="user_birthday">Geburtstag</label>
-    <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday" placeholder="01.01.1970" autocomplete="bday" />
+    <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday" autocomplete="bday" />
     <div class="valid-feedback">
     </div>
     <div class="invalid-feedback">
@@ -529,6 +532,9 @@
       </div>
     </div>
   </div>
+  <div class="col-md-12">
+    <div id="form_message">
+    </div>
 </form>
 
 {% endblock content %}

@@ -2,7 +2,6 @@
 <script>
 
 $(document).ready(() => {
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   $('#confirm').click((event) => {
     event.preventDefault()
     send_form()
@@ -37,7 +36,7 @@ $(document).ready(() => {
       data: JSON.stringify({token: $("input[name=token]").val()}),
       contentType: "application/json",
       headers: {
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
       },
       mode: "same-origin",
       dataType: "json",
