@@ -1,7 +1,20 @@
 {% extends "base.html" %} {% block content %} {% load static %}
-<div class="jumbotron">
-  <h1>Rockon</h1>
-  <p>Hi, ich bin Rockon und ich helfe beim Organisieren und Verwalten von <a href="https://rocktreff.de" target="_blank">Rocktreff</a> und <a href="https://spielfest-mariendorf.de/" target="_blank">Spielfest Mariendorf</a>.</p>
+<h1>Rockon</h1>
+<p>Hi, ich bin Rockon und ich helfe beim Organisieren und Verwalten von <a href="https://rocktreff.de" target="_blank">Rocktreff</a> und <a href="https://spielfest-mariendorf.de/" target="_blank">Spielfest Mariendorf</a>.</p>
+
+<div><h2>Aktuelle Veranstaltungen</h2></div>
+{% for event in events %}
+<div class="event">
+    <h3>{{ event }}</h3>
+    <p>{{ event.description }}</p>
+    <h4>Wo</h4>
+    <p>{{ event.location }}</p>
+    <h4>Wann</h4>
+    <p>{{ event.opening }} - {{ event.closing }}</p>
+    <h4>Mitmachen</h4>
+    <p><a href="{% url 'crew_root' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
 </div>
+{% endfor %}
+
 
 {% endblock content %}
