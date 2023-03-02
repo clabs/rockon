@@ -31,6 +31,7 @@ class Team(models.Model):
     )
     contact_mail = models.EmailField(null=True, blank=True)
     is_public = models.BooleanField(default=True)
+    show_teamlead = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
