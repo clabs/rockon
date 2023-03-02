@@ -427,7 +427,7 @@
   </div>
   <div><h2>Anwesenheit</h2></div>
   <label>An welchen Tagen kannst du vor Ort sein?</label>
-  <div class="btn-group" role="group" aria-label="Basic example">
+  <div class="btn-group" role="group" aria-label="attendance_selector">
     <button id="select_all_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage auswählen</button>
     <button id="select_none_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage abwählen</button>
   </div>
@@ -487,9 +487,9 @@
     <div class="col">
       <div class="card h-100">
         {% if not team.image %}
-          <img class="card-img-top img-fluid" src="{% static "assets/4_3_placeholder.png" %}" style="height: 300px !important; width: auto !important">
+          <img class="card-img-top img-fluid" src="{% static "assets/4_3_placeholder.png" %}">
         {% else %}
-          <img class="card-img-top img-fluid" src="{{ team.image.url }}" style="height: 300px !important; width: auto !important">
+          <img class="card-img-top img-fluid" src="{{ team.image.url }}">
         {% endif %}
         <div class="card-header">
           {% if team.lead and team.show_teamlead %}
