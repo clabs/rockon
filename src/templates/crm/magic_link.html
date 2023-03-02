@@ -1,7 +1,6 @@
 {% extends "base.html" %} {% block content %}
 
 <script language="javascript">
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   $(document).ready(() => {
     $('form').on('submit', event => {
       event.preventDefault()
@@ -55,7 +54,7 @@
       data: JSON.stringify({user_email: $("input[name=user_email]").val()}),
       contentType: "application/json",
       headers: {
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
       },
       mode: "same-origin",
       dataType: "json",
