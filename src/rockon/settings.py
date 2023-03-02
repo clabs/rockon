@@ -124,7 +124,7 @@ if getenv("DJANGO_USE_SQLITE", False) == "True":
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": f'redis://{getenv("DJANGO_REDIS_HOST", "127.0.0.1")}:{getenv("DJANGO_REDIS_PORT", "6379")}/{getenv("DJANGO_REDIS_DB", "0")}',
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
