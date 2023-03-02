@@ -122,8 +122,8 @@
       }
     } else if (input.target.type === "date") {
       console.debug("date field", input.target.id)
-      console.debug("birthday date field", event.target.value)
-      const is_old_enough = age_validation(event.target.value)
+      console.debug("birthday date field", input.target)
+      const is_old_enough = age_validation(input.target.value)
       console.debug("is over age", is_old_enough)
       if (!is_old_enough[0]) {
         $('#user_birthday').addClass('is-invalid').removeClass('is-valid')
