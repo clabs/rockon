@@ -1,34 +1,17 @@
 version: "3.8"
 
 services:
-  postgres:
-    image: postgres:15
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_INITDB_ARGS: ${POSTGRES_INITDB_ARGS}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_PGTZ: ${POSTGRES_PGTZ}
-      POSTGRES_TZ: ${POSTGRES_TZ}
-      POSTGRES_USER: ${POSTGRES_USER}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data:rw
-    networks:
-      - rockon
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-
   app:
     image: ghcr.io/clabs/rockon:${IMAGE_VERSION}
     env_file: .env
     environment:
       STARTMODE: app
     restart: unless-stopped
-    depends_on:
-      - postgres
+    volumes:
+      - sqlite_data:/app/_db:rw
+      - app_socket:/run/podcast_aggregator
+      - static_files:/static_files
+      - media_files:/app/uploads
     networks:
       - rockon
 
@@ -37,17 +20,30 @@ services:
     env_file: .env
     environment:
       STARTMODE: qcluster
+    volumes:
+      - sqlite_data:/app/_db:rw
     restart: unless-stopped
-    depends_on:
-      - postgres
     networks:
       - rockon
+
+  proxy:
+    image: nginx:alpine
+    restart: unless-stopped
+    networks:
+      - rockon
+    ports:
+      - "${DOCKER_BIND_INTERFACE}:80:80"
+    volumes:
+      - app_socket:/run/podcast_aggregator:ro
+      - static_files:/usr/share/nginx/html/static_files:ro
+      - media_files:/usr/share/nginx/html/media_files:ro
+      - ./contrib/nginx.conf:/etc/nginx/nginx.conf:ro
 
   redis:
     image: redis:7
     restart: unless-stopped
     volumes:
-      - redis-data:/data:rw
+      - redis_data:/data:rw
     networks:
       - rockon
     healthcheck:
@@ -57,7 +53,10 @@ services:
       retries: 5
 
 volumes:
-  postgres-data:
+  redis_data:
+  sqlite_data:
+  app_socket:
+  static_files:
 
 networks:
   rockon:
