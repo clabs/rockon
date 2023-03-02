@@ -177,7 +177,7 @@
     window.location.href = "{% url "crew_signup_submitted" slug=slug %}"
   }
   ajax_error = (data) => {
-    // FIXMIE: needs error handling
+    // FIXME: needs error handling
     console.error(data)
   }
   ajax_complete = (data) => {
@@ -417,7 +417,11 @@
           <img class="card-img-top img-fluid" src="{{ team.image.url }}" style="height: 300px !important; width: auto !important">
         {% endif %}
         <div class="card-header">
-          {{ team.lead|default_if_none:"Kein Gewerkeleiter" }}
+          {% if team.lead and team.show_teamlead %}
+            Verantwortlich: {{ team.lead.first_name }}
+          {% else %}
+            &nbsp;
+          {% endif %}
         </div>
         <div class="card-body">
           <h5 class="card-title">{{ team }}</h5>
