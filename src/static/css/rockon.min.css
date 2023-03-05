@@ -8486,8 +8486,7 @@ footer {
 h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
   position: relative;
   text-shadow: 0.02em 0.03em 0.1em black;
-  display: inline-block;
-  margin-top: revert; }
+  display: inline-block; }
 
 h1, .h1, h2, .h2 {
   padding: 0em 0.7em 0em 0em; }
