@@ -1,0 +1,30 @@
+footer {
+    z-index: 0;
+    margin-top: -5em;
+    padding-top: 6em;
+    padding-bottom: 6em;
+    background-color: $yellow;
+    color: $black;
+    min-height: auto;
+
+    .nav {
+        .nav-link, a {
+            color: $black;
+
+            &:hover {
+                color: $black !important;
+            }
+        }
+    }
+    a {
+        color: $black;
+
+        &:hover {
+            color: $black !important;
+        }
+    }
+
+    .text-muted {
+        color: rgba($black, 0.7) !important;
+    }
+}

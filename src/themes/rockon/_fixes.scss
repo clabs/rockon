@@ -1,0 +1,188 @@
+
+:root {
+  color-scheme: dark;
+}
+
+// Typography
+.blockquote {
+  &-footer {
+    color: $gray-600;
+  }
+}
+
+// Forms
+.form-control {
+  color-scheme: light;
+}
+
+.input-group-addon {
+  color: $white;
+}
+
+.form-floating > label {
+  color: $gray-700;
+}
+
+// Navs
+.breadcrumb a {
+  color: $white;
+}
+
+.pagination {
+  a:hover {
+    text-decoration: none;
+  }
+}
+
+// Indicators
+.alert {
+  color: $white;
+  border: none;
+
+  a,
+  .alert-link {
+    color: $white;
+    text-decoration: underline;
+  }
+
+  @each $color, $value in $theme-colors {
+    &-#{$color} {
+      @if $enable-gradients {
+        background: $value linear-gradient(180deg, mix($white, $value, 15%), $value) repeat-x;
+      } @else {
+        background-color: $value;
+      }
+    }
+  }
+}
+
+
+
+@mixin alert-text-colors($text-color, $link-color) {
+  color: $text-color;
+  a {
+    color: $text-color !important;
+      &:hover {
+        background-color: $black;
+        color: $link-color !important;
+      }
+  }
+}
+
+
+.alert {
+  &.alert-danger {
+    @include alert-text-colors($white, $danger);
+  }
+  &.alert-secondary {
+    @include alert-text-colors($white, $white);
+  }
+  &.alert-light {
+    @include alert-text-colors($white, $light);
+  }
+  &.alert-success {
+    @include alert-text-colors($black, $success);
+  }
+  &.alert-primary {
+    @include alert-text-colors($black, $primary);
+  }
+  &.alert-info {
+    @include alert-text-colors($black, $info);
+  }
+}
+
+
+.badge {
+  &.bg-success, &.bg-primary, &.bg-info {
+    color: $black;
+    a {
+      color: $black;
+    }
+  }
+}
+
+
+@mixin card-text-colors($text-color, $link-hover) {
+  .card-body {
+    color: $text-color;
+    a {
+      color: $text-color;
+      &:hover {
+        background-color: $black;
+        color: $link-hover;
+      }
+    }
+  }
+}
+
+.card {
+  &.bg-danger {
+    @include card-text-colors($white, $danger);
+  }
+  &.bg-secondary {
+    @include card-text-colors($white, $white);
+  }
+  &.bg-light {
+    @include card-text-colors($white, $light);
+  }
+  &.bg-success {
+    @include card-text-colors($black, $success);
+  }
+  &.bg-primary {
+    @include card-text-colors($black, $primary);
+  }
+  &.bg-info {
+    @include card-text-colors($black, $info);
+  }
+
+  .card-title, .card-subtitle {
+    display: block;
+    font-family: inherit;
+    text-shadow: none;
+    &:before {
+      content: none;
+    }
+  }
+}
+
+
+.popover {
+  .popover-header {
+    display: block;
+    padding: 1rem;
+    &:before {
+      content: none;
+    }
+  }
+}
+
+.accordion {
+  .accordion-item {
+    h1, h2, h3, h4, h5, h6 {
+      display: block;
+      padding: 0;
+      &:before {
+        content: none;
+      }
+    }
+  }
+  .accordion-button:focus {
+    box-shadow: none;
+  }
+}
+
+.pagination {
+  .page-link {
+    &:hover {
+      color: $white !important;
+    }
+  }
+}
+
+.list-group-item {
+  &.active {
+    h1, h2, h3, h4, h5, h6 {
+      text-shadow: none;
+    }
+  }
+}

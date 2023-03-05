@@ -1,20 +1,55 @@
 {% extends "base.html" %} {% block content %} {% load static %}
-<h1>Rockon</h1>
-<p>Hi, ich bin Rockon und ich helfe beim Organisieren und Verwalten von <a href="https://rocktreff.de" target="_blank">Rocktreff</a> und <a href="https://spielfest-mariendorf.de/" target="_blank">Spielfest Mariendorf</a>.</p>
 
-<div><h2>Aktuelle Veranstaltungen</h2></div>
-{% for event in events %}
-<div class="event">
-    <h3>{{ event }}</h3>
-    <p>{{ event.description }}</p>
-    <h4>Wo</h4>
-    <p>{{ event.location }}</p>
-    <h4>Wann</h4>
-    <p>{{ event.opening }} - {{ event.closing }}</p>
-    <h4>Mitmachen</h4>
-    <p><a href="{% url 'crew_root' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
+
+
+<div class="container">
+  <div class="row justify-content-md-center align-items-center">
+    <div class="col-md-4 g-2">
+      <img src="{% static "assets/racoon.svg" %}" class="img-fluid">
+    </div>
+    <div class="col-md-4">
+      <p>
+        Hi, ich bin Rockon und ich helfe beim Organisieren und Verwalten
+        von <a href="https://rocktreff.de" target="_blank">Rocktreff</a> und
+        <a href="https://spielfest-mariendorf.de/" target="_blank">Spielfest Mariendorf</a>
+      </p>
+    </div>
+  </div>
 </div>
-{% endfor %}
+
+{% if events %}
+<div><h3>Aktuelle Veranstaltungen</h3></div>
+<div class="container">
+    <div class="row justify-content-md-center align-items-center row-cols-1 row-cols-md-3 g-4 pb-3">
+      <div class="col">
+        {% for event in events %}
+        <div class="card mb-3" style="max-width: 540px;">
+          <div class="card-header">
+            <img src="{{ event.image.url }}" class="img-fluid rounded-start" alt="...">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ event }}</h5>
+            <p class="card-text">
+              {{ event.description }}
+            </p>
+            <p>Wo: {{ event.location }}</p>
+            <p>Wann: {{ event.opening }} - {{ event.closing }}</p>
+            <h4>Mitmachen</h4>
+            <p><a href="{% url 'crew_root' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+
+
+
+
 
 
 {% endblock content %}
