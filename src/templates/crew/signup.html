@@ -242,10 +242,8 @@
 </script>
 
 <h1>CREW ANMELDUNG - {{ event.name }}</h1>
-<p>
-  <img src="{{ event.image.url }}" align="left" class="img-fluid rounded">
-</p>
-
+<div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat">
+</div>
 
 <form id="signup" class="row align-items-center needs-validation" novalidate>
   {% csrf_token %}
@@ -571,11 +569,7 @@
       {% for team in teams %}
       <div class="col">
         <div class="card h-100" data-team="{{ team.id }}">
-          {% if not team.image %}
-            <img class="card-img-top img-fluid" src="{% static "assets/4_3_placeholder.png" %}">
-          {% else %}
-            <img class="card-img-top img-fluid" src="{{ team.image.url }}">
-          {% endif %}
+          <img class="card-img-top img-fluid" src="{{ team.get_image_url }}">
           <div class="card-header">
             {% if team.lead and team.show_teamlead %}
               Verantwortlich: {{ team.lead.first_name }}
