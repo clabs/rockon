@@ -26,7 +26,7 @@
     <div class="col pb-5">
       <div class="card mb-12">
         <div class="row g-0">
-          <div class="col-md-4" style="background-image: url({% if event.image %}{{ event.image.url }}{% else %}{% static "assets/4_3_placeholder.png" %}{% endif %}); background-size: cover; background-position: center center; background-repeat: no-repeat">
+          <div class="col-md-4" style="background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat;">
           </div>
           <div class="col-md-8">
             <div class="card-body">
