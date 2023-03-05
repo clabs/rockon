@@ -12,6 +12,12 @@ from library import UploadToPathAndRename
 class Event(models.Model):
     """Event model."""
 
+    SIGN_UP_TYPE = [
+        ("unknown", "Unbekannt"),
+        ("crew", "Crew"),
+        ("exhibitor", "Austeller"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=511)
     slug = models.SlugField(null=False, unique=True)
@@ -31,9 +37,17 @@ class Event(models.Model):
         null=True,
     )
     sub_event_of = models.OneToOneField(
-        "self", on_delete=models.CASCADE, blank=True, null=True
+        "self",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="sub_events",
     )
     show_on_landing_page = models.BooleanField(default=False)
+    signup_is_open = models.BooleanField(default=True)
+    signup_type = models.CharField(
+        max_length=12, choices=SIGN_UP_TYPE, default="unknown"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
