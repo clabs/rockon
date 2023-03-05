@@ -225,314 +225,356 @@
 </script>
 
 <h1>Neue Crewanmeldung</h1>
-<form id="signup" class="row g-3 needs-validation" novalidate>
+<p>
+  <img src="{{ event.image.url }}" align="left" class="img-fluid">
+  Hier kannst du dich zum {{ event.name }} anmelden!
+</p>
+<form id="signup" class="row g-4 align-items-center needs-validation" novalidate>
   {% csrf_token %}
-  <div><h2>Persönliches</h2></div>
-  <div class="col-md-6">
-    <label for="user_first_name">Vorname</label>
-    <input type="text" name="user_first_name" class="form-control not-empty" id="user_first_name" placeholder="Jane" autocomplete="given-name" />
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Vorname darf nicht leer sein.
-    </div>
-  </div>
-  <div class="col-md-6">
-    <label for="user_last_name">Nachname</label>
-    <input type="text" name="user_last_name" class="form-control not-empty" id="user_last_name" placeholder="Doe" autocomplete="family-name" />
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Nachname darf nicht leer sein.
-    </div>
-  </div>
-  <div class="col-md-6">
-    <label for="user_nick_name">Spitzname</label>
-    <input type="text" name="user_nick_name" class="form-control" id="user_nick_name" placeholder="Muffischlumpf" autocomplete="given-name" />
-  </div>
-  <div class="col-md-6">
-    <label for="user_birthday">Geburtstag</label>
-    <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday" placeholder="01.01.1970" autocomplete="bday" />
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Du musst über 14 Jahre alt sein.
-    </div>
-  </div>
-  <div class="col-md-9">
-    <label for="user_address">Straße</label>
-    <input type="text" name="user_address" class="form-control not-empty" id="user_address" placeholder="Am Geldspeicher" autocomplete="street-address" />
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Straße darf nicht leer sein.
-    </div>
-  </div>
-  <div class="col-md-3">
-    <label for="user_address_housenumber">Hausnummer</label>
-    <input type="text" class="form-control not-empty" name="user_address_housenumber" id="user_address_housenumber" placeholder="23a" />
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Hausnummer darf nicht leer sein.
-    </div>
-  </div>
-  <div class="col-md-12">
-    <label for="user_address_extension">Addresszusatz</label>
-    <input type="text" class="form-control" name="user_address_extension" id="user_address_extension" placeholder="Addresszusatz" autocomplete="off" />
-  </div>
-  <div class="col-md-6">
-    <label for="user_zipcode">Postleitzahl</label>
-    <input type="text" pattern="[\d+]{5}" name="user_zipcode" id="user_zipcode" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" />
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Postleitzahl muss 5 Ziffern lang sein.
-    </div>
-  </div>
-  <div class="col-md-6">
-    <label for="user_place">Ort</label>
-    <input type="text" class="form-control not-empty" name="user_place" id="user_place" placeholder="Entenhausen" autocomplete="home city"/>
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Ort darf nicht leer sein.
-    </div>
-  </div>
-  <div class="accordion" id="user_information">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="heading_user_information">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_user_information" aria-expanded="false" aria-controls="collapse_user_information">
-          Warum erheben wir diese Informationen?
-        </button>
-      </h2>
-      <div id="collapse_user_information" class="accordion-collapse collapse" aria-labelledby="heading_user_information" data-bs-parent="#user_information">
-        <div class="accordion-body">
-          <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+
+  <section class="row p-4 form-section">
+
+    <div class="col-md-8">
+      <div class="row">
+        <div><h3>Persönliches</h3></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <label for="user_first_name">Vorname</label>
+          <input type="text" name="user_first_name" class="form-control not-empty" id="user_first_name" placeholder="Jane" autocomplete="given-name" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Vorname darf nicht leer sein.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="user_last_name">Nachname</label>
+          <input type="text" name="user_last_name" class="form-control not-empty" id="user_last_name" placeholder="Doe" autocomplete="family-name" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Nachname darf nicht leer sein.
+          </div>
+        </div>
+      </div>
+      <div class="row">
+
+      </div>
+
+
+
+      <div class="col-sm-6">
+        <label for="user_nick_name">Spitzname</label>
+        <input type="text" name="user_nick_name" class="form-control" id="user_nick_name" placeholder="Muffischlumpf" autocomplete="given-name" />
+      </div>
+      <div class="col-sm-6">
+        <label for="user_birthday">Geburtstag</label>
+        <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday" placeholder="01.01.1970" autocomplete="bday" />
+        <div class="valid-feedback">
+        </div>
+        <div class="invalid-feedback">
+          Du musst über 14 Jahre alt sein.
+        </div>
+      </div>
+      <div class="col-sm-9">
+        <label for="user_address">Straße</label>
+        <input type="text" name="user_address" class="form-control not-empty" id="user_address" placeholder="Am Geldspeicher" autocomplete="street-address" />
+        <div class="valid-feedback">
+        </div>
+        <div class="invalid-feedback">
+          Straße darf nicht leer sein.
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <label for="user_address_housenumber">Hausnummer</label>
+        <input type="text" class="form-control not-empty" name="user_address_housenumber" id="user_address_housenumber" placeholder="23a" />
+        <div class="valid-feedback">
+        </div>
+        <div class="invalid-feedback">
+          Hausnummer darf nicht leer sein.
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <label for="user_address_extension">Addresszusatz</label>
+        <input type="text" class="form-control" name="user_address_extension" id="user_address_extension" placeholder="Addresszusatz" autocomplete="off" />
+      </div>
+      <div class="col-sm-6">
+        <label for="user_zipcode">Postleitzahl</label>
+        <input type="text" pattern="[\d+]{5}" name="user_zipcode" id="user_zipcode" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" />
+        <div class="valid-feedback">
+        </div>
+        <div class="invalid-feedback">
+          Postleitzahl muss 5 Ziffern lang sein.
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <label for="user_place">Ort</label>
+        <input type="text" class="form-control not-empty" name="user_place" id="user_place" placeholder="Entenhausen" autocomplete="home city"/>
+        <div class="valid-feedback">
+        </div>
+        <div class="invalid-feedback">
+          Ort darf nicht leer sein.
         </div>
       </div>
     </div>
-  </div>
-  <div><h2>Kontakt</h2></div>
-  <div class="col-md-6">
-    <label for="user_email">E-Mail Adresse</label>
-    <input type="email" name="user_email" id="user_email" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="email" />
-    <div class="valid-feedback">
+    <div class="col-md-4">
+      <div><h4>Warum erheben wir diese Informationen?</h4></div>
+      <p>
+        <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+      </p>
     </div>
-    <div class="invalid-feedback">
-      Bitte gibt eine gültige E-Mail Adresse an.
-    </div>
-  </div>
-  <div class="col-md-6">
-    <label for="user_email_confirmation">E-Mail Adresse bestätigen</label>
-    <input type="email" name="user_email_confirmation" id="user_email_confirmation" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="off" />
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Bitte wiederhole deine E-Mail Adresse.
-    </div>
-  </div>
-  <div class="col-md-12">
-    <label for="user_mobile">Handynummer</label>
-    <input type="tel" name="user_mobile" id="user_mobile" class="form-control not-empty" placeholder="017604069042" autocomplete="tel" />
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Bitte gibt eine gültige Telefonnummer an.
-    </div>
-  </div>
-  <div class="accordion" id="contact_information">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="heading_contact_information">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_contact_information" aria-expanded="false" aria-controls="collapse_contact_information">
-          Warum erheben wir diese Informationen?
-        </button>
-      </h2>
-      <div id="collapse_contact_information" class="accordion-collapse collapse" aria-labelledby="heading_contact_information" data-bs-parent="#contact_information">
-        <div class="accordion-body">
-          <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
+  </section>
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Kontakt</h3></div>
+    <div class="col-sm-6">
+      <label for="user_email">E-Mail Adresse</label>
+      <input type="email" name="user_email" id="user_email" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="email" />
+      <div class="valid-feedback">
+      </div>
+      <div class="invalid-feedback">
+        Bitte gibt eine gültige E-Mail Adresse an.
       </div>
     </div>
-  </div>
-  <div><h2>Essen &amp; T-Shirt</h2></div>
-  <div class="col-md-12">
-    <label for="nutriton_type" class="form-label">Essensgewohnheit</label>
-    <select id="nutriton_type" name="nutriton_type" class="form-select not-empty">
-      <option value="" selected></option>
-      <option value="omnivore">Alles-Esser</option>
-      <option value="vegetarian">Vegatrisch</option>
-      <option value="vegan">Vegan</option>
-    </select>
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Bitte wähle deine Ernährungsgewohnheit aus.
-    </div>
-  </div>
-  <div class="col-md-12">
-    <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten, Unverträglichkeiten, etc.</label>
-    <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
-  </div>
-  <div class="col-md-12">
-    <label for="crew_shirt">T-Shirt</label>
-    <select id="crew_shirt" name="crew_shirt" class="form-select not-empty">
-      <option value="" selected></option>
-      {% for shirt in shirts %}
-        <option value="{{ shirt.id }}">{{ shirt }}</option>
-      {% endfor %}
-    </select>
-    <div class="valid-feedback">
-    </div>
-    <div class="invalid-feedback">
-      Bitte wähle T-Shirt Größe und Schnitt aus.
-    </div>
-    <div class="alert alert-info mt-3" role="alert">
-      <h4 class="alert-heading">Erklärung Schnitt</h4>
-      <hr>
-      <ul>
-        <li>fitted: figurbetonter Schnitt</li>
-        <li>straight: normaler Schnitt</li>
-      </ul>
-    </div>
-  </div>
-  <div class="accordion" id="shirt_nutri_information">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="heading_shirt_nutri_information">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_shirt_nutri_information" aria-expanded="false" aria-controls="collapse_shirt_nutri_information">
-          Warum erheben wir diese Informationen?
-        </button>
-      </h2>
-      <div id="collapse_shirt_nutri_information" class="accordion-collapse collapse" aria-labelledby="heading_shirt_nutri_information" data-bs-parent="#shirt_nutri_information">
-        <div class="accordion-body">
-          <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
+    <div class="col-sm-6">
+      <label for="user_email_confirmation">E-Mail Adresse bestätigen</label>
+      <input type="email" name="user_email_confirmation" id="user_email_confirmation" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="off" />
+      <div class="valid-feedback">
+      </div>
+      <div class="invalid-feedback">
+        Bitte wiederhole deine E-Mail Adresse.
       </div>
     </div>
-  </div>
-  <div><h2>Formale Qualifikationen und Fähigkeiten</h2></div>
-  <div class="col-md-12">
-    <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
-      {% for skill in skills %}
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="skill_{{ skill.id }}" name="skill_{{ skill.id }}">
-        <label class="form-check-label" for="skill_{{ skill.id }}">
-          {{ skill.icon|safe }}&nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i>
-        </label>
+    <div class="col-sm-12">
+      <label for="user_mobile">Handynummer</label>
+      <input type="tel" name="user_mobile" id="user_mobile" class="form-control not-empty" placeholder="017604069042" autocomplete="tel" />
+      <div class="valid-feedback">
       </div>
-      {% endfor %}
-  </div>
-  <div class="col-md-12">
-    <label for="skills_note" class="form-label">Anmerkungen zu deinen Fähigkeiten</label>
-    <textarea class="form-control" id="skills_note" name="skills_note" rows="3"></textarea>
-  </div>
-  <div class="accordion" id="skill_information">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="heading_skill_information">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_skill_information" aria-expanded="false" aria-controls="collapse_skill_information">
-          Warum erheben wir diese Informationen?
-        </button>
-      </h2>
-      <div id="collapse_skill_information" class="accordion-collapse collapse" aria-labelledby="heading_skill_information" data-bs-parent="#skill_information">
-        <div class="accordion-body">
-          <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
+      <div class="invalid-feedback">
+        Bitte gibt eine gültige Telefonnummer an.
       </div>
     </div>
-  </div>
-  <div><h2>Anwesenheit</h2></div>
-  <label>An welchen Tagen kannst du vor Ort sein?</label>
-  <div class="btn-group" role="group" aria-label="attendance_selector">
-    <button id="select_all_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage auswählen</button>
-    <button id="select_none_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage abwählen</button>
-  </div>
-  <div class="card-group">
-    {% for phase in attendance_phases %}
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{{ phase.name }}</h5>
-        <ul class="list-group list-group-flush">
-          {% for day in phase.days %}
-            <li class="list-group-item">
-              <input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}">
-              <label class="form-check-label" for="attendance_{{ day.id }}">
-                {{ day }}
-              </label>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  <div class="col-md-12">
-    <label for="skills_note" class="form-label">Anmerkungen zu deiner Anwesenheit</label>
-    <textarea class="form-control" id="note_attendance" name="note_attendance" rows="2"></textarea>
-  </div>
-  <div class="col-md-12">
-    <input class="form-check-input" type="checkbox" value="" id="stays_overnight" name="stays_overnight" disabled>
-    <label class="form-check-label" for="stays_overnight">Ich übernachte vor Ort.</label>
-  </div>
-  <div class="col-md-12">
-    <input class="form-check-input" type="checkbox" value="" id="leave_of_absence" name="leave_of_absence">
-    <label class="form-check-label" for="leave_of_absence">Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.</label>
-  </div>
-  <div class="col-md-12">
-    <label for="leave_of_absence_note" class="form-label">Anmerkungen zu meiner Befreiung</label>
-    <textarea class="form-control" id="leave_of_absence_note" name="leave_of_absence_note" rows="2" disabled></textarea>
-  </div>
-  <div class="accordion" id="attendance_information">
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="heading_attendance_information">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_attendance_information" aria-expanded="false" aria-controls="collapse_attendance_information">
-          Warum erheben wir diese Informationen?
-        </button>
-      </h2>
-      <div id="collapse_attendance_information" class="accordion-collapse collapse" aria-labelledby="heading_attendance_information" data-bs-parent="#attendance_information">
-        <div class="accordion-body">
-          <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
-      </div>
-    </div>
-  </div>
-  <div><h2>Tätigkeiten</h2></div>
-  <label>Für welche Teams interessierst du dich?</label>
-  <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
-    {% for team in teams %}
-    <div class="col">
-      <div class="card h-100">
-        {% if not team.image %}
-          <img class="card-img-top img-fluid" src="{% static "assets/4_3_placeholder.png" %}">
-        {% else %}
-          <img class="card-img-top img-fluid" src="{{ team.image.url }}">
-        {% endif %}
-        <div class="card-header">
-          {% if team.lead and team.show_teamlead %}
-            Verantwortlich: {{ team.lead.first_name }}
-          {% else %}
-            &nbsp;
-          {% endif %}
-        </div>
-        <div class="card-body">
-          <h5 class="card-title">{{ team }}</h5>
-          <p class="card-text">{{ team.description }}</p>
-        </div>
-        <div class="card-footer">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
-            <label class="form-check-label" for="team_{{ team.id }}">Interesse</label>
+    <div class="accordion" id="contact_information">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading_contact_information">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_contact_information" aria-expanded="false" aria-controls="collapse_contact_information">
+            Warum erheben wir diese Informationen?
+          </button>
+        </h2>
+        <div id="collapse_contact_information" class="accordion-collapse collapse" aria-labelledby="heading_contact_information" data-bs-parent="#contact_information">
+          <div class="accordion-body">
+            <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
           </div>
         </div>
       </div>
     </div>
-    {% endfor %}
-  </div>
-  <div><h2>Verschiedenes</h2></div>
-  <div class="col-md-12">
-    <label for="general_note" class="form-label">Möchtest du uns noch etwas mitteilen?</label>
-    <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
-  </div>
+  </section>
+
+
+  <section class="row p-4 form-section">
+
+    <div><h3>Essen &amp; T-Shirt</h3></div>
+    <div class="col-sm-12">
+      <label for="nutriton_type" class="form-label">Essensgewohnheit</label>
+      <select id="nutriton_type" name="nutriton_type" class="form-select not-empty">
+        <option value="" selected></option>
+        <option value="omnivore">Alles-Esser</option>
+        <option value="vegetarian">Vegatrisch</option>
+        <option value="vegan">Vegan</option>
+      </select>
+      <div class="valid-feedback">
+      </div>
+      <div class="invalid-feedback">
+        Bitte wähle deine Ernährungsgewohnheit aus.
+      </div>
+    </div>
+    <div class="col-sm-12">
+      <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten, Unverträglichkeiten, etc.</label>
+      <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+    </div>
+    <div class="col-sm-12">
+      <label for="crew_shirt">T-Shirt</label>
+      <select id="crew_shirt" name="crew_shirt" class="form-select not-empty">
+        <option value="" selected></option>
+        {% for shirt in shirts %}
+          <option value="{{ shirt.id }}">{{ shirt }}</option>
+        {% endfor %}
+      </select>
+      <div class="valid-feedback">
+      </div>
+      <div class="invalid-feedback">
+        Bitte wähle T-Shirt Größe und Schnitt aus.
+      </div>
+      <div class="alert alert-info mt-3" role="alert">
+        <h4 class="alert-heading">Erklärung Schnitt</h4>
+        <hr>
+        <ul>
+          <li>fitted: figurbetonter Schnitt</li>
+          <li>straight: normaler Schnitt</li>
+        </ul>
+      </div>
+    </div>
+    <div class="accordion" id="shirt_nutri_information">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading_shirt_nutri_information">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_shirt_nutri_information" aria-expanded="false" aria-controls="collapse_shirt_nutri_information">
+            Warum erheben wir diese Informationen?
+          </button>
+        </h2>
+        <div id="collapse_shirt_nutri_information" class="accordion-collapse collapse" aria-labelledby="heading_shirt_nutri_information" data-bs-parent="#shirt_nutri_information">
+          <div class="accordion-body">
+            <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Formale Qualifikationen und Fähigkeiten</h3></div>
+    <div class="col-sm-12">
+      <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
+        {% for skill in skills %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="skill_{{ skill.id }}" name="skill_{{ skill.id }}">
+          <label class="form-check-label" for="skill_{{ skill.id }}">
+            <i class="fa fa-{{ skill.icon|safe }}"></i> &nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i>
+          </label>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col-sm-12">
+      <label for="skills_note" class="form-label">Anmerkungen zu deinen Fähigkeiten</label>
+      <textarea class="form-control" id="skills_note" name="skills_note" rows="3"></textarea>
+    </div>
+    <div class="accordion" id="skill_information">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading_skill_information">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_skill_information" aria-expanded="false" aria-controls="collapse_skill_information">
+            Warum erheben wir diese Informationen?
+          </button>
+        </h2>
+        <div id="collapse_skill_information" class="accordion-collapse collapse" aria-labelledby="heading_skill_information" data-bs-parent="#skill_information">
+          <div class="accordion-body">
+            <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Anwesenheit</h3></div>
+    <label>An welchen Tagen kannst du vor Ort sein?</label>
+    <div class="btn-group" role="group" aria-label="attendance_selector">
+      <button id="select_all_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage auswählen</button>
+      <button id="select_none_attendance" type="button" class="btn btn-outline-primary btn-sm">Alle Tage abwählen</button>
+    </div>
+    <div class="card-group">
+      {% for phase in attendance_phases %}
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ phase.name }}</h5>
+          <ul class="list-group list-group-flush">
+            {% for day in phase.days %}
+              <li class="list-group-item">
+                <input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}">
+                <label class="form-check-label" for="attendance_{{ day.id }}">
+                  {{ day }}
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="col-sm-12">
+      <label for="skills_note" class="form-label">Anmerkungen zu deiner Anwesenheit</label>
+      <textarea class="form-control" id="note_attendance" name="note_attendance" rows="2"></textarea>
+    </div>
+    <div class="col-sm-12">
+      <input class="form-check-input" type="checkbox" value="" id="stays_overnight" name="stays_overnight" disabled>
+      <label class="form-check-label" for="stays_overnight">Ich übernachte vor Ort.</label>
+    </div>
+    <div class="col-sm-12">
+      <input class="form-check-input" type="checkbox" value="" id="leave_of_absence" name="leave_of_absence">
+      <label class="form-check-label" for="leave_of_absence">Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.</label>
+    </div>
+    <div class="col-sm-12">
+      <label for="leave_of_absence_note" class="form-label">Anmerkungen zu meiner Befreiung</label>
+      <textarea class="form-control" id="leave_of_absence_note" name="leave_of_absence_note" rows="2" disabled></textarea>
+    </div>
+    <div class="accordion" id="attendance_information">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading_attendance_information">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_attendance_information" aria-expanded="false" aria-controls="collapse_attendance_information">
+            Warum erheben wir diese Informationen?
+          </button>
+        </h2>
+        <div id="collapse_attendance_information" class="accordion-collapse collapse" aria-labelledby="heading_attendance_information" data-bs-parent="#attendance_information">
+          <div class="accordion-body">
+            <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Tätigkeiten</h3></div>
+    <label>Für welche Teams interessierst du dich?</label>
+    <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
+      {% for team in teams %}
+      <div class="col">
+        <div class="card h-100">
+          {% if not team.image %}
+            <img class="card-img-top img-fluid" src="{% static "assets/4_3_placeholder.png" %}">
+          {% else %}
+            <img class="card-img-top img-fluid" src="{{ team.image.url }}">
+          {% endif %}
+          <div class="card-header">
+            {% if team.lead and team.show_teamlead %}
+              Verantwortlich: {{ team.lead.first_name }}
+            {% else %}
+              &nbsp;
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ team }}</h5>
+            <p class="card-text">{{ team.description }}</p>
+          </div>
+          <div class="card-footer">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
+              <label class="form-check-label" for="team_{{ team.id }}">Interesse</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Verschiedenes</h3></div>
+    <div class="col-sm-12">
+      <label for="general_note" class="form-label">Möchtest du uns noch etwas mitteilen?</label>
+      <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
+    </div>
+  </section>
+
+
   {% include "snippets/rechtliches.html" %}
+
+
   <div class="d-grid gap-2 col-12 mx-auto pt-3">
     <div class="row g-2">
       <div class="col">
@@ -547,7 +589,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-12">
+  <div class="col-sm-12">
     <div id="form_message">
     </div>
 </form>
