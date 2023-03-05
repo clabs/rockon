@@ -1,0 +1,24 @@
+{% load static %}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{ site_title }} | rockon</title>
+<link rel="stylesheet" type="text/css" href="{% static "css/rockon.min.css" %}">
+<script src="{% static "js/bootstrap.bundle.min.js" %}"></script>
+<script src="{% static "js/jquery-3.1.1.min.js" %}"></script>
+<link rel="apple-touch-icon" sizes="180x180" href="{% static "favicon/apple-touch-icon.png" %}" />
+<link rel="icon" type="image/png" sizes="32x32" href="{% static "favicon/favicon-32x32.png" %}" />
+<link rel="icon" type="image/png" sizes="16x16" href="{% static "favicon/favicon-16x16.png" %}" />
+<link rel="manifest" href="{% static "favicon/site.webmanifest" %}" />
+<link href="{% static "fontawesome/css/fontawesome.css" %}" rel="stylesheet">
+<link href="{% static "fontawesome/css/brands.css" %}" rel="stylesheet">
+<link href="{% static "fontawesome/css/solid.css" %}" rel="stylesheet">
+{% if ENABLE_SENTRY_FRONTEND %}
+<script src="{% static "js/sentry.7.40.0.bundle.min.js" %}"></script>
+<script language="javascript">
+Sentry.init({
+  dsn: '{{ SENTRY_DSN }}',
+  tracesSampleRate: {{SENTRY_TRACES_SAMPLE_RATE|floatformat:2}},
+  environment: '{{ SENTRY_ENVIRONMENT }}',
+});
+</script>
+{% endif %}
