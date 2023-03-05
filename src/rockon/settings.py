@@ -95,6 +95,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "rockon.context_processors.app_info.get_build_date",
                 "rockon.context_processors.app_info.get_build_hash",
+                "rockon.context_processors.sentry_frontend.get_sentry_data",
             ],
         },
     },
@@ -245,18 +246,25 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
-if getenv("DJANGO_ENABLE_SENTRY", False) == "True":
+ENABLE_SENTRY = getenv("DJANGO_ENABLE_SENTRY", False) == "True"
+ENABLE_SENTRY_FRONTEND = getenv("ENABLE_SENTRY_FRONTEND", False) == "True"
+SENTRY_DSN = getenv("SENTRY_DSN", "")
+SENTRY_ENVIRONMENT = getenv("SENTRY_ENVIRONMENT", "undefined")
+SENTRY_TRACES_SAMPLE_RATE = float(getenv("SENTRY_TRACES_SAMPLE_RATE", "1.0"))
+SENTRY_SEND_DEFAULT_PII = getenv("SENTRY_SEND_DEFAULT_PII", False) == "True"
+
+if ENABLE_SENTRY and not SENTRY_DSN == "":
     sentry_sdk.init(
-        dsn=getenv("SENTRY_DSN", ""),
+        dsn=SENTRY_DSN,
         integrations=[
             DjangoIntegration(),
         ],
-        environment=getenv("SENTRY_ENVIRONMENT", "undefined"),
+        environment=SENTRY_ENVIRONMENT,
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
-        traces_sample_rate=float(getenv("SENTRY_TRACES_SAMPLE_RATE", "1.0")),
+        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
-        send_default_pii=getenv("SENTRY_SEND_DEFAULT_PII", False) == "True",
+        send_default_pii=SENTRY_SEND_DEFAULT_PII,
     )
