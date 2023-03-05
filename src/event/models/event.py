@@ -4,6 +4,7 @@ from os import path
 from uuid import uuid4
 
 from django.db import models
+from django.templatetags.static import static
 
 from library import UploadToPathAndRename
 
@@ -41,3 +42,8 @@ class Event(models.Model):
 
     class Meta:
         ordering = ["start"]
+
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        return static("assets/4_3_placeholder.png")
