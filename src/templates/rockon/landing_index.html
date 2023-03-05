@@ -2,7 +2,7 @@
 
 
 
-<div class="container">
+<div class="row pb-5">
   <div class="row justify-content-md-center align-items-center">
     <div class="col-md-4 g-2">
       <img src="{% static "assets/racoon.svg" %}" class="img-fluid">
@@ -18,30 +18,35 @@
 </div>
 
 {% if events %}
-<div><h3>Aktuelle Veranstaltungen</h3></div>
-<div class="container">
-    <div class="row justify-content-md-center align-items-center row-cols-1 row-cols-md-3 g-4 pb-3">
-      <div class="col">
-        {% for event in events %}
-        <div class="card mb-3" style="max-width: 540px;">
-          <div class="card-header">
-            <img src="{{ event.image.url }}" class="img-fluid rounded-start" alt="...">
+<div class="row">
+  <h3>Aktuelle Veranstaltungen</h3>
+</div>
+<div class="row align-items-center row-cols-1 row-cols-md-12 pb-3">
+    {% for event in events %}
+    <div class="col pb-5">
+      <div class="card mb-12">
+        <div class="row g-0">
+          <div class="col-md-4" style="background-image: url({% if event.image %}{{ event.image.url }}{% else %}{% static "assets/4_3_placeholder.png" %}{% endif %}); background-size: cover; background-position: center center; background-repeat: no-repeat">
           </div>
-          <div class="card-body">
-            <h5 class="card-title">{{ event }}</h5>
-            <p class="card-text">
-              {{ event.description }}
-            </p>
-            <p>Wo: {{ event.location }}</p>
-            <p>Wann: {{ event.opening }} - {{ event.closing }}</p>
-            <h4>Mitmachen</h4>
-            <p><a href="{% url 'crew_root' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ event }}</h5>
+              <p class="card-text">{{ event.description }}</p>
+              <p class="card-text">
+                <h4>Wo</h4>
+                <p>{{ event.location }}</p>
+                <h4>Wann</h4>
+                <p>{{ event.opening|date:"d.m." }} - {{ event.closing|date:"d.m.Y" }}</p>
+                <h4>Mitmachen</h4>
+                <p><a href="{% url 'crew_root' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
+              </p>
+              <p class="card-text text-end"><small class="text-muted">Letzte Änderung: {{ event.updated_at|date:"d.m.Y"}}</small></p>
+            </div>
           </div>
         </div>
-        {% endfor %}
       </div>
     </div>
-  </div>
+    {% endfor %}
 </div>
 {% endif %}
 
