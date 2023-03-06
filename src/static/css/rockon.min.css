@@ -8389,7 +8389,8 @@ textarea.form-control-lg {
     display: none !important; } }
 
 body {
-  background: #151515 url("../assets/noise.png"); }
+  background: #151515 url("../assets/noise.png");
+  background-attachment: fixed; }
 
 .form-section {
   margin-top: 2rem;
@@ -8463,7 +8464,8 @@ footer {
     padding: 0 1rem; }
 
 .navbar-dark {
-  box-shadow: 0 0 1rem #000; }
+  box-shadow: 0 0 1rem #000;
+  border-bottom: 1px solid #505050; }
 
 .nav-pills .nav-link.active, .nav-tabs .nav-link.active {
   color: #000 !important; }
