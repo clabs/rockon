@@ -27,6 +27,13 @@ def crew_signup(request, slug):
         for k, v in body.items()
         if k.startswith("attendance_") and v == "on"
     ]
+
+    _teamcategories = [
+        k.split("_")[1]
+        for k, v in body.items()
+        if k.startswith("team_category_") and v == "on"
+    ]
+
     _teams = [
         k.split("_")[1] for k, v in body.items() if k.startswith("team_") and v == "on"
     ]
@@ -91,6 +98,8 @@ def crew_signup(request, slug):
         crew_member.skills.add(skill)
     for attendance in _attendance:
         crew_member.attendance.add(attendance)
+    for team_category in _teamcategories:
+        crew_member.intressted_in.add(team_category)
     for team in _teams:
         team_id = Team.objects.get(id=team)
         TeamMember.objects.create(team=team_id, crewmember=crew_member)

@@ -8,6 +8,8 @@ from django.templatetags.static import static
 
 from library import UploadToPathAndRename
 
+from .team_category import TeamCategory
+
 
 class Team(models.Model):
     """Team model."""
@@ -29,6 +31,13 @@ class Team(models.Model):
         upload_to=UploadToPathAndRename("teams"),
         blank=True,
         null=True,
+    )
+    category = models.ForeignKey(
+        TeamCategory,
+        on_delete=models.CASCADE,
+        null=True,
+        default=None,
+        related_name="teams",
     )
     contact_mail = models.EmailField(null=True, blank=True)
     is_public = models.BooleanField(default=True)
