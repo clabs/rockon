@@ -19,7 +19,7 @@ urlpatterns = [
     path(
         "signup/<slug:slug>/preselect/", PreselectView.as_view(), name="crew_preselect"
     ),
-    path("signup/<slug:slug>/signup/", signup, name="crew_signup"),
+    path("signup/<slug:slug>/form/", signup, name="crew_signup"),
     path(
         "signup/<slug:slug>/submitted/",
         SignupSubmittedView.as_view(),
