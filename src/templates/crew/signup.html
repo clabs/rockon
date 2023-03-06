@@ -10,6 +10,13 @@
       }
     })
 
+    $('[name^=attendance_]').on('change', event => {
+      event.preventDefault()
+      if (!event.target.checked) {
+        $('#select_all_attendance').prop('checked', false)
+      }
+    })
+
     $('#form_reset').click((event) => {
       event.preventDefault()
       $("#signup").trigger("reset")
