@@ -1,0 +1,37 @@
+<div class="row">
+  <h3>Aktuelle Veranstaltungen</h3>
+</div>
+<div class="row align-items-center row-cols-1 row-cols-md-12 pb-3">
+    {% for event in events %}
+    <div class="col pb-5">
+      <div class="card mb-12">
+        <div class="row g-0">
+          <div class="col-md-4" style="background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat;">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ event }}</h5>
+              <p class="card-text">{{ event.description }}</p>
+              <p class="card-text">
+                <h4>Wo</h4>
+                <p>{{ event.location }}</p>
+                <h4>Wann</h4>
+                <p>{{ event.opening|date:"d.m." }} - {{ event.closing|date:"d.m.Y" }}</p>
+                {% if event.signup_is_open and event.signup_type != "unknown" %}
+                  {% if event.signup_type == "crew" %}
+                  <h4>Mitmachen</h4>
+                  <p><a href="{% url 'crew_root' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
+                  {% elif event.signup_type == "exhibitor" %}
+                  <h4>Mitmachen</h4>
+                  <p><a href="{% url 'exhibitor_signup' slug=event.slug %}">Zur Aussteller-Anmeldung!</a></p>
+                  {% endif %}
+                {% endif %}
+              </p>
+              <p class="card-text text-end"><small class="text-muted">Letzte Änderung: {{ event.updated_at|date:"d.m.Y, H:m"}}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+</div>

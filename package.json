@@ -1,0 +1,21 @@
+{
+  "name": "rockon",
+  "version": "1.0.0",
+  "description": "Hyper customized Rocktreff data entry and lists thingamajig (Django)",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "css-build": "node-sass --omit-source-map-url src/themes/rockon/theme.scss src/static/css/rockon.min.css",
+    "css-watch": "npm run css-build -- --watch",
+    "start": "npm run css-watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "bootstrap": "5.2.3",
+    "node-sass": "^8.0.0"
+  },
+  "dependencies": {}
+}

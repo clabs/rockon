@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top" aria-label="">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" aria-label="" style="color: white">
   <div class="container-fluid">
     <a class="navbar-brand" href="{% url "rockon_landing_index" %}">rockon</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -6,14 +6,14 @@
     </button>
     <div class="collapse navbar-collapse" id="navbar">
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
+        {% if user.is_authenticated %}
+
         <li class="nav-item">
           <a class="nav-link" aria-current="page" href="{% url "crm_user_home" %}">Home</a>
         </li>
-        {% if user.is_authenticated %}
         <li class="nav-item">
           <a class="nav-link" href="{% url "crm_user_profile" %}">Profil</a>
         </li>
-        {% endif %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Werkzeuge</a>
           <ul class="dropdown-menu">
@@ -21,6 +21,7 @@
             <li><a class="dropdown-item disabled" href="#">Link-Shortener</a></li>
           </ul>
         </li>
+        {% endif %}
       </ul>
       {% if user.is_authenticated %}
       <div class="navbar-item">
@@ -39,7 +40,7 @@
       </div>
       {% else %}
       <div class="navbar-item">
-        <a class="btn btn-primary" href="{% url "crm_request_magic_link" %}">
+        <a class="btn btn-secondary" href="{% url "crm_request_magic_link" %}">
           Log in
         </a>
       </div>

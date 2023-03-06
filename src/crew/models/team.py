@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.templatetags.static import static
 
 from library import UploadToPathAndRename
 
@@ -40,3 +41,8 @@ class Team(models.Model):
 
     class Meta:
         ordering = ["name"]
+
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        return static("assets/4_3_placeholder.png")
