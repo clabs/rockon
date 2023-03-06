@@ -34,6 +34,18 @@ RUN export DJANGO_SECRET_KEY=unused-but-must-be-present && \
     python3 /app/manage.py compilemessages && \
     unset DJANGO_SECRET_KEY
 
+
+######################################### [sass theming] ########################
+
+FROM node:lts-bullseye as sass_build
+
+WORKDIR /sass_build
+COPY package.json package-lock.json /sass_build/
+RUN npm install
+COPY src/ /sass_build/src/.
+RUN npm run css-build
+
+
 ######################################### [app] ########################
 
 FROM base as app
@@ -65,6 +77,7 @@ RUN apt-get update && \
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 
 COPY --from=build --chown=appuser /app /app
+COPY --from=sass_build --chown=appuser /sass_build/src/static/css/rockon.min.css /app/static/css/rockon.min.css
 
 COPY ../examples /app/examples
 
