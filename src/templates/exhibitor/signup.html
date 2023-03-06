@@ -34,11 +34,11 @@
 
 </script>
 
-<h1>Neue Austelleranmeldung</h1>
+<div><h1>Neue Austelleranmeldung</h1></div>
 
 <form class="row g-3">
   {% csrf_token %}
-  <h2>Organisation</h2>
+  <div><h2>Organisation</h2></div>
   <div class="col-md-12">
     <label for="organisation_name">Organisation Name</label>
     <input type="text" class="form-control" id="organisation_name" name="organisation_name" placeholder="Organisation Name" autocomplete="off" />
@@ -63,7 +63,7 @@
     <label for="organisation_place">Ort</label>
     <input type="text" class="form-control" name="organisation_place" id="user_place" placeholder="Ort" autocomplete="home city"/>
   </div>
-  <h2>Kontakt</h2>
+  <div><h2>Kontakt</h2></div>
   <div class="col-md-6">
     <label for="organisation_zipcode">E-Mail Adresse</label>
     <input type="email" name="organisation_email" id="organisation_email" class="form-control" placeholder="E-Mail Adresse" autocomplete="email" />
@@ -80,7 +80,7 @@
     <label for="organisation_place">Festnetz</label>
     <input type="tel" name="organisation_phone" id="organisation_phone" class="form-control" placeholder="Festnetz" autocomplete="tel" />
   </div>
-  <h2>Anwesenheit</h2>
+  <div><h2>Anwesenheit</h2></div>
   <div class="col-md-12">
     <table class="table table-hover">
       <thead>
@@ -101,7 +101,7 @@
       </tbody>
     </table>
   </div>
-  <h2>Ausstattungsbedarf</h2>
+  <div><h2>Ausstattungsbedarf</h2></div>
   <div class="col-md-12">
     <table class="table table-hover">
       <thead>
@@ -126,7 +126,7 @@
       </tbody>
     </table>
   </div>
-  <h2>Verschiedenes</h2>
+  <div><h2>Verschiedenes</h2></div>
   <div class="col-md-12">
     <div class="form-group">
       <label for="general_note">Möchtest du uns noch etwas mitteilen?</label>

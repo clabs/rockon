@@ -1,0 +1,48 @@
+.navbar {
+  .nav-item {
+      float: left;
+
+    .nav-link {
+      display: inline-block;
+      padding: 0 $navbar-padding-y;
+    }
+  }
+}
+
+.navbar-dark {
+  box-shadow: 0 0 1rem $black;
+  border-bottom: 1px solid #505050;
+}
+
+
+.nav-pills, .nav-tabs {
+  .nav-link{
+    &.active {
+      color: $black !important
+    }
+  }
+}
+
+
+.nav {
+  .nav-link {
+    color: $white;
+
+    &:hover {
+      color: $white !important;
+    }
+  }
+}
+
+
+.navbar-brand {
+  color: $black !important;
+  background-color: $yellow;
+  display: block;
+  margin: -1*$navbar-padding-y 0 -1*$navbar-padding-y -1*$navbar-padding-y;
+  padding: 1rem;
+  text-transform: uppercase;
+  &:hover {
+    color: black !important
+  }
+}

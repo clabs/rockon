@@ -69,7 +69,7 @@ The sample data does not contain a user, you still need to create a super user.
 
 Use this to update the sample data:
 
-`python .\src\manage.py dumpdata --exclude=auth --exclude=contenttypes --exclude=admin --exclude=sessions > .\examples\example_data.json`
+`python .\src\manage.py dumpdata --exclude=auth --exclude=contenttypes --exclude=admin --exclude=sessions --exclude=django_q --exclude=crew.crew_member --exclude=crew.team_member --exclude=crm > .\examples\example_data.json`
 
 Certain database entries must be excluded, the file must be utf8 encoded.
 

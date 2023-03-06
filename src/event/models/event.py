@@ -4,22 +4,19 @@ from os import path
 from uuid import uuid4
 
 from django.db import models
-from django.utils.deconstruct import deconstructible
+from django.templatetags.static import static
 
-
-@deconstructible
-class UploadToPathAndRename:
-    def __init__(self, path):
-        self.sub_path = path
-
-    def __call__(self, instance, filename):
-        ext = filename.split(".")[-1]
-        filename = f"{instance.uuid}.{ext}"
-        return path.join(self.sub_path, filename)
+from library import UploadToPathAndRename
 
 
 class Event(models.Model):
     """Event model."""
+
+    SIGN_UP_TYPE = [
+        ("unknown", "Unbekannt"),
+        ("crew", "Crew"),
+        ("exhibitor", "Austeller"),
+    ]
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=511)
@@ -40,9 +37,17 @@ class Event(models.Model):
         null=True,
     )
     sub_event_of = models.OneToOneField(
-        "self", on_delete=models.CASCADE, blank=True, null=True
+        "self",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="sub_events",
     )
     show_on_landing_page = models.BooleanField(default=False)
+    signup_is_open = models.BooleanField(default=True)
+    signup_type = models.CharField(
+        max_length=12, choices=SIGN_UP_TYPE, default="unknown"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -51,3 +56,8 @@ class Event(models.Model):
 
     class Meta:
         ordering = ["start"]
+
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        return static("assets/4_3_placeholder.png")
