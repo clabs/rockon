@@ -500,7 +500,7 @@
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch"  id="skill_{{ skill.id }}" name="skill_{{ skill.id }}">
             <label class="form-check-label" for="skill_{{ skill.id }}">
-              <i class="fa fa-{{ skill.icon|safe }}"></i> &nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i>
+              {{ skill.icon|safe }} &nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i>
             </label>
           </div>
           {% endfor %}
