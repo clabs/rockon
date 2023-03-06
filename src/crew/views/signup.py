@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.template import loader
 from django.views.generic.base import TemplateView
 
-from crew.models import Attendance, Shirt, Skill, Team
+from crew.models import Attendance, Shirt, Skill, TeamCategory
 from event.models import Event
 
 
@@ -24,14 +24,14 @@ def signup(request, slug):
     shirts = Shirt.objects.all()
     skills = Skill.objects.all()
     attendance_phases = Attendance.get_phases(event=event)
-    teams = Team.objects.filter(is_public=True)
+    team_categories = TeamCategory.objects.all()
     context = {
         "event": event,
         "shirts": shirts,
         "site_title": "Anmeldung",
         "skills": skills,
         "slug": slug,
-        "teams": teams,
+        "team_categories": team_categories,
         "attendance_phases": attendance_phases,
     }
     return HttpResponse(template.render(context, request))

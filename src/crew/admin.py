@@ -2,7 +2,16 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-from .models import Attendance, Crew, CrewMember, Shirt, Skill, Team, TeamMember
+from .models import (
+    Attendance,
+    Crew,
+    CrewMember,
+    Shirt,
+    Skill,
+    Team,
+    TeamCategory,
+    TeamMember,
+)
 
 
 class AttendanceAdmin(admin.ModelAdmin):
@@ -77,6 +86,14 @@ class TeamAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
+class TeamCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "description", "image", "updated_at")
+    search_fields = ("name", "description")
+    ordering = ("name", "description", "updated_at")
+    list_filter = ("name", "description", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
+
+
 class TeamMemberAdmin(admin.ModelAdmin):
     list_display = ("crewmember", "team", "state", "created_at", "updated_at")
     search_fields = ("team", "crewmember")
@@ -91,4 +108,5 @@ admin.site.register(CrewMember, CrewMemberAdmin)
 admin.site.register(Shirt, ShirtAdmin)
 admin.site.register(Skill, SkillAdmin)
 admin.site.register(Team, TeamAdmin)
+admin.site.register(TeamCategory, TeamCategoryAdmin)
 admin.site.register(TeamMember, TeamMemberAdmin)

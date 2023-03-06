@@ -11,6 +11,7 @@ from .attendance import Attendance
 from .crew import Crew
 from .shirt import Shirt
 from .skill import Skill
+from .team_category import TeamCategory
 
 
 class CrewMember(models.Model):
@@ -54,6 +55,7 @@ class CrewMember(models.Model):
     has_leave_of_absence = models.BooleanField(default=False)
     leave_of_absence_note = models.TextField(null=True, blank=True)
     internal_note = models.TextField(null=True, blank=True)
+    intressted_in = models.ManyToManyField(TeamCategory, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

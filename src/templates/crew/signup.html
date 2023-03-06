@@ -67,15 +67,15 @@
     })
 
     const toggleTeamCard = input => {
-      var team = input.dataset.team
+      var team = input.dataset.teamcategory
       if (input.checked) {
-        $('.card[data-team="'+team+'"]').addClass('bg-primary')
+        $('.card[data-teamcategory="'+team+'"]').addClass('bg-primary')
       } else {
-        $('.card[data-team="'+team+'"]').removeClass('bg-primary')
+        $('.card[data-teamcategory="'+team+'"]').removeClass('bg-primary')
       }
     }
 
-    $('input[data-team]')
+    $('input[data-teamcategory]')
       .each((_, input) => {
         toggleTeamCard(input)
       })
@@ -594,9 +594,9 @@
 
 
 
+  <section class="row p-4 form-section">
     <div><h3>Freistellung</h3></div>
     <label>Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche Tätigkeit zu bekommen.</label>
-    <div><h3>Schulbefreiung</h3></div>
     <div class="col-sm-12 g-4">
       <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" value="" role="switch" id="leave_of_absence" name="leave_of_absence">
@@ -617,26 +617,36 @@
     <div><h3>Themen</h3></div>
     <label>Für welche Themen interessierst du dich? Du kannst dir Themenbereiche und/oder Teams aussuchen, die für dich interessant klingen. Nicht das richtige dabei? Keine Sorge, wir finden für jeden etwas!</label>
     <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
-      {% for team in teams %}
+      {% for team_category in team_categories %}
       <div class="col">
-        <div class="card h-100" data-team="{{ team.id }}">
-          <img class="card-img-top img-fluid" src="{{ team.get_image_url }}">
+        <div class="card h-100" data-teamcategory="{{ team_category.id }}">
+          <img class="card-img-top img-fluid" src="{{ team_category.get_image_url }}">
           <div class="card-header">
-            {% if team.lead and team.show_teamlead %}
-              Verantwortlich: {{ team.lead.first_name }}
-            {% else %}
-              &nbsp;
-            {% endif %}
+            <h5 class="card-title">{{ team_category }}</h5>
+            <div class="form-check form-switch">
+              <input class="form-check-input" data-teamcategory="{{ team_category.id }}" type="checkbox" role="switch" id="teamcategory_{{ team_category.id }}" name="teamcategory_{{ team_category.id }}">
+              <label class="form-check-label" for="teamcategory_{{ team_category.id }}">Interesse</label>
+            </div>
           </div>
           <div class="card-body">
-            <h5 class="card-title">{{ team }}</h5>
-            <p class="card-text">{{ team.description }}</p>
+            <p class="card-text">{{ team_category.description }}</p>
+            {% if team_category.teams.all %}
+            <h5 class="card-text">Teams</h5>
+            <ul class="list-group list-group-flush">
+              {% for team in team_category.teams.all %}
+                <li class="list-group-item">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" data-team="{{ team.id }}" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
+                    <label class="form-check-label" for="team_{{ team.id }}">
+                      {{ team }}
+                    </label>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
           </div>
-          <div class="card-footer">
-            <div class="form-check form-switch">
-              <input class="form-check-input" data-team="{{ team.id }}" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
-              <label class="form-check-label" for="team_{{ team.id }}">Interesse</label>
-            </div>
+          <div class="card-footer d-none">
           </div>
         </div>
       </div>
