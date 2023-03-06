@@ -1,10 +1,13 @@
 {% extends "base.html" %} {% block content %}
 
-<div class="ui raised very padded text container segment">
-  <div class="ui negative message">
-    <div class="header">Oh noes! Fehler 500 - Server Fehler</div>
-    <p>{{ reason|default_if_none:"Es ist etwas schrecklich schief gelaufen." }}</p>
-  </div>
+<div class="row">
+<h1>Fehler 500</h1>
+</div>
+<div class="row">
+<h2>Interner Serverfehler</h2>
+</div>
+<div class="row">
+<p>Es tut mir leid, hier ist etwas schrecklich schief gelaufen.</p>
 </div>
 
 {% endblock content %}

@@ -1,10 +1,13 @@
 {% extends "base.html" %} {% block content %}
 
-<div class="ui raised very padded text container segment">
-  <div class="ui negative message">
-    <div class="header">Oh noes! Fehler 403 - Unbrechtigt</div>
-    <p>{{ reason|default_if_none:"Es fehlt etwas..." }}</p>
-  </div>
+<div class="row">
+<h1>Fehler 403</h1>
+</div>
+<div class="row">
+<h2>Unberechtigter Zugriff</h2>
+</div>
+<div class="row">
+<p>Es tut mir leid, aber du hast leider keine Berechtigung, diese Seite zu sehen.</p>
 </div>
 
 {% endblock content %}
