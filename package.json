@@ -7,7 +7,7 @@
     "example": "examples"
   },
   "scripts": {
-    "css-build": "node-sass --omit-source-map-url src/themes/rockon/theme.scss src/static/css/rockon.min.css",
+    "css-build": "node-sass --output-style compressed --omit-source-map-url src/themes/rockon/theme.scss src/static/css/rockon.min.css",
     "css-watch": "npm run css-build -- --watch",
     "start": "npm run css-watch"
   },
