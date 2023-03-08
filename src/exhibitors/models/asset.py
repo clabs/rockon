@@ -10,12 +10,12 @@ class Asset(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=255)
-    explanation = models.TextField(blank=True)
+    description = models.TextField(blank=True)
     is_bool = models.BooleanField(default=False)
     icon = models.CharField(
+        default='<i class="fa-solid fa-heart"></i>',
+        help_text='<a target="_blank" href="https://fontawesome.com/search?m=free&o=r">Wähle ein Icon aus</a>',
         max_length=255,
-        help_text='<a target="_blank" href="https://semantic-ui.com/elements/icon.html">Wähle ein Icon aus</a>',
-        default="heart",
     )
     internal_comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
