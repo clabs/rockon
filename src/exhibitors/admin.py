@@ -2,11 +2,7 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-# WONTFIX: stop black and isort from messing up the imports
-# fmt: off
 from .models import Asset, Attendance, Exhibitor, ExhibitorAsset, ExhibitorAttendance
-
-# fmt: on
 
 
 class ExhibitorAssetAdmin(admin.ModelAdmin):
@@ -15,8 +11,25 @@ class ExhibitorAssetAdmin(admin.ModelAdmin):
     search_fields = ("exhibitor", "asset")
 
 
-admin.site.register(Exhibitor)
-admin.site.register(Asset)
+class ExhibitorAttendanceAdmin(admin.ModelAdmin):
+    list_display = ("exhibitor", "day", "count")
+    list_filter = ("day",)
+    search_fields = ("exhibitor", "day")
+
+
+class ExhibitorAdmin(admin.ModelAdmin):
+    list_display = ("organisation", "event")
+    list_filter = ("event",)
+    search_fields = ("organisation", "event")
+
+
+class AssetAdmin(admin.ModelAdmin):
+    list_display = ("name", "is_bool", "description")
+    search_fields = ("name", "is_bool", "description")
+
+
+admin.site.register(Exhibitor, ExhibitorAdmin)
+admin.site.register(Asset, AssetAdmin)
 admin.site.register(Attendance)
 admin.site.register(ExhibitorAsset, ExhibitorAssetAdmin)
-admin.site.register(ExhibitorAttendance)
+admin.site.register(ExhibitorAttendance, ExhibitorAttendanceAdmin)

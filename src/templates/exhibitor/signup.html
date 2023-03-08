@@ -1,16 +1,157 @@
 {% extends "base.html" %} {% block content %}{% load static %}
 
 <script language="javascript">
+  $(document).ready(() => {
+    $('[name^=assetrequired_],[name^=attendance_]').on('change', event => {
+      event.preventDefault()
+      console.debug("toggle", event.target.dataset.id)
+      const el = $(`#${event.target.dataset.toggle}${event.target.dataset.id}`)
+      if (event.target.checked) {
+        $(el).prop('disabled', false)
+      } else {
+        $(el).prop('disabled', true)
+        $(el).val("")
+        $(el).removeClass('is-valid is-invalid')
+      }
+    })
+
+    $('#form_reset').click((event) => {
+      event.preventDefault()
+      $("#signup").trigger("reset")
+      $('#signup :input').val('')
+      $(".not-empty").removeClass('is-valid is-invalid')
+      $('[name^=assetcount_],[name^=attendancecount_]').prop('disabled', true)
+      $('#form_message').html("")
+    })
+
+    $('#form_submit').on('click', (event) => {
+      event.preventDefault()
+      console.debug("submit")
+      const form = $('#signup')
+      var validated = false
+      el = form.find('.not-empty')
+      console.debug("not-empty elements", el)
+      for (const input of el) {
+        validate_input({target: input})
+        if (input.classList.contains('is-invalid')) {
+          validated = false
+          render_error_message()
+          break
+        } else {
+          render_error_message()
+          validated = true
+        }
+      }
+      console.debug("validated", validated)
+      const form_data = form.serializeArray()
+      console.debug("form data", form_data)
+      if (validated) {
+        send_form(form_data)
+      }
+    })
+
+    $('.not-empty').on('blur', event => {
+      console.debug("not-empty handler triggered", event)
+      validate_input(event)
+      render_error_message()
+    })
+  })
+
+  validate_input = (input) => {
+    if (input.target.type === "checkbox") {
+      console.debug("form check", input.target.id)
+      if (input.target.checked) {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "text" && input.target.disabled === false) {
+      console.debug("input field", input.target.id)
+      if (input.target.id === "organisation_zip") {
+        if (input.target.value.length === 5 && !isNaN(input.target.value)) {
+          inputValid(input, true)
+        } else {
+          inputValid(input, false)
+        }
+      } else if (input.target.value !== "") {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "email") {
+      if (input.target.id === "user_email") {
+        if (validateEmail(input.target.value)) {
+          inputValid(input, true)
+        } else {
+          inputValid(input, false)
+        }
+        if ($('#user_email_confirmation').val()) {
+          validate_input({target: $('#user_email_confirmation')[0]})
+        }
+      } else if (input.target.id === "user_email_confirmation") {
+          if (validateEmail(input.target.value) && input.target.value === $('#user_email').val()) {
+            inputValid(input, true)
+          } else {
+            inputValid(input, false)
+          }
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "tel") {
+      if (!isNaN(input.target.value) && input.target.value !== "") {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    } else if (input.target.type === "select-one") {
+      if (input.target.value !== "") {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    }
+  }
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      )
+  }
+
+  const inputValid = (input, is_valid) => {
+    if (is_valid) {
+      input.target.classList.add('is-valid')
+      input.target.classList.remove('is-invalid')
+    } else {
+      input.target.classList.add('is-invalid')
+      input.target.classList.remove('is-valid')
+    }
+  }
+
+  const render_error_message = (message) => {
+    el = $('.not-empty')
+    for (const input of el) {
+      if (input.classList.contains('is-invalid')) {
+        $('#form_message').html('<div class="alert alert-danger" role="alert">Bitte korrigiere die Fehler in den markierten Feldern.</div>')
+        break
+      } else {
+        $('#form_message').html("")
+      }
+    }
+  }
+
   ajax_success = (data) => {
     console.info(data)
-    window.location.href = ""
+    window.location.href = "{% url "crew_signup_submitted" slug=slug %}"
   }
   ajax_error = (data) => {
-    // FIXMIE: needs error handling
+    // FIXME: needs error handling
     console.error(data)
   }
   ajax_complete = (data) => {
-    // hopenfully this is never triggered
+    // hopefully this is never triggered
     console.info(data)
   }
 
@@ -34,118 +175,326 @@
 
 </script>
 
-<div><h1>Neue Austelleranmeldung</h1></div>
+<h1>Teilnehmeranmeldung - {{ event.name }}</h1>
+<div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat">
+</div>
 
-<form class="row g-3">
+<form id="signup" class="row align-items-center needs-validation" novalidate>
   {% csrf_token %}
-  <div><h2>Organisation</h2></div>
-  <div class="col-md-12">
-    <label for="organisation_name">Organisation Name</label>
-    <input type="text" class="form-control" id="organisation_name" name="organisation_name" placeholder="Organisation Name" autocomplete="off" />
-  </div>
-  <div class="col-md-9">
-    <label for="organisation_address">Straße</label>
-    <input type="text" name="organisation_address" class="form-control" id="organisation_address" placeholder="Straße" autocomplete="street-address" />
-  </div>
-  <div class="col-md-3">
-    <label for="organisation_address_housenumber">Hausnummer</label>
-    <input type="text" class="form-control" name="organisation_address_housenumber" id="organisation_address_housenumber" placeholder="Hausnummer" />
-  </div>
-  <div class="col-md-12">
-    <label for="organisation_address_extension">Addresszusatz</label>
-    <input type="text" class="form-control" name="organisation_address_extension" id="organisation_address_extension" placeholder="Addresszusatz" autocomplete="off" />
-  </div>
-  <div class="col-md-6">
-    <label for="organisation_zipcode">Postleitzahl</label>
-    <input type="text" pattern="[\d+]{5}" name="organisation_zipcode" id="organisation_zipcode" class="form-control" placeholder="Postleitzahl" maxlength="5" autocomplete="postal-code" />
-  </div>
-  <div class="col-md-6">
-    <label for="organisation_place">Ort</label>
-    <input type="text" class="form-control" name="organisation_place" id="user_place" placeholder="Ort" autocomplete="home city"/>
-  </div>
-  <div><h2>Kontakt</h2></div>
-  <div class="col-md-6">
-    <label for="organisation_zipcode">E-Mail Adresse</label>
-    <input type="email" name="organisation_email" id="organisation_email" class="form-control" placeholder="E-Mail Adresse" autocomplete="email" />
-  </div>
-  <div class="col-md-6">
-    <label for="organisation_place">E-Mail Adresse bestätigen</label>
-    <input type="email" name="organisation_email_confirmation" id="organisation_email_confirmation" class="form-control" placeholder="E-Mail Adresse bestätigen" autocomplete="off" />
-  </div>
-  <div class="col-md-6">
-    <label for="organisation_place">Handynummer</label>
-    <input type="tel" name="organisation_mobile" id="organisation_mobile" class="form-control" placeholder="Handynummer" autocomplete="tel" />
-  </div>
-  <div class="col-md-6">
-    <label for="organisation_place">Festnetz</label>
-    <input type="tel" name="organisation_phone" id="organisation_phone" class="form-control" placeholder="Festnetz" autocomplete="tel" />
-  </div>
-  <div><h2>Anwesenheit</h2></div>
-  <div class="col-md-12">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Tag</th>
-          <th scope="col">Aktiv</th>
-          <th scope="col">Personen</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for day in attendances %}
-          <tr>
-            <td>{{ day }}</td>
-            <td data-label="Aktiv"><input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}"></td>
-            <td data-label="Personen"><input type="text" pattern="[\d+]{5}" class="form-control" name="attendance_count_{{ day.id }}" placeholder="Anzahl Personen" maxlength="5" autocomplete="off" disabled /></td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div><h2>Ausstattungsbedarf</h2></div>
-  <div class="col-md-12">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>Artikel</th>
-          <th>Bedarf</th>
-          <th>ggf. Menge</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for asset in assets %}
-          <tr>
-            <td><i class="{{ asset.icon }} icon"></i>{{ asset }}<br /><i>{{ asset.explanation }}</i></td>
-            <td data-label="Artikel"><input class="form-check-input" type="checkbox" value="" id="asset_{{ asset.id }}" name="asset_{{ asset.id }}"></td>
-            {% if asset.is_bool %}
-              <td data-label="Menge"></td>
-            {% else %}
-              <td data-label="Menge"><input type="text" pattern="[\d+]{5}" class="form-control" name="asset_count_{{ asset.id }}" placeholder="Menge" maxlength="5" autocomplete="off" disabled /></td>
-            {% endif %}
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div><h2>Verschiedenes</h2></div>
-  <div class="col-md-12">
-    <div class="form-group">
-      <label for="general_note">Möchtest du uns noch etwas mitteilen?</label>
-      <textarea class="form-control" name="general_note" id="general_note" rows="3"></textarea>
-  </div>
-  {% include "snippets/rechtliches.html" %}
-  <div class="col-md-12">
-    <div class="row">
-      <div class="col">
-        <button id="form_submit" type="button" class="btn btn-primary">Absenden</button>
+
+
+
+  <section class="row p-4 form-section">
+    <div class="col-lg-8">
+      <div class="row">
+        <div class="col-lg-12">
+          <div><h3>Organisation</h3></div>
+        </div>
       </div>
-      <div class="col">
-        <button id="form_reset" type="button" class="btn btn-secondary">Neustart</button>
+      <div class="row">
+        <div class="col-sm-12 g-4">
+          <label for="organisation_name">Organisation</label>
+          <input type="text" class="form-control not-empty" name="organisation_name" id="organisation_name" placeholder="Organisation" autocomplete="off" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Organisationsname darf nicht leer sein.
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-9 g-4">
+          <label for="organisation_address">Straße</label>
+          <input type="text" name="organisation_address" class="form-control not-empty" id="organisation_address" placeholder="Am Geldspeicher" autocomplete="street-address" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Straße darf nicht leer sein.
+          </div>
+        </div>
+        <div class="col-sm-3 g-4">
+          <label for="organisation_address_housenumber">Hausnummer</label>
+          <input type="text" class="form-control not-empty" name="organisation_address_housenumber" id="organisation_address_housenumber" placeholder="23a" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Hausnummer darf nicht leer sein.
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12 g-4">
+          <label for="organisation_address_extension">Addresszusatz</label>
+          <input type="text" class="form-control" name="organisation_address_extension" id="organisation_address_extension" placeholder="Addresszusatz" autocomplete="off" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3 g-4">
+          <label for="organisation_zip">Postleitzahl</label>
+          <input type="text" pattern="[\d+]{5}" name="organisation_zip" id="organisation_zip" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Postleitzahl muss 5 Ziffern lang sein .
+          </div>
+        </div>
+        <div class="col-sm-9 g-4">
+          <label for="organisation_place">Ort</label>
+          <input type="text" class="form-control not-empty" name="organisation_place" id="user_place" placeholder="Entenhausen" autocomplete="home city"/>
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Ort darf nicht leer sein.
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="ui error message"></div>
-  <div class="col-md-12" id="error_messages">
-  </div>
+    <div class="col-lg-4">
+      <div><h4>Warum erheben wir diese Informationen?</h4></div>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
+    </div>
+  </section>
+
+
+
+  <section class="row p-4 form-section">
+    <div class="col-lg-8">
+      <div class="row">
+        <div class="col-lg-12">
+          <div><h3>Kontakt</h3></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 g-4">
+          <label for="user_first_name">Vorname</label>
+          <input type="text" name="user_first_name" class="form-control not-empty" id="user_first_name" placeholder="Jane" autocomplete="given-name" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Vorname darf nicht leer sein.
+          </div>
+        </div>
+        <div class="col-md-6 g-4">
+          <label for="user_last_name">Nachname</label>
+          <input type="text" name="user_last_name" class="form-control not-empty" id="user_last_name" placeholder="Doe" autocomplete="family-name" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Nachname darf nicht leer sein.
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6 g-4">
+          <label for="user_email">E-Mail Adresse</label>
+          <input type="email" name="user_email" id="user_email" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="email" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Bitte gibt eine gültige E-Mail Adresse an.
+          </div>
+        </div>
+        <div class="col-sm-6 g-4">
+          <label for="user_email_confirmation">E-Mail Adresse bestätigen</label>
+          <input type="email" name="user_email_confirmation" id="user_email_confirmation" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="off" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Bitte wiederhole deine E-Mail Adresse.
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12 g-4">
+          <label for="user_phone">Telefonnummer</label>
+          <input type="tel" name="user_phone" id="user_phone" class="form-control not-empty" placeholder="017604069042" autocomplete="tel" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+            Bitte gibt eine gültige Telefonnummer an.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div><h4>Warum erheben wir diese Informationen?</h4></div>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
+    </div>
+  </section>
+
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Anwesenheit</h3></div>
+
+    <div class="row">
+      <div class="col-sm-12 g-4">
+        <label>An welchen Tagen wollt ihr teilnehmen?</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12 g-4">
+        <div class="card">
+          <div class="card-body">
+            <table class="table table-sm table-dark table-responsive">
+              <thead>
+                <tr>
+                  <th scope="col">Tag</th>
+                  <th scope="col">Teilnahme</th>
+                  <th scope="col">Anzahl Personen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for day in attendances %}
+                <tr>
+                  <th scope="row">{{ day }}</th>
+                  <td><input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}" data-toggle="attendancecount_" data-id="{{ day.id }}"></td>
+                  <td>
+                    <input type="text" name="attendancecount_{{ day.id }}" class="form-control not-empty" id="attendancecount_{{ day.id }}" placeholder="Anzahl Personen" autocomplete="off" disabled />
+                    <div class="valid-feedback">
+                    </div>
+                    <div class="invalid-feedback">
+                      Personenanzahl darf nicht leer sein.
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Infrastruktur</h3></div>
+
+    <div class="row">
+      <div class="col-sm-12 g-4">
+        <label>Was benötigt ihr vor Ort?</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12 g-4">
+        <div class="card">
+          <div class="card-body">
+            <table class="table table-sm table-dark table-striped table-responsive">
+              <thead>
+                <tr>
+                  <th scope="col">Was</th>
+                  <th scope="col">Benötigt</th>
+                  <th scope="col">ggf. Menge</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for asset in assets %}
+                <tr>
+                  <th scope="row">{{ asset }}<br /><small>{{asset.explanation }}</small></th>
+                  <td><input class="form-check-input" type="checkbox" id="assetrequired_{{ asset.id }}" name="assetrequired_{{ asset.id }}" data-toggle="assetcount_" data-id="{{ asset.id }}"></td>
+                  <td>
+                    {% if not asset.is_bool %}
+                    <input type="text" name="assetcount_{{ asset.id }}" class="form-control not-empty" id="assetcount_{{ asset.id }}" placeholder="Anzahl" autocomplete="off" disabled />
+                    <div class="valid-feedback">
+                    </div>
+                    <div class="invalid-feedback">
+                      Menge darf nicht leer sein.
+                    </div>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Verschiedenes</h3></div>
+    <div class="col-sm-12">
+      <label for="general_note" class="form-label">Was möchtet ihr auf dem Spielfest anbieten? Möchtet ihr uns noch etwas mitteilen?</label>
+      <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
+    </div>
+  </section>
+
+
+
+  <section class="row p-4 form-section">
+    <div><h3>Rechtliches</h3></div>
+    <div class="col-md-12">
+      <div class="form-check form-switch">
+        <input class="form-check-input not-empty" type="checkbox" role="switch" id="allow_contact" name="allow_contact">
+        <label class="form-check-label" for="allow_contact">
+          Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das Spielfest kontaktieren darf.
+        </label>
+        <div class="valid-feedback"></div>
+        <div class="invalid-feedback">
+          Bitte erlaube uns, dich zu kontaktieren.
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="form-check form-switch">
+        <input class="form-check-input not-empty" type="checkbox" role="switch" id="read_privacy" name="read_privacy">
+        <label class="form-check-label" for="read_privacy">
+          Ich habe die <a href="{% url "rockon_privacy" %}" target="_blank">Datenschutzbestimmungen</a> zur Kenntnis genommen
+          und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der Veranstaltungen Rocktreff
+          und Spielfest einverstanden.
+        </label>
+        <div class="valid-feedback"></div>
+        <div class="invalid-feedback">
+          Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section class="row p-4 form-section">
+    <div class="d-grid gap-2 col-12 mx-auto pt-3">
+      <div class="row g-2">
+        <div class="col">
+          <div class="d-grid gap-2 col-12 mx-auto">
+            <button id="form_submit" type="button" class="btn btn-primary">Absenden</button>
+          </div>
+        </div>
+        <div class="col">
+          <div class="d-grid gap-2 col-12 mx-auto">
+            <button id="form_reset" type="button" class="btn btn-secondary">Neustart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="d-grid gap-2 col-12 mx-auto pt-3">
+      <div class="row g-2">
+        <div class="col">
+          <div id="form_message"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </form>
 
 {% endblock content %}

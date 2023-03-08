@@ -10,16 +10,19 @@ class Organisation(models.Model):
     """Organisation model."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = models.CharField(max_length=255)
-    contact_user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="organisation"
-    )
-    comment = models.CharField(max_length=511)
+    org_name = models.CharField(max_length=255, null=False)
+    org_address = models.CharField(max_length=511, null=True, default=None)
+    org_house_number = models.CharField(max_length=31, null=True, default=None)
+    org_address_extension = models.CharField(max_length=511, null=True, default=None)
+    org_zip = models.CharField(max_length=31, null=True, default=None)
+    org_place = models.CharField(max_length=255, null=True, default=None)
+    members = models.ManyToManyField(User, default=None, related_name="organisations")
+    internal_comment = models.TextField(null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.org_name
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["org_name"]
