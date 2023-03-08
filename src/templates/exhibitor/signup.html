@@ -109,6 +109,14 @@
       } else {
         inputValid(input, false)
       }
+    } else if (input.target.type == "number") {
+      if (input.target.value !== "" && !isNaN(input.target.value)) {
+        inputValid(input, true)
+      } else {
+        inputValid(input, false)
+      }
+    } else {
+      inputValid(input, false)
     }
   }
 
@@ -364,7 +372,7 @@
                   <th scope="row">{{ day }}</th>
                   <td><input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}" data-toggle="attendancecount_" data-id="{{ day.id }}"></td>
                   <td>
-                    <input type="text" name="attendancecount_{{ day.id }}" class="form-control not-empty" id="attendancecount_{{ day.id }}" placeholder="Anzahl Personen" autocomplete="off" disabled />
+                    <input type="number" inputmode="numeric" name="attendancecount_{{ day.id }}" class="form-control not-empty" id="attendancecount_{{ day.id }}" placeholder="Anzahl Personen" min="1" autocomplete="off" disabled />
                     <div class="valid-feedback">
                     </div>
                     <div class="invalid-feedback">
@@ -410,7 +418,7 @@
                   <td><input class="form-check-input" type="checkbox" id="assetrequired_{{ asset.id }}" name="assetrequired_{{ asset.id }}" data-toggle="assetcount_" data-id="{{ asset.id }}"></td>
                   <td>
                     {% if not asset.is_bool %}
-                    <input type="text" name="assetcount_{{ asset.id }}" class="form-control not-empty" id="assetcount_{{ asset.id }}" placeholder="Anzahl" autocomplete="off" disabled />
+                    <input type="number" inputmode="numeric" name="assetcount_{{ asset.id }}" class="form-control not-empty" id="assetcount_{{ asset.id }}" placeholder="Anzahl" min="1" autocomplete="off" disabled />
                     <div class="valid-feedback">
                     </div>
                     <div class="invalid-feedback">
