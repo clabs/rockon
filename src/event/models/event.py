@@ -31,6 +31,7 @@ class Event(models.Model):
     teardown_start = models.DateField(help_text="Abbau beginnt")
     teardown_end = models.DateField(help_text="Abbau endet")
     location = models.CharField(max_length=255)
+    url = models.URLField(blank=True, null=True)
     image = models.ImageField(
         upload_to=UploadToPathAndRename(path.join("events")),
         blank=True,
