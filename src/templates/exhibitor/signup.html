@@ -421,7 +421,7 @@
               <tbody>
                 {% for asset in assets %}
                 <tr>
-                  <th scope="row">{{ asset }}<br /><small>{{asset.explanation }}</small></th>
+                  <th scope="row">{{ asset }}<br /><small>{{asset.description }}</small></th>
                   <td><input class="form-check-input" type="checkbox" id="assetrequired_{{ asset.id }}" name="assetrequired_{{ asset.id }}" data-toggle="assetcount_" data-id="{{ asset.id }}"></td>
                   <td>
                     {% if not asset.is_bool %}
