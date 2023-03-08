@@ -32,14 +32,16 @@
       el = form.find('.not-empty')
       console.debug("not-empty elements", el)
       for (const input of el) {
-        validate_input({target: input})
-        if (input.classList.contains('is-invalid')) {
-          validated = false
-          render_error_message()
-          break
-        } else {
-          render_error_message()
-          validated = true
+        if (!input.disabled) {
+          validate_input({target: input})
+          if (input.classList.contains('is-invalid')) {
+            validated = false
+            render_error_message()
+            break
+          } else {
+            render_error_message()
+            validated = true
+          }
         }
       }
       console.debug("validated", validated)
