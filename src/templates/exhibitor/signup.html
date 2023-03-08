@@ -231,7 +231,7 @@
       <div class="row">
         <div class="col-sm-3 g-4">
           <label for="organisation_zip">Postleitzahl</label>
-          <input type="text" pattern="[\d+]{5}" name="organisation_zip" id="organisation_zip" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" />
+          <input type="text" pattern="[0-9]{5}" inputmode="numeric" name="organisation_zip" id="organisation_zip" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" />
           <div class="valid-feedback">
           </div>
           <div class="invalid-feedback">
