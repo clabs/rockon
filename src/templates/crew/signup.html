@@ -556,7 +556,7 @@
               <ul class="list-group list-group-flush">
                 {% for day in phase.days %}
                   <li class="list-group-item">
-                    <input class="form-check-input" type="checkbox" value="" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}">
+                    <input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}">
                     <label class="form-check-label" for="attendance_{{ day.id }}">
                       &nbsp; {{ day }}
                     </label>
@@ -599,7 +599,7 @@
     <label>Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche Tätigkeit zu bekommen.</label>
     <div class="col-sm-12 g-4">
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" value="" role="switch" id="leave_of_absence" name="leave_of_absence">
+        <input class="form-check-input" type="checkbox" role="switch" id="leave_of_absence" name="leave_of_absence">
         <label class="form-check-label" for="leave_of_absence">
           Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.
         </label>

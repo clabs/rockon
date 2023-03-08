@@ -20,7 +20,7 @@ def crew_signup(request, slug):
         body[item["name"]] = item["value"]
 
     _skills = [
-        k.split("_")[1] for k, v in body.items() if k.startswith("skill_") and v == ""
+        k.split("_")[1] for k, v in body.items() if k.startswith("skill_") and v == "on"
     ]
     _attendance = [
         k.split("_")[1]
@@ -31,7 +31,7 @@ def crew_signup(request, slug):
     _teamcategories = [
         k.split("_")[1]
         for k, v in body.items()
-        if k.startswith("team_category_") and v == "on"
+        if k.startswith("teamcategory_") and v == "on"
     ]
 
     _teams = [
@@ -88,9 +88,9 @@ def crew_signup(request, slug):
             nutrition_note=body.get("nutrition_note"),
             skills_note=body.get("skills_note"),
             attendance_note=body.get("note_attendance"),
-            stays_overnight=body.get("stays_overnight") == "",
+            stays_overnight=body.get("stays_overnight") == "on",
             general_note=body.get("general_note"),
-            needs_leave_of_absence=body.get("leave_of_absence") == "",
+            needs_leave_of_absence=body.get("leave_of_absence") == "on",
             leave_of_absence_note=body.get("leave_of_absence_note"),
         )
 
