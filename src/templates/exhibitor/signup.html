@@ -13,6 +13,11 @@
         $(el).val("")
         $(el).removeClass('is-valid is-invalid')
       }
+      if (!$(':checkbox[name^=attendance_]:checked').length > 0) {
+        $('#form_submit').prop('disabled', true)
+      } else {
+        $('#form_submit').prop('disabled', false)
+      }
     })
 
     $('#form_reset').click((event) => {
@@ -486,7 +491,7 @@
       <div class="row g-2">
         <div class="col">
           <div class="d-grid gap-2 col-12 mx-auto">
-            <button id="form_submit" type="button" class="btn btn-primary">Absenden</button>
+            <button id="form_submit" type="button" class="btn btn-primary" disabled>Absenden</button>
           </div>
         </div>
         <div class="col">
