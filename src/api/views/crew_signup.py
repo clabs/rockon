@@ -38,8 +38,13 @@ def crew_signup(request, slug):
         k.split("_")[1] for k, v in body.items() if k.startswith("team_") and v == "on"
     ]
 
-    crew = Crew.objects.get(event__slug=slug)
-    event = crew.event
+    try:
+        crew = Crew.objects.get(event__slug=slug)
+        event = crew.event
+    except Crew.DoesNotExist:
+        return JsonResponse(
+            {"status": "error", "message": "Crew not found"}, status=404
+        )
 
     try:
         user = User.objects.get(email=body["user_email"])

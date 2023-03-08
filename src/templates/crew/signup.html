@@ -22,6 +22,8 @@
       $("#signup").trigger("reset")
       $('#signup :input').val('')
       $(".not-empty").removeClass('is-valid is-invalid')
+      $('#leave_of_absence_note').prop('disabled', true)
+      $('#form_message').html("")
     })
 
     $('#form_submit').on('click', (event) => {
