@@ -38,8 +38,8 @@ ALLOWED_HOSTS = getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(" ")
 
 INTERNAL_IPS = getenv("DJANGO_INTERNAL_IPS", "127.0.0.1").split(" ")
 
-APP_BUILD_DATE = getenv("DJANGO_BUILD_DATE", "now")
-APP_BUILD_HASH = getenv("DJANGO_BUILD_HASH", "local-dev")
+APP_BUILD_DATE = getenv("BUILD_DATE", "now")
+APP_BUILD_HASH = getenv("GITHUB_SHA", "local-dev")
 
 # Application definition
 
