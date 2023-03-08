@@ -1,2 +1,2 @@
 [codespell]
-skip = *.js,*.css,*.map,.git,./src/dist,*.svg,README.md,src/event/models/event.py,src/templates/**/*.html,src/api/views/signup.py,src/event/migrations/0001_initial.py,src/crm/models/email_verification.py,examples/example_data.json
+skip = *.js,*.css,*.map,.git,./src/dist,*.svg,README.md,src/event/models/event.py,src/templates/**/*.html,src/api/views/signup.py,src/event/migrations/0001_initial.py,src/crm/models/email_verification.py,examples/example_data.json,package-lock.json,src/themes/rockon/index.html
