@@ -343,12 +343,18 @@
     <div class="col-lg-4">
       <div><h4>Warum erheben wir diese Informationen?</h4></div>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        Da wir jede Person im Rahmen von {{ event.name }} versichern, brauchen
+        wir minimale Stammdaten wie Geburtstag und Adresse, um euch melden zu
+        können. Diese Daten werden dem Jugendamt Tempelhof-Schöneberg übermittelt,
+        und nur im Bedarfsfall an das Versicherungsunternehmen weitergegeben.
+      </p>
+      <p>
+        Desweiteren ist die Adresse praktisch, um euch postalisch kleine
+        Aufmerksamkeiten zukommen zu lassen!
+      </p>
+      <p>
+        Bis auf deinen Namen, werden diese Daten automatisch nach spätestens
+        einem Jahr gelöscht.
       </p>
     </div>
   </section>
@@ -397,12 +403,18 @@
     <div class="col-lg-4">
       <div><h4>Warum erheben wir diese Informationen?</h4></div>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        Deine Email-Adresse ist für uns sehr wichtig. Zum einen kannst du dich
+        mit ihr bei ROCKON immer wieder anmelden. Zum anderen ist Email aber
+        auch der Weg, wie wir dich im Vorfeld von {{ event.name }} informieren.
+      </p>
+      <p>
+        Normalerweise werden wir dich nie anrufen. Unter Umständen könnte das
+        aber doch wichtig sein - zum Beispiel wenn Emails aus technischen
+        Gründen nicht mehr bei dir ankommen.
+      </p>
+      <p>
+        Wenn du willst, können wir dich auch in die verdächtigen Messenger-Gruppen
+        aufnehmen. Lass uns dazu ein Kommentar unten!
       </p>
     </div>
   </section>
@@ -475,12 +487,13 @@
     <div class="col-lg-4">
       <div><h4>Warum erheben wir diese Informationen?</h4></div>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        Während du mit uns zusammen die Veranstaltung begleitest, wollen wir
+        uns natürlich um dein leibliches Wohl kümmern. Daher ist es für unsere
+        Planung super wichtig, dass wir wissen worauf wir achten müssen!
+      </p>
+      <p>
+        Desweiteren gibt es für die Crew natürlich ein T-Shirt als Dankeschön.
+        Und dass sollte dir natürlich auch passen.
       </p>
     </div>
   </section>
@@ -518,12 +531,10 @@
     <div class="col-lg-4">
       <div><h4>Warum erheben wir diese Informationen?</h4></div>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        Einzelne Tätigkeiten, die du im Rahmen von {{ event.name }} ausführen
+        könntest, erforden eine formale Qualifikation. Für uns ist es in der
+        Planung super wichtig zu wissen, ob ihr z.B. entsprechende Führerscheine
+        habt oder Ersthelfer seid.
       </p>
     </div>
   </section>
@@ -573,7 +584,9 @@
     </div>
     <div class="row">
       <div class="col-sm-12 g-4">
-        <label for="skills_note" class="form-label">Anmerkungen zu deiner Anwesenheit</label>
+        <label for="skills_note" class="form-label">
+          Anmerkungen zu deiner Anwesenheit
+        </label>
         <textarea class="form-control" id="note_attendance" name="note_attendance" rows="2"></textarea>
       </div>
     </div>
@@ -583,7 +596,9 @@
 
   <section class="row p-4 form-section">
     <div><h3>Übernachtung</h3></div>
-    <label>Aus verschiedenen Gründen ist eine Übernachtung erst ab 18 Jahren möglich.</label>
+    <label>
+      Aus verschiedenen Gründen ist eine Übernachtung erst ab 18 Jahren möglich.
+    </label>
     <div class="col-sm-12 g-4">
       <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" role="switch" id="stays_overnight" name="stays_overnight" disabled>
@@ -598,7 +613,10 @@
 
   <section class="row p-4 form-section">
     <div><h3>Freistellung</h3></div>
-    <label>Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche Tätigkeit zu bekommen.</label>
+    <label>
+      Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche
+      Tätigkeit zu bekommen.
+    </label>
     <div class="col-sm-12 g-4">
       <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" role="switch" id="leave_of_absence" name="leave_of_absence">
@@ -617,7 +635,11 @@
 
   <section class="row p-4 form-section">
     <div><h3>Themen</h3></div>
-    <label>Für welche Themen interessierst du dich? Du kannst dir Themenbereiche und/oder Teams aussuchen, die für dich interessant klingen. Nicht das richtige dabei? Keine Sorge, wir finden für jeden etwas!</label>
+    <label>
+      Für welche Themen interessierst du dich? Du kannst dir Themenbereiche
+      und/oder Teams aussuchen, die für dich interessant klingen. Nicht das
+      richtige dabei? Keine Sorge, wir finden für jeden etwas!
+    </label>
     <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
       {% for team_category in team_categories %}
       <div class="col">
