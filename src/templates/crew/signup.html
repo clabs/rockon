@@ -649,7 +649,7 @@
             </div>
           </div>
           <div class="card-body">
-            <p class="card-text">{{ team_category.description }}</p>
+            <p class="card-text">{{ team_category.description|safe }}</p>
             {% if team_category.teams.all %}
             <h5 class="card-text">Teams</h5>
             <ul class="list-group list-group-flush">
