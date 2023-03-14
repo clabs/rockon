@@ -654,14 +654,16 @@
             <h5 class="card-text">Teams</h5>
             <ul class="list-group list-group-flush">
               {% for team in team_category.teams.all %}
-                <li class="list-group-item">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" data-team="{{ team.id }}" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
-                    <label class="form-check-label" for="team_{{ team.id }}">
-                      {{ team }}
-                    </label>
-                  </div>
-                </li>
+                {% if team.is_public %}
+                  <li class="list-group-item">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" data-team="{{ team.id }}" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
+                      <label class="form-check-label" for="team_{{ team.id }}">
+                        {{ team }}
+                      </label>
+                    </div>
+                  </li>
+                {% endif %}
               {% endfor %}
             </ul>
             {% endif %}
