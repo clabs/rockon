@@ -9,7 +9,7 @@ cd $HOME
 rsync -a --delete /app/dist/. /static_files
 
 if [ "$DJANGO_MIGRATE" == "yes" -o "$STARTMODE" == "init" ]; then
-    /app/.venv/bin/python $HOME/manage.py migrate --noinput
+    /app/.venv/bin/python /app/manage.py migrate --noinput
     exit $?
 fi
 
