@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
 from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
 
 from crew.models import Attendance, Shirt, Skill, TeamCategory
 from event.models import Event
@@ -37,6 +38,8 @@ def signup(request, slug):
     return HttpResponse(template.render(context, request))
 
 
-class SignupSubmittedView(TemplateView):
+class SignupSubmittedView(DetailView):
     template_name = "crew/signup_submitted.html"
     extra_context = {"site_title": "Anmeldung abgeschlossen"}
+    query_pk_and_slug = "slug"
+    model = Event
