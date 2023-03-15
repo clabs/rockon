@@ -10,7 +10,6 @@ rsync -a --delete /app/dist/. /static_files
 
 if [ "$DJANGO_MIGRATE" == "yes" -o "$STARTMODE" == "init" ]; then
     /app/.venv/bin/python /app/manage.py migrate --noinput
-    exit $?
 fi
 
 if [ -n "$DJANGO_LOAD_FIXTURE" ]; then
