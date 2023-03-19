@@ -104,6 +104,6 @@ def attendance_table(request):
         "kitchen_list": kitchen_list,
         "nutrion_notes": nutrion_notes,
         "addtion_list": addtion_list,
-        "site_title": "Personenanzahl",
+        "site_title": "Mengenliste",
     }
     return HttpResponse(template.render(extra_context, request))
