@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from .attendance import Attendance
+from .attendance_addition import AttendanceAddition
 from .crew import Crew
-from .crew_member import CrewMember
+from .crew_member import CrewMember, CrewMemberStatus
 from .shirt import Shirt
 from .skill import Skill
 from .team import Team
