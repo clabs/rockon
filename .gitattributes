@@ -2,6 +2,7 @@ src/static/fonts/** linguist-vendored
 src/static/js/jquery* linguist-vendored
 src/static/js/bootstrap* linguist-vendored
 src/static/js/sentry* linguist-vendored
+src/static/js/chart* linguist-vendored
 src/static/js/qrcode.min.js linguist-vendored
 src/static/fontawesome/** linguist-vendored
 src/static/css/bootstrap* linguist-vendored
