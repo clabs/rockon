@@ -55,7 +55,9 @@ class CrewMember(models.Model):
     nutrition_note = models.TextField(null=True, blank=True)
     skills = models.ManyToManyField(Skill, blank=True)
     skills_note = models.TextField(null=True, blank=True)
-    attendance = models.ManyToManyField(Attendance, blank=True)
+    attendance = models.ManyToManyField(
+        Attendance, blank=True, related_name="crew_members"
+    )
     attendance_note = models.TextField(null=True, blank=True)
     stays_overnight = models.BooleanField(default=False)
     general_note = models.TextField(null=True, blank=True)

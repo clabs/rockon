@@ -8,6 +8,7 @@ from .views import (
     PreselectView,
     SignupSubmittedView,
     attendance_table,
+    crew_chart,
     signup,
     signup_root,
 )
@@ -32,4 +33,5 @@ urlpatterns = [
         name="crew_signup_submitted",
     ),
     path("kitchen/attendance/", attendance_table, name="kitchen_attendance"),
+    path("crewcoord/overview/", crew_chart, name="crewcoord_overview"),
 ]
