@@ -4,6 +4,7 @@ from django.contrib import admin
 
 from .models import (
     Attendance,
+    AttendanceAddition,
     Crew,
     CrewMember,
     Shirt,
@@ -19,6 +20,14 @@ class AttendanceAdmin(admin.ModelAdmin):
     search_fields = ("day", "event")
     ordering = ("day", "event", "created_at", "updated_at")
     list_filter = ("day", "event", "phase")
+    readonly_fields = ("created_at", "updated_at")
+
+
+class AttendanceAdditionAdmin(admin.ModelAdmin):
+    list_display = ("attendance", "comment", "amount", "updated_at")
+    search_fields = ("attendance", "comment", "amount")
+    ordering = ("attendance", "comment", "amount", "updated_at")
+    list_filter = ("attendance", "comment", "amount", "updated_at")
     readonly_fields = ("created_at", "updated_at")
 
 
@@ -103,6 +112,7 @@ class TeamMemberAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Attendance, AttendanceAdmin)
+admin.site.register(AttendanceAddition, AttendanceAdditionAdmin)
 admin.site.register(Crew, CrewAdmin)
 admin.site.register(CrewMember, CrewMemberAdmin)
 admin.site.register(Shirt, ShirtAdmin)

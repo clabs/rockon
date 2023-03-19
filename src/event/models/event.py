@@ -37,7 +37,7 @@ class Event(models.Model):
         blank=True,
         null=True,
     )
-    sub_event_of = models.OneToOneField(
+    sub_event_of = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,
         blank=True,
@@ -49,6 +49,7 @@ class Event(models.Model):
     signup_type = models.CharField(
         max_length=12, choices=SIGN_UP_TYPE, default="unknown"
     )
+    is_current = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -14,27 +14,32 @@ from .skill import Skill
 from .team_category import TeamCategory
 
 
+class CrewMemberStatus(models.TextChoices):
+    UNKNOWN = "unknown", "Unbekannt"
+    CONFIRMED = "confirmed", "Bestätigt"
+    REJECTED = "rejected", "Abgelehnt"
+    ARRIVED = "arrived", "Angekommen"
+
+
+class CrewMemberNutrion(models.TextChoices):
+    UNKNOWN = "unknown", "Unbekannt"
+    VEGAN = "vegan", "Vegan"
+    VEGETARIAN = "vegetarian", "Vegetarisch"
+    OMNIVORE = "omnivore", "Omnivor"
+
+
 class CrewMember(models.Model):
     """Crewmember model."""
-
-    NUTRION = [
-        ("vegan", "Vegan"),
-        ("vegetarian", "Vegetarisch"),
-        ("omnivore", "Omnivor"),
-    ]
-
-    STATE = [
-        ("unknown", "Unbekannt"),
-        ("confirmed", "Bestätigt"),
-        ("rejected", "Abgelehnt"),
-        ("arrived", "Angekommen"),
-    ]
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     birthday = models.DateField(null=True)
     crew = models.ForeignKey(Crew, on_delete=models.CASCADE)
-    state = models.CharField(max_length=12, choices=STATE, default="unknown")
+    state = models.CharField(
+        max_length=12,
+        choices=CrewMemberStatus.choices,
+        default=CrewMemberStatus.UNKNOWN,
+    )
     shirt = models.ForeignKey(
         Shirt,
         on_delete=models.CASCADE,
@@ -42,7 +47,11 @@ class CrewMember(models.Model):
         blank=True,
         related_name="crewmember_shirt",
     )
-    nutrition = models.CharField(max_length=12, choices=NUTRION, null=True)
+    nutrition = models.CharField(
+        max_length=12,
+        choices=CrewMemberNutrion.choices,
+        default=CrewMemberNutrion.UNKNOWN,
+    )
     nutrition_note = models.TextField(null=True, blank=True)
     skills = models.ManyToManyField(Skill, blank=True)
     skills_note = models.TextField(null=True, blank=True)

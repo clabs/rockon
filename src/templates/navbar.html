@@ -21,6 +21,16 @@
             <li><a class="dropdown-item disabled" href="#">Link-Shortener</a></li>
           </ul>
         </li>
+        {% for group in user.groups.all %}
+          {% if group.name == "catering_food" %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Küche</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url "kitchen_attendance" %}">Mengenliste</a></li>
+            </ul>
+          </li>
+          {% endif %}
+        {% endfor %}
         {% endif %}
       </ul>
       {% if user.is_authenticated %}
