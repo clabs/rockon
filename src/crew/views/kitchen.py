@@ -18,7 +18,7 @@ from exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorStatus
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="catering_food").exists())
-def AttendanceTable(request):
+def attendance_table(request):
     template = loader.get_template("crew/kitchen_attendance.html")
     event = Event.objects.get(is_current=True)
     attendances = Attendance.objects.filter(event=event)

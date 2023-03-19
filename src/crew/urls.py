@@ -5,9 +5,9 @@ from django.urls import path
 # fmt: off
 # WONTFIX: stop isort and black from fighting each other
 from .views import (
-    AttendanceTable,
     PreselectView,
     SignupSubmittedView,
+    attendance_table,
     signup,
     signup_root,
 )
@@ -31,5 +31,5 @@ urlpatterns = [
         SignupSubmittedView.as_view(),
         name="crew_signup_submitted",
     ),
-    path("kitchen/attendance/", AttendanceTable, name="kitchen_attendance"),
+    path("kitchen/attendance/", attendance_table, name="kitchen_attendance"),
 ]
