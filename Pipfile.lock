@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a2ddbc3b7c8f239770b0d3901f62728378c5548e070b3f70422a3e8eda9ca892"
+            "sha256": "69d89a77f263c3c7a2a3ca2eb222ba9462fa03faa9a2b0311de38e26e2d45463"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -115,11 +115,11 @@
         },
         "markdown": {
             "hashes": [
-                "sha256:08fb8465cffd03d10b9dd34a5c3fea908e20391a2a90b88d66362cb05beed186",
-                "sha256:3b809086bb6efad416156e00a0da66fe47618a5d6918dd688f53f40c8e4cfeff"
+                "sha256:065fd4df22da73a625f14890dd77eb8040edcbd68794bcd35943be14490608b2",
+                "sha256:8bf101198e004dc93e84a12a7395e31aac6a9c9942848ae1d99b9d72cf9b3520"
             ],
             "index": "pypi",
-            "version": "==3.4.1"
+            "version": "==3.4.3"
         },
         "pillow": {
             "hashes": [
@@ -433,19 +433,19 @@
         },
         "filelock": {
             "hashes": [
-                "sha256:3199fd0d3faea8b911be52b663dfccceb84c95949dd13179aa21436d1a79c4ce",
-                "sha256:e90b34656470756edf8b19656785c5fea73afa1953f3e1b0d645cef11cab3182"
+                "sha256:75997740323c5f12e18f10b494bc11c03e42843129f980f17c04352cc7b09d40",
+                "sha256:eb8f0f2d37ed68223ea63e3bddf2fac99667e4362c88b3f762e434d160190d18"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==3.10.0"
+            "version": "==3.10.2"
         },
         "identify": {
             "hashes": [
-                "sha256:5dfef8a745ca4f2c95f27e9db74cb4c8b6d9916383988e8791f3595868f78a33",
-                "sha256:c8b288552bc5f05a08aff09af2f58e6976bf8ac87beb38498a0e3d98ba64eb18"
+                "sha256:69edcaffa8e91ae0f77d397af60f148b6b45a8044b2cc6d99cafa5b04793ff00",
+                "sha256:7671a05ef9cfaf8ff63b15d45a91a1147a03aaccb2976d4e9bd047cbbc508471"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==2.5.20"
+            "version": "==2.5.21"
         },
         "mypy-extensions": {
             "hashes": [
