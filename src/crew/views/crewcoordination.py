@@ -13,10 +13,14 @@ from event.models import Event
 @user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
 def crew_chart(request):
     template = loader.get_template("crew/crewcoord_overview.html")
-    event = Event.objects.get(is_current=True)
-    attendances = Attendance.objects.filter(event=event).annotate(
-        no_of_crew_members=Count("crew_members")
-    )
+    try:
+        event = Event.objects.get(is_current=True)
+        attendances = Attendance.objects.filter(event=event).annotate(
+            no_of_crew_members=Count("crew_members")
+        )
+    except Event.DoesNotExist:
+        event = None
+        attendances = None
 
     extra_context = {
         "event": event,
@@ -30,24 +34,28 @@ def crew_chart(request):
 @user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
 def crew_shirts(request):
     template = loader.get_template("crew/crewcoord_tshirts.html")
-    event = Event.objects.get(is_current=True)
-    crews = Crew.objects.filter(event=event)
-    crew_members = CrewMember.objects.filter(crew__in=crews)
+    try:
+        event = Event.objects.get(is_current=True)
+        crews = Crew.objects.filter(event=event)
+        crew_members = CrewMember.objects.filter(crew__in=crews)
 
-    shirts = Shirt.objects.all()
+        shirts = Shirt.objects.all()
 
-    shirt_counts = crew_members.values("shirt").annotate(
-        shirt_count=Count("shirt"),
-    )
+        shirt_counts = crew_members.values("shirt").annotate(
+            shirt_count=Count("shirt"),
+        )
 
-    counts = []
-    for shirt in shirts:
-        shirt_count = shirt_counts.filter(shirt=shirt.id).values("shirt_count")
-        try:
-            amount = shirt_count[0]["shirt_count"]
-        except IndexError:
-            amount = 0
-        counts.append({"shirt": shirt, "count": amount})
+        counts = []
+        for shirt in shirts:
+            shirt_count = shirt_counts.filter(shirt=shirt.id).values("shirt_count")
+            try:
+                amount = shirt_count[0]["shirt_count"]
+            except IndexError:
+                amount = 0
+            counts.append({"shirt": shirt, "count": amount})
+    except Event.DoesNotExist:
+        counts = None
+        crew_members = None
 
     extra_context = {
         "event": event,
