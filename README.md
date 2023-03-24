@@ -111,3 +111,7 @@ docker compose -f docker-compose.deploy.yml exec -it app ./manage.py loaddata ex
 ### Django Q2
 
 <https://django-q2.readthedocs.io/en/master/index.html>
+
+### Chart.js
+
+<https://www.chartjs.org/docs/latest/>
