@@ -9,6 +9,7 @@ from .views import (
     SignupSubmittedView,
     attendance_table,
     crew_chart,
+    crew_shirts,
     signup,
     signup_root,
 )
@@ -34,4 +35,5 @@ urlpatterns = [
     ),
     path("kitchen/attendance/", attendance_table, name="kitchen_attendance"),
     path("crewcoord/overview/", crew_chart, name="crewcoord_overview"),
+    path("crewcoord/tshirts/", crew_shirts, name="crewcoord_tshirts"),
 ]
