@@ -44,7 +44,7 @@ repos:
         args: [ "--extend-ignore", "E501" ]
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.2
+    rev: v2.2.4
     hooks:
       - id: codespell
         args: [ "-L lokal" ]
