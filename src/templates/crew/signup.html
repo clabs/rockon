@@ -566,8 +566,8 @@
                 {% for day in phase.days %}
                   <li class="list-group-item">
                     <input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}">
-                    <label class="form-check-label" for="attendance_{{ day.id }}">
-                      &nbsp; {{ day }}
+                    <label class="form-check-label date-format-huge" for="attendance_{{ day.id }}">
+                      {{ day }}
                     </label>
                   </li>
                 {% endfor %}

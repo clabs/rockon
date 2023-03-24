@@ -18,7 +18,7 @@
   <tbody>
     {% for day in kitchen_list %}
     <tr>
-      <th scope="row">{{ day.day }}</th>
+      <th scope="row" class="date-format-huge">{{ day.day }}</th>
       <td>{{ day.omnivore }} (*{{ day.omnivore_overnight }})</td>
       <td>{{ day.vegetarian }} (*{{ day.vegetarian_overnight }})</td>
       <td>{{ day.vegan }} (*{{ day.vegan_overnight }})</td>
