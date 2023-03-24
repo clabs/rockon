@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.template import loader
 
-from crew.models import Attendance
+from crew.models import Attendance, Crew, CrewMember, Shirt
 from event.models import Event
 
 
@@ -22,5 +22,37 @@ def crew_chart(request):
         "event": event,
         "site_title": "Übersicht",
         "attendances": attendances,
+    }
+    return HttpResponse(template.render(extra_context, request))
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
+def crew_shirts(request):
+    template = loader.get_template("crew/crewcoord_tshirts.html")
+    event = Event.objects.get(is_current=True)
+    crews = Crew.objects.filter(event=event)
+    crew_members = CrewMember.objects.filter(crew__in=crews)
+
+    shirts = Shirt.objects.all()
+
+    shirt_counts = crew_members.values("shirt").annotate(
+        shirt_count=Count("shirt"),
+    )
+
+    counts = []
+    for shirt in shirts:
+        shirt_count = shirt_counts.filter(shirt=shirt.id).values("shirt_count")
+        try:
+            amount = shirt_count[0]["shirt_count"]
+        except IndexError:
+            amount = 0
+        counts.append({"shirt": shirt, "count": amount})
+
+    extra_context = {
+        "event": event,
+        "site_title": "T-Shirts",
+        "counts": counts,
+        "crew_members": crew_members,
     }
     return HttpResponse(template.render(extra_context, request))
