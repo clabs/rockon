@@ -4,9 +4,6 @@
 <div class="container-fluid">
 
 <h3>Mengenliste</h3>
-<div class="alert alert-info" role="alert">
-  Zahl der Übernachtungen (*#) pro Tag in Klammern.
-</div>
 <table class="table table-dark table-hover table-striped">
   <thead>
     <tr>
@@ -31,6 +28,9 @@
     {% endfor %}
   </tbody>
 </table>
+<div class="alert alert-secondary" role="alert">
+  Zahl der Übernachtungen (*#) pro Tag in Klammern.
+</div>
 
 <h4>Anmerkungen zu Ernährung</h4>
 <ul>
@@ -40,7 +40,7 @@
 </ul>
 
 <h4>Zusätzliche Mengen - Details</h4>
-<div class="alert alert-info" role="alert">
+<div class="alert alert-secondary" role="alert">
   Details für die Summe der Spalte "Zusatz" in der Mengenliste. Keine Erhebung über Ernährungsformen.
 </div>
 <div class="accordion" id="addtions_details">
