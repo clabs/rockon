@@ -20,7 +20,10 @@ from exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorStatus
 @user_passes_test(lambda u: u.groups.filter(name="catering_food").exists())
 def attendance_table(request):
     template = loader.get_template("crew/kitchen_attendance.html")
-    event = Event.objects.get(is_current=True)
+    try:
+        event = Event.objects.get(is_current=True)
+    except Event.DoesNotExist:
+        event = None
     attendances = Attendance.objects.filter(event=event)
     crew = Crew.objects.filter(event=event)
     crew_members = CrewMember.objects.filter(crew__in=crew).exclude(
