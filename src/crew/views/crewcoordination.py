@@ -17,8 +17,6 @@ def crew_chart(request):
     attendances = Attendance.objects.filter(event=event).annotate(
         no_of_crew_members=Count("crew_members")
     )
-    for attendance in attendances:
-        print(attendance.no_of_crew_members)
 
     extra_context = {
         "event": event,

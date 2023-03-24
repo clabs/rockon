@@ -11,11 +11,9 @@ from crm.models import MagicLink
 
 
 def request_magic_link(request):
-    print(request.body)
     try:
         body = json.loads(request.body)
         user = User.objects.get(email=body.get("user_email"))
-        print(user)
         MagicLink.create_and_send(user, make_aware(datetime.now() + timedelta(weeks=4)))
 
     except User.DoesNotExist:
