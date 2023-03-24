@@ -14,6 +14,18 @@
 </div>
 
 <script>
+  const plugin = {
+    id: 'customCanvasBackgroundColor',
+    beforeDraw: (chart, args, options) => {
+      const {ctx} = chart;
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = options.color || '#99ffff';
+      ctx.fillRect(0, 0, chart.width, chart.height);
+      ctx.restore();
+    }
+  };
+
   const ctx = document.getElementById('myChart');
 
   new Chart(ctx, {
@@ -23,16 +35,38 @@
       datasets: [{
         label: 'Anzahl der Crewmitglieder',
         data: [{% for item in attendances %}'{{ item.no_of_crew_members }}',{% endfor %}],
-        borderWidth: 1
+        borderWidth: 1,
+        borderColor: '#fff300',
+        backgroundColor: '#fff300',
       }]
     },
     options: {
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            color: '#fff',
+            stepSize: 1,
+          }
+        },
+        x: {
+          ticks: {
+            color: '#fff',
+          }
         }
       },
+      plugins: {
+        customCanvasBackgroundColor: {
+          color: '#444',
+        },
+        legend: {
+          labels: {
+            color: '#fff',
+          }
+        }
+      }
     },
+    plugins: [plugin],
   });
 </script>
 
