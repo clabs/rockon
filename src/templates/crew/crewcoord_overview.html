@@ -4,13 +4,12 @@
 
 <div class="container-fluid">
 
-<h3>Anzahl der Crewmitglieder</h3>
-
-
-</div>
+<div><h3>Anzahl der Crewmitglieder</h3></div>
 
 <div>
-  <canvas id="myChart"></canvas>
+  <canvas id="attendance_chart"></canvas>
+</div>
+
 </div>
 
 <script>
@@ -26,7 +25,7 @@
     }
   };
 
-  const ctx = document.getElementById('myChart');
+  const ctx = document.getElementById('attendance_chart');
 
   new Chart(ctx, {
     type: 'line',
