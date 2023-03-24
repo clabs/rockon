@@ -105,6 +105,9 @@ def crew_signup(request, slug):
         crew_member.attendance.add(attendance)
     for team_category in _teamcategories:
         crew_member.intressted_in.add(team_category)
+    TeamMember.objects.filter(
+        crewmember=crew_member
+    ).delete()  # remove all team memberships
     for team in _teams:
         team_id = Team.objects.get(id=team)
         TeamMember.objects.create(team=team_id, crewmember=crew_member)
