@@ -19,7 +19,7 @@ class Attendance(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.day.strftime("%A, %d.%m.%Y")
+        return self.day.strftime("%d.%m.%Y")
 
     class Meta:
         ordering = ["day"]

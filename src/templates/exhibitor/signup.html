@@ -366,7 +366,7 @@
               <tbody>
                 {% for day in attendances %}
                 <tr>
-                  <th scope="row">{{ day }}</th>
+                  <th scope="row" class="date-format-huge">{{ day }}</th>
                   <td><input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}" data-toggle="attendancecount_" data-id="{{ day.id }}"></td>
                   <td>
                     <input type="number" inputmode="numeric" name="attendancecount_{{ day.id }}" class="form-control not-empty" id="attendancecount_{{ day.id }}" placeholder="Anzahl Personen" min="1" autocomplete="off" disabled />
