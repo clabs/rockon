@@ -31,6 +31,26 @@ class AttendanceAdditionAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
+@admin.action(description="Mark selected crew members as confirmed")
+def mark_confirmed(modeladmin, request, queryset):
+    queryset.update(state="confirmed")
+
+
+@admin.action(description="Mark selected crew members as rejected")
+def mark_rejected(modeladmin, request, queryset):
+    queryset.update(state="rejected")
+
+
+@admin.action(description="Mark selected crew members as arrived")
+def mark_arrived(modeladmin, request, queryset):
+    queryset.update(state="arrived")
+
+
+@admin.action(description="Mark selected crew members as unknown")
+def mark_unknown(modeladmin, request, queryset):
+    queryset.update(state="unknown")
+
+
 class CrewMemberAdmin(admin.ModelAdmin):
     list_display = (
         "__str__",
@@ -55,6 +75,7 @@ class CrewMemberAdmin(admin.ModelAdmin):
         "updated_at",
     )
     readonly_fields = ("is_adult", "created_at", "updated_at")
+    actions = [mark_confirmed, mark_rejected, mark_arrived, mark_unknown]
 
 
 class CrewAdmin(admin.ModelAdmin):
