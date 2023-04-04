@@ -15,8 +15,10 @@ def crew_chart(request):
     template = loader.get_template("crew/crewcoord_overview.html")
     try:
         event = Event.objects.get(is_current=True)
-        attendances = Attendance.objects.filter(event=event).annotate(
-            no_of_crew_members=Count("crew_members")
+        attendances = (
+            Attendance.objects.filter(event=event)
+            .order_by("day")
+            .annotate(no_of_crew_members=Count("crew_members"))
         )
     except Event.DoesNotExist:
         event = None
