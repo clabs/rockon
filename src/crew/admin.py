@@ -67,7 +67,7 @@ class CrewMemberAdmin(admin.ModelAdmin):
     )
     ordering = ("user", "shirt", "nutrition", "stays_overnight", "updated_at")
     list_filter = (
-        "user",
+        "state",
         "shirt",
         "nutrition",
         "stays_overnight",
