@@ -109,20 +109,10 @@ WSGI_APPLICATION = "rockon.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": getenv("POSTGRES_HOST"),
-        "NAME": getenv("POSTGRES_DB"),
-        "PASSWORD": getenv("POSTGRES_PASSWORD"),
-        "PORT": getenv("POSTGRES_PORT"),
-        "USER": getenv("POSTGRES_USER"),
-    },
-}
-
-if getenv("DJANGO_USE_SQLITE", False) == "True":
-    DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": path.join(BASE_DIR, "_db/db.sqlite3"),
-    }
+    },
+}
 
 CACHES = {
     "default": {
