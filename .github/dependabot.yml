@@ -7,13 +7,16 @@ version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
+    target-branch: "dev"
     schedule:
       interval: "daily"
   - package-ecosystem: "npm"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "daily"
   - package-ecosystem: "github-actions"
     directory: ".github/workflows"
+    target-branch: "dev"
     schedule:
       interval: "daily"
