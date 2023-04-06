@@ -79,8 +79,6 @@ COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 COPY --from=build --chown=appuser /app /app
 COPY --from=sass_build --chown=appuser /sass_build/src/static/css/rockon.min.css /app/static/css/rockon.min.css
 
-COPY ../examples /app/examples
-
 RUN chmod +x /usr/local/bin/entrypoint
 
 WORKDIR /app
