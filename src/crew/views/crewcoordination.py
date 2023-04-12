@@ -16,7 +16,24 @@ def crew_chart(request):
     try:
         event = Event.objects.get(is_current=True)
         attendances = (
-            Attendance.objects.filter(event=event)
+            Attendance.objects.filter(
+                event=event,
+                crew_members__state__in=[
+                    CrewMemberStatus.CONFIRMED,
+                    CrewMemberStatus.ARRIVED,
+                ],
+            )
+            .order_by("day")
+            .annotate(no_of_crew_members=Count("crew_members"))
+        )
+        attendances_unknown = (
+            Attendance.objects.filter(
+                event=event,
+                crew_members__state__in=[
+                    CrewMemberStatus.UNKNOWN,
+                    CrewMemberStatus.REJECTED,
+                ],
+            )
             .order_by("day")
             .annotate(no_of_crew_members=Count("crew_members"))
         )
@@ -27,6 +44,7 @@ def crew_chart(request):
     extra_context = {
         "event": event,
         "site_title": "Übersicht",
+        "attendances_unknown": attendances_unknown,
         "attendances": attendances,
     }
     return HttpResponse(template.render(extra_context, request))
