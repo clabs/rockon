@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.template import loader
 
-from crew.models import Attendance, Crew, CrewMember, Shirt
+from crew.models import Attendance, Crew, CrewMember, CrewMemberStatus, Shirt
 from event.models import Event
 
 
@@ -39,7 +39,9 @@ def crew_shirts(request):
     try:
         event = Event.objects.get(is_current=True)
         crews = Crew.objects.filter(event=event)
-        crew_members = CrewMember.objects.filter(crew__in=crews)
+        crew_members = CrewMember.objects.filter(crew__in=crews).exclude(
+            state__in=[CrewMemberStatus.UNKNOWN, CrewMemberStatus.REJECTED]
+        )
 
         shirts = Shirt.objects.all()
 
