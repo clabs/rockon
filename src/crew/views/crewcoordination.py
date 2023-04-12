@@ -63,6 +63,7 @@ def crew_shirts(request):
         "event": event,
         "site_title": "T-Shirts",
         "counts": counts,
+        "sum": sum([count["count"] for count in counts]),
         "crew_members": crew_members,
     }
     return HttpResponse(template.render(extra_context, request))
