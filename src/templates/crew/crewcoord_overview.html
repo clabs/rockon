@@ -32,12 +32,20 @@
     data: {
       labels: [{% for item in attendances %}'{{ item.day }}',{% endfor %}],
       datasets: [{
-        label: 'Anzahl der Crewmitglieder',
-        data: [{% for item in attendances %}'{{ item.no_of_crew_members }}',{% endfor %}],
-        borderWidth: 1,
-        borderColor: '#fff300',
-        backgroundColor: '#fff300',
-      }]
+          label: 'Bestätigt',
+          data: [{% for item in attendances %}'{{ item.no_of_crew_members }}',{% endfor %}],
+          borderWidth: 1,
+          borderColor: '#fff300',
+          backgroundColor: '#fff300',
+        },
+        {
+          label: 'Blocker',
+          data: [{% for item in attendances_unknown %}'{{ item.no_of_crew_members }}',{% endfor %}],
+          borderWidth: 1,
+          borderColor: 'red',
+          backgroundColor: 'red',
+        }
+      ]
     },
     options: {
       scales: {
