@@ -30,7 +30,11 @@ def attendance_table(request):
         state__in=[CrewMemberStatus.UNKNOWN, CrewMemberStatus.REJECTED]
     )
     kitchen_list = []
-    nutrion_notes = [crew_member.nutrition_note for crew_member in crew_members]
+    nutrion_notes = [
+        crew_member.nutrition_note
+        for crew_member in crew_members
+        if len(crew_member.nutrition_note) > 0
+    ]
     addtion_list = []
 
     exhibitors = []

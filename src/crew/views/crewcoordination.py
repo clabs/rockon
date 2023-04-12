@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.template import loader
 
-from crew.models import Attendance, Crew, CrewMember, Shirt
+from crew.models import Attendance, Crew, CrewMember, CrewMemberStatus, Shirt
 from event.models import Event
 
 
@@ -16,7 +16,24 @@ def crew_chart(request):
     try:
         event = Event.objects.get(is_current=True)
         attendances = (
-            Attendance.objects.filter(event=event)
+            Attendance.objects.filter(
+                event=event,
+                crew_members__state__in=[
+                    CrewMemberStatus.CONFIRMED,
+                    CrewMemberStatus.ARRIVED,
+                ],
+            )
+            .order_by("day")
+            .annotate(no_of_crew_members=Count("crew_members"))
+        )
+        attendances_unknown = (
+            Attendance.objects.filter(
+                event=event,
+                crew_members__state__in=[
+                    CrewMemberStatus.UNKNOWN,
+                    CrewMemberStatus.REJECTED,
+                ],
+            )
             .order_by("day")
             .annotate(no_of_crew_members=Count("crew_members"))
         )
@@ -27,6 +44,7 @@ def crew_chart(request):
     extra_context = {
         "event": event,
         "site_title": "Übersicht",
+        "attendances_unknown": attendances_unknown,
         "attendances": attendances,
     }
     return HttpResponse(template.render(extra_context, request))
@@ -39,7 +57,9 @@ def crew_shirts(request):
     try:
         event = Event.objects.get(is_current=True)
         crews = Crew.objects.filter(event=event)
-        crew_members = CrewMember.objects.filter(crew__in=crews)
+        crew_members = CrewMember.objects.filter(crew__in=crews).exclude(
+            state__in=[CrewMemberStatus.UNKNOWN, CrewMemberStatus.REJECTED]
+        )
 
         shirts = Shirt.objects.all()
 
@@ -63,6 +83,7 @@ def crew_shirts(request):
         "event": event,
         "site_title": "T-Shirts",
         "counts": counts,
+        "sum": sum([count["count"] for count in counts]),
         "crew_members": crew_members,
     }
     return HttpResponse(template.render(extra_context, request))
