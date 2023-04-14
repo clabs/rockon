@@ -7,9 +7,9 @@ from django.template import loader
 from bands.models import Band
 
 
-def techrider(request, band_id):
+def techrider(request, slug):
     try:
-        band_obj = Band.objects.get(id=band_id)
+        band_obj = Band.objects.get(slug=slug)
     except (Band.DoesNotExist, ValidationError):
         raise Http404("Band nicht gefunden...")
 

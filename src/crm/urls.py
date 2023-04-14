@@ -20,6 +20,6 @@ urlpatterns = [
     path("magic-link/<str:token>/", magic_link, name="crm_magic_link"),
     path("request-magic-link/", request_magic_link, name="crm_request_magic_link"),
     path("home/", get_user_homeview, name="crm_user_home"),
-    path("me/", get_user_profile, name="crm_user_profile"),
+    path("me/profile/", get_user_profile, name="crm_user_profile"),
     path("logout/", logout_page, name="crm_logout"),
 ]

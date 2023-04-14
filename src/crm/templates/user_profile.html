@@ -1,4 +1,129 @@
 {% extends "base.html" %} {% block content %}
+<script>
+$(document).ready(() => {
+  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl)
+  })
+  $('#account_data').on('input', function() {
+    const form = $(this)
+    const submitButton = form.find('button[type="submit"]')
+    const inputs = form.find('input')
+    let valid = true
+    inputs.each(function() {
+      if (!this.checkValidity()) {
+        valid = false
+      }
+    })
+    if (valid) {
+      submitButton.prop('disabled', false)
+    } else {
+      submitButton.prop('disabled', true)
+    }
+  })
+
+  $('#account_data').on('submit', function(e) {
+    e.preventDefault()
+    var form = $(this)
+    var submitButton = form.find('button[type="submit"]')
+    var inputs = form.find('input')
+    var data = {}
+    inputs.each(function () {
+      data[this.id] = this.value
+    })
+    console.debug("data", data)
+    $.ajax({
+      url: '{% url "api_crm_update_user_profile" %}',
+      type: 'POST',
+      data: JSON.stringify(data),
+      contentType: 'application/json',
+      headers: {
+        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
+      },
+      dataType: 'json',
+      success: (result) => {
+        window.location.reload(true)
+        submitButton.prop('disabled', true)
+      },
+      error: (result) => {
+        submitButton.prop('disabled', true)
+      }
+    })
+  })
+})
+</script>
+
 <h1>Profil</h1>
-<p>Hallo {{ user.first_name }}, hier entsteht dein Benutzerprofil.</p>
+<div class="alert alert-secondary mt-3">
+  <p>Hier kannst du deine persönlichen Daten einsehen und ändern.</p>
+</div>
+<form id="account_data" class="row align-items-center needs-validation" novalidate>
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+  <section class="row p-4 form-section">
+  <h3>Account</h3>
+  <div class="row">
+    <div class="col-md-6 g-4">
+      <label for="first_name">Vorname</label>
+      <input type="first_name" class="form-control" id="first_name" placeholder="Jane" value="{{ user.first_name|default_if_none:"" }}">
+    </div>
+    <div class="col-md-6 g-4">
+      <label for="last_name">Nachname</label>
+      <input type="last_name" class="form-control" id="last_name" placeholder="Doe" value="{{ user.last_name|default_if_none:"" }}">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 g-4">
+      <label for="email">E-Mail</label>
+      <input type="email" class="form-control" id="email" name="email" placeholder="E-Mail" value="{{ user.email }}" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Hinweis" data-bs-content="Aktuell kannst du deine E-Mail nicht selbst ändern, wende dich an die Crewkoordination." readonly>
+    </div>
+  </div>
+  </section>
+  <section class="row p-4 form-section">
+    <h3>Profil</h3>
+    <div class="row">
+      <div class="col-md-6 g-4">
+        <label for="nick_name">Spitzname</label>
+        <input type="text" class="form-control" id="nick_name" placeholder="Muffischlumpf" value="{{ user.profile.nick_name|default_if_none:"" }}">
+      </div>
+      <div class="col-md-6 g-4">
+        <label for="phone">Telefonnummer</label>
+        <input type="phone" class="form-control" id="phone" placeholder="05551234" value="{{ user.profile.phone|default_if_none:"" }}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 g-4">
+        <label for="address">Adresse</label>
+        <input type="text" class="form-control" id="address" placeholder="Am Geldspeicher" value="{{ user.profile.address|default_if_none:"" }}">
+      </div>
+      <div class="col-md-6 g-4">
+        <label for="address_housenumber">Hausnummer</label>
+        <input type="text" class="form-control" id="address_housenumber" placeholder="23a" value="{{ user.profile.address_housenumber|default_if_none:"" }}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 g-4">
+        <label for="address_extension">Adresse-Zusatz</label>
+        <input type="text" class="form-control" id="address_extension" placeholder="Hinterhof" value="{{ user.profile.address_extension|default_if_none:"" }}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 g-4">
+        <label for="zip_code">Postleitzahl</label>
+        <input type="zip_code" class="form-control" id="zip_code" placeholder="10999" value="{{ user.profile.zip_code|default_if_none:"" }}">
+      </div>
+      <div class="col-md-6 g-4">
+        <label for="place">Ort</label>
+        <input type="text" class="form-control" id="place" placeholder="Entenhausen" value="{{ user.profile.place|default_if_none:"" }}">
+      </div>
+    </div>
+    </section>
+    <div class="row">
+      <div class="col-md-6 g-4">
+        <div>
+          <button type="submit" class="btn btn-primary" disabled>Speichern</button>
+        </div>
+      </div>
+    </div>
+</form>
+
 {% endblock content %}
