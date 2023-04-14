@@ -21,9 +21,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="band",
             name="slug",
-            field=models.SlugField(
-                default=django.utils.crypto.get_random_string, unique=True
-            ),
+            field=models.SlugField(default=None, blank=True, null=True, unique=True),
         ),
         migrations.AddField(
             model_name="timeslot",
