@@ -2,7 +2,13 @@ from __future__ import annotations
 
 from django.urls import path
 
-from api.views import crew_signup, exhibitor_signup, request_magic_link, verify_email
+from api.views import (
+    bandmember_signup,
+    crew_signup,
+    exhibitor_signup,
+    request_magic_link,
+    verify_email,
+)
 
 # Caching:
 # path("chat/list/", cache_page(60*15)(ChatList.as_view()), name="chat_list"),
@@ -18,4 +24,5 @@ urlpatterns = [
     path(
         "crm/request-magic-link/", request_magic_link, name="api_crm_request_magic_link"
     ),
+    path("bands/bandmember/", bandmember_signup, name="api_bandmember_signup"),
 ]
