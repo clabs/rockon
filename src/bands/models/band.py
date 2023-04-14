@@ -12,9 +12,24 @@ class Band(models.Model):
     """Band model."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    event = models.OneToOneField(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="bands")
     name = models.CharField(max_length=255)
-    contact = models.OneToOneField(User, on_delete=models.CASCADE)
+    contact = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="band",
+        null=True,
+        default=None,
+        blank=True,
+    )
+    slot = models.OneToOneField(
+        "TimeSlot",
+        on_delete=models.CASCADE,
+        related_name="band",
+        null=True,
+        default=None,
+        blank=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

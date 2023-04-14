@@ -12,7 +12,7 @@ from event.models import Event
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
 def crew_chart(request):
-    template = loader.get_template("crew/crewcoord_overview.html")
+    template = loader.get_template("crew_overview.html")
     try:
         event = Event.objects.get(is_current=True)
         attendances = (
@@ -53,7 +53,7 @@ def crew_chart(request):
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
 def crew_shirts(request):
-    template = loader.get_template("crew/crewcoord_tshirts.html")
+    template = loader.get_template("crewcoord_tshirts.html")
     try:
         event = Event.objects.get(is_current=True)
         crews = Crew.objects.filter(event=event)
