@@ -65,9 +65,6 @@ def attendance_table(request):
             )
             amounts["misc"] += exhibitor_attendance.count
 
-        if additions:
-            addtion_list.append({"day": day, "additions": additions})
-
         amounts["day"] = day
         amounts["omnivore"] = (
             crew_members.filter(attendance=day, nutrition="omnivore").count() or 0
@@ -82,6 +79,30 @@ def attendance_table(request):
             "misc"
         ]
 
+        # calculate band members and their nutrition, only bands with a slot are taken into account
+        # for all timeslots in given day
+        for timeslot in day.timeslots.all():
+            # catch for empty timeslots
+            try:
+                # add band members to list for display
+                additions.append(
+                    {
+                        "comment": timeslot.band.name,
+                        "amount": timeslot.band.band_members.all().count(),
+                    }
+                )
+                # count all band members and their nutrition
+                for member in timeslot.band.band_members.all():
+                    amounts[member.nutrition] += 1
+                    amounts["sum"] += 1
+            # if a day is empty, nothing bad happens
+            except AttributeError:
+                pass
+
+        if additions:
+            addtion_list.append({"day": day, "additions": additions})
+
+        # calculate overnight crew members and their nutrition
         amounts["omnivore_overnight"] = (
             crew_members.filter(
                 attendance=day, nutrition="omnivore", stays_overnight=True
