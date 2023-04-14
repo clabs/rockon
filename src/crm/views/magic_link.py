@@ -8,7 +8,7 @@ from django.urls import reverse
 
 
 def request_magic_link(request):
-    template = loader.get_template("crm/magic_link.html")
+    template = loader.get_template("magic_link.html")
     context = {
         "site_title": "Magic Link",
     }

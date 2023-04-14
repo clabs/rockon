@@ -15,12 +15,12 @@ def signup_root(request, slug):
 
 
 class PreselectView(TemplateView):
-    template_name = "crew/preselect.html"
+    template_name = "preselect.html"
     extra_context = {"site_title": "Vorauswahl"}
 
 
 def signup(request, slug):
-    template = loader.get_template("crew/signup.html")
+    template = loader.get_template("signup.html")
     event = Event.objects.get(slug=slug)
     shirts = Shirt.objects.all()
     skills = Skill.objects.all()
@@ -39,7 +39,7 @@ def signup(request, slug):
 
 
 class SignupSubmittedView(DetailView):
-    template_name = "crew/signup_submitted.html"
+    template_name = "signup_submitted.html"
     extra_context = {"site_title": "Anmeldung abgeschlossen"}
     query_pk_and_slug = "slug"
     model = Event
