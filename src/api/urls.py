@@ -7,6 +7,7 @@ from api.views import (
     crew_signup,
     exhibitor_signup,
     request_magic_link,
+    update_user_profile,
     verify_email,
 )
 
@@ -25,4 +26,9 @@ urlpatterns = [
         "crm/request-magic-link/", request_magic_link, name="api_crm_request_magic_link"
     ),
     path("bands/bandmember/", bandmember_signup, name="api_bandmember_signup"),
+    path(
+        "crm/update-user-profile/",
+        update_user_profile,
+        name="api_crm_update_user_profile",
+    ),
 ]
