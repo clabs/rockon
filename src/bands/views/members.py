@@ -8,9 +8,9 @@ from bands.models import Band, BandMemberPosition
 from crew.models import CrewMemberNutrion
 
 
-def members(request, band_id):
+def members(request, slug):
     try:
-        band_obj = Band.objects.get(id=band_id)
+        band_obj = Band.objects.get(slug=slug)
     except (Band.DoesNotExist, ValidationError):
         raise Http404("Band nicht gefunden...")
 
