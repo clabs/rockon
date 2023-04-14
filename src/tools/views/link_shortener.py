@@ -21,7 +21,7 @@ def link_shortener(request, slug):
 def display_qr_code(request, slug):
     """Displays the QR code for the short form url."""
     try:
-        template = loader.get_template("tools/display_qr.html")
+        template = loader.get_template("display_qr.html")
         link_shortener = LinkShortener.objects.get(slug=slug)
         context = {"site_title": "Shortlink QR", "link_shortener": link_shortener}
         return HttpResponse(template.render(context, request))

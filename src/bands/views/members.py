@@ -16,7 +16,7 @@ def members(request, band_id):
 
     count = band_obj.band_members.count()
 
-    template = loader.get_template("bands/members.html")
+    template = loader.get_template("members.html")
     context = {
         "site_title": "Personenmeldung",
         "band": band_obj,

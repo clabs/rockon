@@ -13,7 +13,7 @@ def techrider(request, band_id):
     except (Band.DoesNotExist, ValidationError):
         raise Http404("Band nicht gefunden...")
 
-    template = loader.get_template("bands/techrider.html")
+    template = loader.get_template("techrider.html")
     context = {
         "site_title": "Techrider",
         "band": band_obj,
