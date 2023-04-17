@@ -31,7 +31,7 @@ def attendance_table(request):
     )
     kitchen_list = []
     nutrion_notes = [
-        crew_member.nutrition_note
+        {"crew_member": crew_member, "note": crew_member.nutrition_note}
         for crew_member in crew_members
         if len(crew_member.nutrition_note) > 0
     ]
