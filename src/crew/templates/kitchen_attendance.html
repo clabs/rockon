@@ -35,7 +35,7 @@
 <h4>Anmerkungen zu Ernährung</h4>
 <ul>
 {% for note in nutrion_notes %}
-<li>{{ note }}</li>
+<li><strong>{{ note.crew_member.user.first_name }} {{ note.crew_member.user.last_name }}</strong>: {{ note.note }}</li>
 {% endfor %}
 </ul>
 
