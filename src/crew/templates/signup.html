@@ -2,6 +2,12 @@
 
 <script language="javascript">
   $(document).ready(() => {
+    $('#signup').on('change', _ => {
+      $(window).bind('beforeunload', () => {
+        return "Die Seite hat ungespeicherte Änderungen.";
+      })
+    })
+
     $('#select_all_attendance').change(event => {
       event.preventDefault()
       for (const el of $('[name^=attendance_]')) {
@@ -213,6 +219,7 @@
 
   ajax_success = (data) => {
     console.info(data)
+    $(window).unbind('beforeunload')
     window.location.href = "{% url "crew_signup_submitted" slug=slug %}"
   }
   ajax_error = (data) => {
