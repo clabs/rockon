@@ -26,16 +26,18 @@ def signup(request, slug):
     skills = Skill.objects.all()
     attendance_phases = Attendance.get_phases(event=event)
     team_categories = TeamCategory.objects.all()
-    context = {
+    extra_context = {
         "event": event,
+        "og_title": f"Crewanmeldung {event.name}",
+        "og_description": f"Crewanmeldung für die Veranstaltung {event.name}, sei Teil des Teams!",
         "shirts": shirts,
-        "site_title": "Anmeldung",
+        "site_title": f"Crewanmeldung {event.name}",
         "skills": skills,
         "slug": slug,
         "team_categories": team_categories,
         "attendance_phases": attendance_phases,
     }
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(extra_context, request))
 
 
 class SignupSubmittedView(DetailView):

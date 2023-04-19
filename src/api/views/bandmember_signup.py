@@ -18,6 +18,8 @@ def bandmember_signup(request):
         )
 
     for person in body["persons"]:
+        if BandMember.objects.filter(band=band).count() >= 10:
+            break
         person_dict = {}
         for item in person:
             person_dict[item["name"]] = item["value"]

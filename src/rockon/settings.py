@@ -96,6 +96,7 @@ TEMPLATES = [
                 "rockon.context_processors.app_info.get_build_date",
                 "rockon.context_processors.app_info.get_build_hash",
                 "rockon.context_processors.sentry_frontend.get_sentry_data",
+                "rockon.context_processors.get_domain.get_domain",
             ],
         },
     },
