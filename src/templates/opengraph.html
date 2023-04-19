@@ -1,0 +1,6 @@
+{% load static %}
+<meta property="og:url"                content="{{ DOMAIN }}{{ request.request.get_full_path }}" />
+<meta property="og:type"               content="website" />
+<meta property="og:title"              content="{{ og_title|default:"rockon" }}" />
+<meta property="og:description"        content="{{ og_description|default:"Hi, ich bin Rockon und ich helfe beim Organisieren und Verwalten von Rocktreff und Spielfest Mariendorf" }}" />
+<meta property="og:image"              content="{{ DOMAIN }}{% static "assets/racoon.svg" %}" />
