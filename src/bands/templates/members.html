@@ -12,6 +12,12 @@ $(document).ready(() => {
     $("#main_content").addClass("d-none")
     $("#result").html('<div class="alert alert-primary" role="alert">Meldung bereits abgeschlossen, solltet ihr Hilfe brauchen, wendet euch bitte an die Bandbetreuung!</div>')
   }
+  $('#form_new_person').on('change', _ => {
+    $(window).bind('beforeunload', () => {
+      return "Die Seite hat ungespeicherte Änderungen.";
+    })
+  })
+
   $("#new_person_send").click((event) => {
     event.preventDefault()
     const form = $("#form_new_person")
@@ -62,6 +68,7 @@ $(document).ready(() => {
         },
         success: (data) => {
           console.debug("success", data)
+          $(window).unbind('beforeunload')
           $('#submit_persons').prop('disabled', true)
           $('#new_person_model_open').prop('disabled', true)
           $("#result").html('<div class="alert alert-primary" role="alert">Meldung erfolgreich abgeschlossen.</div>')
