@@ -17,7 +17,7 @@ class UserProfile(models.Model):
         on_delete=models.CASCADE,
         related_name="profile",
     )
-    nick_name = models.CharField(max_length=255)
+    nick_name = models.CharField(max_length=255, null=True, default=None, blank=True)
     email_is_verified = models.BooleanField(default=False)
     phone = models.CharField(max_length=255, null=True, default=None, blank=True)
     address = models.CharField(max_length=255, null=True, default=None, blank=True)
