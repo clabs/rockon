@@ -19,14 +19,18 @@ class UserProfile(models.Model):
     )
     nick_name = models.CharField(max_length=255)
     email_is_verified = models.BooleanField(default=False)
-    phone = models.CharField(max_length=255, null=True, default=None)
-    address = models.CharField(max_length=255, null=True, default=None)
-    address_extension = models.CharField(max_length=255, null=True, default=None)
-    address_housenumber = models.CharField(max_length=255, null=True, default=None)
-    zip_code = models.CharField(max_length=255, null=True, default=None)
-    place = models.CharField(max_length=255, null=True, default=None)
-    comment = models.TextField(null=True, default=None)
-    internal_comment = models.TextField(null=True, default=None)
+    phone = models.CharField(max_length=255, null=True, default=None, blank=True)
+    address = models.CharField(max_length=255, null=True, default=None, blank=True)
+    address_extension = models.CharField(
+        max_length=255, null=True, default=None, blank=True
+    )
+    address_housenumber = models.CharField(
+        max_length=255, null=True, default=None, blank=True
+    )
+    zip_code = models.CharField(max_length=255, null=True, default=None, blank=True)
+    place = models.CharField(max_length=255, null=True, default=None, blank=True)
+    comment = models.TextField(null=True, default=None, blank=True)
+    internal_comment = models.TextField(null=True, default=None, blank=True)
     events = models.ManyToManyField(Event, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
