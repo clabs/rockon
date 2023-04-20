@@ -28,9 +28,11 @@ class Exhibitor(models.Model):
     state = models.CharField(
         max_length=12, choices=ExhibitorStatus.choices, default=ExhibitorStatus.UNKNOWN
     )
-    market_id = models.CharField(max_length=255, default=None, null=True, unique=True)
-    general_note = models.TextField(null=True, default=None)
-    internal_comment = models.TextField(null=True, default=None)
+    market_id = models.CharField(
+        max_length=255, default=None, null=True, blank=True, unique=True
+    )
+    general_note = models.TextField(null=True, default=None, blank=True)
+    internal_comment = models.TextField(null=True, default=None, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
