@@ -20,6 +20,7 @@ class Shirt(models.Model):
         ("XL", "XL"),
         ("2XL", "2XL"),
         ("3XL", "3XL"),
+        ("4XL", "4XL"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
