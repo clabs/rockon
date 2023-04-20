@@ -8,7 +8,7 @@ from exhibitors.models import Asset, Attendance
 
 
 def signup(request, slug):
-    template = loader.get_template("signup.html")
+    template = loader.get_template("exhibitor_signup.html")
     event = Event.objects.get(slug=slug)
     attendances = Attendance.objects.filter(event=event)
     assets = Asset.objects.all()
@@ -23,7 +23,7 @@ def signup(request, slug):
 
 
 def signup_submitted(request, slug):
-    template = loader.get_template("signup_submitted.html")
+    template = loader.get_template("exhibitor_signup_submitted.html")
     context = {
         "site_title": "Anmeldung abgeschlossen",
         "slug": slug,
