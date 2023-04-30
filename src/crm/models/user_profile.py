@@ -29,6 +29,9 @@ class UserProfile(models.Model):
     )
     zip_code = models.CharField(max_length=255, null=True, default=None, blank=True)
     place = models.CharField(max_length=255, null=True, default=None, blank=True)
+    contact_mail = models.EmailField(
+        max_length=1024, null=True, default=None, blank=True
+    )
     comment = models.TextField(null=True, default=None, blank=True)
     internal_comment = models.TextField(null=True, default=None, blank=True)
     events = models.ManyToManyField(Event, default=None)
