@@ -15,6 +15,8 @@ class BandMemberPosition(models.TextChoices):
     MERCH = "merch", "Merchandise"
     BAND = "band", "Band"
     HAND = "hand", "Stagehand"
+    TECHNICAN = "technican", "Techniker"
+    SUPPORT = "support", "Support"
 
 
 class BandMember(models.Model):
