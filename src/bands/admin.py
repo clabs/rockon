@@ -21,10 +21,13 @@ class BandAdmin(admin.ModelAdmin):
 
 
 class BandMemberAdmin(admin.ModelAdmin):
-    list_display = ("user", "band", "position", "updated_at")
+    list_display = ("_user", "band", "position", "updated_at")
     list_filter = ("band",)
     search_fields = ("user__username", "band__name")
     readonly_fields = ("id", "created_at", "updated_at", "user", "band")
+
+    def _user(self, obj):
+        return f"{obj.user.first_name} {obj.user.last_name}"
 
 
 admin.site.register(Band, BandAdmin)
