@@ -17,7 +17,15 @@ class BandAdmin(admin.ModelAdmin):
     list_display = ("name", "contact", "slot", "event", "id")
     list_filter = ("event",)
     search_fields = ("name", "contact__username", "event__name")
-    readonly_fields = ("id", "created_at", "updated_at", "slot")
+    readonly_fields = ("id", "_band_members", "created_at", "updated_at", "slot")
+
+    def _band_members(self, obj):
+        return ", ".join(
+            [
+                f"{member.user.first_name} {member.user.last_name}"
+                for member in obj.band_members.all()
+            ]
+        )
 
 
 class BandMemberAdmin(admin.ModelAdmin):
