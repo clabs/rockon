@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from uuid import uuid4
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -25,6 +26,17 @@ def bandmember_signup(request):
             person_dict[item["name"]] = item["value"]
         try:
             user = User.objects.get(email=person_dict["email"])
+            # if a user already exists, create a new mail alias
+            # to prevent information being overwritten
+            # because bands use their booking mail address for all members
+            new_mail_alias = f"band_{band.slug}_{uuid4().hex}@rockon.dev"
+            user = User.objects.create(
+                username=new_mail_alias,
+                email=new_mail_alias,
+                first_name=person_dict["first_name"],
+                last_name=person_dict["last_name"],
+            )
+            user.profile.contact_mail = person_dict["email"]
         except User.DoesNotExist:
             user = User.objects.create(
                 username=person_dict["email"],
