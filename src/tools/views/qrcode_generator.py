@@ -6,5 +6,5 @@ from django.template import loader
 
 def qrcode_generator(request):
     template = loader.get_template("qrcode_generator.html")
-    context = {"site_title": "QR"}
-    return HttpResponse(template.render(context, request))
+    extra_context = {"site_title": "QR"}
+    return HttpResponse(template.render(extra_context, request))

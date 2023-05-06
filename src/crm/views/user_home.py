@@ -9,5 +9,5 @@ from django.template import loader
 def get_user_homeview(request):
     """A view that returns the user homeview for logged in users."""
     template = loader.get_template("user_home.html")
-    context = {"site_title": "Home"}
-    return HttpResponse(template.render(context, request))
+    extra_context = {"site_title": "Home"}
+    return HttpResponse(template.render(extra_context, request))

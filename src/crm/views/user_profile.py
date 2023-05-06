@@ -9,5 +9,5 @@ from django.template import loader
 def get_user_profile(request):
     """A view that returns the user profile for logged in users."""
     template = loader.get_template("user_profile.html")
-    context = {"site_title": "Profil"}
-    return HttpResponse(template.render(context, request))
+    extra_context = {"site_title": "Profil"}
+    return HttpResponse(template.render(extra_context, request))

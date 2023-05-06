@@ -7,9 +7,9 @@ from django.template import loader
 
 def logout_page(request):
     template = loader.get_template("registration/logout.html")
-    context = {
+    extra_context = {
         "site_title": "Logout",
     }
     if request.user.is_authenticated:
         logout(request)
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(extra_context, request))

@@ -9,10 +9,10 @@ from django.urls import reverse
 
 def request_magic_link(request):
     template = loader.get_template("magic_link.html")
-    context = {
+    extra_context = {
         "site_title": "Magic Link",
     }
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(extra_context, request))
 
 
 def magic_link(request, token):
@@ -20,11 +20,11 @@ def magic_link(request, token):
     user = authenticate(request, token=token)
     if not user:
         template = loader.get_template("errors/403.html")
-        context = {
+        extra_context = {
             "site_title": "Magic Link angefordert",
             "reason": "Der angefrate Schlüssel wurde nicht gefunden...",
         }
-        return HttpResponseForbidden(template.render(context, request))
+        return HttpResponseForbidden(template.render(extra_context, request))
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     # if not user:
     #     raise PermissionDenied

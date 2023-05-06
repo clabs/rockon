@@ -14,8 +14,8 @@ def techrider(request, slug):
         raise Http404("Band nicht gefunden...")
 
     template = loader.get_template("techrider.html")
-    context = {
+    extra_context = {
         "site_title": "Techrider",
         "band": band_obj,
     }
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(extra_context, request))

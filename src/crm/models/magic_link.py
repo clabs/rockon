@@ -45,7 +45,7 @@ class MagicLink(models.Model):
         # FIXME: use absolute URLs in templates
         # FIXME: create a helper class for mailings with defined textfields to replace.
         template = loader.get_template("mail/magic_link.html")
-        context = {
+        extra_context = {
             "name": user.first_name,
             "magic_link_token": magic_link.token,
             "expires_at": _expires_at,
@@ -56,15 +56,15 @@ class MagicLink(models.Model):
             "magic_link": f'{settings.DOMAIN}{reverse("crm_magic_link", kwargs={"token": magic_link.token})}',
         }
 
-        message = f'Hallo {context["name"]},\nhier findest du deinen persönlichen Link \
-                    zum einsehen und ändern deiner persönlichen Daten:\n{context["magic_link"]}'
+        message = f'Hallo {extra_context["name"]},\nhier findest du deinen persönlichen Link \
+                    zum einsehen und ändern deiner persönlichen Daten:\n{extra_context["magic_link"]}'
 
         async_task(
             send_mail,
-            subject=context["subject"],
+            subject=extra_context["subject"],
             message=message,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[context["recipient"]],
-            html_message=template.render(context),
+            recipient_list=[extra_context["recipient"]],
+            html_message=template.render(extra_context),
             fail_silently=False,
         )

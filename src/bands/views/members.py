@@ -17,11 +17,11 @@ def members(request, slug):
     count = band_obj.band_members.count()
 
     template = loader.get_template("members.html")
-    context = {
+    extra_context = {
         "site_title": "Personenmeldung",
         "band": band_obj,
         "slots": 10 - count,
         "nutrion_choices": CrewMemberNutrion,
         "positions": BandMemberPosition,
     }
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(extra_context, request))
