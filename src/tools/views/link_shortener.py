@@ -23,7 +23,7 @@ def display_qr_code(request, slug):
     try:
         template = loader.get_template("display_qr.html")
         link_shortener = LinkShortener.objects.get(slug=slug)
-        context = {"site_title": "Shortlink QR", "link_shortener": link_shortener}
-        return HttpResponse(template.render(context, request))
+        extra_context = {"site_title": "Shortlink QR", "link_shortener": link_shortener}
+        return HttpResponse(template.render(extra_context, request))
     except LinkShortener.DoesNotExist:
         raise Http404("Der angefragte Link wurde nicht gefunden...")

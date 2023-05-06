@@ -12,20 +12,20 @@ def signup(request, slug):
     event = Event.objects.get(slug=slug)
     attendances = Attendance.objects.filter(event=event)
     assets = Asset.objects.all()
-    context = {
+    extra_context = {
         "event": event,
         "site_title": "Anmeldung",
         "attendances": attendances,
         "assets": assets,
         "slug": slug,
     }
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(extra_context, request))
 
 
 def signup_submitted(request, slug):
     template = loader.get_template("exhibitor_signup_submitted.html")
-    context = {
+    extra_context = {
         "site_title": "Anmeldung abgeschlossen",
         "slug": slug,
     }
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(extra_context, request))

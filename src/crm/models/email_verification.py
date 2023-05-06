@@ -41,7 +41,7 @@ class EmailVerification(models.Model):
         # FIXME: create a helper class for mailings with defined textfields to replace.
         template = loader.get_template("mail/confirm_email_address.html")
 
-        context = {
+        extra_context = {
             "name": user.first_name,
             "email_verification_token": email_verifcation.token,
             "domain": settings.DOMAIN,
@@ -50,10 +50,10 @@ class EmailVerification(models.Model):
 
         async_task(
             send_mail,
-            subject=context["subject"],
-            message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{context["domain"]}{reverse("crm_verify_email", kwargs={"token": context["email_verification_token"]})}\n\nSolltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
+            subject=extra_context["subject"],
+            message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{extra_context["domain"]}{reverse("crm_verify_email", kwargs={"token": extra_context["email_verification_token"]})}\n\nSolltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[f"{user.email}"],
-            html_message=template.render(context),
+            html_message=template.render(extra_context),
             fail_silently=False,
         )
