@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.urls import path
 
 from api.views import (
+    band_techrider,
     bandmember_signup,
     crew_signup,
     exhibitor_signup,
@@ -31,4 +32,5 @@ urlpatterns = [
         update_user_profile,
         name="api_crm_update_user_profile",
     ),
+    path("bands/<slug:slug>/techrider/", band_techrider, name="api_band_techrider"),
 ]
