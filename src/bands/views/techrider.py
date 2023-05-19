@@ -16,6 +16,7 @@ def techrider(request, slug):
     template = loader.get_template("techrider.html")
     extra_context = {
         "site_title": "Techrider",
+        "slug": slug,
         "band": band_obj,
     }
     return HttpResponse(template.render(extra_context, request))

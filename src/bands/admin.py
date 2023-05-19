@@ -14,7 +14,7 @@ class TimeslotAdmin(admin.ModelAdmin):
 
 
 class BandAdmin(admin.ModelAdmin):
-    list_display = ("name", "contact", "slot", "event", "id")
+    list_display = ("name", "contact", "_has_techrider", "slot", "event", "id")
     list_filter = ("event",)
     search_fields = ("name", "contact__username", "event__name")
     readonly_fields = ("id", "_band_members", "created_at", "updated_at", "slot")
@@ -26,6 +26,11 @@ class BandAdmin(admin.ModelAdmin):
                 for member in obj.band_members.all()
             ]
         )
+
+    def _has_techrider(self, obj):
+        return obj.techrider != {}
+
+    _has_techrider.boolean = True
 
 
 class BandMemberAdmin(admin.ModelAdmin):
