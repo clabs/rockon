@@ -22,7 +22,7 @@ tzdata = "==2023.3"
 
 [dev-packages]
 django-debug-toolbar = "==4.1.0"
-pre-commit = "==3.3.2"
+pre-commit = "==3.3.3"
 black = "==23.3.0"
 
 [requires]
