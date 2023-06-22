@@ -17,7 +17,7 @@ pillow = "==9.5.0"
 psycopg-binary = "==3.1.9"
 python-dotenv = "==1.0.0"
 redis = "==4.5.5"
-sentry-sdk = "==1.23.1"
+sentry-sdk = "==1.26.0"
 tzdata = "==2023.3"
 
 [dev-packages]
