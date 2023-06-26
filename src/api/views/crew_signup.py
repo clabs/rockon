@@ -99,12 +99,9 @@ def crew_signup(request, slug):
             leave_of_absence_note=body.get("leave_of_absence_note"),
         )
 
-    for skill in _skills:
-        crew_member.skills.add(skill)
-    for attendance in _attendance:
-        crew_member.attendance.add(attendance)
-    for team_category in _teamcategories:
-        crew_member.intressted_in.add(team_category)
+    crew_member.skills.add(*_skills)
+    crew_member.attendance.add(*_attendance)
+    crew_member.interested_in.add(*_teamcategories)
     TeamMember.objects.filter(
         crewmember=crew_member
     ).delete()  # remove all team memberships
