@@ -1,4 +1,4 @@
-FROM python:3.11.3-bullseye as base
+FROM python:3.11.4-bookworm as base
 
 ######################################### [build] ########################
 
@@ -37,7 +37,7 @@ RUN export DJANGO_SECRET_KEY=unused-but-must-be-present && \
 
 ######################################### [sass theming] ########################
 
-FROM node:lts-bullseye as sass_build
+FROM node:lts-bookworm as sass_build
 
 WORKDIR /sass_build
 COPY package.json package-lock.json /sass_build/
