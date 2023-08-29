@@ -17,6 +17,8 @@ def verify_email(request):
             return JsonResponse({"status": "token_spent"}, status=201)
         user = User.objects.get(id=verification.user.id)
         user.profile.email_is_verified = True
+        if verification.new_email:
+            user.email = verification.new_email
         user.save()
         verification.is_active = False
         verification.save()
