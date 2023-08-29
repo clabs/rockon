@@ -19,6 +19,7 @@ class EmailVerification(models.Model):
         User, on_delete=models.CASCADE, related_name="email_verification"
     )
     token = models.UUIDField(default=uuid4, editable=False)
+    new_email = models.EmailField(max_length=1024, null=True, default=None)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -30,10 +31,10 @@ class EmailVerification(models.Model):
         ordering = ["user"]
 
     @classmethod
-    def create_and_send(cls, user: User) -> None:
+    def create_and_send(cls, user: User, new_email: str = None) -> None:
         """Creates a verification link and sends email to the user."""
 
-        email_verifcation = cls.objects.create(user=user)
+        email_verifcation = cls.objects.create(user=user, new_email=new_email)
         email_verifcation.save()
 
         # FIXME: import the scheme, domain and rest of things from Django settings

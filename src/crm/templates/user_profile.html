@@ -1,5 +1,12 @@
 {% extends "base.html" %} {% block content %}
 <script>
+const validateEmail = (email) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    )
+}
 $(document).ready(() => {
   var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
   var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
@@ -50,6 +57,72 @@ $(document).ready(() => {
       }
     })
   })
+
+  const changeMailAddressModal = document.getElementById('changeMailAddress')
+  changeMailAddressModal.addEventListener('hidden.bs.modal', event => {
+    console.debug("hidden.bs.modal, reset form")
+    $('#changeEmailSave').prop('disabled', true)
+    document.getElementById("changeMailAddressForm").reset()
+  })
+
+  $('#changeEmailSave').on('click', function(e) {
+    e.preventDefault()
+    const form = $('#changeMailAddressForm')
+    const submitButton = $(this)
+    const inputs = form.find('input')
+    const data = {}
+    inputs.each(function () {
+      data[this.id] = this.value
+    })
+    console.debug("data", data)
+    $.ajax({
+      url: '{% url "api_crm_update_email" %}',
+      type: 'POST',
+      data: JSON.stringify(data),
+      contentType: 'application/json',
+      headers: {
+        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
+      },
+      dataType: 'json',
+      success: (result) => {
+        $("#changeMailAddress").removeClass("in")
+        $(".modal-backdrop").remove()
+        $('body').removeClass('modal-open')
+        $('body').css('padding-right', '')
+        $("#changeMailAddress").hide()
+        $('#openChangeMailAddressModal').prop('disabled', true)
+        $('#changeEmailMessage').html('<div class="alert alert-success mt-3" role="alert">E-Mail Adresse wurde geändert. Bitte bestätige die neue E-Mail Adresse mit dem Link in deinem Postfach, erst nach der Bestätigung funktioniert deine neue Adresse.</div>')
+      },
+      error: (result) => {
+        $("#changeMailAddress").removeClass("in")
+        $(".modal-backdrop").remove()
+        $('body').removeClass('modal-open')
+        $('body').css('padding-right', '')
+        $("#changeMailAddress").hide()
+        $('#openChangeMailAddressModal').prop('disabled', true)
+        $('#changeEmailMessage').html('<div class="alert alert-warning mt-3" role="alert">Es ist etwas schiefgegangen, bitte versuche es später noch einmal.</div>')
+      }
+    })
+  })
+
+  $('#changeEmailNew, #changeEmailRepeat').on('change', function() {
+    const form = $('#changeMailAddressForm')
+    const submitButton = $('#changeEmailSave')
+    const inputs = form.find('input')
+    let valid = true
+    inputs.each(function() {
+      console.debug("input", this.value, this)
+      if (!validateEmail(this.value) || this.value != $('#changeEmailNew').val()) {
+        valid = false
+        console.error("invalid input", this)
+      }
+    })
+    if (valid) {
+      submitButton.prop('disabled', false)
+    } else {
+      submitButton.prop('disabled', true)
+    }
+  })
 })
 </script>
 
@@ -74,10 +147,17 @@ $(document).ready(() => {
   <div class="row">
     <div class="col-md-6 g-4">
       <label for="email">E-Mail</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="E-Mail" value="{{ user.email }}" data-bs-toggle="popover" data-bs-trigger="hover focus" title="Hinweis" data-bs-content="Aktuell kannst du deine E-Mail nicht selbst ändern, wende dich an die Crewkoordination." readonly>
+      <input type="email" class="form-control" id="email" name="email" placeholder="E-Mail" value="{{ user.email }}" readonly>
+    </div>
+    <div class="col-md-6 g-4">
+      <label></label>
+      <button type="button" id="openChangeMailAddressModal" class="btn btn-primary form-control" data-bs-toggle="modal" data-bs-target="#changeMailAddress">
+        E-Mail ändern
+      </button>
     </div>
   </div>
   </section>
+  <div id="changeEmailMessage"></div>
   <section class="row p-4 form-section">
     <h3>Profil</h3>
     <div class="row">
@@ -125,5 +205,37 @@ $(document).ready(() => {
       </div>
     </div>
 </form>
+
+<!-- Modal changeMailAddress -->
+<div class="modal fade" id="changeMailAddress" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="changeMailAddressLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="changeMailAddressLabel">E-Mail Adresse ändern</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <form id="changeMailAddressForm">
+          <div class="row">
+            <div class="col-md-12 g-4">
+              <label for="email">neue E-Mail</label>
+              <input type="email" class="form-control" id="changeEmailNew" name="changeEmailNew" placeholder="" value="">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 g-4">
+              <label for="email">neue E-Mail wiederholen</label>
+              <input type="email" class="form-control" id="changeEmailRepeat" name="changeEmailRepeat" placeholder="" value="">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <button type="button" id="changeEmailSave" class="btn btn-primary" disabled>Ändern</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}
