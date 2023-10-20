@@ -63,7 +63,7 @@ class MagicLink(models.Model):
             send_mail,
             subject=extra_context["subject"],
             message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=settings.EMAIL_DEFAULT_FROM,
             recipient_list=[extra_context["recipient"]],
             html_message=template.render(extra_context),
             fail_silently=False,
