@@ -5,7 +5,7 @@
 # * Run "pre-commit install".
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -20,13 +20,13 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.2
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
         args: [ "--py37-plus" ]
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.10.0
     hooks:
       - id: black
 
@@ -37,14 +37,14 @@ repos:
         args: [ "-a", "from __future__ import annotations", "--profile", "black" ]
 
   - repo: https://github.com/csachs/pyproject-flake8
-    rev: v6.0.0.post1
+    rev: v6.1.0
     hooks:
       - id: pyproject-flake8
         additional_dependencies: [ flake8-bugbear ]
         args: [ "--extend-ignore", "E501" ]
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.4
+    rev: v2.2.6
     hooks:
       - id: codespell
         args: [ "-L lokal" ]
