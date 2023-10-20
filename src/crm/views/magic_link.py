@@ -8,6 +8,8 @@ from django.urls import reverse
 
 
 def request_magic_link(request):
+    if request.user.is_authenticated:
+        return redirect(reverse("crm_user_profile"))
     template = loader.get_template("magic_link.html")
     extra_context = {
         "site_title": "Magic Link",
