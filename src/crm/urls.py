@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from django.urls import path
 
-# WONTFIX: stop black and isort from messing up the imports
-# fmt: off
 from .views import (
     get_user_homeview,
     get_user_profile,
@@ -12,8 +10,6 @@ from .views import (
     request_magic_link,
     verify_email,
 )
-
-# fmt: on
 
 urlpatterns = [
     path("verify-email/<str:token>/", verify_email, name="crm_verify_email"),
