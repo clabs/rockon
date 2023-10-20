@@ -6,11 +6,12 @@
     </button>
     <div class="collapse navbar-collapse" id="navbar">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        {% if user.is_authenticated %}
-
         <li class="nav-item">
           <a class="nav-link" aria-current="page" href="{% url "crm_user_home" %}">Home</a>
         </li>
+        {% if user.is_authenticated %}
+
+
         <li class="nav-item">
           <a class="nav-link" href="{% url "crm_user_profile" %}">Profil</a>
         </li>
@@ -59,7 +60,7 @@
       </div>
       {% else %}
       <div class="navbar-item">
-        <a class="btn btn-secondary" href="{% url "crm_request_magic_link" %}">
+        <a class="btn btn-secondary" style="margin-top: -.375rem; margin-bottom: -.375rem;" href="{% url "crm_request_magic_link" %}">
           Log in
         </a>
       </div>
