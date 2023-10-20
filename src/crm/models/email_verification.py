@@ -53,7 +53,7 @@ class EmailVerification(models.Model):
             send_mail,
             subject=extra_context["subject"],
             message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{extra_context["domain"]}{reverse("crm_verify_email", kwargs={"token": extra_context["email_verification_token"]})}\n\nSolltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=settings.EMAIL_DEFAULT_FROM,
             recipient_list=[f"{user.email}"],
             html_message=template.render(extra_context),
             fail_silently=False,
