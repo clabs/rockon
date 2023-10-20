@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-# WONTFIX: stop black and isort from fighting each other
-# fmt: off
 from .models import (
     EmailVerification,
     MagicLink,
@@ -12,8 +10,6 @@ from .models import (
     Type,
     UserProfile,
 )
-
-# fmt: on
 
 
 class UserProfileAdmin(admin.ModelAdmin):
