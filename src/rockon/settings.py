@@ -278,3 +278,6 @@ if SENTRY_ENABLED and SENTRY_DSN:
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=SENTRY_SEND_DEFAULT_PII,
     )
+
+FFMPEG_BIN = env.str("FFMPEG_BIN", default="ffmpeg")
+CONVERT_BIN = env.str("CONVERT_BIN", default="convert")
