@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "event.apps.EventConfig",
     "exhibitors.apps.ExhibitorsConfig",
     "tools.apps.ToolsConfig",
+    "bblegacy.apps.BbLegacyConfig",
 ]
 
 if DEBUG:
