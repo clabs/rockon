@@ -67,7 +67,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         rsync \
         vim \
-        sudo && \
+        sudo \
+        ffmpeg \
+        libpng-dev libjpeg-dev libtiff-dev imagemagick && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir -p /run/rockon /static_files && \
