@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_q",
+    "corsheaders",
     "bands.apps.BandsConfig",
     "crew.apps.CrewConfig",
     "crm.apps.CrmConfig",
@@ -66,6 +67,7 @@ if DEBUG:
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -206,6 +208,14 @@ with env.prefixed("DJANGO_MEDIA_"):
     MEDIA_URL = env.str("URL", default="uploads/")
 
 DOMAIN = env.str("DJANGO_DOMAIN", default="http://localhost:8000/")
+
+with env.prefixed("DJANGO_CORS_"):
+    CORS_ALLOWED_ORIGINS = env.list(
+        "ALLOWED_ORIGINS", default=["http://localhost:8000"]
+    )
+    # CORS_ALLOWED_ORIGIN_REGEXES = env.list("ALLOWED_ORIGIN_REGEXES", default=[])
+    if DEBUG:
+        CORS_ORIGIN_ALLOW_ALL = env.bool("ORIGIN_ALLOW_ALL", default=False)
 
 LOGIN_URL = "crm_request_magic_link"
 LOGIN_REDIRECT_URL = "crm_user_profile"
