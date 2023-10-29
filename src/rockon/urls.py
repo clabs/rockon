@@ -31,6 +31,7 @@ urlpatterns = [
     path("backstage/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include("api.urls")),
+    path("api/bb-legacy/", include("bblegacy.urls")),
     path("bands/", include("bands.urls")),
     path("crew/", include("crew.urls")),
     path("crm/", include("crm.urls")),
@@ -42,6 +43,7 @@ urlpatterns = [
     ),
     path("to/", include("tools.urls_shortener")),
     path("tools/", include("tools.urls")),
+    path("uploads/bids/<str:bid_id>/<str:media_id>", include("bblegacy.urls_media")),
 ]
 
 handler404 = "rockon.views.custom_page_not_found_view"
