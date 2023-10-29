@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_q",
     "corsheaders",
+    "rest_framework",
     "bands.apps.BandsConfig",
     "crew.apps.CrewConfig",
     "crm.apps.CrmConfig",
