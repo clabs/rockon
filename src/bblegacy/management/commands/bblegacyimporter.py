@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import json
-import mimetypes
 import os
 import pathlib
-from fileinput import filename
+from doctest import Example
+from shutil import copyfile
 
 import dateparser
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.template.defaultfilters import slugify
 
+from bblegacy.helper import create_image_thumbnail
 from bblegacy.models import Bid, Event, Media, Note, Region, Track, User, Vote
 
 DB_REL_PATH = "db/prod"
@@ -179,14 +181,13 @@ class Command(BaseCommand):
         item_json = json.load(open(os.path.join(db_path, _file), encoding="utf8"))
         for _item_id, item in item_json.items():
             try:
-                _class.objects.get(id=item["id"])
+                _item = _class.objects.get(id=item["id"])
                 print(f'Skipping {item["id"]}')
-                continue
             except _class.DoesNotExist:
                 print(f'Importing {item["id"]}')
                 if item.get("modified") == 0:
                     item["modified"] = item["created"]
-                item = _class(
+                _item = _class(
                     id=item.get("id"),
                     type=item.get("type"),
                     mimetype=item.get("mimetype"),
@@ -198,7 +199,30 @@ class Command(BaseCommand):
                     created=item.get("created"),
                     modified=item.get("modified"),
                 )
-                item.save()
+                _item.save()
+
+            if _item.filename:
+                print(f'Moving file {item["filename"]}')
+                _filename_split = item["filename"].split(".")
+                _ext = _filename_split[-1]
+                _filename_joined = "".join(_filename_split[:-1])
+                _filename_slugified = slugify(_filename_joined)
+                _filename = f"{_filename_slugified}-{_item.id}.{_ext}"
+                _item.filename = _filename
+                _item.save()
+                try:
+                    pathlib.Path(
+                        os.path.join(settings.MEDIA_ROOT, "bids", _item.bid.id)
+                    ).mkdir(parents=True, exist_ok=True)
+                    copyfile(
+                        os.path.join(files_path, _item.id),
+                        os.path.join(
+                            settings.MEDIA_ROOT, "bids", _item.bid.id, _item.filename
+                        ),
+                    )
+                    create_image_thumbnail(_item)
+                except FileNotFoundError:
+                    print(f'File {item["filename"]} not found')
 
         # Votes
         _class = Vote
