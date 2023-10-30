@@ -36,6 +36,7 @@ class EventAdmin(admin.ModelAdmin):
 
 class MediaAddmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "filename",
         "bid",
         "type",

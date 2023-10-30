@@ -13,10 +13,11 @@ from django_q.tasks import async_task
 from .custom_model import CustomModel
 from .event import Event
 from .region import Region
+from .track import Track
 
 
 class Bid(CustomModel):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.SET_NULL, null=True, blank=True)
     style = models.CharField(max_length=255, blank=True, null=True)
     region = models.ForeignKey(
         "Region", on_delete=models.SET_NULL, related_name="bids", blank=True, null=True
@@ -26,11 +27,14 @@ class Bid(CustomModel):
     managed = models.BooleanField(default=False)
     style = models.CharField(max_length=255, blank=True, null=True)
     letter = models.TextField(blank=True, null=True)
-    contact = models.CharField(max_length=255)
-    phone = models.CharField(max_length=255)
-    mail = models.EmailField()
+    contact = models.CharField(max_length=255, null=True, blank=True)
+    phone = models.CharField(max_length=255, null=True, blank=True)
+    mail = models.EmailField(null=True, blank=True)
     url = models.URLField(max_length=255, blank=True, null=True)
     fb = models.URLField(max_length=255, blank=True, null=True)
+    track = models.ForeignKey(
+        Track, on_delete=models.SET_NULL, related_name="bids", blank=True, null=True
+    )
 
     def __str__(self):
         if self.bandname:
@@ -51,7 +55,8 @@ class Bid(CustomModel):
         }
 
         message = f'Vielen Dank für Deine Anmeldung!\nBis zum { extra_context["closing_date"] } \
-        habt Ihr Zeit Eure Bewerbung zu bearbeiten.\n{ extra_context["bid_link"] }\n\
+        habt Ihr Zeit Eure Bewerbung zu bearbeiten.\n \
+        { extra_context["bid_link"] }\n\
         Anfang März 2024 machen wir die Auswahl und melden uns kurz darauf bei Euch.\n\
         Gruß Euer ROCKTREFF-Team'
 
