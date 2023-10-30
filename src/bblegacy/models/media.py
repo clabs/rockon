@@ -10,14 +10,13 @@ from bblegacy.helper import (
     delete_media_file,
     encode_mp3_file,
     get_image_metadata,
-    guid,
 )
 
 from .bid import Bid
+from .custom_model import CustomModel
 
 
-class Media(models.Model):
-    id = models.CharField(primary_key=True, max_length=255, default=guid)
+class Media(CustomModel):
     bid = models.ForeignKey("Bid", on_delete=models.CASCADE, related_name="media")
     type = models.CharField(max_length=255)
     url = models.URLField(blank=True, null=True)
@@ -25,9 +24,6 @@ class Media(models.Model):
     mimetype = models.CharField(max_length=255, blank=True, null=True)
     filename = models.CharField(max_length=255, blank=True, null=True)
     filesize = models.FloatField(blank=True, null=True)
-
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         if self.filename:

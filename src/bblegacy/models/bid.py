@@ -10,14 +10,12 @@ from django.db import models
 from django.template import loader
 from django_q.tasks import async_task
 
-from bblegacy.helper import guid
-
+from .custom_model import CustomModel
 from .event import Event
 from .region import Region
 
 
-class Bid(models.Model):
-    id = models.CharField(primary_key=True, max_length=255, default=guid)
+class Bid(CustomModel):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     style = models.CharField(max_length=255, blank=True, null=True)
     region = models.ForeignKey(
@@ -33,9 +31,6 @@ class Bid(models.Model):
     mail = models.EmailField()
     url = models.URLField(max_length=255, blank=True, null=True)
     fb = models.URLField(max_length=255, blank=True, null=True)
-
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         if self.bandname:
