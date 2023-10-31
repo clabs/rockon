@@ -17,6 +17,8 @@ class BidAdmin(admin.ModelAdmin):
         "modified",
     )
 
+    search_fields = ("bandname",)
+
     list_filter = ("managed", "student", "region", "event")
 
     readonly_fields = ("id", "created", "modified")
