@@ -211,7 +211,7 @@ with env.prefixed("DJANGO_MEDIA_"):
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400
 
-DOMAIN = env.str("DJANGO_DOMAIN", default="http://localhost:8000/")
+DOMAIN = env.str("DJANGO_DOMAIN", default="http://localhost:8000")
 
 with env.prefixed("DJANGO_CORS_"):
     CORS_ALLOWED_ORIGINS = env.list(
