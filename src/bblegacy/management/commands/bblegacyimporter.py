@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import pathlib
-from doctest import Example
 from shutil import copyfile
 
 import dateparser
