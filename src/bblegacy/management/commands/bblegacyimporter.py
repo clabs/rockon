@@ -12,7 +12,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse
 
 from bblegacy.helper import create_image_thumbnail
-from bblegacy.models import Bid, Event, Media, Note, Region, Track, User, Vote
+from bblegacy.models import Bid, Event, Media, Region, Track, User, Vote
 
 DB_REL_PATH = "db/prod"
 FILES_REL_PATH = "uploads"
@@ -252,5 +252,4 @@ class Command(BaseCommand):
                 )
                 item.save()
 
-        # Media files
-        print("Copy media files to upload directory")
+        print("Fin.")
