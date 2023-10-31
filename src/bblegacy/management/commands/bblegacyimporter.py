@@ -10,6 +10,7 @@ import dateparser
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.template.defaultfilters import slugify
+from django.urls import reverse
 
 from bblegacy.helper import create_image_thumbnail
 from bblegacy.models import Bid, Event, Media, Note, Region, Track, User, Vote
@@ -194,7 +195,7 @@ class Command(BaseCommand):
                     filename=item.get("filename"),
                     filesize=item.get("filesize"),
                     bid=Bid.objects.get(id=item.get("bid")),
-                    url=item.get("url"),
+                    url=f'{settings.DOMAIN}{reverse("bblegacy_serve_media", args=[item.get("bid"), item.get("id")])}',
                     meta=item.get("meta"),
                     created=item.get("created"),
                     modified=item.get("modified"),
