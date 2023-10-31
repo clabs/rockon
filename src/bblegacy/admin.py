@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-from .models import Bid, Event, Media, Region, Track, User, Vote
+from .models import Bid, Event, Media, Region, Token, Track, User, Vote
 
 
 class BidAdmin(admin.ModelAdmin):
@@ -103,10 +103,21 @@ class VoteAdmin(admin.ModelAdmin):
     readonly_fields = ("id", "created", "modified")
 
 
+class TokenAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "timestamp",
+    )
+
+    readonly_fields = ("id", "timestamp")
+
+
 admin.site.register(Bid, BidAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Media, MediaAddmin)
 admin.site.register(Region, RegionAdmin)
+admin.site.register(Token, TokenAdmin)
 admin.site.register(Track, TrackAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Vote, VoteAdmin)
