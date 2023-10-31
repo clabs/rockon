@@ -38,24 +38,24 @@ def get_user(request, user_id):
 
 
 @csrf_exempt
-@bearer_token_admin
-@require_http_methods(["GET"])
-def user_list(request):
-    users = User.objects.all()
-    _users = [model_to_dict(user) for user in users]
-
-    return JsonResponse({"users": list(_users)}, status=200)
-
-
-@csrf_exempt
 @bearer_token_required
 @require_http_methods(["POST", "PUT", "GET"])
-def user_handler(request, user_id):
+def user_handler(request, user_id: str = None):
     if request.method == "GET":
+        if (
+            not test_bearer_token(request.headers.get("Authorization"), role="admin")
+            and not user_id
+        ):
+            return JsonResponse({"error": "Unauthorized"}, status=401)
+
         try:
-            user = User.objects.get(id=user_id)
-            _user = model_to_dict(user)
-            return JsonResponse({"users": _user}, status=200)
+            users = User.objects.all()
+            if user_id:
+                user = users.filter(id=user_id).first()
+                _user = model_to_dict(user, exclude=["password"])
+                return JsonResponse({"users": _user}, status=200)
+            _users = [model_to_dict(user, exclude=["password"]) for user in users]
+            return JsonResponse({"users": _users}, status=200)
         except Exception:
             return JsonResponse({"message": "Something went wrong"}, status=400)
 
@@ -70,8 +70,8 @@ def user_handler(request, user_id):
 
         try:
             user = User.create_from_json(body)
-            _user = model_to_dict(user)
-            return JsonResponse({"users": list(_user)}, status=201)
+            _user = model_to_dict(user, exclude=["password"])
+            return JsonResponse({"users": _user}, status=201)
         except Exception:
             return JsonResponse({"message": "Something went wrong"}, status=400)
 
@@ -82,7 +82,7 @@ def user_handler(request, user_id):
         try:
             user = User.objects.get(id=user_id)
             user = user.update_from_json(body)
-            _user = model_to_dict(user)
-            return JsonResponse({"users": list(_user)}, status=200)
+            _user = model_to_dict(user, exclude=["password"])
+            return JsonResponse({"users": _user}, status=200)
         except Exception:
             return JsonResponse({"message": "Something went wrong"}, status=400)

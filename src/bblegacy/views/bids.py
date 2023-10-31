@@ -7,42 +7,25 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from bblegacy.bearer_token_auth import (
-    bearer_token_admin,
-    bearer_token_required,
-    test_bearer_token,
-)
+from bblegacy.bearer_token_auth import test_bearer_token
 from bblegacy.models import Bid, Media, Track, User, Vote
 
 
 @csrf_exempt
-@require_http_methods(["GET", "POST"])
-def bid_create(request):
-    if request.method == "POST":
-        try:
-            body = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"message": "Invalid JSON"}, status=400)
-
-        try:
-            new_bid = Bid.create_from_json(body)
-            new_bid.send_welcome_mail()
-        except Exception:
-            return JsonResponse({"message": "Something went wrong"}, status=400)
-
-        return JsonResponse({"bids": model_to_dict(new_bid)}, status=201)
-
-    return JsonResponse({"message": "Method not yet implemented"}, status=405)
-
-
-@csrf_exempt
 @require_http_methods(["GET", "PUT", "POST"])
-@bearer_token_required
 def bid_handler(request, bid_id: str = None):
     if request.method == "GET":
-        if not test_bearer_token(request.headers.get("Authorization"), role="crew"):
+        if (
+            not test_bearer_token(request.headers.get("Authorization"), role="crew")
+            and bid_id is None
+        ):
             return JsonResponse({"message": "Unauthorized"}, status=401)
+
         bids = Bid.objects.all()
+
+        if bid_id:
+            bids = bids.filter(id=bid_id)
+
         if request.GET.get("track"):
             bids = bids.filter(track=request.GET.get("track"))
 
@@ -59,8 +42,25 @@ def bid_handler(request, bid_id: str = None):
 
         return JsonResponse(response, status=200)
 
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"message": "Invalid JSON"}, status=400)
+
+        try:
+            new_bid = Bid.create_from_json(body)
+            new_bid.send_welcome_mail()
+        except Exception:
+            return JsonResponse({"message": "Something went wrong"}, status=400)
+
+        return JsonResponse({"bids": model_to_dict(new_bid)}, status=201)
+
     if request.method == "PUT":
-        if not test_bearer_token(request.headers.get("Authorization"), role="admin"):
+        if (
+            not test_bearer_token(request.headers.get("Authorization"), role="admin")
+            and bid_id is None
+        ):
             return JsonResponse({"message": "Unauthorized"}, status=401)
 
         try:

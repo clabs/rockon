@@ -77,6 +77,11 @@ class Bid(CustomModel):
         except Region.DoesNotExist:
             region = self.region or None
         try:
+            track = Track.objects.get(id=json.get("track"))
+        except Track.DoesNotExist:
+            track = self.track or None
+
+        try:
             self.style = json.get("style", self.style)
             self.region = region
             self.bandname = json.get("bandname", self.bandname)
@@ -85,6 +90,7 @@ class Bid(CustomModel):
             self.letter = json.get("letter", self.letter)
             self.url = json.get("url", self.url)
             self.fb = json.get("fb", self.fb)
+            self.track = track
             self.save()
         except ValidationError:
             raise Exception("Invalid data")

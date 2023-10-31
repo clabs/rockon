@@ -7,7 +7,6 @@ from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from pyexpat import model
 
 from bblegacy.bearer_token_auth import (
     bearer_token_admin,
@@ -17,23 +16,6 @@ from bblegacy.bearer_token_auth import (
 from bblegacy.models import Event, Track
 
 
-@require_http_methods(["GET"])
-def event_list(request):
-    events = Event.objects.all()
-    _events = [
-        model_to_dict(
-            event, fields=["name", "opening_date", "closing_date", "id", "created"]
-        )
-        for event in events
-    ]
-    tracks = Track.objects.all().values("name", "event", "visible", "id", "created")
-    data = {
-        "events": list(_events),
-        "tracks": list(tracks),
-    }
-    return JsonResponse(data)
-
-
 @csrf_exempt
 @require_http_methods(["PUT", "GET", "POST"])
 def event_handler(request, event_id: str = None):
@@ -41,24 +23,31 @@ def event_handler(request, event_id: str = None):
         return JsonResponse({"message": "Method not yet implemented"}, status=405)
 
     if request.method == "GET":
-        if event_id:
-            try:
-                event = Event.objects.get(id=event_id)
-                _event = model_to_dict(event)
-                _tracks = Track.objects.all().values(
-                    "name", "event", "visible", "id", "created"
-                )
-                return JsonResponse(
-                    {"tracks": list(_tracks), "events": list(_event)}, status=200
-                )
-            except Exception:
-                return JsonResponse({"message": "Something went wrong"}, status=400)
         events = Event.objects.all()
+        tracks = Track.objects.all()
+        # if event_id:
+        #     try:
+        #         event = Event.objects.get(id=event_id)
+        #         filter_event = event
+        #         events = [events.filter(id=event_id)]
+        #     except Exception:
+        #         return JsonResponse({"message": "Something went wrong"}, status=400)
+
+        _event_response_list = []
+
         _events = [model_to_dict(event) for event in events]
-        tracks = Track.objects.all().values("name", "event", "visible", "id", "created")
+
+        for event in _events:
+            event["tracks"] = list(
+                tracks.filter(event=event["id"]).values_list("id", flat=True)
+            )
+            _event_response_list.append(event)
+
+        _tracks = [model_to_dict(track) for track in tracks]
+
         response = {
-            "events": list(_events),
-            "tracks": list(tracks),
+            "tracks": _tracks,
+            "events": _event_response_list,
         }
         return JsonResponse(response, status=200)
 

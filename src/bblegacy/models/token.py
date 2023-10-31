@@ -15,7 +15,7 @@ def guid_proxy():
 
 
 class Token(CustomModel):
-    id = models.CharField(max_length=255, default=guid(30), primary_key=True)
+    id = models.CharField(max_length=255, default=guid_proxy, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
 
@@ -26,7 +26,7 @@ class Token(CustomModel):
         return f"token:{self.user}"
 
     def update(self):
-        self.timestamp = datetime.now()
+        self.timestamp = datetime.utcnow()
         self.save()
 
     @classmethod
