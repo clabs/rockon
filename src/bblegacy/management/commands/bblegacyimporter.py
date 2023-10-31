@@ -29,6 +29,13 @@ class Command(BaseCommand):
             action="store",
             help="Directory to import from",
         )
+        parser.add_argument(
+            "--skip-media-copy",
+            "-s",
+            action="store_true",
+            default=False,
+            help="Skip copying media files",
+        )
 
     def handle(self, *args, **options):
         directory = options["directory"]
@@ -206,7 +213,7 @@ class Command(BaseCommand):
                 )
                 _item.save()
 
-            if _item.filename:
+            if _item.filename and not options["skip_media_copy"]:
                 print(f'Moving file {item["filename"]}')
                 _filename_split = item["filename"].split(".")
                 _ext = _filename_split[-1]
