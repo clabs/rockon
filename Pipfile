@@ -22,7 +22,7 @@ psycopg = {extras = ["binary", "pool"], version = "==3.1.12"}
 psycopg-binary = "==3.1.12"
 python-magic = "==0.4.27"
 redis = {extras = ["hiredis"], version = "==5.0.1"}
-sentry-sdk = "==1.32.0"
+sentry-sdk = "==1.33.0"
 tzdata = "==2023.3"
 
 [dev-packages]
