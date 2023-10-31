@@ -7,11 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from bblegacy.bearer_token_auth import (
-    bearer_token_admin,
-    bearer_token_required,
-    test_bearer_token,
-)
+from bblegacy.bearer_token_auth import bearer_token_required, test_bearer_token
 from bblegacy.models import Track
 
 
