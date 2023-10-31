@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import models
+from django.forms import model_to_dict
 from django.template import loader
 from django_q.tasks import async_task
 
@@ -72,24 +73,32 @@ class Bid(CustomModel):
 
     def update_from_json(self, json: dict[str, Any]) -> Bid:
         try:
-            region = Region.objects.get(id=json["region"])
+            region = Region.objects.get(id=json.get("region"))
         except Region.DoesNotExist:
-            region = None
-
+            region = self.region or None
         try:
-            self.style = json.get("style")
+            self.style = json.get("style", self.style)
             self.region = region
-            self.bandname = json.get("bandname")
-            self.student = json.get("student")
-            self.style = json.get("style")
-            self.letter = json.get("letter")
-            self.url = json.get("url")
-            self.fb = json.get("fb")
+            self.bandname = json.get("bandname", self.bandname)
+            self.student = json.get("student", self.student)
+            self.style = json.get("style", self.style)
+            self.letter = json.get("letter", self.letter)
+            self.url = json.get("url", self.url)
+            self.fb = json.get("fb", self.fb)
             self.save()
         except ValidationError:
             raise Exception("Invalid data")
 
         return self
+
+    def to_json(self) -> dict[str, Any]:
+        _self = model_to_dict(self)
+
+        _self["media"] = [media.id for media in self.media.all()]
+        _self["votes"] = [vote.id for vote in self.votes.all()]
+        _self["notes"] = []
+
+        return _self
 
     @classmethod
     def create_from_json(cls, json) -> Bid:

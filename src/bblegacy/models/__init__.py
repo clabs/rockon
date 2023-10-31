@@ -5,6 +5,7 @@ from .event import Event
 from .media import Media
 from .note import Note
 from .region import Region
+from .token import Token
 from .track import Track
 from .user import User
 from .vote import Vote

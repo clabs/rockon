@@ -12,10 +12,16 @@ class Event(CustomModel):
     name = models.CharField(max_length=255)
     opening_date = models.DateTimeField()
     closing_date = models.DateTimeField()
-    tracks = models.ManyToManyField("Track", related_name="events", blank=True)
 
     def __str__(self):
         return self.name
+
+    def update_from_json(self, json: dict) -> Event:
+        self.name = json.get("name", self.name)
+        self.opening_date = json.get("opening_date", self.opening_date)
+        self.closing_date = json.get("closing_date", self.closing_date)
+        self.save()
+        return self
 
     # Because we can not overwrite auto_now_add in Django
     # https://code.djangoproject.com/ticket/16583
