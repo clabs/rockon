@@ -144,6 +144,10 @@ class Command(BaseCommand):
             except _class.DoesNotExist:
                 print(f'Importing {item["id"]}')
                 try:
+                    _region = Region.objects.get(id=item.get("region"))
+                except Region.DoesNotExist:
+                    _region = None
+                try:
                     _track = Track.objects.get(id=item.get("track"))
                 except Track.DoesNotExist:
                     _track = None
@@ -162,6 +166,7 @@ class Command(BaseCommand):
                     student=item.get("student"),
                     managed=item.get("managed"),
                     contact=item.get("contact"),
+                    region=_region,
                     phone=item.get("phone"),
                     mail=item.get("mail"),
                     bandname=item.get("bandname"),
