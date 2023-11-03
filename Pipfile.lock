@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8fff6bdf05168389ea03fb495f1782636b15d5b0cd044c809da6780919c64478"
+            "sha256": "f802eceebae082be95c6f2e145ab903130fb7775607d4ed55e5127fb27007eec"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -75,12 +75,12 @@
         },
         "django": {
             "hashes": [
-                "sha256:08f41f468b63335aea0d904c5729e0250300f6a1907bf293a65499496cdbc68f",
-                "sha256:a64d2487cdb00ad7461434320ccc38e60af9c404773a2f95ab0093b4453a3215"
+                "sha256:8e0f1c2c2786b5c0e39fe1afce24c926040fad47c8ea8ad30aaf1188df29fc41",
+                "sha256:e1d37c51ad26186de355cbcec16613ebdabfa9689bbade9c538835205a8abbe9"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==4.2.6"
+            "version": "==4.2.7"
         },
         "django-autoslug": {
             "hashes": [
@@ -597,11 +597,11 @@
         },
         "sentry-sdk": {
             "hashes": [
-                "sha256:b715218c0a08759ccc6f6c53bb68880a500fab37a2bab6e045801d9dadda049d",
-                "sha256:e7b26a6c8010476e1f925a6dd85b4be2e3596892620451374595cf3b02de81c9"
+                "sha256:76dd087f38062ac6c1e30ed6feb533ee0037ff9e709974802db7b5dbf2e5db21",
+                "sha256:e5d0d2b25931d88fa10986da59d941ac6037f742ab6ff2fce4143a27981d60c3"
             ],
             "index": "pypi",
-            "version": "==1.33.0"
+            "version": "==1.34.0"
         },
         "six": {
             "hashes": [
@@ -727,12 +727,12 @@
         },
         "django": {
             "hashes": [
-                "sha256:08f41f468b63335aea0d904c5729e0250300f6a1907bf293a65499496cdbc68f",
-                "sha256:a64d2487cdb00ad7461434320ccc38e60af9c404773a2f95ab0093b4453a3215"
+                "sha256:8e0f1c2c2786b5c0e39fe1afce24c926040fad47c8ea8ad30aaf1188df29fc41",
+                "sha256:e1d37c51ad26186de355cbcec16613ebdabfa9689bbade9c538835205a8abbe9"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==4.2.6"
+            "version": "==4.2.7"
         },
         "django-debug-toolbar": {
             "hashes": [
