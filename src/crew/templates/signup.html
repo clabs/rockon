@@ -1,757 +1,309 @@
-{% extends "base.html" %} {% block content %}{% load static %}
-<script language="javascript">
-  $(document).ready(() => {
-    $('#signup').on('change', _ => {
-      $(window).bind('beforeunload', () => {
-        return "Die Seite hat ungespeicherte Änderungen.";
-      })
-    })
+{% extends 'base.html' %} {% block content %}
+  {% load static %}
+  <h1>CREW ANMELDUNG - {{ event.name }}</h1>
+  <div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
 
-    $('#select_all_attendance').change(event => {
-      event.preventDefault()
-      for (const el of $('[name^=attendance_]')) {
-        el.checked = event.target.checked
-        el.value = event.target.checked ? "on" : ""
-      }
-    })
-
-    $('[name^=attendance_]').on('change', event => {
-      event.preventDefault()
-      if (!event.target.checked) {
-        $('#select_all_attendance').prop('checked', false)
-      }
-    })
-
-    $('#form_reset').click((event) => {
-      event.preventDefault()
-      if (confirm("Möchtest du das Formular zurücksetzen?")) {
-        $("#signup").trigger("reset")
-        $('#signup :input').val('')
-        $(".not-empty").removeClass('is-valid is-invalid')
-        $('#leave_of_absence_note').prop('disabled', true)
-        $('#form_message').html("")
-      }
-    })
-
-    $('#form_submit').on('click', (event) => {
-      event.preventDefault()
-      console.debug("submit")
-      const form = $('#signup')
-      var validated = false
-      el = form.find('.not-empty')
-      console.debug("not-empty elements", el)
-      for (const input of el) {
-        validate_input({target: input})
-        if (input.classList.contains('is-invalid')) {
-          validated = false
-          render_error_message()
-          break
-        } else {
-          render_error_message()
-          validated = true
-        }
-      }
-      console.debug("validated", validated)
-      const form_data = form.serializeArray()
-      console.debug("form data", form_data)
-      if (validated) {
-        send_form(form_data)
-      }
-    })
-
-    $('.not-empty').on('blur', event => {
-      console.debug("not-empty handler triggered", event)
-      validate_input(event)
-      render_error_message()
-    })
-
-    $('#leave_of_absence').on("change", (event) => {
-      event.preventDefault()
-      if (event.target.checked) {
-        $('#leave_of_absence_note').prop('disabled', false)
-      } else {
-        $('#leave_of_absence_note').val("")
-        $('#leave_of_absence_note').prop('disabled', true)
-      }
-    })
-
-    const toggleTeamCard = input => {
-      var team = input.dataset.teamcategory
-      if (input.checked) {
-        $('.card[data-teamcategory="'+team+'"]').addClass('bg-primary')
-      } else {
-        $('.card[data-teamcategory="'+team+'"]').removeClass('bg-primary')
-      }
-    }
-
-    $('input[data-teamcategory]')
-      .each((_, input) => {
-        toggleTeamCard(input)
-      })
-      .on('change', event => {
-        toggleTeamCard(event.target)
-      })
-  })
-
-  validate_input = (input) => {
-    if (input.target.type === "checkbox") {
-      console.debug("form check", input.target.id)
-      if (input.target.checked) {
-        inputValid(input, true)
-      } else {
-        inputValid(input, false)
-      }
-    } else if (input.target.type === "text") {
-      console.debug("input field", input.target.id)
-      if (input.target.id === "user_zipcode") {
-        if (input.target.value.length === 5 && !isNaN(input.target.value)) {
-          inputValid(input, true)
-        } else {
-          inputValid(input, false)
-        }
-      } else if (input.target.value !== "") {
-        inputValid(input, true)
-      } else {
-        inputValid(input, false)
-      }
-    } else if (input.target.type === "email") {
-      if (input.target.id === "user_email") {
-        if (validateEmail(input.target.value)) {
-          inputValid(input, true)
-        } else {
-          inputValid(input, false)
-        }
-        if ($('#user_email_confirmation').val()) {
-          validate_input({target: $('#user_email_confirmation')[0]})
-        }
-      } else if (input.target.id === "user_email_confirmation") {
-          if (validateEmail(input.target.value) && input.target.value === $('#user_email').val()) {
-            inputValid(input, true)
-          } else {
-            inputValid(input, false)
-          }
-      } else {
-        inputValid(input, false)
-      }
-    } else if (input.target.type === "tel") {
-      if (!isNaN(input.target.value) && input.target.value !== "") {
-        inputValid(input, true)
-      } else {
-        inputValid(input, false)
-      }
-    } else if (input.target.type === "select-one") {
-      if (input.target.value !== "") {
-        inputValid(input, true)
-      } else {
-        inputValid(input, false)
-      }
-    } else if (input.target.type === "date") {
-      console.debug("date field", input.target.id)
-      console.debug("birthday date field", input.target)
-      const is_old_enough = age_validation(input.target.value)
-      console.debug("is over age", is_old_enough)
-      if (!is_old_enough[0]) {
-        $('#user_birthday').addClass('is-invalid').removeClass('is-valid')
-      } else {
-        $('#user_birthday').addClass('is-valid').removeClass('is-invalid')
-      }
-      if (!is_old_enough[1]) {
-        $('#stays_overnight').prop('disabled', true).prop('checked', false)
-      } else {
-        $('#stays_overnight').prop('disabled', false)
-      }
-    }
-  }
-
-  age_validation = (value) => {
-      if (!value) {
-        return [false, false]
-        console.debug("no age value")
-      }
-      console.debug("age validation", value)
-      // javascript dates are broken
-      const event = {
-        year: parseInt("{{ event.start|date:"Y" }}"),
-        month: parseInt("{{ event.start|date:"m" }}") - 1,
-        day: parseInt("{{ event.start|date:"d" }}")
-      }
-      const event_start = new Date(event.year, event.month, event.day)
-      const offset_year_14 = new Date(event.year - 14, event.month, event.day)
-      const offset_year_18 = new Date(event.year - 18, event.month, event.day)
-      const value_arr = value.split("-")
-      const int_value_arry = value_arr.map((value) => parseInt(value))
-      const date_value = new Date(int_value_arry[0], int_value_arry[1] - 1, int_value_arry[2])
-      const over_14 = (offset_year_14.getTime() - date_value.getTime() > 0)
-      const over_18 = (offset_year_18.getTime() - date_value.getTime() > 0)
-      return [over_14, over_18]
-  }
-
-  const validateEmail = (email) => {
-    return String(email)
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      )
-  }
-
-  const inputValid = (input, is_valid) => {
-    if (is_valid) {
-      input.target.classList.add('is-valid')
-      input.target.classList.remove('is-invalid')
-    } else {
-      input.target.classList.add('is-invalid')
-      input.target.classList.remove('is-valid')
-    }
-  }
-
-  const render_error_message = (message) => {
-    el = $('.not-empty')
-    for (const input of el) {
-      if (input.classList.contains('is-invalid')) {
-        $('#form_message').html('<div class="alert alert-danger" role="alert">Bitte korrigiere die Fehler in den markierten Feldern.</div>')
-        break
-      } else {
-        $('#form_message').html("")
-      }
-    }
-  }
-
-  ajax_success = (data) => {
-    console.info(data)
-    $(window).unbind('beforeunload')
-    window.location.href = "{% url "crew_signup_submitted" slug=slug %}"
-  }
-  ajax_error = (data) => {
-    // FIXME: needs error handling
-    console.error(data)
-  }
-  ajax_complete = (data) => {
-    // hopefully this is never triggered
-    console.info(data)
-  }
-
-  const send_form = (fields) => {
-    console.debug(fields)
-    $.ajax({
-      type: "POST",
-      url: "{% url "api_crew_signup" slug=slug %}",
-      data: JSON.stringify(fields),
-      contentType: "application/json",
-      headers: {
-        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
-      },
-      mode: "same-origin",
-      dataType: "json",
-      success: (data) => ajax_success(data),
-      error: (data) => ajax_error(data),
-      complete: (data) => ajax_complete(data)
-    })
-  }
-
-</script>
-
-<h1>CREW ANMELDUNG - {{ event.name }}</h1>
-<div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat">
-</div>
-
-<form id="signup" class="row align-items-center needs-validation" novalidate>
-  {% csrf_token %}
-
-
-
-  <section class="row p-4 form-section">
-    <div class="col-lg-8">
-      <div class="row">
-        <div class="col-lg-12">
-          <div><h3>Persönliches</h3></div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 g-4">
-          <label for="user_first_name">Vorname</label>
-          <input type="text" name="user_first_name" class="form-control not-empty" id="user_first_name" placeholder="Jane" autocomplete="given-name" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Vorname darf nicht leer sein.
-          </div>
-        </div>
-        <div class="col-md-6 g-4">
-          <label for="user_last_name">Nachname</label>
-          <input type="text" name="user_last_name" class="form-control not-empty" id="user_last_name" placeholder="Doe" autocomplete="family-name" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Nachname darf nicht leer sein.
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-6 g-4">
-          <label for="user_nick_name">Spitzname</label>
-          <input type="text" name="user_nick_name" class="form-control" id="user_nick_name" placeholder="Muffischlumpf" autocomplete="given-name" />
-        </div>
-        <div class="col-sm-6 g-4">
-          <label for="user_birthday">Geburtstag</label>
-          <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday" placeholder="01.01.1970" autocomplete="bday" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Du musst über 14 Jahre alt sein.
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-9 g-4">
-          <label for="user_address">Straße</label>
-          <input type="text" name="user_address" class="form-control not-empty" id="user_address" placeholder="Am Geldspeicher" autocomplete="street-address" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Straße darf nicht leer sein.
-          </div>
-        </div>
-        <div class="col-sm-3 g-4">
-          <label for="user_address_housenumber">Hausnummer</label>
-          <input type="text" class="form-control not-empty" name="user_address_housenumber" id="user_address_housenumber" placeholder="23a" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Hausnummer darf nicht leer sein.
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12 g-4">
-          <label for="user_address_extension">Addresszusatz</label>
-          <input type="text" class="form-control" name="user_address_extension" id="user_address_extension" placeholder="Addresszusatz" autocomplete="off" />
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-3 g-4">
-          <label for="user_zipcode">Postleitzahl</label>
-          <input type="text" inputmode="numeric" pattern="[0-9]{5}" name="user_zipcode" id="user_zipcode" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Postleitzahl muss 5 Ziffern lang sein.
-          </div>
-        </div>
-        <div class="col-sm-9 g-4">
-          <label for="user_place">Ort</label>
-          <input type="text" class="form-control not-empty" name="user_place" id="user_place" placeholder="Entenhausen" autocomplete="home city"/>
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Ort darf nicht leer sein.
-          </div>
-        </div>
-      </div>
+  {% if not user.profile.is_profile_complete %}
+    <div class="alert alert-warning mt-3" role="alert">
+      Bitte vervollständige hier <a href="{% url 'crm_user_profile' %}">dein Profil</a>, bevor du dich für die Crew anmeldest.
     </div>
-    <div class="col-lg-4">
-      <div><h4>Warum erheben wir diese Informationen?</h4></div>
-      <p>
-        Da wir jede Person im Rahmen von {{ event.name }} versichern, brauchen
-        wir minimale Stammdaten wie Geburtstag und Adresse, um dich melden zu
-        können. Diese Daten werden dem Jugendamt Tempelhof-Schöneberg übermittelt,
-        und nur im Bedarfsfall an das Versicherungsunternehmen weitergegeben.
-      </p>
-      <p>
-        Desweiteren ist die Adresse praktisch, um dir postalisch kleine
-        Aufmerksamkeiten zukommen zu lassen!
-      </p>
-    </div>
-  </section>
+  {% else %}
+    <script>
 
+    window.rockon_data = {
+      api_crew_signup: "{% url "api_crew_signup" slug=slug %}",
+      success_redirect: "{% url "crew_signup_form_submitted" slug=slug %}",
+    }
+    </script>
+    <script src="{% static 'js/crew-signupform.js' %}"></script>
+    <form id="signup" class="row align-items-center needs-validation" novalidate>
+      {% csrf_token %}
 
-
-  <section class="row p-4 form-section">
-    <div class="col-lg-8">
-      <div class="row">
-        <div class="col-lg-12">
-          <div><h3>Kontakt</h3></div>
+      <section class="row p-4 form-section">
+        <div>
+          <h3>Themen</h3>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-6 g-4">
-          <label for="user_email">E-Mail Adresse</label>
-          <input type="email" name="user_email" id="user_email" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="email" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Bitte gibt eine gültige E-Mail Adresse an.
-          </div>
-        </div>
-        <div class="col-sm-6 g-4">
-          <label for="user_email_confirmation">E-Mail Adresse bestätigen</label>
-          <input type="email" name="user_email_confirmation" id="user_email_confirmation" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="off" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Bitte wiederhole deine E-Mail Adresse.
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12 g-4">
-          <label for="user_mobile">Mobiltelefon</label>
-          <input type="tel" name="user_mobile" id="user_mobile" class="form-control not-empty" placeholder="017604069042" autocomplete="tel" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Bitte gibt eine gültige Telefonnummer an.
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div><h4>Warum erheben wir diese Informationen?</h4></div>
-      <p>
-        Deine Email-Adresse ist für uns sehr wichtig. Zum einen kannst du dich
-        mit ihr bei ROCKON immer wieder anmelden. Zum anderen ist Email aber
-        auch der Weg, wie wir dich im Vorfeld von {{ event.name }} informieren.
-      </p>
-      <p>
-        Normalerweise werden wir dich nie anrufen. Unter Umständen könnte das
-        aber doch wichtig sein - zum Beispiel wenn Emails aus technischen
-        Gründen nicht mehr bei dir ankommen.
-      </p>
-      <p>
-        Wenn du willst, können wir dich auch in die verdächtigen Messenger-Gruppen
-        aufnehmen. Lass uns dazu einen Kommentar unten!
-      </p>
-    </div>
-  </section>
-
-
-
-  <section class="row p-4 form-section">
-    <div class="col-lg-8">
-      <div class="row">
-        <div class="col-lg-12">
-          <div><h3>Essen &amp; T-Shirt</h3></div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="row">
-            <div class="col-sm-12 g-4">
-              <label for="nutriton_type" class="form-label">Essensgewohnheit</label>
-              <select id="nutriton_type" name="nutriton_type" class="form-select not-empty">
-                <option value="" selected></option>
-                <option value="omnivore"><i class="fa fa-burger"></i> Alles-Esser</option>
-                <option value="vegetarian"><i class="fa fa-burger"></i> Vegetarisch</option>
-                <option value="vegan"><i class="fa fa-burger"></i> Vegan</option>
-              </select>
-              <div class="valid-feedback">
-              </div>
-              <div class="invalid-feedback">
-                Bitte wähle deine Ernährungsgewohnheit aus.
+        <label>Für welche Themen interessierst du dich? Du kannst dir Themenbereiche und/oder Teams aussuchen, die für dich interessant klingen. Nicht das richtige dabei? Keine Sorge, wir finden für jeden etwas!</label>
+        <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
+          {% for team_category in team_categories %}
+            <div class="col">
+              <div class="card h-100" data-teamcategory="{{ team_category.id }}">
+                <img class="card-img-top img-fluid" src="{{ team_category.get_image_url }}" />
+                <div class="card-header">
+                  <h5 class="card-title">{{ team_category }}</h5>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" data-teamcategory="{{ team_category.id }}" type="checkbox" role="switch" id="teamcategory_{{ team_category.id }}" name="teamcategory_{{ team_category.id }}" />
+                    <label class="form-check-label" for="teamcategory_{{ team_category.id }}">Interesse</label>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">{{ team_category.description|safe }}</p>
+                  {% if team_category.teams.all %}
+                    <h5 class="card-text">Teams</h5>
+                    <ul class="list-group list-group-flush">
+                      {% for team in team_category.teams.all %}
+                        {% if team.is_public %}
+                          <li class="list-group-item">
+                            <div class="form-check form-switch">
+                              <input class="form-check-input" data-team="{{ team.id }}" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}" />
+                              <label class="form-check-label" for="team_{{ team.id }}">{{ team }}</label>
+                            </div>
+                          </li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+                <div class="card-footer d-none"></div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-sm-12 g-4">
-              <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten, Unverträglichkeiten, etc.</label>
-              <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
-            </div>
-          </div>
-
-        </div>
-        <div class="col-sm-6">
-          <div class="row">
-            <div class="col-sm-12 g-4">
-              <label for="crew_shirt" class="form-label">T-Shirt</label>
-              <select id="crew_shirt" name="crew_shirt" class="form-select not-empty">
-                <option value="" selected></option>
-                {% for shirt in shirts %}
-                  <option value="{{ shirt.id }}">{{ shirt }}</option>
-                {% endfor %}
-              </select>
-              <div class="valid-feedback">
-              </div>
-              <div class="invalid-feedback">
-                Bitte wähle T-Shirt Größe und Schnitt aus.
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-sm-12 g-4">
-              Erklärung Schnitt:
-              <ul>
-                <li><strong>fitted</strong>: figurbetonter Schnitt</li>
-                <li><strong>straight</strong>: normaler Schnitt</li>
-              </ul>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div><h4>Warum erheben wir diese Informationen?</h4></div>
-      <p>
-        Während du mit uns zusammen die Veranstaltung begleitest, wollen wir
-        uns natürlich um dein leibliches Wohl kümmern. Daher ist es für unsere
-        Planung super wichtig, dass wir wissen worauf wir achten müssen!
-      </p>
-      <p>
-        Desweiteren gibt es für die Crew natürlich ein T-Shirt als Dankeschön.
-        Und das sollte dir natürlich auch passen.
-      </p>
-    </div>
-  </section>
-
-
-
-  <section class="row p-4 form-section">
-
-    <div class="col-lg-8">
-      <div class="row">
-        <div class="col">
-          <div><h3>Formale Qualifikationen und Fähigkeiten</h3></div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12 g-4">
-          <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
-          {% for skill in skills %}
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch"  id="skill_{{ skill.id }}" name="skill_{{ skill.id }}">
-            <label class="form-check-label" for="skill_{{ skill.id }}">
-              {{ skill.icon|safe }} &nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i>
-            </label>
-          </div>
           {% endfor %}
         </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12 g-4">
-          <label for="skills_note" class="form-label">Anmerkungen zu deinen Fähigkeiten</label>
-          <textarea class="form-control" id="skills_note" name="skills_note" rows="3"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div><h4>Warum erheben wir diese Informationen?</h4></div>
-      <p>
-        Einzelne Tätigkeiten, die du im Rahmen von {{ event.name }} ausführen
-        könntest, erforden eine formale Qualifikation. Für uns ist es in der
-        Planung wichtig zu wissen, ob ihr z.B. entsprechende Führerscheine
-        habt oder Ersthelfer seid.
-      </p>
-    </div>
-  </section>
+      </section>
 
-
-
-  <section class="row p-4 form-section">
-    <div><h3>Anwesenheit</h3></div>
-
-    <div class="row">
-      <div class="col-sm-12 g-4">
-        <label>An welchen Tagen kannst du vor Ort sein?</label>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-12 g-4">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="select_all_attendance">
-          <label class="form-check-label" for="select_all_attendance">
-            Alle Tage auswählen
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-12 g-4">
-        <div class="card-group">
-          {% for phase in attendance_phases %}
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">{{ phase.name }}</h5>
-              <ul class="list-group list-group-flush">
-                {% for day in phase.days %}
-                  <li class="list-group-item">
-                    <input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}">
-                    <label class="form-check-label date-format-huge" for="attendance_{{ day.id }}">
-                      {{ day }}
-                    </label>
-                  </li>
-                {% endfor %}
-              </ul>
+      <section class="row p-4 form-section">
+        <div class="col-lg-8">
+          <div class="row">
+            <div class="col">
+              <div>
+                <h3>Formale Qualifikationen und Fähigkeiten</h3>
+              </div>
             </div>
           </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-12 g-4">
-        <label for="skills_note" class="form-label">
-          Anmerkungen zu deiner Anwesenheit
-        </label>
-        <textarea class="form-control" id="note_attendance" name="note_attendance" rows="2"></textarea>
-      </div>
-    </div>
-  </section>
-
-
-
-  <section class="row p-4 form-section">
-    <div><h3>Übernachtung</h3></div>
-    <label>
-      Aus verschiedenen Gründen ist eine Übernachtung erst ab 18 Jahren möglich.
-    </label>
-    <div class="col-sm-12 g-4">
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="stays_overnight" name="stays_overnight" disabled>
-        <label class="form-check-label" for="stays_overnight">
-          Ich übernachte vor Ort.
-        </label>
-      </div>
-    </div>
-  </section>
-
-
-
-  <section class="row p-4 form-section">
-    <div><h3>Freistellung</h3></div>
-    <label>
-      Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche
-      Tätigkeit zu bekommen.
-    </label>
-    <div class="col-sm-12 g-4">
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="leave_of_absence" name="leave_of_absence">
-        <label class="form-check-label" for="leave_of_absence">
-          Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.
-        </label>
-      </div>
-    </div>
-    <div class="col-sm-12 g-4">
-      <label for="leave_of_absence_note" class="form-label">Anmerkungen zu meiner Befreiung</label>
-      <textarea class="form-control" id="leave_of_absence_note" name="leave_of_absence_note" rows="2" disabled></textarea>
-    </div>
-  </section>
-
-
-
-  <section class="row p-4 form-section">
-    <div><h3>Themen</h3></div>
-    <label>
-      Für welche Themen interessierst du dich? Du kannst dir Themenbereiche
-      und/oder Teams aussuchen, die für dich interessant klingen. Nicht das
-      richtige dabei? Keine Sorge, wir finden für jeden etwas!
-    </label>
-    <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
-      {% for team_category in team_categories %}
-      <div class="col">
-        <div class="card h-100" data-teamcategory="{{ team_category.id }}">
-          <img class="card-img-top img-fluid" src="{{ team_category.get_image_url }}">
-          <div class="card-header">
-            <h5 class="card-title">{{ team_category }}</h5>
-            <div class="form-check form-switch">
-              <input class="form-check-input" data-teamcategory="{{ team_category.id }}" type="checkbox" role="switch" id="teamcategory_{{ team_category.id }}" name="teamcategory_{{ team_category.id }}">
-              <label class="form-check-label" for="teamcategory_{{ team_category.id }}">Interesse</label>
-            </div>
-          </div>
-          <div class="card-body">
-            <p class="card-text">{{ team_category.description|safe }}</p>
-            {% if team_category.teams.all %}
-            <h5 class="card-text">Teams</h5>
-            <ul class="list-group list-group-flush">
-              {% for team in team_category.teams.all %}
-                {% if team.is_public %}
-                  <li class="list-group-item">
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" data-team="{{ team.id }}" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}">
-                      <label class="form-check-label" for="team_{{ team.id }}">
-                        {{ team }}
-                      </label>
-                    </div>
-                  </li>
-                {% endif %}
+          <div class="row">
+            <div class="col-sm-12 g-4">
+              <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
+              {% for skill in skills %}
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="skill_{{ skill.id }}" name="skill_{{ skill.id }}" />
+                  <label class="form-check-label" for="skill_{{ skill.id }}">{{ skill.icon|safe }} &nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i></label>
+                </div>
               {% endfor %}
-            </ul>
-            {% endif %}
+            </div>
           </div>
-          <div class="card-footer d-none">
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
-
-
-
-  <section class="row p-4 form-section">
-    <div><h3>Verschiedenes</h3></div>
-    <div class="col-sm-12">
-      <label for="general_note" class="form-label">Möchtest du uns noch etwas mitteilen?</label>
-      <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
-    </div>
-  </section>
-
-
-
-  <section class="row p-4 form-section">
-    <div><h3>Rechtliches</h3></div>
-    <div class="col-md-12">
-      <div class="form-check form-switch">
-        <input class="form-check-input not-empty" type="checkbox" role="switch" id="allow_contact" name="allow_contact">
-        <label class="form-check-label" for="allow_contact">
-          Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das Spielfest kontaktieren darf.
-        </label>
-        <div class="valid-feedback"></div>
-        <div class="invalid-feedback">
-          Bitte erlaube uns, dich zu kontaktieren.
-        </div>
-      </div>
-    </div>
-    <div class="col-md-12">
-      <div class="form-check form-switch">
-        <input class="form-check-input not-empty" type="checkbox" role="switch" id="read_privacy" name="read_privacy">
-        <label class="form-check-label" for="read_privacy">
-          Ich habe die <a href="{% url "rockon_privacy" %}" target="_blank">Datenschutzbestimmungen</a> zur Kenntnis genommen
-          und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der Veranstaltungen Rocktreff
-          und Spielfest einverstanden.
-        </label>
-        <div class="valid-feedback"></div>
-        <div class="invalid-feedback">
-          Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-
-  <section class="row p-4 form-section">
-    <div class="d-grid gap-2 col-12 mx-auto pt-3">
-      <div class="row g-2">
-        <div class="col">
-          <div class="d-grid gap-2 col-12 mx-auto">
-            <button id="form_submit" type="button" class="btn btn-primary">Absenden</button>
+          <div class="row">
+            <div class="col-sm-12 g-4">
+              <label for="skills_note" class="form-label">Anmerkungen zu deinen Fähigkeiten</label>
+              <textarea class="form-control" id="skills_note" name="skills_note" rows="3"></textarea>
+            </div>
           </div>
         </div>
-        <div class="col">
-          <div class="d-grid gap-2 col-12 mx-auto">
-            <button id="form_reset" type="button" class="btn btn-secondary">Neustart</button>
+        <div class="col-lg-4">
+          <div>
+            <h4>Warum erheben wir diese Informationen?</h4>
+          </div>
+          <p>Einzelne Tätigkeiten, die du im Rahmen von {{ event.name }} ausführen könntest, erforden eine formale Qualifikation. Für uns ist es in der Planung wichtig zu wissen, ob ihr z.B. entsprechende Führerscheine habt oder Ersthelfer seid.</p>
+        </div>
+      </section>
+
+      <section class="row p-4 form-section">
+        <div>
+          <h3>Anwesenheit</h3>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 g-4">
+            <label>An welchen Tagen kannst du vor Ort sein?</label>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="d-grid gap-2 col-12 mx-auto pt-3">
-      <div class="row g-2">
-        <div class="col">
-          <div id="form_message"></div>
+        <div class="row">
+          <div class="col-sm-12 g-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="select_all_attendance" />
+              <label class="form-check-label" for="select_all_attendance">Alle Tage auswählen</label>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
+        <div class="row">
+          <div class="col-sm-12 g-4">
+            <div class="card-group">
+              {% for phase in attendance_phases %}
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ phase.name }}</h5>
+                    <ul class="list-group list-group-flush">
+                      {% for day in phase.days %}
+                        <li class="list-group-item">
+                          <input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}" />
+                          <label class="form-check-label date-format-huge" for="attendance_{{ day.id }}">{{ day }}</label>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12 g-4">
+            <label for="skills_note" class="form-label">Anmerkungen zu deiner Anwesenheit</label>
+            <textarea class="form-control" id="note_attendance" name="note_attendance" rows="2"></textarea>
+          </div>
+        </div>
+      </section>
 
-</form>
+      <section class="row p-4 form-section">
+        <div>
+          <h3>Übernachtung</h3>
+        </div>
+        <label>Aus verschiedenen Gründen ist eine Übernachtung erst ab 18 Jahren möglich.</label>
+        <div class="col-sm-12 g-4">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="stays_overnight" name="stays_overnight" {%if not allow_overnight %}disabled{% endif %} />
+            <label class="form-check-label" for="stays_overnight">Ich übernachte vor Ort.</label>
+          </div>
+        </div>
+      </section>
 
-{% endblock content %}
+      <section class="row p-4 form-section">
+        <div>
+          <h3>Freistellung</h3>
+        </div>
+        <label>Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche Tätigkeit zu bekommen.</label>
+        <div class="col-sm-12 g-4">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="leave_of_absence" name="leave_of_absence" />
+            <label class="form-check-label" for="leave_of_absence">Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.</label>
+          </div>
+        </div>
+        <div class="col-sm-12 g-4">
+          <label for="leave_of_absence_note" class="form-label">Anmerkungen zu meiner Befreiung</label>
+          <textarea class="form-control" id="leave_of_absence_note" name="leave_of_absence_note" rows="2" disabled></textarea>
+        </div>
+      </section>
+
+      <section class="row p-4 form-section">
+        <div class="col-lg-8">
+          <div class="row">
+            <div class="col-lg-12">
+              <div>
+                <h3>Essen &amp; T-Shirt</h3>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="row">
+                <div class="col-sm-12 g-4">
+                  <label for="nutriton_type" class="form-label">Essensgewohnheit</label>
+                  <select id="nutriton_type" name="nutriton_type" class="form-select not-empty">
+                    <option value="" selected></option>
+                    <option value="omnivore">
+                      <i class="fa fa-burger"></i> Alles-Esser
+                    </option>
+                    <option value="vegetarian">
+                      <i class="fa fa-burger"></i> Vegetarisch
+                    </option>
+                    <option value="vegan">
+                      <i class="fa fa-burger"></i> Vegan
+                    </option>
+                  </select>
+                  <div class="valid-feedback"></div>
+                  <div class="invalid-feedback">Bitte wähle deine Ernährungsgewohnheit aus.</div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12 g-4">
+                  <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten, Unverträglichkeiten, etc.</label>
+                  <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="row">
+                <div class="col-sm-12 g-4">
+                  <label for="crew_shirt" class="form-label">T-Shirt</label>
+                  <select id="crew_shirt" name="crew_shirt" class="form-select not-empty">
+                    <option value="" selected></option>
+                    {% for shirt in shirts %}
+                      <option value="{{ shirt.id }}">{{ shirt }}</option>
+                    {% endfor %}
+                  </select>
+                  <div class="valid-feedback"></div>
+                  <div class="invalid-feedback">Bitte wähle T-Shirt Größe und Schnitt aus.</div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12 g-4">
+                  Erklärung Schnitt:<ul>
+                    <li>
+                      <strong>fitted</strong>: figurbetonter Schnitt
+                    </li>
+                    <li>
+                      <strong>straight</strong>: normaler Schnitt
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div>
+            <h4>Warum erheben wir diese Informationen?</h4>
+          </div>
+          <p>Während du mit uns zusammen die Veranstaltung begleitest, wollen wir uns natürlich um dein leibliches Wohl kümmern. Daher ist es für unsere Planung super wichtig, dass wir wissen worauf wir achten müssen!</p>
+          <p>Desweiteren gibt es für die Crew natürlich ein T-Shirt als Dankeschön. Und das sollte dir natürlich auch passen.</p>
+        </div>
+      </section>
+
+      <section class="row p-4 form-section">
+        <div>
+          <h3>Verschiedenes</h3>
+        </div>
+        <div class="col-sm-12">
+          <label for="general_note" class="form-label">Möchtest du uns noch etwas mitteilen?</label>
+          <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
+        </div>
+      </section>
+
+      <section class="row p-4 form-section">
+        <div>
+          <h3>Rechtliches</h3>
+        </div>
+        <div class="col-md-12">
+          <div class="form-check form-switch">
+            <input class="form-check-input not-empty" type="checkbox" role="switch" id="allow_contact" name="allow_contact" />
+            <label class="form-check-label" for="allow_contact">Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das Spielfest kontaktieren darf.</label>
+            <div class="valid-feedback"></div>
+            <div class="invalid-feedback">Bitte erlaube uns, dich zu kontaktieren.</div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-check form-switch">
+            <input class="form-check-input not-empty" type="checkbox" role="switch" id="read_privacy" name="read_privacy" />
+            <label class="form-check-label" for="read_privacy">Ich habe die <a href="{% url 'rockon_privacy' %}" target="_blank">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der Veranstaltungen Rocktreff und Spielfest einverstanden.</label>
+            <div class="valid-feedback"></div>
+            <div class="invalid-feedback">Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row p-4 form-section">
+        <div class="d-grid gap-2 col-12 mx-auto pt-3">
+          <div class="row g-2">
+            <div class="col">
+              <div class="d-grid gap-2 col-12 mx-auto">
+                <button id="form_submit" type="button" class="btn btn-primary">Absenden</button>
+              </div>
+            </div>
+            <div class="col">
+              <div class="d-grid gap-2 col-12 mx-auto">
+                <button id="form_reset" type="button" class="btn btn-secondary">Neustart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-grid gap-2 col-12 mx-auto pt-3">
+          <div class="row g-2">
+            <div class="col">
+              <div id="form_message"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </form>
+
+  {% endif %}
+{% endblock %}

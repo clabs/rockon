@@ -128,26 +128,17 @@ $(document).ready(() => {
 
 <h1>Profil</h1>
 <div class="alert alert-secondary mt-3">
-  <p>Hier kannst du deine persönlichen Daten einsehen und ändern.</p>
+  <p>Hier kannst du deine persönlichen Daten einsehen und ändern. Für eine Crew-Anmeldung notwendige Angaben sind mit * gekennzeichnet.</p>
 </div>
 <form id="account_data" class="row align-items-center needs-validation" novalidate>
   <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
   <section class="row p-4 form-section">
   <h3>Account</h3>
-  <div class="row">
-    <div class="col-md-6 g-4">
-      <label for="first_name">Vorname</label>
-      <input type="first_name" class="form-control" id="first_name" placeholder="Jane" value="{{ user.first_name|default_if_none:"" }}">
-    </div>
-    <div class="col-md-6 g-4">
-      <label for="last_name">Nachname</label>
-      <input type="last_name" class="form-control" id="last_name" placeholder="Doe" value="{{ user.last_name|default_if_none:"" }}">
-    </div>
-  </div>
+  <div class="col-lg-8">
   <div class="row">
     <div class="col-md-6 g-4">
       <label for="email">E-Mail</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="E-Mail" value="{{ user.email }}" readonly>
+      <input type="email" class="form-control" id="email" name="email" placeholder="E-Mail" value="{{ user.email }}" readonly disabled>
     </div>
     <div class="col-md-6 g-4">
       <label></label>
@@ -156,27 +147,47 @@ $(document).ready(() => {
       </button>
     </div>
   </div>
+  </div>
+  <div class="col-lg-4">
+    <div><h4>Warum erheben wir diese Informationen?</h4></div>
+    <p>
+      Deine Email-Adresse ist für uns sehr wichtig. Zum einen kannst du dich
+      mit ihr bei ROCKON immer wieder anmelden. Zum anderen ist Email aber
+      auch der Weg, wie wir dich im Vorfeld von {{ event.name }} informieren.
+    </p>
+  </div>
   </section>
   <div id="changeEmailMessage"></div>
   <section class="row p-4 form-section">
-    <h3>Profil</h3>
+    <div class="col-lg-8">
+    <h3>Persönliches</h3>
+    <div class="row">
+      <div class="col-md-6 g-4">
+        <label for="first_name">Vorname *</label>
+        <input type="first_name" class="form-control" id="first_name" placeholder="Jane" value="{{ user.first_name|default_if_none:"" }}">
+      </div>
+      <div class="col-md-6 g-4">
+        <label for="last_name">Nachname *</label>
+        <input type="last_name" class="form-control" id="last_name" placeholder="Doe" value="{{ user.last_name|default_if_none:"" }}">
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-6 g-4">
         <label for="nick_name">Spitzname</label>
         <input type="text" class="form-control" id="nick_name" placeholder="Muffischlumpf" value="{{ user.profile.nick_name|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
-        <label for="phone">Telefonnummer</label>
+        <label for="phone">Telefonnummer *</label>
         <input type="phone" class="form-control" id="phone" placeholder="05551234" value="{{ user.profile.phone|default_if_none:"" }}">
       </div>
     </div>
     <div class="row">
       <div class="col-md-6 g-4">
-        <label for="address">Adresse</label>
+        <label for="address">Adresse *</label>
         <input type="text" class="form-control" id="address" placeholder="Am Geldspeicher" value="{{ user.profile.address|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
-        <label for="address_housenumber">Hausnummer</label>
+        <label for="address_housenumber">Hausnummer *</label>
         <input type="text" class="form-control" id="address_housenumber" placeholder="23a" value="{{ user.profile.address_housenumber|default_if_none:"" }}">
       </div>
     </div>
@@ -188,13 +199,48 @@ $(document).ready(() => {
     </div>
     <div class="row">
       <div class="col-md-6 g-4">
-        <label for="zip_code">Postleitzahl</label>
+        <label for="zip_code">Postleitzahl *</label>
         <input type="zip_code" class="form-control" id="zip_code" placeholder="10999" value="{{ user.profile.zip_code|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
-        <label for="place">Ort</label>
+        <label for="place">Ort *</label>
         <input type="text" class="form-control" id="place" placeholder="Entenhausen" value="{{ user.profile.place|default_if_none:"" }}">
       </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 g-4">
+        <div class="col-sm-6 g-4">
+          <label for="user_birthday">Geburtstag</label>
+          <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday" value="{{user.profile.birthday|date:"Y-m-d"|default:"" }}" autocomplete="bday" />
+          <div class="valid-feedback">
+          </div>
+          <div class="invalid-feedback">
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="col-lg-4">
+      <div><h4>Warum erheben wir diese Informationen?</h4></div>
+      <p>
+        Da wir jede Person im Rahmen von {{ event.name }} versichern, brauchen
+        wir minimale Stammdaten wie Geburtstag und Adresse, um dich melden zu
+        können. Diese Daten werden bei Teilnahme als Crewmitglied dem Jugendamt Tempelhof-Schöneberg übermittelt,
+        und nur im Bedarfsfall an das Versicherungsunternehmen weitergegeben.
+      </p>
+      <p>
+        Normalerweise werden wir dich nie anrufen. Unter Umständen könnte das
+        aber doch wichtig sein - zum Beispiel wenn Emails aus technischen
+        Gründen nicht mehr bei dir ankommen.
+      </p>
+      <p>
+        Wenn du willst, können wir dich auch in die verdächtigen Messenger-Gruppen
+        aufnehmen. Lass uns dazu einen Kommentar unten!
+      </p>
+      <p>
+        Desweiteren ist die Adresse praktisch, um dir postalisch kleine
+        Aufmerksamkeiten zukommen zu lassen!
+      </p>
     </div>
     </section>
     <div class="row">

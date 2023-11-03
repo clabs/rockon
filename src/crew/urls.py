@@ -3,13 +3,13 @@ from __future__ import annotations
 from django.urls import path
 
 from .views import (
-    PreselectView,
     SignupSubmittedView,
     attendance_table,
     crew_chart,
     crew_shirts,
     signup,
     signup_root,
+    signup_slug,
 )
 
 # Caching:
@@ -18,16 +18,13 @@ from .views import (
 # FIXME: add handler for call without slug
 
 urlpatterns = [
-    path("signup/<slug:slug>/", signup_root, name="crew_root"),
-    # path("signup/<slug:slug>/preselect/", preselect, name="crew_preselect"),
-    path(
-        "signup/<slug:slug>/preselect/", PreselectView.as_view(), name="crew_preselect"
-    ),
-    path("signup/<slug:slug>/form/", signup, name="crew_signup"),
+    path("signup/", signup_root, name="crew_signup_root"),
+    path("signup/<slug:slug>/", signup_slug, name="crew_slug"),
+    path("signup/<slug:slug>/form/", signup, name="crew_signup_form"),
     path(
         "signup/<slug:slug>/submitted/",
         SignupSubmittedView.as_view(),
-        name="crew_signup_submitted",
+        name="crew_signup_form_submitted",
     ),
     path("kitchen/attendance/", attendance_table, name="kitchen_attendance"),
     path("crewcoord/overview/", crew_chart, name="crewcoord_overview"),

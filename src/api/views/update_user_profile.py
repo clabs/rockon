@@ -21,6 +21,10 @@ def update_user_profile(request):
 
     profile = user.profile
 
+    _birhtday = None
+    if body["user_birthday"]:
+        _birhtday = body["user_birthday"]
+
     profile.nick_name = body["nick_name"]
     profile.phone = body["phone"]
     profile.address = body["address"]
@@ -28,6 +32,7 @@ def update_user_profile(request):
     profile.address_housenumber = body["address_housenumber"]
     profile.zip_code = body["zip_code"]
     profile.place = body["place"]
+    profile.birthday = _birhtday
 
     profile.save()
 

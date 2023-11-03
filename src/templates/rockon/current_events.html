@@ -22,7 +22,7 @@
                 {% if event.signup_is_open and event.signup_type != "unknown" %}
                   {% if event.signup_type == "crew" %}
                   <h4>Mitmachen</h4>
-                  <p><a href="{% url 'crew_signup' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
+                  <p><a href="{% url 'crew_root' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
                   {% elif event.signup_type == "exhibitor" %}
                   <h4>Mitmachen</h4>
                   <p><a href="{% url 'exhibitor_signup' slug=event.slug %}">Zur Aussteller-Anmeldung!</a></p>
