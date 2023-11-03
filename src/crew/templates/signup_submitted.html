@@ -1,18 +1,10 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
-
-<div class="bs-component">
-  <div class="alert alert-secondary">
-    <h4 class="alert-heading">Anmeldung erfolgreich!</h4>
-    <p>
-      Vielen Dank für deine Anmeldung bei {{ event.name }}. Ab jetzt erhälst
-      du von uns Informationen rund um die Veranstaltung. Du kannst
-      jederzeit deine Daten hier aktualisieren.
-    </p>
-    <p class="alert alert-primary">
-      Wir haben dir eine Email zur Verifikation geschickt. Bitte überprüfe dein Postfach!
-    </p>
+  <div class="bs-component">
+    <div class="alert alert-secondary">
+      <h4 class="alert-heading">Anmeldung erfolgreich!</h4>
+      <p>Vielen Dank für deine Anmeldung bei {{ event.name }}. Ab jetzt erhälst du von uns Informationen rund um die Veranstaltung.<br />
+        Wir arbeiten daran, dass du hier bald deine Daten selbst verwalten kannst, wende dich in der Zwischenzeit an die Crew Koordination.</p>
+    </div>
   </div>
-</div>
-
-{% endblock content %}
+{% endblock %}

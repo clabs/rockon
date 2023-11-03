@@ -9,6 +9,8 @@ from django.dispatch import receiver
 
 from event.models import Event
 
+from .account_context import AccountContext
+
 
 class UserProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -29,17 +31,33 @@ class UserProfile(models.Model):
     )
     zip_code = models.CharField(max_length=255, null=True, default=None, blank=True)
     place = models.CharField(max_length=255, null=True, default=None, blank=True)
-    contact_mail = models.EmailField(
-        max_length=1024, null=True, default=None, blank=True
-    )
     comment = models.TextField(null=True, default=None, blank=True)
+    birthday = models.DateField(null=True, default=None, blank=True)
     internal_comment = models.TextField(null=True, default=None, blank=True)
-    events = models.ManyToManyField(Event, default=None)
+    events = models.ManyToManyField(Event, default=None, blank=True)
+    account_context = models.ManyToManyField(AccountContext, default=None, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.username
+
+    def is_profile_complete(self) -> bool:
+        data_required = [
+            self.user.first_name,
+            self.user.last_name,
+            self.user.email,
+            self.phone,
+            self.address,
+            self.address_housenumber,
+            self.zip_code,
+            self.place,
+        ]
+
+        if all(data_required):
+            return True
+
+        return False
 
 
 @receiver(post_save, sender=User)

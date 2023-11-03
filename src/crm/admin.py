@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.contrib import admin
 
 from .models import (
+    AccountContext,
     EmailVerification,
     MagicLink,
     Organisation,
@@ -17,11 +18,11 @@ class UserProfileAdmin(admin.ModelAdmin):
         "_user",
         "nick_name",
         "email_is_verified",
-        "contact_mail",
         "created_at",
         "updated_at",
     )
     readonly_fields = ("user", "created_at", "updated_at")
+    search_fields = ("user__first_name", "user__last_name", "user__email")
 
     def _user(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
@@ -37,6 +38,7 @@ class MagicLinkAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
+admin.site.register(AccountContext)
 admin.site.register(EmailVerification, EmailVerificationAdmin)
 admin.site.register(MagicLink, MagicLinkAdmin)
 admin.site.register(Organisation)

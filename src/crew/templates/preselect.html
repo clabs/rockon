@@ -9,6 +9,9 @@
         Hier kannst du dich bei ROCKON registrieren und so Teil der Crew für
         den kommenden ROCKTREFF werden!
       </p>
+      <p>
+        Für die Anmeldung brauchst du einen Account in unserem Rockon System und musst angemeldet sein.
+      </p>
       <p class="d-none">
         Warst du schonmal einmal Teil der Crew?
         Dann wähle <strong>Wiederholungstäterin</strong>!
@@ -22,10 +25,10 @@
         <div class="row g-2">
           <div class="col">
             <div class="d-grid gap-2 col-12 mx-auto">
-              <a class="btn btn-secondary" role="button" href="{% url "crew_signup" slug=slug %}">🤘 Neue Registrierung</a>
+              <a class="btn btn-secondary" role="button" href="{% url "crm_account_create" account_context="crew" %}">🤘 Neue Registrierung</a>
             </div>
           </div>
-          <div class="col d-none">
+          <div class="col">
             <div class="d-grid gap-2 col-12 mx-auto">
               <a class="btn btn-primary" role="button" href="{% url "crm_request_magic_link" %}">❤️ Wiederholungstäterin</a>
             </div>

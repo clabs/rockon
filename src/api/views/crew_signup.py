@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.utils.timezone import make_aware
@@ -11,8 +12,8 @@ from crew.models import Crew, CrewMember, Shirt, Team, TeamMember
 from crm.models import EmailVerification
 
 
+@login_required
 def crew_signup(request, slug):
-    created_user = False
     # FIXME: refactor to Django forms to validate input
     body_list = json.loads(request.body)
     body = {}
@@ -47,46 +48,10 @@ def crew_signup(request, slug):
         )
 
     try:
-        user = User.objects.get(email=body["user_email"])
-    except User.DoesNotExist:
-        user = User.objects.create_user(
-            username=body["user_email"],
-            email=body["user_email"],
-            password=None,
-            first_name=body["user_first_name"],
-            last_name=body["user_last_name"],
-        )
-
-        user.save()
-
-        # FIXME: need try create and catch IntegrityError
-
-        user.profile.nick_name = body.get("user_nick_name")
-        user.profile.phone = body.get("user_mobile")
-        user.profile.address = body.get("user_address")
-        user.profile.address_housenumber = body.get("user_address_housenumber")
-        user.profile.address_extension = body.get("user_address_extension")
-        user.profile.zip_code = body.get("user_zipcode")
-        user.profile.place = body.get("user_place")
-
-        EmailVerification.create_and_send(user=user)
-
-        created_user = True
-
-    user.profile.events.add(event)
-    user.save()
-
-    try:
-        crew_member = CrewMember.objects.get(
-            user__last_name=body.get("user_last_name"),
-            user__email=body.get("user_email"),
-        )
+        crew_member = CrewMember.objects.get(user=request.user)
     except CrewMember.DoesNotExist:
-        _birthday = make_aware(datetime.strptime(body.get("user_birthday"), "%Y-%m-%d"))
-
         crew_member = CrewMember.objects.create(
-            user=user,
-            birthday=_birthday,
+            user=request.user,
             crew=crew,
             shirt=Shirt.objects.get(id=body.get("crew_shirt")),
             nutrition=body.get("nutriton_type"),
@@ -110,11 +75,4 @@ def crew_signup(request, slug):
         TeamMember.objects.create(team=team_id, crewmember=crew_member)
     crew_member.save()
 
-    if created_user:
-        return JsonResponse({"status": "created", "message": "User created"})
-    elif not created_user:
-        return JsonResponse({"status": "exists", "message": "'User already exists"})
-    else:
-        return JsonResponse(
-            {"status": "error", "message": "Something went horribly wrong"}, status=500
-        )
+    return JsonResponse({"status": "ok", "message": "signed up for crew successfully"})
