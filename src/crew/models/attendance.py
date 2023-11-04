@@ -1,27 +1,21 @@
 from __future__ import annotations
 
-from uuid import uuid4
-
-from django.db import models
-
 from event.models import Event
+from library.custom_model import CustomModel, models
 
 
-class Attendance(models.Model):
+class AttendancePhase(models.TextChoices):
+    SETUP = "setup", "Aufbau"
+    SHOW = "show", "Veranstaltung"
+    TEARDOWN = "teardown", "Abbau"
+
+
+class Attendance(CustomModel):
     """Attendance model."""
 
-    PHASE = [
-        ("setup", "Aufbau"),
-        ("show", "Veranstaltung"),
-        ("teardown", "Abbau"),
-    ]
-
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     day = models.DateField()
-    phase = models.CharField(max_length=10, choices=PHASE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    phase = models.CharField(max_length=10, choices=AttendancePhase.choices)
 
     def __str__(self):
         return self.day.strftime("%d.%m.%Y")

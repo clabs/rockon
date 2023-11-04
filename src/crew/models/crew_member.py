@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
-from uuid import uuid4
-
 from django.contrib.auth.models import User
-from django.db import models
-from django.utils.timezone import make_aware
+
+from library.custom_model import CustomModel, models
 
 from .attendance import Attendance
 from .crew import Crew
@@ -28,10 +25,9 @@ class CrewMemberNutrion(models.TextChoices):
     OMNIVORE = "omnivore", "Omnivor"
 
 
-class CrewMember(models.Model):
+class CrewMember(CustomModel):
     """Crewmember model."""
 
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     birthday = models.DateField(null=True)
     crew = models.ForeignKey(Crew, on_delete=models.CASCADE)
@@ -67,8 +63,6 @@ class CrewMember(models.Model):
     leave_of_absence_note = models.TextField(null=True, blank=True)
     internal_note = models.TextField(null=True, blank=True)
     interested_in = models.ManyToManyField(TeamCategory, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
