@@ -11,7 +11,7 @@ from .account_context import AccountContext
 
 
 class UserProfile(CustomModel):
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="profile",
