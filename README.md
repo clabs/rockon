@@ -98,6 +98,20 @@ docker compose -f docker-compose.deploy.yml up -d app
 docker compose -f docker-compose.deploy.yml exec -it app ./manage.py loaddata examples/example_data.json
 ```
 
+## dumpdata / loaddata
+
+Full dump:`python -Xutf8 ./src/manage.py dumpdata -e contenttypes -e admin -e auth.Permission --indent 2 -o ./dumpall.json`
+
+Disable _all_ signals in models for reimport as thay can interfere with loaddata, e.g. comment them out.
+
+Signals are used in
+
+- crm user_profile
+
+import: `python -Xutf8 ./src/manage.py loaddata ./dumpall.json`
+
+Reenable signals.
+
 ## Docs
 
 ### Bootstrap
