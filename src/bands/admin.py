@@ -1,23 +1,22 @@
 from __future__ import annotations
 
-from django.contrib import admin
+from library.custom_admin import CustomAdminModel, admin
 
 from .models import Band, BandMember, Stage, TimeSlot
 
 
-class TimeslotAdmin(admin.ModelAdmin):
+class TimeslotAdmin(CustomAdminModel):
     list_display = ("__str__", "start", "end", "band", "id")
     list_filter = ("stage",)
     search_fields = ("stage__name",)
-    readonly_fields = ("id", "created_at", "updated_at")
     ordering = ("day", "start", "end", "stage")
 
 
-class BandAdmin(admin.ModelAdmin):
+class BandAdmin(CustomAdminModel):
     list_display = ("name", "contact", "_has_techrider", "slot", "event", "id")
     list_filter = ("event",)
     search_fields = ("name", "contact__username", "event__name")
-    readonly_fields = ("id", "_band_members", "created_at", "updated_at", "slot")
+    readonly_fields = ("_band_members", "slot")
 
     def _band_members(self, obj):
         return ", ".join(
@@ -33,11 +32,14 @@ class BandAdmin(admin.ModelAdmin):
     _has_techrider.boolean = True
 
 
-class BandMemberAdmin(admin.ModelAdmin):
+class BandMemberAdmin(CustomAdminModel):
     list_display = ("_user", "band", "position", "updated_at")
     list_filter = ("band",)
     search_fields = ("user__username", "band__name")
-    readonly_fields = ("id", "created_at", "updated_at", "user", "band")
+    readonly_fields = (
+        "user",
+        "band",
+    )
 
     def _user(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"

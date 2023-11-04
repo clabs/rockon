@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.contrib import admin
+from library.custom_admin import admin
 
 from .models import Bid, Event, Media, Region, Token, Track, User, Vote
 

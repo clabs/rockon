@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from django.contrib import admin
+from library.custom_admin import CustomAdminModel, admin
 
 from .models import LinkShortener
 
 
-class LinkShortenerAdmin(admin.ModelAdmin):
+class LinkShortenerAdmin(CustomAdminModel):
     list_display = ("url", "slug", "comment", "counter", "created_at")
     search_fields = ("url", "slug", "comment")
     ordering = (
@@ -15,7 +15,7 @@ class LinkShortenerAdmin(admin.ModelAdmin):
         "counter",
         "created_at",
     )
-    readonly_fields = ("counter", "created_at", "updated_at")
+    readonly_fields = ("counter",)
 
 
 admin.site.register(LinkShortener, LinkShortenerAdmin)

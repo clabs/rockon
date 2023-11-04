@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.contrib import admin
+from library.custom_admin import CustomAdminModel, admin
 
 from .models import (
     Attendance,
@@ -15,20 +15,18 @@ from .models import (
 )
 
 
-class AttendanceAdmin(admin.ModelAdmin):
+class AttendanceAdmin(CustomAdminModel):
     list_display = ("day", "event", "phase", "updated_at")
     search_fields = ("day", "event")
     ordering = ("day", "event", "created_at", "updated_at")
     list_filter = ("day", "event", "phase")
-    readonly_fields = ("created_at", "updated_at")
 
 
-class AttendanceAdditionAdmin(admin.ModelAdmin):
+class AttendanceAdditionAdmin(CustomAdminModel):
     list_display = ("attendance", "comment", "amount", "updated_at")
     search_fields = ("attendance", "comment", "amount")
     ordering = ("attendance", "comment", "amount", "updated_at")
     list_filter = ("attendance", "comment", "amount", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.action(description="Mark selected crew members as confirmed")
@@ -51,14 +49,13 @@ def mark_unknown(modeladmin, request, queryset):
     queryset.update(state="unknown")
 
 
-class CrewMemberAdmin(admin.ModelAdmin):
+class CrewMemberAdmin(CustomAdminModel):
     list_display = (
         "__str__",
         "crew",
         "state",
         "nutrition",
         "stays_overnight",
-        "is_adult",
         "updated_at",
     )
     search_fields = (
@@ -74,34 +71,30 @@ class CrewMemberAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    readonly_fields = ("is_adult", "created_at", "updated_at")
     actions = [mark_confirmed, mark_rejected, mark_arrived, mark_unknown]
 
 
-class CrewAdmin(admin.ModelAdmin):
+class CrewAdmin(CustomAdminModel):
     list_display = ("name", "event", "created_at", "updated_at")
     search_fields = ("name",)
     ordering = ("name", "event", "created_at", "updated_at")
     list_filter = ("name", "event", "created_at", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
 
 
-class ShirtAdmin(admin.ModelAdmin):
+class ShirtAdmin(CustomAdminModel):
     list_display = ("size", "cut", "updated_at")
     search_fields = ("size", "cut")
     ordering = ("size", "cut", "updated_at")
     list_filter = ("size", "cut", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
 
 
-class SkillAdmin(admin.ModelAdmin):
+class SkillAdmin(CustomAdminModel):
     list_display = ("name", "explanation", "icon", "updated_at")
     search_fields = ("name", "explanation")
     ordering = ("name", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
 
 
-class TeamAdmin(admin.ModelAdmin):
+class TeamAdmin(CustomAdminModel):
     list_display = (
         "name",
         "lead",
@@ -113,23 +106,20 @@ class TeamAdmin(admin.ModelAdmin):
     search_fields = ("name", "lead", "vize_lead", "description")
     ordering = ("name", "lead", "vize_lead", "is_public", "updated_at")
     list_filter = ("name", "lead", "vize_lead", "is_public", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
 
 
-class TeamCategoryAdmin(admin.ModelAdmin):
+class TeamCategoryAdmin(CustomAdminModel):
     list_display = ("name", "description", "image", "updated_at")
     search_fields = ("name", "description")
     ordering = ("name", "description", "updated_at")
     list_filter = ("name", "description", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
 
 
-class TeamMemberAdmin(admin.ModelAdmin):
+class TeamMemberAdmin(CustomAdminModel):
     list_display = ("crewmember", "team", "state", "created_at", "updated_at")
     search_fields = ("team", "crewmember")
     ordering = ("team", "state")
     list_filter = ("team", "crewmember", "state")
-    readonly_fields = ("created_at", "updated_at")
 
 
 admin.site.register(Attendance, AttendanceAdmin)

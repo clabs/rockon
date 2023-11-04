@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.contrib import admin
+from library.custom_admin import CustomAdminModel, admin
 
 from .models import (
     AccountContext,
@@ -13,7 +13,7 @@ from .models import (
 )
 
 
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(CustomAdminModel):
     list_display = (
         "_user",
         "nick_name",
@@ -21,21 +21,19 @@ class UserProfileAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    readonly_fields = ("user", "created_at", "updated_at")
+    readonly_fields = ("user",)
     search_fields = ("user__first_name", "user__last_name", "user__email")
 
     def _user(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
 
 
-class EmailVerificationAdmin(admin.ModelAdmin):
+class EmailVerificationAdmin(CustomAdminModel):
     list_display = ("user", "id", "created_at")
-    readonly_fields = ("created_at", "updated_at")
 
 
-class MagicLinkAdmin(admin.ModelAdmin):
+class MagicLinkAdmin(CustomAdminModel):
     list_display = ("user", "id", "created_at", "expires_at")
-    readonly_fields = ("created_at", "updated_at")
 
 
 admin.site.register(AccountContext)
