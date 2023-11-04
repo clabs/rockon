@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from uuid import uuid4
-
-from django.db import models
-
 from crm.models.organisation import Organisation
 from event.models import Event
+from library.custom_model import CustomModel, models
 
 
 class ExhibitorStatus(models.TextChoices):
@@ -15,10 +12,9 @@ class ExhibitorStatus(models.TextChoices):
     REJECTED = "rejected", "Abgelehnt"
 
 
-class Exhibitor(models.Model):
+class Exhibitor(CustomModel):
     """Exhibitor model."""
 
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="exhibitors"
     )
@@ -33,8 +29,6 @@ class Exhibitor(models.Model):
     )
     general_note = models.TextField(null=True, default=None, blank=True)
     internal_comment = models.TextField(null=True, default=None, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.organisation.org_name

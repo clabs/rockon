@@ -1,33 +1,28 @@
 from __future__ import annotations
 
-from uuid import uuid4
-
-from django.db import models
+from library.custom_model import CustomModel, models
 
 
-class Shirt(models.Model):
+class ShirtCut(models.TextChoices):
+    STRAIGHT = "straight", "Regulär"
+    FITTED = "fitted", "Figurbetont"
+
+
+class ShirtSize(models.TextChoices):
+    S = "S", "S"
+    M = "M", "M"
+    L = "L", "L"
+    XL = "XL", "XL"
+    XXL = "2XL", "2XL"
+    XXXL = "3XL", "3XL"
+    XXXXL = "4XL", "4XL"
+
+
+class Shirt(CustomModel):
     """Shirt model."""
 
-    CUT = [
-        ("straight", "Regulär"),
-        ("fitted", "Figurbetont"),
-    ]
-
-    SIZE = [
-        ("S", "S"),
-        ("M", "M"),
-        ("L", "L"),
-        ("XL", "XL"),
-        ("2XL", "2XL"),
-        ("3XL", "3XL"),
-        ("4XL", "4XL"),
-    ]
-
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    size = models.CharField(max_length=12, choices=SIZE)
-    cut = models.CharField(max_length=12, choices=CUT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    size = models.CharField(max_length=12, choices=ShirtSize.choices)
+    cut = models.CharField(max_length=12, choices=ShirtCut.choices)
 
     def __str__(self):
         return f"{self.cut} - {self.size}"

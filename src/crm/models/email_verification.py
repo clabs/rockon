@@ -5,24 +5,22 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db import models
 from django.template import loader
 from django.urls import reverse
 from django_q.tasks import async_task
 
+from library.custom_model import CustomModel, models
 
-class EmailVerification(models.Model):
+
+class EmailVerification(CustomModel):
     """EmailVerification model."""
 
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="email_verification"
     )
     token = models.UUIDField(default=uuid4, editable=False)
     new_email = models.EmailField(max_length=1024, null=True, default=None)
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.id)

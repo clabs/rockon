@@ -6,22 +6,20 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db import models
 from django.template import loader
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django_q.tasks import async_task
 
+from library.custom_model import CustomModel, models
 
-class MagicLink(models.Model):
+
+class MagicLink(CustomModel):
     """MagicLink model."""
 
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="magic_links")
     token = models.UUIDField(default=uuid4, editable=False)
     expires_at = models.DateTimeField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.id)

@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-from uuid import uuid4
-
-from django.db import models
 from django.templatetags.static import static
 
 from library import UploadToPathAndRename
+from library.custom_model import CustomModel, models
 
 
-class TeamCategory(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+class TeamCategory(CustomModel):
     name = models.CharField(max_length=1024)
     description = models.TextField()
     image = models.ImageField(
@@ -17,8 +14,6 @@ class TeamCategory(models.Model):
         blank=True,
         null=True,
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

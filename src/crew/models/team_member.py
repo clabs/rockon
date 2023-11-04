@@ -1,20 +1,17 @@
 from __future__ import annotations
 
-from uuid import uuid4
-
-from django.db import models
+from library.custom_model import CustomModel, models
 
 from .crew_member import CrewMember
 from .team import Team
 
 
-class TeamMember(models.Model):
+class TeamMember(CustomModel):
     STATE = [
         ("unknown", "Unbekannt"),
         ("confirmed", "Bestätigt"),
         ("rejected", "Abgelehnt"),
     ]
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="members")
     crewmember = models.ForeignKey(
         CrewMember, on_delete=models.CASCADE, related_name="teams"

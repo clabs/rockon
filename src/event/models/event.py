@@ -1,24 +1,22 @@
 from __future__ import annotations
 
 from os import path
-from uuid import uuid4
 
-from django.db import models
 from django.templatetags.static import static
 
 from library import UploadToPathAndRename
+from library.custom_model import CustomModel, models
 
 
-class Event(models.Model):
+class SignUpType(models.TextChoices):
+    UNKNOWN = "unknown", "Unbekannt"
+    CREW = "crew", "Crew"
+    EXHIBITOR = "exhibitor", "Austeller"
+
+
+class Event(CustomModel):
     """Event model."""
 
-    SIGN_UP_TYPE = [
-        ("unknown", "Unbekannt"),
-        ("crew", "Crew"),
-        ("exhibitor", "Austeller"),
-    ]
-
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=511)
     slug = models.SlugField(null=False, unique=True)
     description = models.TextField()
@@ -47,11 +45,9 @@ class Event(models.Model):
     show_on_landing_page = models.BooleanField(default=False)
     signup_is_open = models.BooleanField(default=True)
     signup_type = models.CharField(
-        max_length=12, choices=SIGN_UP_TYPE, default="unknown"
+        max_length=12, choices=SignUpType.choices, default=SignUpType.UNKNOWN
     )
     is_current = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

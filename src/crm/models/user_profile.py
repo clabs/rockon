@@ -1,19 +1,16 @@
 from __future__ import annotations
 
-from uuid import uuid4
-
 from django.contrib.auth.models import User
-from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from event.models import Event
+from library.custom_model import CustomModel, models
 
 from .account_context import AccountContext
 
 
-class UserProfile(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+class UserProfile(CustomModel):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -36,8 +33,6 @@ class UserProfile(models.Model):
     internal_comment = models.TextField(null=True, default=None, blank=True)
     events = models.ManyToManyField(Event, default=None, blank=True)
     account_context = models.ManyToManyField(AccountContext, default=None, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.username
