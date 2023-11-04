@@ -29,7 +29,6 @@ class CrewMember(CustomModel):
     """Crewmember model."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    birthday = models.DateField(null=True)
     crew = models.ForeignKey(Crew, on_delete=models.CASCADE)
     state = models.CharField(
         max_length=12,
@@ -57,7 +56,6 @@ class CrewMember(CustomModel):
     attendance_note = models.TextField(null=True, blank=True)
     stays_overnight = models.BooleanField(default=False)
     general_note = models.TextField(null=True, blank=True)
-    is_adult = models.BooleanField(default=False)
     needs_leave_of_absence = models.BooleanField(default=False)
     has_leave_of_absence = models.BooleanField(default=False)
     leave_of_absence_note = models.TextField(null=True, blank=True)
