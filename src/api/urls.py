@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.urls import path
+from django.urls import include, path
 
 from api.views import (
     account_create,
@@ -13,6 +13,8 @@ from api.views import (
     update_user_profile,
     verify_email,
 )
+
+from .routers import router
 
 # Caching:
 # path("chat/list/", cache_page(60*15)(ChatList.as_view()), name="chat_list"),
@@ -37,4 +39,6 @@ urlpatterns = [
     ),
     path("bands/<slug:slug>/techrider/", band_techrider, name="api_band_techrider"),
     path("crm/account/create/", account_create, name="api_crm_account_create"),
+    path("", include(router.urls)),
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

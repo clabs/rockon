@@ -1,0 +1,42 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" aria-label="" style="color: white">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'rockon_landing_index' %}">rockon</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{% url 'crm_user_home' %}">Home</a>
+        </li>
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'crm_user_profile' %}">Profil</a>
+          </li>
+          {% for context in user.profile.account_context.all %}
+            {% if context.slug == 'crew' %}
+              {% include './crew_context.html' %}
+            {% endif %}
+            {% if context.slug == 'band' %}
+              {% include './band_context.html' %}
+          {% endif %}
+          {% endfor %}
+        {% endif %}
+      </ul>
+      {% if user.is_authenticated %}
+        <div class="navbar-item">
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <li class="nav-item">
+              <span class="nav-link"><i class="fa-solid fa-user"></i> Hey <strong>{{ user.first_name|default_if_none:"Unbekannte" }}!</strong></span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Log out</a>
+            </li>
+          </ul>
+        </div>
+      {% else %}
+        <div class="navbar-item">
+          <a class="btn btn-secondary" style="margin-top: -.375rem; margin-bottom: -.375rem;" href="{% url 'crm_request_magic_link' %}">Log in</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</nav>
