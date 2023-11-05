@@ -31,4 +31,4 @@ def magic_link(request, token):
     # if not user:
     #     raise PermissionDenied
     # return HttpResponseForbidden("Der angefrate Schlüssel wurde nicht gefunden...")
-    return redirect(reverse("crm_user_profile"))
+    return redirect(reverse("crm_user_home"))
