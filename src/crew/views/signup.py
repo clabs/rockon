@@ -9,7 +9,15 @@ from django.shortcuts import redirect
 from django.template import loader
 from django.views.generic.detail import DetailView
 
-from crew.models import Attendance, Crew, Shirt, Skill, TeamCategory
+from crew.models import (
+    Attendance,
+    AttendancePhase,
+    Crew,
+    Shirt,
+    Skill,
+    TeamCategory,
+    attendance,
+)
 from crew.models.crew_member import CrewMember
 from event.models import Event
 
@@ -33,13 +41,25 @@ def signup(request, slug):
     event = Event.objects.get(slug=slug)
     if CrewMember.objects.filter(user=request.user).exists():
         return redirect("crew_signup_form_submitted", slug=slug)
+    if not request.user.profile.is_profile_complete():
+        template = loader.get_template("signup_profile_incomplete.html")
+        extra_context = {
+            "site_title": "Profil unvollständig - Crewanmeldung",
+            "event": event,
+            "slug": slug,
+        }
+        return HttpResponse(template.render(extra_context, request))
+
     shirts = Shirt.objects.all()
     skills = Skill.objects.all()
-    attendance_phases = Attendance.get_phases(event=event)
+    # attendance_phases = Attendance.get_phases(event=event)
+    attendance_phases = AttendancePhase.choices
     team_categories = TeamCategory.objects.all()
-    allow_overnight = request.user.profile.birthday < date.today() - timedelta(
-        days=18 * 365
-    )
+    allow_overnight = False
+    if request.user.profile.birthday:
+        allow_overnight = request.user.profile.birthday < date.today() - timedelta(
+            days=18 * 365
+        )
     extra_context = {
         "event": event,
         "og_title": f"Crewanmeldung {event.name}",
