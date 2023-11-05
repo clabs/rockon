@@ -24,7 +24,7 @@ class Attendance(CustomModel):
     def get_phases(cls, event: Event) -> tuple[list[tuple[str, str]], list[Attendance]]:
         days = cls.objects.filter(event=event)
         list_of_phases = []
-        for phase in cls.PHASE:
+        for phase in AttendancePhase.choices:
             _phase = {
                 "phase": phase[0],
                 "name": phase[1],

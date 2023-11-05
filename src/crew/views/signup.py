@@ -52,8 +52,7 @@ def signup(request, slug):
 
     shirts = Shirt.objects.all()
     skills = Skill.objects.all()
-    # attendance_phases = Attendance.get_phases(event=event)
-    attendance_phases = AttendancePhase.choices
+    attendance_phases = Attendance.get_phases(event=event)
     team_categories = TeamCategory.objects.all()
     allow_overnight = False
     if request.user.profile.birthday:
