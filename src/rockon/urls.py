@@ -29,7 +29,6 @@ urlpatterns = [
     path("", include("rockon.urls_homepage")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("backstage/", admin.site.urls),
-    path("api-auth/", include("rest_framework.urls")),
     path("api/", include("api.urls")),
     path("api/bb-legacy/", include("bblegacy.urls")),
     path("bands/", include("bands.urls")),

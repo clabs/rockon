@@ -15,8 +15,6 @@ def account_create(request):
     for item in body_list:
         body[item["name"]] = item["value"]
 
-    print(body["account_context"])
-
     try:
         user = User.objects.get(email=body["user_email"])
         return JsonResponse(

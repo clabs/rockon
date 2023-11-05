@@ -16,7 +16,11 @@ class BandAdmin(CustomAdminModel):
     list_display = ("name", "contact", "_has_techrider", "slot", "event", "id")
     list_filter = ("event",)
     search_fields = ("name", "contact__username", "event__name")
-    readonly_fields = ("_band_members", "slot")
+    readonly_fields = (
+        "_band_members",
+        "slot",
+        "guid",
+    )
 
     def _band_members(self, obj):
         return ", ".join(
