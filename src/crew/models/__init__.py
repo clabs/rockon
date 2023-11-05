@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .attendance import Attendance
+from .attendance import Attendance, AttendancePhase
 from .attendance_addition import AttendanceAddition
 from .crew import Crew
 from .crew_member import CrewMember, CrewMemberNutrion, CrewMemberStatus
