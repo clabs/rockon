@@ -14,18 +14,16 @@ from crew.models.crew_member import CrewMember
 from event.models import Event
 
 
-@login_required
 def signup_root(request):
     event = Event.objects.filter(is_current=True).first()
     return redirect("crew_slug", slug=event.slug)
 
 
-@login_required
 def signup_slug(request, slug):
     if request.user.is_authenticated:
         return redirect("crew_signup_form", slug=slug)
     template = loader.get_template("preselect.html")
-    extra_context = {"site_title": "Vorauswahl"}
+    extra_context = {"site_title": "Vorauswahl", "slug": slug}
     return HttpResponse(template.render(extra_context, request))
 
 
