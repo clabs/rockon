@@ -11,10 +11,11 @@ from .account_context import AccountContext
 
 
 class UserProfile(CustomModel):
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name="profile",
+        unique=True,
     )
     nick_name = models.CharField(max_length=255, null=True, default=None, blank=True)
     email_is_verified = models.BooleanField(default=False)
