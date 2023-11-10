@@ -30,7 +30,6 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("backstage/", admin.site.urls),
     path("api/", include("api.urls")),
-    path("api/bb-legacy/", include("bblegacy.urls")),
     path("bands/", include("bands.urls")),
     path("crew/", include("crew.urls")),
     path("crm/", include("crm.urls")),
