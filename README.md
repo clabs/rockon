@@ -100,7 +100,7 @@ docker compose -f docker-compose.deploy.yml exec -it app ./manage.py loaddata ex
 
 ## dumpdata / loaddata
 
-Full dump:`python -Xutf8 ./src/manage.py dumpdata --natural-foreign --natural-primary -e contenttypes -e admin -e auth.Permission --indent 2 -o ./dumpall.json`
+Full dump:`python -Xutf8 ./src/manage.py dumpdata --natural-foreign --natural-primary -e contenttypes -e admin -e auth.Permission -e django_q -e sessions --indent 2 -o ./dumpall.json`
 
 Disable _all_ signals in models for reimport as thay can interfere with loaddata, e.g. comment them out.
 
