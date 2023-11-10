@@ -47,7 +47,6 @@ class BandMediaViewSet(viewsets.ModelViewSet):
         ]
     )
     def perform_create(self, serializer):
-        print("perform_create json")
         band = serializer.validated_data.get("band")
         if not band == self.request.user.band or not self.request.user.is_staff:
             raise PermissionError("You can only upload media for your own band.")
@@ -60,7 +59,6 @@ class BandMediaViewSet(viewsets.ModelViewSet):
         ]
     )
     def perform_create(self, request, *args, **kwargs):
-        print("perform_create multipart")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         band = serializer.validated_data.get("band")
