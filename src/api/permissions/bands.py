@@ -10,4 +10,7 @@ class IsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Write permissions are only allowed to the owner of the band.
-        return obj.contact == request.user
+        if getattr(obj, "contact", None):
+            return obj.contact == request.user
+        if getattr(obj, "band", None):
+            return obj.band.contact == request.user
