@@ -1,3 +1,3 @@
 from __future__ import annotations
 
-from .band import BandSerializer
+from .band import BandMediaSerializer, BandSerializer

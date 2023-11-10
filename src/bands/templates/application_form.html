@@ -5,7 +5,9 @@
 
   <script>
     window.rockon_data = {
-      api_url: "{% url "bands-detail" pk=band.id %}",
+      band_id: "{{band.id}}",
+      api_url_band_details: "{% url "bands-detail" pk=band.id %}",
+      api_url_new_media: "{% url "band-media-list" %}",
     }
   </script>
   <script src="{% static 'js/bandbewerbung-form.js' %}"></script>
@@ -81,22 +83,26 @@
           <div class="row">
             <div class="col">
               <div class="form-control">
-                1/1 Dokumente
+                <span id="document_counter">{{media_by_type.document|length}}</span>/1 Dokumente
                 <i class="fa fa-check"></i>
               </div>
             </div>
             <div class="col">
-              <button class="btn btn-primary">Dokument hochladen</button>
+              <input type="file" id="selectedFileDocument" style="display: none;" />
+              <button type="button" id="selectNewDocument" class="btn btn-primary" />Neues Dokument</button>
             </div>
           </div>
         </div>
         <div class="col-lg-5">
           <div class="overflow">
-            <ul class="list-unstyled">
-              <li>
-                <span class="name"><i class="fa fa-file pr-3"></i> 2.jpg</span>
-                <button class="btn btn-default btn-sm"><i class="fa fa-trash"></i></button>
-              </li>
+            <ul id="document_list" class="list-unstyled">
+              {% for document in media_by_type.document %}
+                <li id="document-{{document.id}}">
+                <i class="fa fa-file"></i>
+                <a href="{{document.file.url}}" target="_blank">{{document.file_name_original}}</a>
+                <span class="btn btn-default btn-xs" data-remove-document="{{document.id}}"><i class="fa fa-trash"></i></span>
+                </li>
+              {% endfor %}
             </ul>
           </div>
         </div>
@@ -119,13 +125,15 @@
           <div>
             <h4>Pressefoto</h4>
           </div>
-          <img src="{% static 'assets/1_1-placeholder.png' %}" class="img-fluid" alt="Responsive image" />
+          <img id="bandPressPhoto" src="{% static 'assets/1_1-placeholder.png' as placeholder_image %}{{ media_by_type.press_photo.last.file.url|default_if_none:placeholder_image }}" class="img-fluid" />
+          <input type="file" id="fileInputBandPressPhoto" style="display: none;" />
         </div>
         <div class="col-lg-4">
           <div>
             <h4>Bandlogo</h4>
           </div>
-          <img src="{% static 'assets/1_1-placeholder.png' %}" class="img-fluid" alt="Responsive image" />
+          <img id="bandLogo" src="{% static 'assets/1_1-placeholder.png' as placeholder_image %}{{ media_by_type.logo.last.file.url|default_if_none:placeholder_image }}" class="img-fluid" />
+          <input type="file" id="fileInputBandLogo" style="display: none;" />
         </div>
       </div>
     </section>
@@ -137,34 +145,51 @@
             <h4>Musik</h4>
           </div>
           <p>Welche drei Eurer Songs beschreiben Eure Musik am besten? Uns ist es dabei egal ob die Aufnahmen aus Eurem Proberaum, dem Studio, oder von der Bühne sind.</p>
-          <div class="has-success form-control">
-            4/3 Songs
-            <i class="fa fa-check"></i>
+          <div class="row">
+            <div class="col">
+              <div class="form-control">
+                <span id="audio_counter">{{media_by_type.audio|length}}</span>/3 Songs
+                <i class="fa fa-check"></i>
+              </div>
+            </div>
+            <div class="col">
+              <input type="file" id="selectedSong" style="display: none;" />
+              <button type="button" id="selectNewSong" class="btn btn-primary" />Neuer Song</button>
+            </div>
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-lg-4">
           <div class="overflow">
-            <ul class="list-unstyled">
-              <li>
-                <span class="name"><i class="fa fa-file pr-3"></i> 2.jpg</span>
-                <button class="btn btn-default btn-sm"><i class="fa fa-trash"></i></button>
-              </li>
+            <ul id="song_list" class="list-unstyled">
+              {% for song in media_by_type.audio %}
+                <li id="song-{{song.id}}">
+                <i class="fa fa-file"></i>
+                <a class="play-audio" href="{{song.file.url}}" target="_blank">{{song.file_name_original}}</a>
+                <span class="btn btn-default btn-xs" data-remove-song="{{song.id}}"><i class="fa fa-trash"></i></span>
+                </li>
+              {% endfor %}
             </ul>
           </div>
         </div>
-        <div class="col-lg-5">
+        <div class="col-lg-4">
           <div>
             <h4>Videos</h4>
           </div>
-          <p>Habt Ihr Videos online, die Ihr uns zeigen wollt? Dann fügt sie hier hinzu (Enter drücken).</p>
-          <ul class="list-unstyled links">
-            <li>
-              <i class="fa-brands fa-youtube"></i> <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">https://www.youtube.com/watch?v=dQw4w9WgXcQ</a>
-              <span class="btn btn-default btn-xs" data-ember-action="811"><i class="fa fa-times"></i></span>
-            </li>
+          <p>Habt Ihr Videos online, die Ihr uns zeigen wollt? Dann fügt sie hier hinzu.</p>
+          <ul id="url_list" class="list-unstyled links">
+            {% for url in media_by_type.link %}
+              <li id="url-{{url.id}}">
+                <i class="fa-brands fa-youtube"></i>
+                <a href="{{url.url}}" target="_blank">{{url.url}}</a>
+                <span class="btn btn-default btn-xs" data-remove-url="{{url.id}}"><i class="fa fa-trash"></i></span>
+              </li>
+            {% endfor %}
           </ul>
           <div>
-            <input type="url" class="form-control" id="band_url_input" name="band_url_input" placeholder="Link" value="" />
+            <input type="url" class="form-control" id="url_input" name="url_input" placeholder="https://example.net" value="" />
+            <button type="button" id="add_url" class="btn btn-primary mt-2" disabled>
+              <i class="fas fa-save"></i> Hinzufügen
+            </button>
           </div>
         </div>
       </div>
@@ -179,8 +204,21 @@
           </button>
         </div>
         <div>
-          <small>zuletzt gespeicht vor 7 Tagen</small>
+          <small>zuletzt gespeicht: {{band.updated_at|date:"H:i, d.m.Y"}}</small>
         </div>
     </section>
   </form>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastAudioPlayer" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+      <div class="toast-header">
+        <strong class="me-auto"><i class="fas fa-music"></i> Audioplayer</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div id="player-toast-body" class="toast-body">
+        <p id="player-filename">Current playing</p>
+        <div id="player-wrapper"></div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

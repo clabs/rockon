@@ -41,7 +41,7 @@ urlpatterns = [
     ),
     path("to/", include("tools.urls_shortener")),
     path("tools/", include("tools.urls")),
-    path("uploads/bids/<str:bid_id>/<str:media_id>", include("bblegacy.urls_media")),
+    path("uploads/bids/", include("bands.streaming_upload_url")),
 ]
 
 handler404 = "rockon.views.custom_page_not_found_view"

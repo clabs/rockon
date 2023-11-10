@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from library.custom_admin import CustomAdminModel, admin
 
-from .models import Band, BandMember, Stage, TimeSlot
+from .models import Band, BandMedia, BandMember, Stage, TimeSlot
 
 
 class TimeslotAdmin(CustomAdminModel):
@@ -49,7 +49,26 @@ class BandMemberAdmin(CustomAdminModel):
         return f"{obj.user.first_name} {obj.user.last_name}"
 
 
+class BandMediaAdmin(CustomAdminModel):
+    list_display = (
+        "band",
+        "media_type",
+        "url",
+        "file_name_original",
+        "file",
+        "thumbnail",
+    )
+    list_filter = ("band", "media_type")
+    search_fields = ("band__name", "media_type", "url", "file", "thumbnail")
+    readonly_fields = (
+        "band",
+        "media_type",
+        "thumbnail",
+    )
+
+
 admin.site.register(Band, BandAdmin)
+admin.site.register(BandMedia, BandMediaAdmin)
 admin.site.register(BandMember, BandMemberAdmin)
 admin.site.register(Stage)
 admin.site.register(TimeSlot, TimeslotAdmin)
