@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.template import loader
 from django.views.generic.base import TemplateView
 
-from event.models import Event
+from rockon.event.models import Event
 
 
 def custom_bad_request_view(request, exception=None):

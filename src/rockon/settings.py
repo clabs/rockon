@@ -23,8 +23,7 @@ env = Env()
 env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = path.dirname(path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -54,12 +53,12 @@ INSTALLED_APPS = [
     "django_q",
     "corsheaders",
     "rest_framework",
-    "bands.apps.BandsConfig",
-    "crew.apps.CrewConfig",
-    "crm.apps.CrmConfig",
-    "event.apps.EventConfig",
-    "exhibitors.apps.ExhibitorsConfig",
-    "tools.apps.ToolsConfig",
+    "rockon.bands",
+    "rockon.crew",
+    "rockon.crm",
+    "rockon.event",
+    "rockon.exhibitors",
+    "rockon.tools",
 ]
 
 if DEBUG:
@@ -78,7 +77,7 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "crm.magic_link_auth.MagicLinkAuth",
+    "rockon.crm.magic_link_auth.MagicLinkAuth",
 ]
 
 if DEBUG:
@@ -89,7 +88,7 @@ ROOT_URLCONF = "rockon.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [path.join(BASE_DIR, "templates")],
+        "DIRS": [path.join(BASE_DIR, "rockon", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -97,10 +96,10 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "rockon.context_processors.app_info.get_build_date",
-                "rockon.context_processors.app_info.get_build_hash",
-                "rockon.context_processors.sentry_frontend.get_sentry_data",
-                "rockon.context_processors.get_domain.get_domain",
+                "rockon.library.context_processors.app_info.get_build_date",
+                "rockon.library.context_processors.app_info.get_build_hash",
+                "rockon.library.context_processors.sentry_frontend.get_sentry_data",
+                "rockon.library.context_processors.get_domain.get_domain",
             ],
         },
     },
@@ -115,7 +114,7 @@ WSGI_APPLICATION = "rockon.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": path.join(BASE_DIR, "_db/db.sqlite3"),
+        "NAME": path.join(BASE_DIR, "db.sqlite3"),
     },
 }
 
@@ -201,7 +200,7 @@ STATIC_URL = env("DJANGO_STATIC_URL", "static/")
 STATIC_ROOT = path.join(BASE_DIR, "dist")
 
 STATICFILES_DIRS = [
-    path.join(BASE_DIR, "static"),
+    path.join(BASE_DIR, "rockon", "static"),
 ]
 
 with env.prefixed("DJANGO_MEDIA_"):
@@ -220,9 +219,9 @@ with env.prefixed("DJANGO_CORS_"):
     if DEBUG:
         CORS_ORIGIN_ALLOW_ALL = env.bool("ORIGIN_ALLOW_ALL", default=False)
 
-LOGIN_URL = "crm_request_magic_link"
-LOGIN_REDIRECT_URL = "crm_user_profile"
-LOGOUT_REDIRECT_URL = "crm_logout"
+LOGIN_URL = "rockon.crm_request_magic_link"
+LOGIN_REDIRECT_URL = "rockon.crm_user_profile"
+LOGOUT_REDIRECT_URL = "rockon.crm_logout"
 
 
 # Default primary key field type

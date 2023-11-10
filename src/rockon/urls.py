@@ -29,19 +29,19 @@ urlpatterns = [
     path("", include("rockon.urls_homepage")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("backstage/", admin.site.urls),
-    path("api/", include("api.urls")),
-    path("bands/", include("bands.urls")),
-    path("crew/", include("crew.urls")),
-    path("crm/", include("crm.urls")),
-    path("exhibitors/", include("exhibitors.urls")),
+    path("api/", include("rockon.api.urls")),
+    path("bands/", include("rockon.bands.urls")),
+    path("crew/", include("rockon.crew.urls")),
+    path("crm/", include("rockon.crm.urls")),
+    path("exhibitors/", include("rockon.exhibitors.urls")),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
         name="robots",
     ),
-    path("to/", include("tools.urls_shortener")),
-    path("tools/", include("tools.urls")),
-    path("uploads/bids/", include("bands.streaming_upload_url")),
+    path("to/", include("rockon.tools.urls_shortener")),
+    path("tools/", include("rockon.tools.urls")),
+    path("uploads/bids/", include("rockon.bands.streaming_upload_url")),
 ]
 
 handler404 = "rockon.views.custom_page_not_found_view"
