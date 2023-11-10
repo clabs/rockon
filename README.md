@@ -21,13 +21,13 @@ Eine Festivalverwaltung könnte Folgendes beinhalten:
 
 ### Python
 
-Install `pipenv`
+Install `poetry`
 
-`pip install --upgrade pipenv`
+`pip install --upgrade poetry`
 
 Create environment and install requirements
 
-`pipenv sync --dev`
+`poetry install`
 
 ### Precommit
 
