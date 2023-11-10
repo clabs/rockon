@@ -23,10 +23,11 @@ RUN apt-get update && \
     useradd -u $DOCKER_UID -ms /bin/bash -d /app appuser
 
 WORKDIR /app
-COPY Pipfile Pipfile.lock /app/
+COPY pyproject.toml poetry.lock /app/
 ENV PATH=/app/.venv/bin:/root/.local/bin:$PATH
-RUN pip3 install --user pipenv && \
-    pipenv sync --dev
+RUN pip3 install --user poetry && \
+    poetry config virtualenvs.in-project true && \
+    poetry install --without dev --sync --no-root
 COPY src /app/
 
 RUN export DJANGO_SECRET_KEY=unused-but-must-be-present && \
