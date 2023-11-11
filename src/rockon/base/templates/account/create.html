@@ -100,7 +100,7 @@
   ajax_success = (data) => {
     console.info(data)
     $(window).unbind('beforeunload')
-    window.location.href = "{% url "crm_account_created" %}"
+    window.location.href = "{% url "base:account_created" %}"
   }
   ajax_error = (data) => {
     // FIXME: needs error handling

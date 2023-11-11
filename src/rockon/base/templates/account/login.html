@@ -9,7 +9,7 @@
       event.preventDefault()
       send_form()
     })
-    $('.not-empty').on('blur', event => {
+    $('.not-empty').on('blur keyup change', event => {
       console.debug("not-empty handler triggered", event.target.value)
       if (validateEmail(event.target.value)) {
         event.target.classList.remove('is-invalid')

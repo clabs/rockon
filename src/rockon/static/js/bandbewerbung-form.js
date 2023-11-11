@@ -68,7 +68,7 @@ $(document).ready(() => {
   $('#selectNewSong').on('click', function () {
     $('#selectedSong').click()
   })
-  $('.play-audio').on('click', function (event) {
+  $(document).on('click', '.play-audio', function (event) {
     event.preventDefault() // prevent the default action
     console.debug('play audio', event)
     const url = event.currentTarget.href
@@ -137,7 +137,7 @@ const li_add_document = document => {
 }
 
 const li_add_song = song => {
-  const element = `<li id="song-${song.id}"><i class="fa fa-file"></i> <a href="${song.file}">${song.file_name_original}</a> <span class="btn btn-default btn-xs" data-remove-song="${song.id}"><i class="fa fa-trash"></i></span></li>`
+  const element = `<li id="song-${song.id}"><i class="fa fa-file"></i> <a class="play-audio" href="${song.file}">${song.file_name_original}</a> <span class="btn btn-default btn-xs" data-remove-song="${song.id}"><i class="fa fa-trash"></i></span></li>`
   $('#song_list').append(element)
   $('#audio_counter').text($('#song_list li').length)
 }

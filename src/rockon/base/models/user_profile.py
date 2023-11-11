@@ -46,7 +46,8 @@ class UserProfile(CustomModel):
     def __str__(self):
         return self.user.username
 
-    def is_profile_complete(self) -> bool:
+    def is_profile_complete_crew(self) -> bool:
+        """Check if user profile is complete for crew signup."""
         data_required = [
             self.user.first_name,
             self.user.last_name,
@@ -56,6 +57,21 @@ class UserProfile(CustomModel):
             self.address_housenumber,
             self.zip_code,
             self.place,
+            self.birthday,
+        ]
+
+        if all(data_required):
+            return True
+
+        return False
+
+    def is_profile_complete_band(self) -> bool:
+        """Check if user profile is complete for band application."""
+        data_required = [
+            self.user.first_name,
+            self.user.last_name,
+            self.user.email,
+            self.phone,
         ]
 
         if all(data_required):

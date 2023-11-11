@@ -10,39 +10,26 @@ from django.template import loader
 from django.views.generic.detail import DetailView
 
 from rockon.base.models import Event
-from rockon.crew.models import (
-    Attendance,
-    AttendancePhase,
-    Crew,
-    Shirt,
-    Skill,
-    TeamCategory,
-    attendance,
-)
+from rockon.crew.models import Attendance, Shirt, Skill, TeamCategory
 from rockon.crew.models.crew_member import CrewMember
 
 
-def signup_root(request):
+def join_forward(request):
     event = Event.objects.filter(is_current=True).first()
-    return redirect("crew_slug", slug=event.slug)
+    return redirect("crew:join_slug", slug=event.slug)
 
 
-def signup_slug(request, slug):
-    if request.user.is_authenticated:
-        return redirect("crew_signup_form", slug=slug)
-    template = loader.get_template("preselect.html")
-    extra_context = {"site_title": "Vorauswahl", "slug": slug}
-    return HttpResponse(template.render(extra_context, request))
-
-
-@login_required
-def signup(request, slug):
-    template = loader.get_template("signup.html")
-    event = Event.objects.get(slug=slug)
+def join_slug(request, slug):
+    if not request.user.is_authenticated:
+        template = loader.get_template("join_preselect.html")
+        extra_context = {"site_title": "Vorauswahl", "slug": slug}
+        return HttpResponse(template.render(extra_context, request))
     if CrewMember.objects.filter(user=request.user).exists():
-        return redirect("crew_signup_form_submitted", slug=slug)
-    if not request.user.profile.is_profile_complete():
-        template = loader.get_template("signup_profile_incomplete.html")
+        return redirect("crew:join_submitted")
+    template = loader.get_template("join.html")
+    event = Event.objects.get(slug=slug)
+    if not request.user.profile.is_profile_complete_crew():
+        template = loader.get_template("join_profile_incomplete.html")
         extra_context = {
             "site_title": "Profil unvollständig - Crewanmeldung",
             "event": event,
@@ -74,8 +61,7 @@ def signup(request, slug):
     return HttpResponse(template.render(extra_context, request))
 
 
-class SignupSubmittedView(LoginRequiredMixin, DetailView):
-    template_name = "signup_submitted.html"
+def join_submitted(request):
+    template = loader.get_template("join_submitted.html")
     extra_context = {"site_title": "Anmeldung abgeschlossen"}
-    query_pk_and_slug = "slug"
-    model = Event
+    return HttpResponse(template.render(extra_context, request))

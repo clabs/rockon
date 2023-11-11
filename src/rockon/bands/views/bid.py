@@ -10,21 +10,40 @@ from rockon.base.models import Event
 from rockon.library.federal_states import FederalState
 
 
+def bid_root(request):
+    if getattr(request.user, "band", None):
+        return redirect(
+            "bands:bid_form",
+            slug=request.user.band.event.slug,
+            guid=request.user.band.guid,
+        )
+    event = Event.objects.filter(is_current=True).first()
+    return redirect("bands:bid_preselect", slug=event.slug)
+
+
+def bid_preselect(request, slug):
+    if request.user.is_authenticated:
+        return redirect("bands:bid_router", slug=slug)
+    template = loader.get_template("bid_preselect.html")
+    extra_context = {"site_title": "Vorauswahl", "slug": slug}
+    return HttpResponse(template.render(extra_context, request))
+
+
 @login_required
-def application_router(request, slug):
+def bid_router(request, slug):
     if hasattr(request.user, "band"):
         band = request.user.band
-        return redirect("band_application_form", slug=slug, guid=band.guid)
+        return redirect("bands:bid_form", slug=slug, guid=band.guid)
     new_band = Band.objects.create(
         event=Event.objects.get(slug=slug), contact=request.user
     )
     new_band.save()
 
-    return redirect("band_application_form", slug=slug, guid=new_band.guid)
+    return redirect("bands:bid_form", slug=slug, guid=new_band.guid)
 
 
 @login_required
-def application_form(request, slug, guid):
+def bid_form(request, slug, guid):
     if not request.user.band.guid == guid:
         template = loader.get_template("errors/403.html")
         return HttpResponseForbidden(

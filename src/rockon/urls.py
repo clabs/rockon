@@ -30,9 +30,9 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("backstage/", admin.site.urls),
     path("api/", include("rockon.api.urls")),
-    path("bands/", include("rockon.bands.urls")),
-    path("crew/", include("rockon.crew.urls")),
-    path("crm/", include("rockon.base.urls")),
+    path("bands/", include("rockon.bands.urls", namespace="bands")),
+    path("crew/", include("rockon.crew.urls", namespace="crew")),
+    path("account/", include("rockon.base.urls", namespace="base")),
     path("exhibitors/", include("rockon.exhibitors.urls")),
     path(
         "robots.txt",

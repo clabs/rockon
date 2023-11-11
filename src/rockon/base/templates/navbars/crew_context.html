@@ -1,5 +1,5 @@
 <li class="nav-item">
-  <a class="nav-link" href="{% url 'crew_signup_root' %}">Crew Anmeldung</a>
+  <a class="nav-link" href="{% url 'crew:join' %}">Crew Anmeldung</a>
 </li>
 <li class="nav-item dropdown">
   <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Werkzeuge</a>
@@ -18,10 +18,10 @@
       <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crewkoordination</a>
       <ul class="dropdown-menu">
         <li>
-          <a class="dropdown-item" href="{% url 'crewcoord_overview' %}">Übersicht</a>
+          <a class="dropdown-item" href="{% url 'crew:coord_overview' %}">Übersicht</a>
         </li>
         <li>
-          <a class="dropdown-item" href="{% url 'crewcoord_tshirts' %}">T-Shirts</a>
+          <a class="dropdown-item" href="{% url 'crew:coord_tshirts' %}">T-Shirts</a>
         </li>
       </ul>
     </li>
@@ -31,7 +31,7 @@
       <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Küche</a>
       <ul class="dropdown-menu">
         <li>
-          <a class="dropdown-item" href="{% url 'kitchen_attendance' %}">Mengenliste</a>
+          <a class="dropdown-item" href="{% url 'crew:catering_attendance' %}">Mengenliste</a>
         </li>
       </ul>
     </li>

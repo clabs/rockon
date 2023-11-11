@@ -28,7 +28,7 @@ def account_create(request):
         )
         user.save()
         account_context = AccountContext.objects.get(slug=body["account_context"])
-        user.profile.account_context = account_context
+        user.profile.account_context.add(account_context)
         user.profile.save()
         EmailVerification.create_and_send(user=user)
 

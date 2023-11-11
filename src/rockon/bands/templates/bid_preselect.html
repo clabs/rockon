@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row justify-content-md-center align-items-center g-4">
+    <div class="col-md-6">
+      <div><h3>Registrierung</h3></div>
+      <p>
+        Hier kannst du dich bei ROCKON registrieren und so Teil der Crew für
+        den kommenden ROCKTREFF werden!
+      </p>
+      <p>
+        Für die Anmeldung brauchst du einen Account in unserem Rockon System und musst angemeldet sein.
+      </p>
+      <p class="d-none">
+        Warst du schonmal einmal Teil der Crew?
+        Dann wähle <strong>Wiederholungstäterin</strong>!
+      </p>
+      <p>
+        Fragen? <a href="mailto:crew@rocktreff.de">crew@rocktreff.de</a>
+      </p>
+    </div>
+    <div class="col-md-4">
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <div class="row g-2">
+          <div class="col">
+            <div class="d-grid gap-2 col-12 mx-auto">
+              <a class="btn btn-secondary" role="button" href="{% url "base:account_create"%}?ctx=band">🤘 Neue Registrierung</a>
+            </div>
+          </div>
+          <div class="col">
+            <div class="d-grid gap-2 col-12 mx-auto">
+              <a class="btn btn-primary" role="button" href="{% url "crew:crew_signup_form" slug=slug %}">❤️ Wiederholungstäterin</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+
+
+
+{% endblock content %}
