@@ -6,7 +6,7 @@ from django.template import loader
 
 def get_account_create(request, account_context: str):
     """A view that returns the account creation form."""
-    template = loader.get_template("account_create.html")
+    template = loader.get_template("crm/account_create.html")
     extra_context = {
         "site_title": "Account erstellen",
         "account_context": account_context,
@@ -16,6 +16,6 @@ def get_account_create(request, account_context: str):
 
 def get_account_created(request):
     """A view that returns the account creation form."""
-    template = loader.get_template("account_created.html")
+    template = loader.get_template("crm/account_created.html")
     extra_context = {"site_title": "Account erstellt"}
     return HttpResponse(template.render(extra_context, request))
