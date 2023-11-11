@@ -80,7 +80,7 @@ RUN apt-get update && \
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 
 COPY --from=build --chown=appuser /app /app
-COPY --from=sass_build --chown=appuser /sass_build/src/static/css/rockon.min.css /app/static/css/rockon.min.css
+COPY --from=sass_build --chown=appuser /sass_build/src/rockon/static/css/rockon.min.css /app/rockon/static/css/rockon.min.css
 
 RUN chmod +x /usr/local/bin/entrypoint
 
