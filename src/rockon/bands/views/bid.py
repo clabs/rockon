@@ -52,7 +52,7 @@ def bid_form(request, slug, guid):
                 request,
             )
         )
-    template = loader.get_template("application_form.html")
+    template = loader.get_template("bid_form.html")
     event = Event.objects.get(slug=slug)
     media = BandMedia.objects.filter(band=request.user.band)
     media_by_type = {}
