@@ -3,6 +3,7 @@ from __future__ import annotations
 from rockon.library.custom_admin import CustomAdminModel, admin
 
 from .models import (
+    AccountContext,
     EmailVerification,
     Event,
     MagicLink,
@@ -12,6 +13,10 @@ from .models import (
     Timeline,
     UserProfile,
 )
+
+
+class AccountContextAdmin(CustomAdminModel):
+    list_display = ("slug", "name")
 
 
 class UserProfileAdmin(CustomAdminModel):
@@ -37,6 +42,7 @@ class MagicLinkAdmin(CustomAdminModel):
     list_display = ("user", "id", "created_at", "expires_at")
 
 
+admin.site.register(AccountContext, AccountContextAdmin)
 admin.site.register(EmailVerification, EmailVerificationAdmin)
 admin.site.register(Event)
 admin.site.register(MagicLink, MagicLinkAdmin)

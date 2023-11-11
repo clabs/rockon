@@ -8,11 +8,14 @@ from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
 
 
-class AccountContext(models.TextChoices):
-    UNKNOWN = "unknown", "Unknown"
-    BAND = "band", "Band"
-    CREW = "crew", "Crew"
-    EXHIBITOR = "exhibitor", "Exhibitor"
+class AccountContext(CustomModel):
+    """AccountContext is used to group users together."""
+
+    slug = models.SlugField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
 
 
 class UserProfile(CustomModel):
@@ -38,12 +41,7 @@ class UserProfile(CustomModel):
     birthday = models.DateField(null=True, default=None, blank=True)
     internal_comment = models.TextField(null=True, default=None, blank=True)
     events = models.ManyToManyField(Event, default=None, blank=True)
-    account_context = models.CharField(
-        max_length=255,
-        choices=AccountContext.choices,
-        default=AccountContext.UNKNOWN,
-        blank=True,
-    )
+    account_context = models.ManyToManyField(AccountContext, default=None, blank=True)
 
     def __str__(self):
         return self.user.username

@@ -27,9 +27,8 @@ def account_create(request):
             password=None,
         )
         user.save()
-        account_context = body.get("account_context")
-        if account_context in AccountContext.choices:
-            user.profile.account_context = account_context
+        account_context = AccountContext.objects.get(slug=body["account_context"])
+        user.profile.account_context = account_context
         user.profile.save()
         EmailVerification.create_and_send(user=user)
 
