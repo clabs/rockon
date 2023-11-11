@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User
 
-from rockon.crm.models import MagicLink
+from rockon.base.models import MagicLink
 
 
 class MagicLinkAuth(BaseBackend):

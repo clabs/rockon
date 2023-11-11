@@ -5,6 +5,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.template import loader
 
+from rockon.base.models import Event
 from rockon.crew.models import (
     Attendance,
     AttendanceAddition,
@@ -12,7 +13,6 @@ from rockon.crew.models import (
     CrewMember,
     CrewMemberStatus,
 )
-from rockon.event.models import Event
 from rockon.exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorStatus
 
 

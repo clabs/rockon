@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from rockon.crm.models import EmailVerification
+from rockon.base.models import EmailVerification
 
 
 @login_required

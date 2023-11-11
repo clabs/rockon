@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth.models import User
 
-from rockon.event.models import Event
+from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
 from rockon.library.federal_states import FederalState
 from rockon.library.guid import guid

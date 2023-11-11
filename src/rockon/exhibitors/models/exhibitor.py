@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from rockon.crm.models.organisation import Organisation
-from rockon.event.models import Event
+from rockon.base.models import Event
+from rockon.base.models.organisation import Organisation
 from rockon.library.custom_model import CustomModel, models
 
 

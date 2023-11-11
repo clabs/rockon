@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core import exceptions
 from django.http import JsonResponse
 
-from rockon.crm.models import EmailVerification
+from rockon.base.models import EmailVerification
 
 
 def verify_email(request):

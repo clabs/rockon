@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.utils.timezone import make_aware
 
+from rockon.base.models import EmailVerification
 from rockon.crew.models import Crew, CrewMember, Shirt, Team, TeamMember
-from rockon.crm.models import EmailVerification
 
 
 @login_required

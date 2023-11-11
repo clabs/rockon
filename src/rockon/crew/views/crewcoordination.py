@@ -5,8 +5,8 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.template import loader
 
+from rockon.base.models import Event
 from rockon.crew.models import Attendance, Crew, CrewMember, CrewMemberStatus, Shirt
-from rockon.event.models import Event
 
 
 @login_required

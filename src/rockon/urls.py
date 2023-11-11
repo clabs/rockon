@@ -32,7 +32,7 @@ urlpatterns = [
     path("api/", include("rockon.api.urls")),
     path("bands/", include("rockon.bands.urls")),
     path("crew/", include("rockon.crew.urls")),
-    path("crm/", include("rockon.crm.urls")),
+    path("crm/", include("rockon.base.urls")),
     path("exhibitors/", include("rockon.exhibitors.urls")),
     path(
         "robots.txt",

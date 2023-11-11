@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.utils.timezone import make_aware
 
-from rockon.crm.models import MagicLink
+from rockon.base.models import MagicLink
 
 
 def request_magic_link(request):

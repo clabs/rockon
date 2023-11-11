@@ -4,10 +4,15 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from rockon.event.models import Event
+from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
 
-from .account_context import AccountContext
+
+class AccountContext(models.TextChoices):
+    UNKNOWN = "unknown", "Unknown"
+    BAND = "band", "Band"
+    CREW = "crew", "Crew"
+    EXHIBITOR = "exhibitor", "Exhibitor"
 
 
 class UserProfile(CustomModel):
@@ -33,7 +38,12 @@ class UserProfile(CustomModel):
     birthday = models.DateField(null=True, default=None, blank=True)
     internal_comment = models.TextField(null=True, default=None, blank=True)
     events = models.ManyToManyField(Event, default=None, blank=True)
-    account_context = models.ManyToManyField(AccountContext, default=None, blank=True)
+    account_context = models.CharField(
+        max_length=255,
+        choices=AccountContext.choices,
+        default=AccountContext.UNKNOWN,
+        blank=True,
+    )
 
     def __str__(self):
         return self.user.username
@@ -56,12 +66,12 @@ class UserProfile(CustomModel):
         return False
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         UserProfile.objects.create(user=instance)
 
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.profile.save()
