@@ -19,7 +19,7 @@ class BandViewSet(viewsets.ModelViewSet):
 
     queryset = Band.objects.all()
     serializer_class = BandSerializer
-    permission_classes = [permissions.IsAdminUser, IsOwner]
+    permission_classes = [permissions.IsAdminUser | IsOwner]
 
 
 class BandMediaViewSet(viewsets.ModelViewSet):
@@ -28,10 +28,9 @@ class BandMediaViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = BandMediaSerializer
-    permission_classes = [permissions.IsAdminUser, IsOwner]
-    # parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [permissions.IsAdminUser | IsOwner]
 
-    # @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def get_queryset(self):
         media = BandMedia.objects.all()
         if self.request.query_params.get("band_id", None):
@@ -48,7 +47,7 @@ class BandMediaViewSet(viewsets.ModelViewSet):
     )
     def perform_create(self, serializer):
         band = serializer.validated_data.get("band")
-        if not band == self.request.user.band or not self.request.user.is_staff:
+        if not band == self.request.user.band and not self.request.user.is_staff:
             raise PermissionError("You can only upload media for your own band.")
         serializer.save()
 
@@ -62,7 +61,7 @@ class BandMediaViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         band = serializer.validated_data.get("band")
-        if not band == request.user.band or not request.user.is_staff:
+        if not band.id == request.user.band.id and not request.user.is_staff:
             raise PermissionError("You can only upload media for your own band.")
         serializer.save()
         return Response(serializer.data, status=201)

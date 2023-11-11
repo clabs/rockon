@@ -220,9 +220,9 @@ with env.prefixed("DJANGO_CORS_"):
     if DEBUG:
         CORS_ORIGIN_ALLOW_ALL = env.bool("ORIGIN_ALLOW_ALL", default=False)
 
-LOGIN_URL = "crm_request_magic_link"
-LOGIN_REDIRECT_URL = "crm_user_home"
-LOGOUT_REDIRECT_URL = "crm_logout"
+LOGIN_URL = "base:login_request"
+LOGIN_REDIRECT_URL = "base:home"
+LOGOUT_REDIRECT_URL = "rockon_landing_index"
 
 
 # Default primary key field type

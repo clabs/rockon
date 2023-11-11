@@ -51,7 +51,7 @@ class MagicLink(CustomModel):
             "domain": settings.DOMAIN,
             "recipient": f"{user.email}",
             "subject": f"{settings.EMAIL_SUBJECT_PREFIX} Dein Magic Link",
-            "magic_link": f'{settings.DOMAIN}{reverse("crm_magic_link", kwargs={"token": magic_link.token})}',
+            "magic_link": f'{settings.DOMAIN}{reverse("base:login_token", kwargs={"token": magic_link.token})}',
         }
 
         message = f'Hallo {extra_context["name"]},\nhier findest du deinen persönlichen Link \

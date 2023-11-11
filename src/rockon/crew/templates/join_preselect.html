@@ -25,12 +25,12 @@
         <div class="row g-2">
           <div class="col">
             <div class="d-grid gap-2 col-12 mx-auto">
-              <a class="btn btn-secondary" role="button" href="{% url "crm_account_create" account_context="crew" %}">🤘 Neue Registrierung</a>
+              <a class="btn btn-secondary" role="button" href="{% url "base:account_create" %}?ctx=crew">🤘 Neue Registrierung</a>
             </div>
           </div>
           <div class="col">
             <div class="d-grid gap-2 col-12 mx-auto">
-              <a class="btn btn-primary" role="button" href="{% url "crew_signup_form" slug=slug %}">❤️ Wiederholungstäterin</a>
+              <a class="btn btn-primary" role="button" href="{% url "base:login_request"%}">❤️ Wiederholungstäterin</a>
             </div>
           </div>
         </div>

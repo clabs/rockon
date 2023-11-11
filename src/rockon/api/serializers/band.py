@@ -11,6 +11,7 @@ class BandSerializer(serializers.ModelSerializer):
         # fields not listed here can not be changed via the API
         # FIXME: needs auth + permissions
         fields = [
+            "id",
             "name",
             "has_management",
             "are_students",

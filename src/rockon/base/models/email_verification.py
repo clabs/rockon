@@ -43,14 +43,14 @@ class EmailVerification(CustomModel):
         extra_context = {
             "name": user.first_name,
             "email_verification_token": email_verifcation.token,
-            "domain": settings.DOMAIN,
             "subject": f"{settings.EMAIL_SUBJECT_PREFIX} Bitte bestätige deine E-Mail-Adresse",
+            "url": f"{settings.DOMAIN}{reverse('base:verify_email', kwargs={'token': email_verifcation.token})}",
         }
 
         async_task(
             send_mail,
             subject=extra_context["subject"],
-            message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{extra_context["domain"]}{reverse("crm_verify_email", kwargs={"token": extra_context["email_verification_token"]})}\n\nSolltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
+            message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{extra_context["url"]}\n\nSolltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
             from_email=settings.EMAIL_DEFAULT_FROM,
             recipient_list=[f"{user.email}"],
             html_message=template.render(extra_context),

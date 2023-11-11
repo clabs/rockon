@@ -7,10 +7,10 @@
 
   window.rockon_data = {
     api_crew_signup: "{% url "api_crew_signup" slug=slug %}",
-    success_redirect: "{% url "crew_signup_form_submitted" slug=slug %}",
+    success_redirect: "{% url "crew:join_submitted" %}",
   }
   </script>
-  <script src="{% static 'js/crew-signupform.js' %}"></script>
+  <script src="{% static 'js/crewjoin-form.js' %}"></script>
   <form id="signup" class="row align-items-center needs-validation" novalidate>
     {% csrf_token %}
 
