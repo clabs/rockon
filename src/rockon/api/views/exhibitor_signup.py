@@ -5,8 +5,7 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 
-from rockon.crm.models import EmailVerification, Organisation
-from rockon.event.models import Event
+from rockon.base.models import EmailVerification, Event, Organisation
 from rockon.exhibitors.models import (
     Asset,
     Attendance,

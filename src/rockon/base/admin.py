@@ -3,12 +3,13 @@ from __future__ import annotations
 from rockon.library.custom_admin import CustomAdminModel, admin
 
 from .models import (
-    AccountContext,
     EmailVerification,
+    Event,
     MagicLink,
     Organisation,
     Sponsoring,
-    Type,
+    Task,
+    Timeline,
     UserProfile,
 )
 
@@ -36,10 +37,11 @@ class MagicLinkAdmin(CustomAdminModel):
     list_display = ("user", "id", "created_at", "expires_at")
 
 
-admin.site.register(AccountContext)
 admin.site.register(EmailVerification, EmailVerificationAdmin)
+admin.site.register(Event)
 admin.site.register(MagicLink, MagicLinkAdmin)
 admin.site.register(Organisation)
 admin.site.register(Sponsoring)
-admin.site.register(Type)
+admin.site.register(Task)
+admin.site.register(Timeline)
 admin.site.register(UserProfile, UserProfileAdmin)

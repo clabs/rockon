@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 
-from rockon.crm.models import AccountContext, EmailVerification
+from rockon.base.models import AccountContext, EmailVerification
 
 
 def account_create(request):
@@ -27,9 +27,9 @@ def account_create(request):
             password=None,
         )
         user.save()
-        user.profile.account_context.add(
-            AccountContext.objects.get(slug=body["account_context"])
-        )
+        account_context = body.get("account_context")
+        if account_context in AccountContext.choices:
+            user.profile.account_context = account_context
         user.profile.save()
         EmailVerification.create_and_send(user=user)
 

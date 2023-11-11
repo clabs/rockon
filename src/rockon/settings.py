@@ -53,10 +53,9 @@ INSTALLED_APPS = [
     "django_q",
     "corsheaders",
     "rest_framework",
+    "rockon.base",
     "rockon.bands",
     "rockon.crew",
-    "rockon.crm",
-    "rockon.event",
     "rockon.exhibitors",
     "rockon.tools",
 ]
@@ -77,7 +76,7 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "rockon.crm.magic_link_auth.MagicLinkAuth",
+    "rockon.base.magic_link_auth.MagicLinkAuth",
 ]
 
 if DEBUG:
@@ -88,7 +87,7 @@ ROOT_URLCONF = "rockon.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [path.join(BASE_DIR, "rockon", "templates")],
+        "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -221,9 +220,9 @@ with env.prefixed("DJANGO_CORS_"):
     if DEBUG:
         CORS_ORIGIN_ALLOW_ALL = env.bool("ORIGIN_ALLOW_ALL", default=False)
 
-LOGIN_URL = "rockon.crm_request_magic_link"
-LOGIN_REDIRECT_URL = "rockon.crm_user_profile"
-LOGOUT_REDIRECT_URL = "rockon.crm_logout"
+LOGIN_URL = "crm_request_magic_link"
+LOGIN_REDIRECT_URL = "crm_user_home"
+LOGOUT_REDIRECT_URL = "crm_logout"
 
 
 # Default primary key field type

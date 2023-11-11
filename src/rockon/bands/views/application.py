@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.template import loader
 
 from rockon.bands.models import Band, BandMedia, MediaType
-from rockon.event.models import Event
+from rockon.base.models import Event
 from rockon.library.federal_states import FederalState
 
 

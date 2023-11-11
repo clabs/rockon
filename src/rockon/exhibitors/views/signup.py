@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.http import HttpResponse
 from django.template import loader
 
-from rockon.event.models import Event
+from rockon.base.models import Event
 from rockon.exhibitors.models import Asset, Attendance
 
 

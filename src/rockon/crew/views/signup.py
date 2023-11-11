@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.template import loader
 from django.views.generic.detail import DetailView
 
+from rockon.base.models import Event
 from rockon.crew.models import (
     Attendance,
     AttendancePhase,
@@ -19,7 +20,6 @@ from rockon.crew.models import (
     attendance,
 )
 from rockon.crew.models.crew_member import CrewMember
-from rockon.event.models import Event
 
 
 def signup_root(request):
