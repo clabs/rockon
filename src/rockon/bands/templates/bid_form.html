@@ -125,14 +125,14 @@
           <div>
             <h4>Pressefoto</h4>
           </div>
-          <img id="bandPressPhoto" src="{% static 'assets/1_1-placeholder.png' as placeholder_image %}{{ media_by_type.press_photo.last.file.url|default_if_none:placeholder_image }}" class="img-fluid" />
+          <img id="bandPressPhoto" src="{% static 'assets/1_1-placeholder.png' as placeholder_image %}{{ media_by_type.press_photo.last.file.url|default:placeholder_image }}" class="img-fluid" />
           <input type="file" id="fileInputBandPressPhoto" style="display: none;" />
         </div>
         <div class="col-lg-4">
           <div>
             <h4>Bandlogo</h4>
           </div>
-          <img id="bandLogo" src="{% static 'assets/1_1-placeholder.png' as placeholder_image %}{{ media_by_type.logo.last.file.url|default_if_none:placeholder_image }}" class="img-fluid" />
+          <img id="bandLogo" src="{% static 'assets/1_1-placeholder.png' as placeholder_image %}{{ media_by_type.logo.last.file.url|default:placeholder_image }}" class="img-fluid" />
           <input type="file" id="fileInputBandLogo" style="display: none;" />
         </div>
       </div>
