@@ -111,10 +111,12 @@ WSGI_APPLICATION = "rockon.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DEFAULT_SQLITE_PATH = env.path("DJANGO_DEFAULT_SQLITE_PATH", default="db.sqlite3")
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": path.join(BASE_DIR, "db.sqlite3"),
+        "NAME": path.join(BASE_DIR, DEFAULT_SQLITE_PATH),
     },
 }
 
