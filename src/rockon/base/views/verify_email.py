@@ -6,6 +6,6 @@ from django.template import loader
 
 def verify_email(request, token):
     """Verify email."""
-    template = loader.get_template("mail_confirmed.html")
+    template = loader.get_template("crm/mail_confirmed.html")
     extra_context = {"site_title": "E-Mail bestätigen", "token": token}
     return HttpResponse(template.render(extra_context, request))
