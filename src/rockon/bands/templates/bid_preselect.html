@@ -6,18 +6,17 @@
     <div class="col-md-6">
       <div><h3>Registrierung</h3></div>
       <p>
-        Hier kannst du dich bei ROCKON registrieren und so Teil der Crew für
-        den kommenden ROCKTREFF werden!
+        Hier kannst du dich bei ROCKON registrieren und dich mit deiner Band für den ROCKTREFF bewerben.
       </p>
       <p>
-        Für die Anmeldung brauchst du einen Account in unserem Rockon System und musst angemeldet sein.
+        Für die Bewerbung brauchst du einen Account in unserem Rockon System und musst angemeldet sein.
       </p>
       <p class="d-none">
-        Warst du schonmal einmal Teil der Crew?
+        Hast du dich schon einmal bei uns beworben?
         Dann wähle <strong>Wiederholungstäterin</strong>!
       </p>
       <p>
-        Fragen? <a href="mailto:crew@rocktreff.de">crew@rocktreff.de</a>
+        Fragen? <a href="mailto:crew@rocktreff.de">booking@rocktreff.de</a>
       </p>
     </div>
     <div class="col-md-4">
@@ -30,7 +29,7 @@
           </div>
           <div class="col">
             <div class="d-grid gap-2 col-12 mx-auto">
-              <a class="btn btn-primary" role="button" href="{% url "crew:crew_signup_form" slug=slug %}">❤️ Wiederholungstäterin</a>
+              <a class="btn btn-primary" role="button" href="{% url "bands:bid_router" slug=slug %}">❤️ Wiederholungstäterin</a>
             </div>
           </div>
         </div>

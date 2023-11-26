@@ -2,14 +2,16 @@ from __future__ import annotations
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.template import loader
 
 from rockon.bands.models import Band, BandMedia, MediaType
 from rockon.base.models import Event
+from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
 
 
+@check_band_application_open
 def bid_root(request):
     if getattr(request.user, "band", None):
         return redirect(
@@ -21,6 +23,7 @@ def bid_root(request):
     return redirect("bands:bid_preselect", slug=event.slug)
 
 
+@check_band_application_open
 def bid_preselect(request, slug):
     if request.user.is_authenticated:
         return redirect("bands:bid_router", slug=slug)
@@ -29,11 +32,22 @@ def bid_preselect(request, slug):
     return HttpResponse(template.render(extra_context, request))
 
 
+def bid_closed(request, slug):
+    template = loader.get_template("bid_closed.html")
+    event = Event.objects.get(slug=slug)
+    extra_context = {"site_title": "Bewerbungsphase geschlossen", "event": event}
+    return HttpResponse(template.render(extra_context, request))
+
+
 @login_required
 def bid_router(request, slug):
     if hasattr(request.user, "band"):
         band = request.user.band
         return redirect("bands:bid_form", slug=slug, guid=band.guid)
+    event = get_object_or_404(Event, slug=slug)
+    if not event.band_application_open:
+        return redirect("bands:bid_closed", slug=slug)
+
     new_band = Band.objects.create(
         event=Event.objects.get(slug=slug), contact=request.user
     )

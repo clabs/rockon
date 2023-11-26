@@ -41,5 +41,6 @@ class PrivacyView(TemplateView):
 def index_view(request):
     template = loader.get_template("rockon/landing_index.html")
     events = Event.objects.filter(show_on_landing_page=True)
+
     extra_context = {"site_title": "Start", "events": events}
     return HttpResponse(template.render(extra_context, request))
