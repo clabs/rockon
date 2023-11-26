@@ -51,4 +51,6 @@ class Band(CustomModel):
     techrider = models.JSONField(default=dict, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        return self.guid

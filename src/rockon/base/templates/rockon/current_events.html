@@ -22,10 +22,13 @@
                 {% if event.signup_is_open and event.signup_type != "unknown" %}
                   {% if event.signup_type == "crew" %}
                   <h4>Mitmachen</h4>
-                  <p><a href="{% url 'crew:join_slug' slug=event.slug %}">Zur Crew-Anmeldung!</a></p>
-                  {% elif event.signup_type == "exhibitor" %}
+                  <p><a href="{% url 'crew:join_slug' slug=event.slug %}">Mach bei unserer Crew mit</a></p>
+                  {% if event.band_application_open %}
+                  <p><a href="{% url 'bands:bid_preselect' slug=event.slug %}">Bewerbe dich mit deiner Band</a><br><small class="text-muted">Bewerbungsfrist: {{event.band_application_end|date:"d.m.Y - H:m"}}</small></p>
+                  {% endif %}
+                  {% elif event.signup_type == "exhibitor" and event.exhibitor_application_open %}
                   <h4>Mitmachen</h4>
-                  <p><a href="{% url 'exhibitor_signup' slug=event.slug %}">Zur Aussteller-Anmeldung!</a></p>
+                  <p><a href="{% url 'exhibitor_signup' slug=event.slug %}">Melde dich als Austeller an</a><br><small class="text-muted">Anmeldefrist: {{event.exhibitor_application_end|date:"d.m.Y - H:m"}}</small></p>
                   {% endif %}
                 {% endif %}
               </p>

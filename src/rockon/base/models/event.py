@@ -28,6 +28,18 @@ class Event(CustomModel):
     closing = models.DateField(help_text="Ende der Veranstaltung")
     teardown_start = models.DateField(help_text="Abbau beginnt")
     teardown_end = models.DateField(help_text="Abbau endet")
+    band_application_start = models.DateTimeField(
+        blank=True, null=True, help_text="Bandbewerbung beginnt"
+    )
+    band_application_end = models.DateTimeField(
+        blank=True, null=True, help_text="Bandbewerbung endet"
+    )
+    exhibitor_application_start = models.DateTimeField(
+        blank=True, null=True, help_text="Ausstellerbewerbung beginnt"
+    )
+    exhibitor_application_end = models.DateTimeField(
+        blank=True, null=True, help_text="Ausstellerbewerbung endet"
+    )
     location = models.CharField(max_length=255)
     url = models.URLField(blank=True, null=True)
     image = models.ImageField(
@@ -43,7 +55,9 @@ class Event(CustomModel):
         related_name="sub_events",
     )
     show_on_landing_page = models.BooleanField(default=False)
-    signup_is_open = models.BooleanField(default=True)
+    signup_is_open = models.BooleanField(
+        default=True, help_text="Crew Anmeldung ist offen"
+    )
     signup_type = models.CharField(
         max_length=12, choices=SignUpType.choices, default=SignUpType.UNKNOWN
     )
@@ -59,3 +73,21 @@ class Event(CustomModel):
         if self.image:
             return self.image.url
         return static("assets/4_3_placeholder.png")
+
+    @property
+    def band_application_open(self) -> bool:
+        from django.utils import timezone
+
+        return (
+            self.band_application_start <= timezone.now() <= self.band_application_end
+        )
+
+    @property
+    def exhibitor_application_open(self) -> bool:
+        from django.utils import timezone
+
+        return (
+            self.exhibitor_application_start
+            <= timezone.now()
+            <= self.exhibitor_application_end
+        )
