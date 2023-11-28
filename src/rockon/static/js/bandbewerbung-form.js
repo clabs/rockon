@@ -197,7 +197,7 @@ const api_add_url = url => {
   }
   $.ajax({
     type: 'POST',
-    url: window.rockon_data.api_url_new_media,
+    url: window.rockon_data.api_url_new_media + 'upload/',
     data: JSON.stringify(media_obj),
     contentType: 'application/json',
     headers: {

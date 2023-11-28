@@ -39,19 +39,6 @@ class BandMediaViewSet(viewsets.ModelViewSet):
             media.filter(band=self.request.user.band)
         return media
 
-    @action(detail=False, methods=["post"])
-    @parser_classes(
-        [
-            JSONParser,
-        ]
-    )
-    def perform_create(self, serializer):
-        band = serializer.validated_data.get("band")
-        user = self.request.user
-        if not band == user.band and not user.is_staff:
-            raise PermissionError("You can only upload media for your own band.")
-        serializer.save()
-
     @action(detail=False, methods=["post"], url_path="upload", url_name="upload")
     @parser_classes(
         [
