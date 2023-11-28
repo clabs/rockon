@@ -126,18 +126,18 @@ const upload_file = (file, type) => {
 }
 
 const li_add_url = url => {
-  const element = `<li id="url-${url.id}"><i class="fa-brands fa-youtube"></i> <a href="${url.url}">${url.url}</a> <span class="btn btn-default btn-xs" data-remove-url="${url.id}"><i class="fa fa-trash" ></i></span></li>`
+  const element = `<li id="url-${url.id}"><a href="${url.url}" target="_blank">${url.url}</a><span class="btn btn-default btn-xs" data-remove-url="${url.id}"><i class="fa fa-trash"></i></span></li>`
   $('#url_list').append(element)
 }
 
 const li_add_document = document => {
-  const element = `<li id="document-${document.id}"><i class="fa fa-file"></i> <a href="${document.document}">${document.file_name_original}</a> <span class="btn btn-default btn-xs" data-remove-document="${document.id}"><i class="fa fa-trash"></i></span></li>`
+  const element = `<li id="document-${document.id}" class="list-group-item d-flex justify-content-between align-items-center"><a href="${document.file}" target="_blank">${document.file_name_original}</a><span class="btn btn-default btn-xs" data-remove-document="${document.id}"><i class="fa fa-trash"></i></span></li>`
   $('#document_list').append(element)
   $('#document_counter').text($('#document_list li').length)
 }
 
 const li_add_song = song => {
-  const element = `<li id="song-${song.id}"><i class="fa fa-file"></i> <a class="play-audio" href="${song.file}">${song.file_name_original}</a> <span class="btn btn-default btn-xs" data-remove-song="${song.id}"><i class="fa fa-trash"></i></span></li>`
+  const element = `<li id="song-${song.id}" class="list-group-item d-flex justify-content-between align-items-center"><a class="play-audio" href="${song.file}" target="_blank">${song.file_name_original}</a><span class="btn btn-default btn-xs" data-remove-song="${song.id}"><i class="fa fa-trash"></i></span></li>`
   $('#song_list').append(element)
   $('#audio_counter').text($('#song_list li').length)
 }
