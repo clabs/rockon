@@ -44,7 +44,17 @@ class UserProfile(CustomModel):
     account_context = models.ManyToManyField(AccountContext, default=None, blank=True)
 
     def __str__(self):
-        return self.user.username
+        if self.user.username:
+            return self.user.username
+        return self.user.email
+
+    @property
+    def full_name(self) -> str:
+        """Return the full name of the user."""
+        full_name = f"{self.user.first_name} {self.user.last_name}"
+        if not full_name.strip():
+            full_name = self.user.email
+        return full_name
 
     def is_profile_complete_crew(self) -> bool:
         """Check if user profile is complete for crew signup."""
@@ -58,6 +68,20 @@ class UserProfile(CustomModel):
             self.zip_code,
             self.place,
             self.birthday,
+        ]
+
+        if all(data_required):
+            return True
+
+        return False
+
+    def is_profile_complete_band(self) -> bool:
+        """Check if user profile is complete for band application."""
+        data_required = [
+            self.user.first_name,
+            self.user.last_name,
+            self.user.email,
+            self.phone,
         ]
 
         if all(data_required):
