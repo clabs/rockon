@@ -14,7 +14,7 @@ from rockon.crew.models import Attendance, Crew, CrewMember, CrewMemberStatus, S
 def crew_chart(request):
     template = loader.get_template("crew_overview.html")
     try:
-        event = Event.objects.get(is_current=True)
+        event = Event.objects.get(id=request.session["current_event"])
         attendances = (
             Attendance.objects.filter(
                 event=event,
@@ -55,7 +55,7 @@ def crew_chart(request):
 def crew_shirts(request):
     template = loader.get_template("crewcoord_tshirts.html")
     try:
-        event = Event.objects.get(is_current=True)
+        event = Event.objects.get(id=request.session["current_event"])
         crews = Crew.objects.filter(event=event)
         crew_members = CrewMember.objects.filter(crew__in=crews).exclude(
             state__in=[CrewMemberStatus.UNKNOWN, CrewMemberStatus.REJECTED]

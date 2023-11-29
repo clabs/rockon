@@ -13,7 +13,7 @@ from rockon.crew.models.crew_member import CrewMember
 
 
 def join_forward(request):
-    event = Event.objects.filter(is_current=True).first()
+    event = Event.objects.get(id=request.session["current_event"])
     return redirect("crew:join_slug", slug=event.slug)
 
 

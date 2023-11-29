@@ -21,7 +21,7 @@ from rockon.exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorSt
 def attendance_table(request):
     template = loader.get_template("catering_attendance.html")
     try:
-        event = Event.objects.get(is_current=True)
+        event = Event.objects.get(id=request.session["current_event"])
     except Event.DoesNotExist:
         event = None
     attendances = Attendance.objects.filter(event=event)

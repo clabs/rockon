@@ -3,10 +3,13 @@ from __future__ import annotations
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as django_auth_logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.sessions.backends.db import SessionStore
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
+
+from rockon.base.models import Event
 
 
 @login_required
@@ -50,6 +53,12 @@ def login_token(request, token):
         }
         return HttpResponseForbidden(template.render(extra_context, request))
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    current_event = Event.get_current_event()
+
+    # Store current_event in user session
+    request.session["current_event"] = str(current_event.id)
+    request.session.save()
+
     return redirect(reverse("crm_user_home"))
 
 
