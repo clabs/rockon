@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.http import JsonResponse
 
-from rockon.base.models import AccountContext, EmailVerification
+from rockon.base.models import EmailVerification
 
 
 def account_create(request):
@@ -27,9 +27,19 @@ def account_create(request):
             password=None,
         )
         user.save()
-        account_context = AccountContext.objects.get(slug=body["account_context"])
-        user.profile.account_context.add(account_context)
-        user.profile.save()
+
+        # default account_context to crew
+        account_context = body.get("account_context", "crew")
+
+        # check if account_context is a valid group
+        if account_context in ["crew", "bands", "exhibitors"]:
+            group = Group.objects.get(name=account_context)
+        else:
+            # prevent user from being added to any groups
+            group = Group.objects.get(name="crew")
+
+        user.groups.add(group)
+
         EmailVerification.create_and_send(user=user)
 
         return JsonResponse(

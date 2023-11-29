@@ -11,13 +11,13 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'base:account' %}">Profil</a>
           </li>
-          {% for context in user.profile.account_context.all %}
-            {% if context.slug == 'crew' %}
+          {% for group in user.groups.all %}
+            {% if group.name == 'crew' %}
               {% include './crew_context.html' %}
             {% endif %}
-            {% if context.slug == 'band' %}
+            {% if group.name == 'bands' %}
               {% include './band_context.html' %}
-          {% endif %}
+            {% endif %}
           {% endfor %}
         {% endif %}
       </ul>
@@ -28,7 +28,7 @@
               <span class="nav-link"><i class="fa-solid fa-user"></i> Hey <strong>{{ user.first_name|default:user.username }}!</strong></span>
             </li>
             <li class="nav-item">
-              <span class="nav-link"><i class="fa-solid fa-calendar"></i> {{ current_event }}</span>
+              <span class="nav-link" title="Event"><i class="fa-solid fa-calendar"></i> {{ current_event }}</span>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'base:logout' %}">Log out</a>

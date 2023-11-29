@@ -36,7 +36,7 @@ def login_request(request):
     account_context = request.GET.get("ctx", "crew")
     template = loader.get_template("account/login.html")
     extra_context = {
-        "site_title": "Magic Link",
+        "site_title": "Login",
         "account_context": account_context,
     }
     return HttpResponse(template.render(extra_context, request))
@@ -59,18 +59,10 @@ def login_token(request, token):
     request.session["current_event"] = str(current_event.id)
     request.session.save()
 
+    if user.groups.filter(name="bands").exists():
+        return redirect(reverse("bands:bid_root"))
+
     return redirect(reverse("crm_user_home"))
-
-
-def account_create(request):
-    """A view that returns the account creation form."""
-    template = loader.get_template("account/create.html")
-    account_context = request.GET.get("ctx", "crew")
-    extra_context = {
-        "site_title": "Account erstellen",
-        "account_context": account_context,
-    }
-    return HttpResponse(template.render(extra_context, request))
 
 
 def account_created(request):

@@ -37,7 +37,7 @@ def bid_closed(request, slug):
 def bid_router(request, slug):
     if not request.user.is_authenticated:
         url = reverse("base:login_request")
-        url += f"?ctx=band"
+        url += f"?ctx=bands"
         return redirect(url)
     # Checks if user profile is complete
     # if not request.user.profile.is_profile_complete_band():
