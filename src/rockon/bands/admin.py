@@ -6,10 +6,15 @@ from .models import Band, BandMedia, BandMember, Stage, TimeSlot
 
 
 class TimeslotAdmin(CustomAdminModel):
-    list_display = ("__str__", "start", "end", "band", "id")
-    list_filter = ("stage",)
+    list_display = ("__str__", "start", "end", "band", "get_event_name")
+    list_filter = ("stage", "stage__event")
     search_fields = ("stage__name",)
     ordering = ("day", "start", "end", "stage")
+
+    def get_event_name(self, obj):
+        return obj.stage.event
+
+    get_event_name.short_description = "Event"
 
 
 class BandAdmin(CustomAdminModel):
@@ -21,7 +26,6 @@ class BandAdmin(CustomAdminModel):
         "_has_techrider",
         "slot",
         "event",
-        "id",
     )
     list_filter = (
         "event",
@@ -84,8 +88,14 @@ class BandMediaAdmin(CustomAdminModel):
     )
 
 
+class StageAdmin(CustomAdminModel):
+    list_display = ("name", "event", "id")
+    list_filter = ("event",)
+    search_fields = ("name", "event__name")
+
+
 admin.site.register(Band, BandAdmin)
 admin.site.register(BandMedia, BandMediaAdmin)
 admin.site.register(BandMember, BandMemberAdmin)
-admin.site.register(Stage)
+admin.site.register(Stage, StageAdmin)
 admin.site.register(TimeSlot, TimeslotAdmin)
