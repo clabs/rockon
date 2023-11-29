@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
-from django.views.generic.detail import DetailView
+from django.urls import reverse
 
 from rockon.base.models import Event
 from rockon.crew.models import Attendance, Shirt, Skill, TeamCategory
@@ -21,9 +19,9 @@ def join_forward(request):
 
 def join_slug(request, slug):
     if not request.user.is_authenticated:
-        template = loader.get_template("join_preselect.html")
-        extra_context = {"site_title": "Vorauswahl", "slug": slug}
-        return HttpResponse(template.render(extra_context, request))
+        url = reverse("base:login_request")
+        url += f"?ctx=crew"
+        return redirect(url)
     if CrewMember.objects.filter(user=request.user).exists():
         return redirect("crew:join_submitted")
     template = loader.get_template("join.html")

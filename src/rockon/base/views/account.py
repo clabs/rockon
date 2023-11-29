@@ -30,9 +30,11 @@ def logout(request):
 def login_request(request):
     if request.user.is_authenticated:
         return redirect(reverse("base:account"))
+    account_context = request.GET.get("ctx", "crew")
     template = loader.get_template("account/login.html")
     extra_context = {
         "site_title": "Magic Link",
+        "account_context": account_context,
     }
     return HttpResponse(template.render(extra_context, request))
 

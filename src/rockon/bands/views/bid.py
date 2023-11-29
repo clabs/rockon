@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.template import loader
+from django.urls import reverse
 
 from rockon.bands.models import Band, BandMedia, MediaType
 from rockon.base.models import Event
@@ -11,6 +12,7 @@ from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
 
 
+@login_required
 @check_band_application_open
 def bid_root(request):
     if getattr(request.user, "band", None):
@@ -20,18 +22,10 @@ def bid_root(request):
             guid=request.user.band.guid,
         )
     event = Event.objects.filter(is_current=True).first()
-    return redirect("bands:bid_preselect", slug=event.slug)
+    return redirect("bands:bid_router", slug=event.slug)
 
 
-@check_band_application_open
-def bid_preselect(request, slug):
-    if request.user.is_authenticated:
-        return redirect("bands:bid_router", slug=slug)
-    template = loader.get_template("bid_preselect.html")
-    extra_context = {"site_title": "Vorauswahl", "slug": slug}
-    return HttpResponse(template.render(extra_context, request))
-
-
+@login_required
 def bid_closed(request, slug):
     template = loader.get_template("bid_closed.html")
     event = Event.objects.get(slug=slug)
@@ -39,14 +33,25 @@ def bid_closed(request, slug):
     return HttpResponse(template.render(extra_context, request))
 
 
-@login_required
+@check_band_application_open
 def bid_router(request, slug):
+    if not request.user.is_authenticated:
+        url = reverse("base:login_request")
+        url += f"?ctx=band"
+        return redirect(url)
+    # Checks if user profile is complete
+    # if not request.user.profile.is_profile_complete_band():
+    #     event = Event.objects.get(slug=slug)
+    #     template = loader.get_template("bid_profile_incomplete.html")
+    #     extra_context = {
+    #         "site_title": "Profil unvollständig - Bandbewerbung",
+    #         "event": event,
+    #         "slug": slug,
+    #     }
+    #     return HttpResponse(template.render(extra_context, request))
     if hasattr(request.user, "band"):
         band = request.user.band
         return redirect("bands:bid_form", slug=slug, guid=band.guid)
-    event = get_object_or_404(Event, slug=slug)
-    if not event.band_application_open:
-        return redirect("bands:bid_closed", slug=slug)
 
     new_band = Band.objects.create(
         event=Event.objects.get(slug=slug), contact=request.user
