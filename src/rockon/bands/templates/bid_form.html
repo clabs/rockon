@@ -152,14 +152,14 @@
           <div>
             <h4>Pressefoto</h4>
           </div>
-          <img id="bandPressPhoto" src="{% static 'assets/4_3_placeholder.png' as placeholder_image %}{{ media_by_type.press_photo.last.file.url|default:placeholder_image }}" class="img-fluid rounded" style="cursor: pointer;"/>
+          <img id="bandPressPhoto" src="{% static 'assets/4_3_placeholder.png' as placeholder_image %}{{ media_by_type.press_photo.last.file.url|default:placeholder_image }}" class="img-fluid rounded" style="cursor: pointer;" title="Klick hier, um ein Bild hochzuladen" />
           <input type="file" id="fileInputBandPressPhoto" class="d-none" />
         </div>
         <div class="col-lg-4">
           <div>
             <h4>Bandlogo</h4>
           </div>
-          <img id="bandLogo" src="{% static 'assets/4_3_placeholder.png' as placeholder_image %}{{ media_by_type.logo.last.file.url|default:placeholder_image }}" class="img-fluid rounded" style="cursor: pointer;"/>
+          <img id="bandLogo" src="{% static 'assets/4_3_placeholder.png' as placeholder_image %}{{ media_by_type.logo.last.file.url|default:placeholder_image }}" class="img-fluid rounded" style="cursor: pointer;" title="Klick hier, um ein Bild hochzuladen" />
           <input type="file" id="fileInputBandLogo" class="d-none" />
         </div>
       </div>
