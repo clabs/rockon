@@ -135,6 +135,10 @@ CACHES = {
     }
 }
 
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_CACHE_ALIAS = "default"
+SESSION_DATABASE_ALIAS = "default"
+
 Q_CLUSTER = {
     "name": "DJRedis",
     "workers": 4,
