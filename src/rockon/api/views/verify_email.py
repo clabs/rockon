@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import json
 
+from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.core import exceptions
 from django.http import JsonResponse
+from django.urls import reverse
 
 from rockon.base.models import EmailVerification
 
@@ -22,7 +24,8 @@ def verify_email(request):
         user.save()
         verification.is_active = False
         verification.save()
-        return JsonResponse({"status": "verified"})
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+        return JsonResponse({"status": "verified", "next": reverse("base:account")})
     except (
         EmailVerification.DoesNotExist,
         User.DoesNotExist,
