@@ -19,13 +19,16 @@ $(document).ready(() => {
     // hopenfully this is never triggered
     console.debug("complete", data)
     if (data.status == 200) {
-      $("#result").html('<div class="alert alert-primary" role="alert">E-Mail-Adresse erfolgreich bestätigt.</div>')
+      $("#result").html('<div class="alert alert-primary" role="alert">E-Mail-Adresse erfolgreich bestätigt, du wirst in 5 Sekunden weitergeleitet.</div>')
     } else if (data.status == 201) {
       $("#result").html('<div class="alert alert-secondary" role="alert">E-Mail-Adresse wurde bereits bestätigt.</div>')
     } else {
       $("#result").html('<div class="alert alert-danger" role="alert">E-Mail-Adresse konnte nicht bestätigt werden.</div>')
     }
     $("#confirm").prop("disabled", true)
+    if (data.responseJSON.next) {
+      setTimeout(() => {window.location.href = data.responseJSON.next}, 5000)
+    }
   }
 
   const send_form = (fields) => {
