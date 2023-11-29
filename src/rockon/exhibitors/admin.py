@@ -12,9 +12,12 @@ class ExhibitorAssetAdmin(CustomAdminModel):
 
 
 class ExhibitorAttendanceAdmin(CustomAdminModel):
-    list_display = ("exhibitor", "day", "count")
+    list_display = ("exhibitor", "day", "count", "get_event")
     list_filter = ("day",)
     search_fields = ("exhibitor", "day")
+
+    def get_event(self, obj):
+        return obj.day.event
 
 
 class ExhibitorAdmin(CustomAdminModel):
@@ -28,8 +31,16 @@ class AssetAdmin(CustomAdminModel):
     search_fields = ("name", "is_bool", "description")
 
 
+class AttendanceAdmin(CustomAdminModel):
+    list_display = (
+        "day",
+        "event",
+    )
+    list_filter = ("event",)
+
+
 admin.site.register(Exhibitor, ExhibitorAdmin)
 admin.site.register(Asset, AssetAdmin)
-admin.site.register(Attendance)
+admin.site.register(Attendance, AttendanceAdmin)
 admin.site.register(ExhibitorAsset, ExhibitorAssetAdmin)
 admin.site.register(ExhibitorAttendance, ExhibitorAttendanceAdmin)
