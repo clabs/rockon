@@ -128,7 +128,7 @@ $(document).ready(() => {
 
 <h1>Account</h1>
 <div class="alert alert-secondary mt-3">
-  <p>Hier kannst du deine persönlichen Daten einsehen und ändern. Für eine Crew-Anmeldung notwendige Angaben sind mit * gekennzeichnet.</p>
+  <p>Hier kannst du deine persönlichen Daten einsehen und ändern.</p>
 </div>
 <form id="account_data" class="row align-items-center needs-validation" novalidate>
   <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
@@ -163,11 +163,11 @@ $(document).ready(() => {
     <h3>Persönliches</h3>
     <div class="row">
       <div class="col-md-6 g-4">
-        <label for="first_name">Vorname *</label>
+        <label for="first_name">Vorname</label>
         <input type="first_name" class="form-control" id="first_name" placeholder="Jane" value="{{ user.first_name|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
-        <label for="last_name">Nachname *</label>
+        <label for="last_name">Nachname</label>
         <input type="last_name" class="form-control" id="last_name" placeholder="Doe" value="{{ user.last_name|default_if_none:"" }}">
       </div>
     </div>
@@ -177,17 +177,17 @@ $(document).ready(() => {
         <input type="text" class="form-control" id="nick_name" placeholder="Muffischlumpf" value="{{ user.profile.nick_name|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
-        <label for="phone">Telefonnummer *</label>
+        <label for="phone">Telefonnummer</label>
         <input type="phone" class="form-control" id="phone" placeholder="05551234" value="{{ user.profile.phone|default_if_none:"" }}">
       </div>
     </div>
     <div class="row">
       <div class="col-md-6 g-4">
-        <label for="address">Adresse *</label>
+        <label for="address">Adresse</label>
         <input type="text" class="form-control" id="address" placeholder="Am Geldspeicher" value="{{ user.profile.address|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
-        <label for="address_housenumber">Hausnummer *</label>
+        <label for="address_housenumber">Hausnummer</label>
         <input type="text" class="form-control" id="address_housenumber" placeholder="23a" value="{{ user.profile.address_housenumber|default_if_none:"" }}">
       </div>
     </div>
@@ -199,11 +199,11 @@ $(document).ready(() => {
     </div>
     <div class="row">
       <div class="col-md-6 g-4">
-        <label for="zip_code">Postleitzahl *</label>
+        <label for="zip_code">Postleitzahl</label>
         <input type="zip_code" class="form-control" id="zip_code" placeholder="10999" value="{{ user.profile.zip_code|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
-        <label for="place">Ort *</label>
+        <label for="place">Ort</label>
         <input type="text" class="form-control" id="place" placeholder="Entenhausen" value="{{ user.profile.place|default_if_none:"" }}">
       </div>
     </div>
