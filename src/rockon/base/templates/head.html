@@ -15,13 +15,15 @@
 <link href="{% static "fontawesome/css/brands.css" %}" rel="stylesheet">
 <link href="{% static "fontawesome/css/solid.css" %}" rel="stylesheet">
 <meta name="theme-color" content="#303030">
-{% if SENTRY_ENABLED_FRONTEND %}
-<script src="{% static "js/sentry.7.57.0.bundle.tracing.min.js" %}"></script>
+{{ SENTRY_FRONTEND_ENABLED }}
+{% if SENTRY_FRONTEND_ENABLED %}
+<script src="{% static "js/sentry.7.83.0.bundle.tracing.min.js" %}"></script>
 <script language="javascript">
 Sentry.init({
   dsn: '{{ SENTRY_DSN }}',
   tracesSampleRate: {{SENTRY_TRACES_SAMPLE_RATE|floatformat:2}},
   environment: '{{ SENTRY_ENVIRONMENT }}',
+  integrations: [new Sentry.Integrations.BrowserTracing()]
 });
 </script>
 {% endif %}

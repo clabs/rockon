@@ -264,7 +264,7 @@ REST_FRAMEWORK = {
 
 with env.prefixed("SENTRY_"):
     SENTRY_ENABLED = env.bool("ENABLED", default=False)
-    SENTRY_ENABLED_FRONTEND = env.bool("ENABLED_FRONTEND", default=False)
+    SENTRY_FRONTEND_ENABLED = env.bool("FRONTEND_ENABLED", default=False)
     SENTRY_DSN = env.str("DSN", default=None)
     SENTRY_ENVIRONMENT = env.str("ENVIRONMENT", default="dev")
     SENTRY_TRACES_SAMPLE_RATE = env.float("TRACES_SAMPLE_RATE", default="1.0")
