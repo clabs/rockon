@@ -1,10 +1,10 @@
 {% extends 'base.html' %} {% block content %}
   {% load static %}
   <div>
-    <h1><span id="band_title">Bandbewerbung</span></h1>  
+    <h1><span id="band_title">{{band.name|default:"Bandbewerbung"}}</span></h1>
   </div>
   <div>
-    <h3>{{band.name|default:"Deine Band Bewerbung"}} // {{ event.name }}</h3>
+    <h3>{{ event.name }}</h3>
   </div>
   <div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
 
