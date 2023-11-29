@@ -23,7 +23,7 @@ class Band(CustomModel):
     guid = models.CharField(max_length=255, default=guid, unique=True)
     slug = models.SlugField(default=None, blank=True, null=True, unique=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="bands")
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default=None, blank=True, null=True)
     has_management = models.BooleanField(default=False)
     are_students = models.BooleanField(default=False)
     genre = models.CharField(max_length=32, default=None, blank=True, null=True)
@@ -54,3 +54,25 @@ class Band(CustomModel):
         if self.name:
             return self.name
         return self.guid
+
+    @property
+    def bid_complete(self) -> bool:
+        fields = [
+            self.name,
+            self.genre,
+            self.federal_state,
+            self.homepage,
+            self.facebook,
+            self.cover_letter,
+        ]
+
+        audio_count = self.media.filter(media_type="audio").count() >= 3
+        logo = self.media.filter(media_type="logo").count() >= 1
+        press = self.media.filter(media_type="press_photo").count() >= 1
+
+        conditions = [*fields, audio_count, logo, press]
+
+        if all(conditions):
+            return True
+
+        return False
