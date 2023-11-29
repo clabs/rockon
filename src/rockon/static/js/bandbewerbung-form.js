@@ -182,10 +182,15 @@ const send_form = () => {
     },
     mode: 'same-origin',
     dataType: 'json',
-    success: data => ajax_success(data),
+    success: data => save_success(data),
     error: data => ajax_error(data),
     complete: data => ajax_complete(data)
   })
+}
+
+const save_success = data => {
+  console.debug('save success', data)
+  alert("Bandbewerbung gespeichert.")
 }
 
 const api_add_url = url => {
