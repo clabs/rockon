@@ -7,4 +7,4 @@ from .organisation import Organisation
 from .sponsoring import Sponsoring
 from .task import Task
 from .timeline import Timeline
-from .user_profile import AccountContext, UserProfile
+from .user_profile import UserProfile
