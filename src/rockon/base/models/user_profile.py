@@ -46,7 +46,9 @@ class UserProfile(CustomModel):
     def __str__(self):
         if self.user.username:
             return self.user.username
-        return self.user.email
+        if self.user.email:
+            return self.user.email
+        return f"username:{self.user.username}"
 
     @property
     def full_name(self) -> str:
@@ -54,6 +56,8 @@ class UserProfile(CustomModel):
         full_name = f"{self.user.first_name} {self.user.last_name}"
         if not full_name.strip():
             full_name = self.user.email
+        if not full_name.strip():
+            full_name = self.user.username
         return full_name
 
     def is_profile_complete_crew(self) -> bool:
