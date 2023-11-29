@@ -21,7 +21,7 @@ class AccountContextAdmin(CustomAdminModel):
 
 class UserProfileAdmin(CustomAdminModel):
     list_display = (
-        "_user",
+        "full_name",
         "nick_name",
         "email_is_verified",
         "created_at",
@@ -29,9 +29,6 @@ class UserProfileAdmin(CustomAdminModel):
     )
     readonly_fields = ("user",)
     search_fields = ("user__first_name", "user__last_name", "user__email")
-
-    def _user(self, obj):
-        return f"{obj.user.first_name} {obj.user.last_name}"
 
 
 class EmailVerificationAdmin(CustomAdminModel):
