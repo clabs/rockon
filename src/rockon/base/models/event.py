@@ -91,3 +91,7 @@ class Event(CustomModel):
             <= timezone.now()
             <= self.exhibitor_application_end
         )
+
+    @classmethod
+    def get_current_event(cls) -> Event:
+        return cls.objects.filter(is_current=True).order_by("-start").first()

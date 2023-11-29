@@ -25,7 +25,10 @@
         <div class="navbar-item">
           <ul class="navbar-nav me-auto mb-2 mb-md-0">
             <li class="nav-item">
-              <span class="nav-link"><i class="fa-solid fa-user"></i> Hey <strong>{{ user.first_name|default_if_none:"Unbekannte" }}!</strong></span>
+              <span class="nav-link"><i class="fa-solid fa-user"></i> Hey <strong>{{ user.first_name|default:user.username }}!</strong></span>
+            </li>
+            <li class="nav-item">
+              <span class="nav-link"><i class="fa-solid fa-calendar"></i> {{ current_event }}</span>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'base:logout' %}">Log out</a>

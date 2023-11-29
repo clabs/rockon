@@ -21,7 +21,7 @@ def bid_root(request):
             slug=request.user.band.event.slug,
             guid=request.user.band.guid,
         )
-    event = Event.objects.filter(is_current=True).first()
+    event = Event.objects.get(id=request.session["current_event"])
     return redirect("bands:bid_router", slug=event.slug)
 
 
