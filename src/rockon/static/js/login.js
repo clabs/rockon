@@ -104,7 +104,7 @@ const render_error_message = (message) => {
   }
 }
 
-ajax_success = (data) => {
+ajax_account_create_success = (data) => {
   console.info(data)
   $(window).unbind('beforeunload')
   window.location.href = window.rockon_data.account_created_redirect
@@ -136,7 +136,7 @@ const send_form = (fields) => {
     },
     mode: "same-origin",
     dataType: "json",
-    success: (data) => ajax_success(data),
+    success: (data) => ajax_account_create_success(data),
     error: (data) => ajax_error(data),
     complete: (data) => ajax_complete(data)
   })
@@ -170,7 +170,7 @@ const form_login_submit = () => {
     },
     mode: "same-origin",
     dataType: "json",
-    success: (data) => ajax_success(data),
+    success: (data) => null,
     error: (data) => ajax_error(data),
     complete: (data) => ajax_complete_login(data)
   })
