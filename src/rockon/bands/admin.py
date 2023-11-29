@@ -13,8 +13,20 @@ class TimeslotAdmin(CustomAdminModel):
 
 
 class BandAdmin(CustomAdminModel):
-    list_display = ("name", "contact", "_has_techrider", "slot", "event", "id")
-    list_filter = ("event",)
+    list_display = (
+        "__str__",
+        "contact",
+        "bid_status",
+        "bid_complete",
+        "_has_techrider",
+        "slot",
+        "event",
+        "id",
+    )
+    list_filter = (
+        "event",
+        "bid_status",
+    )
     search_fields = ("name", "contact__username", "event__name")
     readonly_fields = (
         "_band_members",
@@ -34,6 +46,11 @@ class BandAdmin(CustomAdminModel):
         return obj.techrider != {}
 
     _has_techrider.boolean = True
+
+    def bid_complete(self, obj):
+        return obj.bid_complete
+
+    bid_complete.boolean = True
 
 
 class BandMemberAdmin(CustomAdminModel):
