@@ -29,16 +29,12 @@ def account_create(request):
         user.save()
 
         # default account_context to crew
-        account_context = body.get("account_context", "crew")
+        account_context = body.get("account_context")
 
         # check if account_context is a valid group
         if account_context in ["crew", "bands", "exhibitors"]:
             group = Group.objects.get(name=account_context)
-        else:
-            # prevent user from being added to any groups
-            group = Group.objects.get(name="crew")
-
-        user.groups.add(group)
+            user.groups.add(group)
 
         EmailVerification.create_and_send(user=user)
 

@@ -6,6 +6,7 @@ from .account import (
     login_request,
     login_token,
     logout,
+    select_context,
     verify_email,
 )
 from .home import home

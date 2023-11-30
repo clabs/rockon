@@ -8,6 +8,7 @@ from .views import (
     login_request,
     login_token,
     logout,
+    select_context,
     verify_email,
 )
 
@@ -15,7 +16,8 @@ app_name = "base"
 
 urlpatterns = [
     path("", account, name="account"),
-    path("account/created/", account_created, name="account_created"),
+    path("created/", account_created, name="account_created"),
+    path("context/", select_context, name="select_context"),
     path("login/", login_request, name="login_request"),
     path("login/<token>/", login_token, name="login_token"),
     path("logout/", logout, name="logout"),

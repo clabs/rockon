@@ -1,0 +1,32 @@
+{% extends "base.html" %} {% block content %}
+<h1>Kontoart wählen</h1>
+<div class="alert alert-info">Es tut uns leid, leider scheint bei deiner Anmeldung eine Information verloren gegangen zu sein, bitte wähle, was du in Rockon tun möchtest.</div>
+<form>
+{% csrf_token %}
+
+<div class="card-group">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Crew</h5>
+      <p class="card-text">Planung, Aufbau, Technik, du machst als fester Bestandteil bei uns in der Crew mit.</p>
+      <a class="btn btn-outline-primary" href="{% url "base:account" %}?ctx=crew" role="button">Crew</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Band</h5>
+      <p class="card-text">Du möchtest dich mit deiner Band für den ROCKTREFF bewerben.</p>
+      <a class="btn btn-outline-primary" href="{% url "base:account" %}?ctx=bands" role="button">Band</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Spielfest</h5>
+      <p class="card-text">Du und deine Initiative möchten auf dem Spielfest dabei sein.</p>
+      <a class="btn btn-outline-primary" href="{% url "base:account" %}?ctx=exhibitors" role="button">Spielfest</a>
+    </div>
+  </div>
+</div>
+
+</form>
+{% endblock content %}
