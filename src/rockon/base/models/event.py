@@ -79,6 +79,9 @@ class Event(CustomModel):
     def band_application_open(self) -> bool:
         from django.utils import timezone
 
+        if not self.band_application_start or not self.band_application_end:
+            return False
+
         return (
             self.band_application_start <= timezone.now() <= self.band_application_end
         )
@@ -86,6 +89,9 @@ class Event(CustomModel):
     @property
     def exhibitor_application_open(self) -> bool:
         from django.utils import timezone
+
+        if not self.exhibitor_application_start or not self.exhibitor_application_end:
+            return False
 
         return (
             self.exhibitor_application_start
