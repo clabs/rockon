@@ -22,6 +22,7 @@ class BandSerializer(serializers.ModelSerializer):
             "cover_letter",
             "contact",
             "techrider",
+            "updated_at",
         ]
 
 

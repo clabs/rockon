@@ -239,9 +239,9 @@
             Speichern
           </button>
         </div>
-        {% comment %} <div>
-          <small>zuletzt gespeicht: {{band.updated_at|d.m.Y, H:i"}}</small>
-        </div> {% endcomment %}
+        <div>
+          <small>zuletzt gespeicht: <span id="updated_at">{{band.updated_at|date:"d.m.Y, H:i"}}</span></small>
+        </div>
     </section>
   </form>
 
