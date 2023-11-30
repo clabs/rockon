@@ -25,6 +25,10 @@ def verify_email(request):
         verification.is_active = False
         verification.save()
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+        if user.groups.filter(name="bands").exists():
+            return JsonResponse(
+                {"status": "verified", "next": reverse("bands:bid_root")}
+            )
         return JsonResponse({"status": "verified", "next": reverse("base:account")})
     except (
         EmailVerification.DoesNotExist,
