@@ -1,5 +1,7 @@
 console.debug('bandbewerbung-form.js loaded')
 
+const DateTime = luxon.DateTime
+
 $(document).ready(() => {
   const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
   const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(
@@ -156,6 +158,12 @@ const li_remove_song = id => {
   $('#audio_counter').text($('#song_list li').length)
 }
 
+const render_updated_at = (updated_at) => {
+  const date = DateTime.fromISO(updated_at)
+  const formattedDate = date.toFormat('d.M.yyyy, H:mm')
+  $('#updated_at').text(formattedDate)
+}
+
 const send_form = () => {
   form = $('#application')
   const form_data = form.serializeArray()
@@ -190,6 +198,7 @@ const send_form = () => {
 
 const save_success = data => {
   console.debug('save success', data)
+  render_updated_at(data.updated_at)
   alert("Bandbewerbung gespeichert.")
 }
 
