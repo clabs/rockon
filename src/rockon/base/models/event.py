@@ -56,7 +56,8 @@ class Event(CustomModel):
     )
     show_on_landing_page = models.BooleanField(default=False)
     signup_is_open = models.BooleanField(
-        default=True, help_text="Crew Anmeldung ist offen"
+        default=True,
+        help_text="Crew Anmeldung und Bandbewerbung werden auf der Website angezeigt",
     )
     signup_type = models.CharField(
         max_length=12, choices=SignUpType.choices, default=SignUpType.UNKNOWN
