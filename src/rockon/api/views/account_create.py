@@ -16,7 +16,7 @@ def account_create(request):
         body[item["name"]] = item["value"]
 
     try:
-        user = User.objects.get(email=body["user_email"])
+        user = User.objects.get(email=body.get("user_email"))
         return JsonResponse(
             {"status": "exists", "message": "User already exists"}, status=400
         )
