@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "rockon.crew",
     "rockon.exhibitors",
     "rockon.tools",
+    "compressor",
 ]
 
 if DEBUG:
@@ -213,7 +214,12 @@ STATIC_ROOT = path.join(BASE_DIR, "dist")
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "compressor.finders.CompressorFinder",
 ]
+
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
+COMPRESS_STORAGE = "compressor.storage.GzipCompressorFileStorage"
 
 with env.prefixed("DJANGO_MEDIA_"):
     MEDIA_ROOT = env.str("ROOT", default="uploads/")

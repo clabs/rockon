@@ -1,5 +1,5 @@
-{% extends "base.html" %} {% block content %}{% load static %}
-
+{% extends "base.html" %} {% block content %}{% load static %}{% load compress %}
+{% compress js %}
 <script language="javascript">
   $(document).ready(() => {
     $('#signup').on('change', _ => {
@@ -196,6 +196,7 @@
   }
 
 </script>
+{% endcompress %}
 
 <h1>Teilnehmeranmeldung - {{ event.name }}</h1>
 <div class="row m-2" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat">

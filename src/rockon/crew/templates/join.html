@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block content %}
-  {% load static %}
+  {% load static %}{% load compress %}
   <h1>CREW ANMELDUNG - {{ event.name }}</h1>
   <div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
 
@@ -10,7 +10,9 @@
     success_redirect: "{% url "crew:join_submitted" %}",
   }
   </script>
+  {% compress js %}
   <script src="{% static 'js/crewjoin-form.js' %}"></script>
+  {% endcompress %}
   <form id="signup" class="row align-items-center needs-validation" novalidate>
     {% csrf_token %}
 
