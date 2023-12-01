@@ -186,6 +186,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+DATETIME_FORMAT = "d.m.Y, H:i:s"
+TIME_FORMAT = "H:i:s"
+SHORT_DATE_FORMAT = "d.m.Y"
+
 with env.prefixed("DJANGO_EMAIL_"):
     # Mail settings
     # https://docs.djangoproject.com/en/4.2/topics/email/
