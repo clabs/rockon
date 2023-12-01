@@ -1,6 +1,8 @@
 {% extends "base.html" %} {% block content %}
-{% load static %}
+{% load static %}{% load compress %}
+{% compress js %}
 <script src="{% static 'js/login.js' %}"></script>
+{% endcompress %}
 
 <script language="javascript">
   window.rockon_data = {

@@ -32,6 +32,7 @@ COPY src /app/
 
 RUN export DJANGO_SECRET_KEY=unused-but-must-be-present && \
     python3 /app/manage.py collectstatic --noinput && \
+    python3 /app/manage.py compress && \
     python3 /app/manage.py compilemessages && \
     unset DJANGO_SECRET_KEY
 

@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block content %}
-  {% load static %}
+  {% load static %}{% load compress %}{% load compress %}
   <div>
     <h1><span id="band_title">{{band.name|default:"Bandbewerbung"}}</span></h1>
   </div>
@@ -15,7 +15,9 @@
       api_url_new_media: "{% url "band-media-list" %}",
     }
   </script>
+  {% compress js %}
   <script src="{% static 'js/bandbewerbung-form.js' %}"></script>
+  {% endcompress %}
   <form id="application" class="row align-items-center needs-validation" novalidate onsubmit="send_form(); return false;">
     {% csrf_token %}
 
