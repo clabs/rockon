@@ -14,16 +14,15 @@ RUN apt-get update && \
         build-essential \
         gettext \
         locales \
+        sass \
         sudo && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
     dpkg-reconfigure locales && \
       locale-gen C.UTF-8 && \
       /usr/sbin/update-locale LANG=C.UTF-8 && \
     useradd -u $DOCKER_UID -ms /bin/bash -d /app appuser
 
 WORKDIR /app
-COPY pyproject.toml poetry.lock /app/
+COPY pyproject.toml poetry.lock package.json package-lock.json /app/
 ENV PATH=/app/.venv/bin:/root/.local/bin:$PATH
 RUN pip3 install --user poetry && \
     poetry config virtualenvs.in-project true && \
@@ -35,18 +34,6 @@ RUN export DJANGO_SECRET_KEY=unused-but-must-be-present && \
     python3 /app/manage.py compress && \
     python3 /app/manage.py compilemessages && \
     unset DJANGO_SECRET_KEY
-
-
-######################################### [sass theming] ########################
-
-FROM node:lts-bookworm as sass_build
-
-WORKDIR /sass_build
-COPY package.json package-lock.json /sass_build/
-RUN npm install
-COPY src/ /sass_build/src/.
-RUN npm run css-build
-
 
 ######################################### [app] ########################
 
@@ -81,7 +68,6 @@ RUN apt-get update && \
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 
 COPY --from=build --chown=appuser /app /app
-COPY --from=sass_build --chown=appuser /sass_build/src/rockon/static/css/rockon.min.css /app/rockon/static/css/rockon.min.css
 
 RUN chmod +x /usr/local/bin/entrypoint
 
