@@ -210,8 +210,9 @@ STATIC_URL = env("DJANGO_STATIC_URL", "static/")
 
 STATIC_ROOT = path.join(BASE_DIR, "dist")
 
-STATICFILES_DIRS = [
-    path.join(BASE_DIR, "rockon", "static"),
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
 with env.prefixed("DJANGO_MEDIA_"):

@@ -4,9 +4,9 @@
 <title>{{ site_title }} | rockon</title>
 <link rel="stylesheet" type="text/css" href="{% static "css/rockon.min.css" %}">
 <link rel="stylesheet" type="text/css" href="{% static "css/overrides.css" %}">
-<script src="{% static "js/bootstrap.bundle.min.js" %}"></script>
-<script src="{% static "js/jquery-3.7.1.min.js" %}"></script>
-<script src="{% static "js/luxon.min.js" %}"></script>
+<script src="{% static "vendor/bootstrap.bundle.min.js" %}"></script>
+<script src="{% static "vendor/jquery-3.7.1.min.js" %}"></script>
+<script src="{% static "vendor/luxon.min.js" %}"></script>
 <link rel="apple-touch-icon" sizes="180x180" href="{% static "favicon/apple-touch-icon.png" %}" />
 <link rel="icon" type="image/png" sizes="32x32" href="{% static "favicon/favicon-32x32.png" %}" />
 <link rel="icon" type="image/png" sizes="16x16" href="{% static "favicon/favicon-16x16.png" %}" />
@@ -17,7 +17,7 @@
 <meta name="theme-color" content="#303030">
 {{ SENTRY_FRONTEND_ENABLED }}
 {% if SENTRY_FRONTEND_ENABLED %}
-<script src="{% static "js/sentry.7.83.0.bundle.tracing.min.js" %}"></script>
+<script src="{% static "vendor/sentry.7.83.0.bundle.tracing.min.js" %}"></script>
 <script language="javascript">
 Sentry.init({
   dsn: '{{ SENTRY_DSN }}',
