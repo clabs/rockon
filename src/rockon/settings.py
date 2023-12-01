@@ -10,8 +10,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from __future__ import annotations
 
+import tempfile
 from os import getenv, path
-from pathlib import Path
 
 import sentry_sdk
 from environs import Env
@@ -135,7 +135,15 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
-    }
+    },
+    "offline_compress": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": tempfile.gettempdir(),
+        "TIMEOUT": 60 * 60 * 24 * 7,
+        "OPTIONS": {
+            "MAX_ENTRIES": 10000,
+        },
+    },
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
@@ -207,6 +215,10 @@ with env.prefixed("DJANGO_EMAIL_"):
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+STATICFILES_DIRS = [
+    path.join(BASE_DIR, "themes"),
+]
+
 STATIC_URL = env("DJANGO_STATIC_URL", "static/")
 
 STATIC_ROOT = path.join(BASE_DIR, "dist")
@@ -217,9 +229,14 @@ STATICFILES_FINDERS = [
     "compressor.finders.CompressorFinder",
 ]
 
+COMPRESS_PRECOMPILERS = (("text/x-scss", "sass {infile} {outfile}"),)
+
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
 COMPRESS_STORAGE = "compressor.storage.GzipCompressorFileStorage"
+COMPRESS_CACHE_BACKEND = (
+    "offline_compress"  # Prevents compressor from using the default cache
+)
 
 with env.prefixed("DJANGO_MEDIA_"):
     MEDIA_ROOT = env.str("ROOT", default="uploads/")

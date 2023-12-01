@@ -8,3 +8,4 @@ src/**/static/vendor/luxon* linguist-vendored
 src/**/static/fontawesome/** linguist-vendored
 src/**/static/css/bootstrap* linguist-vendored
 src/**/static/css/rockon* linguist-vendored
+src/themes/bootstrap/** linguist-vendored
