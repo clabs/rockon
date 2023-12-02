@@ -20,7 +20,6 @@
 
 {% verbatim %}
 <div id="app">
-  {{ message }}
   <track-list :tracks="tracks" @select-track="selectTrack"></track-list>
   <band-list v-if="!selectedBand" :bands="bands" :selected-track="selectedTrack" @select-band="selectBand"></band-list>
   <band-details :selected-band="selectedBand"></band-details>

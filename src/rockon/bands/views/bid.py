@@ -103,14 +103,14 @@ def bid_form(request, slug, guid):
 
 
 @login_required
-def bid_vote(request, track_slug: str = None, band_guid: str = None):
+def bid_vote(request, bid: str = None, track: str = None):
     template = loader.get_template("bid_vote.html")
     bands = Band.objects.filter(event__id=request.session["current_event"])
     bands_json = mark_safe(json.dumps(list(bands.values()), cls=CustomJSONEncoder))
     tracks = Track.objects.filter(events__id=request.session["current_event"])
     tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
-    track_slug_json = mark_safe(json.dumps(track_slug, cls=CustomJSONEncoder))
-    band_guid_json = mark_safe(json.dumps(band_guid, cls=CustomJSONEncoder))
+    track_slug_json = mark_safe(json.dumps(track, cls=CustomJSONEncoder))
+    band_guid_json = mark_safe(json.dumps(bid, cls=CustomJSONEncoder))
     extra_context = {
         "site_title": "Band Bewertung",
         "bands": bands_json,
