@@ -48,7 +48,11 @@ class Band(CustomModel):
     bid_status = models.CharField(
         max_length=32, default=BidStatus.UNKNOWN, choices=BidStatus.choices
     )
+    repeated = models.BooleanField(default=False)
     techrider = models.JSONField(default=dict, blank=True, null=True)
+    track = models.ForeignKey(
+        "Track", on_delete=models.SET_NULL, null=True, related_name="bands"
+    )
 
     def __str__(self):
         if self.name:
