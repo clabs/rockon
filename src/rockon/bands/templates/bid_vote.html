@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+{% load compress %}
+
+<h1>Voting</h1>
+
+{% compress js file vue %}
+<script src="{% static 'vendor/vue.global.3.3.9.js' %}"></script>
+{% endcompress %}
+
+<script>
+  window.rockon_data = {
+    bands: {{ bands }},
+    tracks: {{ tracks }},
+    selectedTrackId: {{ trackid }},
+    selectedBand: {{ bandid }},
+  }
+</script>
+
+{% verbatim %}
+<div id="app">
+  {{ message }}
+  <track-list :tracks="tracks" @select-track="selectTrack"></track-list>
+  <band-list v-if="!selectedBand" :bands="bands" :selected-track="selectedTrack" @select-band="selectBand"></band-list>
+  <band-details :selected-band="selectedBand"></band-details>
+</div>
+{% endverbatim %}
+
+{% compress js file voting %}
+<script src="{% static 'js/voting.js' %}"></script>
+{% endcompress %}
+
+{% endblock content %}

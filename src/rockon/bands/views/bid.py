@@ -1,15 +1,29 @@
 from __future__ import annotations
 
+import json
+from uuid import UUID
+
 from django.contrib.auth.decorators import login_required
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
-from rockon.bands.models import Band, BandMedia, MediaType
+from rockon.bands.models import Band, BandMedia, MediaType, Track
 from rockon.base.models import Event
 from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
+
+
+class CustomJSONEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, UUID):
+            return str(obj)
+        if isinstance(obj, Event):
+            return obj.id
+        return super().default(obj)
 
 
 @login_required
@@ -84,5 +98,24 @@ def bid_form(request, slug, guid):
         "federal_states": FederalState.choices,
         "band": Band.objects.get(guid=guid),
         "media_by_type": media_by_type,
+    }
+    return HttpResponse(template.render(extra_context, request))
+
+
+@login_required
+def bid_vote(request, track_slug: str = None, band_guid: str = None):
+    template = loader.get_template("bid_vote.html")
+    bands = Band.objects.filter(event__id=request.session["current_event"])
+    bands_json = mark_safe(json.dumps(list(bands.values()), cls=CustomJSONEncoder))
+    tracks = Track.objects.filter(events__id=request.session["current_event"])
+    tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
+    track_slug_json = mark_safe(json.dumps(track_slug, cls=CustomJSONEncoder))
+    band_guid_json = mark_safe(json.dumps(band_guid, cls=CustomJSONEncoder))
+    extra_context = {
+        "site_title": "Band Bewertung",
+        "bands": bands_json,
+        "tracks": tracks_json,
+        "trackid": track_slug_json,
+        "bandid": band_guid_json,
     }
     return HttpResponse(template.render(extra_context, request))
