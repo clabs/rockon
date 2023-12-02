@@ -19,6 +19,10 @@ Eine Festivalverwaltung könnte Folgendes beinhalten:
 
 ## Setup
 
+### Sass
+
+For the theme to work you need to install `sass` and have it available in your path.
+
 ### Python
 
 Install `poetry`
