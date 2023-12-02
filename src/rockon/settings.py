@@ -238,6 +238,9 @@ COMPRESS_CACHE_BACKEND = (
     "offline_compress"  # Prevents compressor from using the default cache
 )
 
+if DEBUG:
+    COMPRESS_ENABLED = False
+
 with env.prefixed("DJANGO_MEDIA_"):
     MEDIA_ROOT = env.str("ROOT", default="uploads/")
     MEDIA_URL = env.str("URL", default="uploads/")
