@@ -36,4 +36,9 @@
       </ul>
     </li>
   {% endif %}
+  {% if group.name == 'booking' %}
+    <li class="nav-item">
+      <a class="nav-link" aria-current="page" href="{% url 'bands:bid_vote' %}">Bewertung</a>
+    </li>
+  {% endif %}
 {% endfor %}
