@@ -13,6 +13,7 @@ const TrackList = Vue.defineComponent({
   props: ['tracks'],
   emits: ['select-track'],
   template: `
+    <button class="btn btn-primary" @click.prevent="handleDeselectTrack">Filter entfernen</button>
     <ul>
       <li v-for="track in tracks" :key="track">
         <a href="#" @click.prevent="handleClick(track)">{{ track.name }}</a>
@@ -21,11 +22,12 @@ const TrackList = Vue.defineComponent({
   `,
   methods: {
     handleClick (track) {
+      console.debug('TrackList handleClick:', track)
       this.$emit('select-track', track)
-      this.logTrackId(track.id)
     },
-    logTrackId (id) {
-      console.debug(`Track ID: ${id}`)
+    handleDeselectTrack () {
+      console.debug('TrackList handleDeselectTrack')
+      this.$emit('select-track', null)
     }
   }
 })
@@ -37,8 +39,8 @@ const BandList = Vue.defineComponent({
     filteredBands () {
       console.debug('selectedTrack:', this.selectedTrack)
       if (!this.selectedTrack) {
-        console.debug('No selected track id. Returning nothing.')
-        return null
+        console.debug('No selected track id. Returning all.')
+        return this.bands
       }
       const filtered = this.bands.filter(
         band => band.track_id === this.selectedTrack.id
@@ -84,7 +86,6 @@ const app = createApp({
   // },
   data () {
     return {
-      message: 'Hello Vue!',
       tracks: window.rockon_data.tracks,
       bands: window.rockon_data.bands,
       selectedTrack: window.rockon_data.selectedTrack,
@@ -104,7 +105,11 @@ const app = createApp({
       this.selectedBand = null
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
-      url.pathname = `/bands/vote/${track.slug}/`
+      if (track) {
+        url.pathname = `/bands/vote/track/${track.slug}/`
+      } else {
+        url.pathname = `/bands/vote/`
+      }
       window.history.pushState({}, '', url)
     },
     selectBand (band) {
@@ -112,7 +117,7 @@ const app = createApp({
       this.selectedBand = band
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
-      url.pathname = `/bands/vote/${this.selectedTrack.slug}/${band.guid}/`
+      url.pathname = `/bands/vote/bid/${band.guid}/`
       window.history.pushState({}, '', url)
     }
   },
@@ -121,34 +126,24 @@ const app = createApp({
     const url = new URL(window.location.href)
     const pathSegments = url.pathname.split('/').filter(segment => segment)
 
-    const voteIndex = pathSegments.indexOf('vote')
+    if (pathSegments.includes('vote')) {
+      const voteType = pathSegments[pathSegments.indexOf('vote') + 1]
+      const id = pathSegments[pathSegments.indexOf('vote') + 2]
 
-    console.debug('Vote index:', voteIndex)
+      console.debug('Vote type:', voteType)
+      console.debug('ID:', id)
 
-    if (voteIndex !== -1) {
-      const segmentsAfterVote = pathSegments.slice(voteIndex + 1)
+      if (voteType === 'track') {
+        const track = this.tracks.find(track => track.slug === id)
+        this.selectedTrack = track
+        console.debug('Selected track:', this.selectedTrack)
+      }
 
-      console.debug('Segments after vote:', segmentsAfterVote)
-
-      if (segmentsAfterVote.length <= 2) {
-        const track_slug = segmentsAfterVote[0]
-        const band_guid = segmentsAfterVote[1]
-
-        console.debug('Track ID:', track_slug)
-        console.debug('Band ID:', band_guid)
-
-        if (track_slug) {
-          const track = this.tracks.find(track => track.slug === track_slug)
-          this.selectedTrack = track
-          console.debug('Selected track:', this.selectedTrack)
-        }
-
-        if (band_guid) {
-          const band = this.bands.find(band => band.guid === band_guid)
-          if (band) {
-            this.selectedBand = band
-            console.debug('Selected band:', this.selectedBand)
-          }
+      if (voteType === 'bid') {
+        const band = this.bands.find(band => band.guid === id)
+        if (band) {
+          this.selectedBand = band
+          console.debug('Selected band:', this.selectedBand)
         }
       }
     }
