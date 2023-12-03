@@ -290,7 +290,7 @@ ajax_error = (data, form_obj, url) => {
   console.error(data)
   const response = JSON.parse(data.responseText)
   if (response.homepage || response.facebook) {
-    return alert('Bitte gibt bei Homepage und Facebook die URL immer mit http:// oder https:// am Anfang.')
+    return alert('Bitte gibt bei Homepage und Facebook die URL immer mit http:// oder https:// am Anfang ein.')
   }
   $('#api_message').html(`
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
