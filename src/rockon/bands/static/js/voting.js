@@ -43,6 +43,13 @@ const BandList = Vue.defineComponent({
       )
       console.debug('Filtered bands:', filtered)
       return filtered
+    },
+    groupedBands() {
+      let groups = [];
+      for (let i = 0; i < this.filteredBands.length; i += 4) {
+        groups.push(this.filteredBands.slice(i, i + 4));
+      }
+      return groups;
     }
   },
   methods: {
@@ -52,9 +59,13 @@ const BandList = Vue.defineComponent({
     }
   },
   template: `
-    <ul>
-      <li v-for="band in filteredBands" :key="band"><a href="#" @click.prevent="selectBand(band)">{{ band.name||band.guid }}</a></li>
-    </ul>
+    <div v-for="(group, index) in groupedBands" :key="index">
+      <ul class="list-group list-group-horizontal d-flex justify-content-start">
+        <li class="list-group-item col" v-for="band in group" :key="band">
+          <a href="#" @click.prevent="selectBand(band)">{{ band.name||band.guid }}</a>
+        </li>
+      </ul>
+    </div>
   `
 })
 
