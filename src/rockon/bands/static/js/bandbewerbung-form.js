@@ -191,7 +191,7 @@ const send_form = () => {
     mode: 'same-origin',
     dataType: 'json',
     success: data => save_success(data),
-    error: data => ajax_error(data),
+    error: data => ajax_error(data, form_obj, window.rockon_data.api_url_band_details),
     complete: data => ajax_complete(data)
   })
 }
@@ -285,9 +285,19 @@ const isValidURL = url => {
 ajax_success = data => {
   console.info(data)
 }
-ajax_error = data => {
+ajax_error = (data, form_obj, url) => {
   // FIXME: needs error handling
   console.error(data)
+  $('#api_message').html(`
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Fehler!</strong> Bitte schicke uns folgenden Text an <a href="mailto:hallo@rockon.dev">hallo@rockon.dev</a>: <br>
+      <pre style="background-color: black; font-color: white;">
+      ${JSON.stringify(data)}
+      ${JSON.stringify(form_obj)}
+      ${url}
+      </pre>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `)
 }
 ajax_complete = data => {
   console.info(data)
