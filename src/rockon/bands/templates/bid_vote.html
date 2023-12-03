@@ -2,7 +2,7 @@
 {% block content %}
 {% load static %}
 {% load compress %}
-
+{% csrf_token %}
 <h1>Voting</h1>
 
 {% compress js file vue %}
@@ -16,13 +16,16 @@
     selectedTrackId: {{ trackid }},
     selectedBand: {{ bandid }},
   }
+  window.rockon_api = {
+    update_band: "{% url "bands-detail" pk="pk_placeholder" %}"
+  }
 </script>
 
 {% verbatim %}
 <div id="app">
   <track-list :tracks="tracks" @select-track="selectTrack"></track-list>
   <band-list v-if="!selectedBand" :bands="bands" :selected-track="selectedTrack" @select-band="selectBand"></band-list>
-  <band-details :selected-band="selectedBand"></band-details>
+  <band-details :selected-band="selectedBand" :tracks="tracks" @update:track="updateTrack"></band-details>
 </div>
 {% endverbatim %}
 

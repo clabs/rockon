@@ -1,12 +1,28 @@
 const { createApp, ref } = Vue
 
-const UnorderedList = Vue.defineComponent({
-  props: ['items'],
+const TrackDropdown = Vue.defineComponent({
+  props: ['tracks', 'currentTrackId'],
+  emits: ['update:selectedTrack'],
   template: `
-    <ul>
-      <li v-for="item in items" :key="item">{{ item.name||item.guid }}</li>
-    </ul>
-  `
+    <select @change="updateSelectedTrack" :value="currentTrackId">
+      <option value="">Track entfernen</option>
+      <option v-for="track in tracks" :value="track.id" :key="track.id">
+        {{ track.name }}
+      </option>
+    </select>
+  `,
+  methods: {
+    updateSelectedTrack(event) {
+      console.debug('TrackDropdown updateSelectedTrack:', event.target.value)
+      this.$emit('update:selectedTrack', event.target.value || null);
+    }
+  },
+  watch: {
+    currentTrackId(newVal) {
+      const selectedTrack = this.tracks.find(track => track.id === newVal);
+      console.log('Selected track:', selectedTrack);
+    }
+  }
 })
 
 const TrackList = Vue.defineComponent({
@@ -70,13 +86,35 @@ const BandList = Vue.defineComponent({
 })
 
 const BandDetails = Vue.defineComponent({
-  props: ['selectedBand'],
+  props: ['selectedBand', 'tracks'],
+  emits: ['update:track'],
+  components: { TrackDropdown },
   template: `
     <div v-if="selectedBand">
       <h2>{{ selectedBand.name||selectedBand.guid }}</h2>
-      <p>{{ selectedBand.description }}</p>
+      <p>Genre: {{ selectedBand.genre }}</p>
+      <p>State: {{ selectedBand.federal_state }}</p>
+      <p>Homepage: <a :href="selectedBand.homepage" target="_blank">{{ selectedBand.homepage }}</a></p>
+      <p>Cover Letter: {{ selectedBand.cover_letter }}</p>
+      <p>Status: {{ selectedBand.bid_status }}</p>
+      <p>Has Management: {{ selectedBand.has_management }}</p>
+      <p>Are Students: {{ selectedBand.are_students }}</p>
+      <p>Repeated: {{ selectedBand.repeated }}</p>
+      <p>Created At: {{ selectedBand.created_at }}</p>
+      <p>Updated At: {{ selectedBand.updated_at }}</p>
+      <p>ID: {{ selectedBand.id }}</p>
+      <p>Event ID: {{ selectedBand.event_id }}</p>
+      <p>Contact ID: {{ selectedBand.contact_id }}</p>
+      <p>Track ID: {{ selectedBand.track_id }}</p>
+      <TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" />
     </div>
   `,
+  methods: {
+    updateTrack(trackId) {
+      console.debug('BandDetails updateTrack:', trackId)
+      this.$emit('update:track', trackId);
+    }
+  },
   watch: {
     selectedBand (newVal) {
       console.debug('BandDetails selectedBand changed:', newVal)
@@ -93,23 +131,26 @@ const app = createApp({
   // },
   data () {
     return {
+      crsf_token: $('[name=csrfmiddlewaretoken]').val(),
       tracks: window.rockon_data.tracks,
       bands: window.rockon_data.bands,
       selectedTrack: window.rockon_data.selectedTrack,
-      selectedBand: window.rockon_data.selectedBand
+      selectedBand: window.rockon_data.selectedBand,
+      currentTrackId: null,
     }
   },
   components: {
-    UnorderedList,
     TrackList,
     BandList,
-    BandDetails
+    BandDetails,
+    TrackDropdown
   },
   methods: {
     selectTrack (track) {
       this.selectedTrack = track
       console.debug('Selected track:', this.selectedTrack)
       this.selectedBand = null
+      this.currentTrackId = null
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       if (track) {
@@ -122,11 +163,33 @@ const app = createApp({
     selectBand (band) {
       console.debug('app selectBand:', band)
       this.selectedBand = band
+      this.currentTrackId = band.track_id
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       url.pathname = `/bands/vote/bid/${band.guid}/`
       window.history.pushState({}, '', url)
-    }
+    },
+    updateTrack(trackId) {
+      api_url = window.rockon_api.update_band.replace("pk_placeholder", this.selectedBand.id)
+      console.debug('app updateTrack:', trackId)
+      this.selectedBand.track_id = trackId;
+      this.currentTrackId = trackId;
+      console.debug('Selected band:', this.selectedBand.id, this.currentTrackId, api_url)
+      fetch(api_url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.crsf_token
+        },
+        body: JSON.stringify({
+          band: this.selectedBand,
+          track: trackId,
+        }),
+      })
+      .then(response => response.json())
+      .then(data => console.log('Success:', data))
+      .catch((error) => console.error('Error:', error));
+    },
   },
   mounted () {
     console.debug('Mounted function called')
