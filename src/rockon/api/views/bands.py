@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from ast import parse
-
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action, parser_classes
 from rest_framework.parsers import JSONParser, MultiPartParser
