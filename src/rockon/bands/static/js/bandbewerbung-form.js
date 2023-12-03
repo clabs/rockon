@@ -288,6 +288,10 @@ ajax_success = data => {
 ajax_error = (data, form_obj, url) => {
   // FIXME: needs error handling
   console.error(data)
+  const response = JSON.parse(data.responseText)
+  if (response.homepage || response.facebook) {
+    return alert('Bitte gibt bei Homepage und Facebook die URL immer mit http:// oder https:// am Anfang.')
+  }
   $('#api_message').html(`
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <strong>Fehler!</strong> Bitte schicke uns folgenden Text an <a href="mailto:hallo@rockon.dev">hallo@rockon.dev</a>: <br>
