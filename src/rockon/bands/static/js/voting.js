@@ -13,13 +13,9 @@ const TrackList = Vue.defineComponent({
   props: ['tracks'],
   emits: ['select-track'],
   template: `
-    <button class="btn btn-primary" @click.prevent="handleDeselectTrack">Filter entfernen</button>
-    <ul>
-      <li v-for="track in tracks" :key="track">
-        <a href="#" @click.prevent="handleClick(track)">{{ track.name }}</a>
-      </li>
-    </ul>
-  `,
+      <a href="#" class="badge text-bg-secondary m-3" @click.prevent="handleDeselectTrack">Filter entfernen</a>
+      <a v-for="track in tracks" :key="track" class="badge text-bg-primary m-3" href="#" @click.prevent="handleClick(track)">{{ track.name }}</a>
+    `,
   methods: {
     handleClick (track) {
       console.debug('TrackList handleClick:', track)
