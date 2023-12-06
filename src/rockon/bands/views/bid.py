@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from uuid import UUID
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseForbidden
@@ -109,12 +110,33 @@ def bid_vote(request, bid: str = None, track: str = None):
     bands_json = mark_safe(json.dumps(list(bands.values()), cls=CustomJSONEncoder))
     tracks = Track.objects.filter(events__id=request.session["current_event"])
     tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
+    media = BandMedia.objects.filter(band__event__id=request.session["current_event"])
+    media_by_type = {}
+    media_type_map = mark_safe(
+        json.dumps(
+            [
+                {"key": media_type[0], "name": media_type[1]}
+                for media_type in MediaType.choices
+            ]
+        )
+    )
+    for media_type in MediaType.choices:
+        media_by_type[media_type[0]] = list(
+            media.filter(media_type=media_type[0]).values()
+        )
+    media_json = mark_safe(
+        json.dumps(list(media_by_type.values()), cls=CustomJSONEncoder)
+    )
     track_slug_json = mark_safe(json.dumps(track, cls=CustomJSONEncoder))
     band_guid_json = mark_safe(json.dumps(bid, cls=CustomJSONEncoder))
+    media_url = settings.MEDIA_URL
     extra_context = {
+        "media_url": media_url,
         "site_title": "Band Bewertung",
         "bands": bands_json,
         "tracks": tracks_json,
+        "media": media_json,
+        "media_type_map": media_type_map,
         "trackid": track_slug_json,
         "bandid": band_guid_json,
     }

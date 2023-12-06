@@ -1,5 +1,54 @@
 const { createApp, ref } = Vue
 
+const SongPlayer = Vue.defineComponent({
+  props: ['song', 'songBand', 'mediaUrl'],
+  computed: {
+    song_url () {
+      console.debug('SongPlayer:', this.song, this.mediaUrl)
+      return this.mediaUrl + this.song.file
+    }
+  },
+  template: `
+    <p>{{ songBand.name }}</p>
+    <p>{{ song.file_name_original }}</p>
+    <audio id="player-live" controls autoplay>
+      <source :src="song_url">
+    </audio>
+  `
+})
+
+const SongList = Vue.defineComponent({
+  props: ['songs', 'selectedBand'],
+  emits: ['select-song'],
+  computed: {
+    filteredSongs () {
+      console.debug(
+        'SongList computed filtering for:',
+        this.selectedBand,
+        this.songs
+      )
+      const filtered_songs = this.songs.filter(
+        song => song.band_id === this.selectedBand.id
+      )
+      console.debug('SongList:', filtered_songs)
+      return filtered_songs
+    }
+  },
+  template: `
+    <ul>
+      <li v-for="song in filteredSongs" :key="song.id" @click="handleSongClick(song)">
+        {{ song.file_name_original }}
+      </li>
+    </ul>
+  `,
+  methods: {
+    handleSongClick (song) {
+      console.log('Clicked song:', song)
+      this.$emit('select-song', song)
+    }
+  }
+})
+
 const TrackDropdown = Vue.defineComponent({
   props: ['tracks', 'currentTrackId'],
   emits: ['update:selectedTrack'],
@@ -12,15 +61,15 @@ const TrackDropdown = Vue.defineComponent({
     </select>
   `,
   methods: {
-    updateSelectedTrack(event) {
+    updateSelectedTrack (event) {
       console.debug('TrackDropdown updateSelectedTrack:', event.target.value)
-      this.$emit('update:selectedTrack', event.target.value || null);
+      this.$emit('update:selectedTrack', event.target.value || null)
     }
   },
   watch: {
-    currentTrackId(newVal) {
-      const selectedTrack = this.tracks.find(track => track.id === newVal);
-      console.log('Selected track:', selectedTrack);
+    currentTrackId (newVal) {
+      const selectedTrack = this.tracks.find(track => track.id === newVal)
+      console.log('Selected track:', selectedTrack)
     }
   }
 })
@@ -60,12 +109,12 @@ const BandList = Vue.defineComponent({
       console.debug('Filtered bands:', filtered)
       return filtered
     },
-    groupedBands() {
-      let groups = [];
+    groupedBands () {
+      let groups = []
       for (let i = 0; i < this.filteredBands.length; i += 4) {
-        groups.push(this.filteredBands.slice(i, i + 4));
+        groups.push(this.filteredBands.slice(i, i + 4))
       }
-      return groups;
+      return groups
     }
   },
   methods: {
@@ -86,9 +135,9 @@ const BandList = Vue.defineComponent({
 })
 
 const BandDetails = Vue.defineComponent({
-  props: ['selectedBand', 'tracks'],
-  emits: ['update:track'],
-  components: { TrackDropdown },
+  props: ['selectedBand', 'tracks', 'media'],
+  emits: ['update:track', 'update:select-song'],
+  components: { TrackDropdown, SongList },
   template: `
     <div v-if="selectedBand">
       <h2>{{ selectedBand.name||selectedBand.guid }}</h2>
@@ -106,13 +155,21 @@ const BandDetails = Vue.defineComponent({
       <p>Event ID: {{ selectedBand.event_id }}</p>
       <p>Contact ID: {{ selectedBand.contact_id }}</p>
       <p>Track ID: {{ selectedBand.track_id }}</p>
-      <TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" />
+      <h3>Media</h3>
+      <p><SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" /></p>
+      <h3>Track</h3>
+      <p><TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" /></p>
     </div>
   `,
   methods: {
-    updateTrack(trackId) {
+    updateTrack (trackId) {
       console.debug('BandDetails updateTrack:', trackId)
-      this.$emit('update:track', trackId);
+      this.$emit('update:track', trackId)
+    },
+    handleSongSelect (song) {
+      // Update the data with the selected song
+      console.debug('BandDetails handleSongSelect:', song)
+      this.$emit('update:select-song', song)
     }
   },
   watch: {
@@ -132,18 +189,26 @@ const app = createApp({
   data () {
     return {
       crsf_token: $('[name=csrfmiddlewaretoken]').val(),
+      mediaUrl: window.rockon_data.media_url,
       tracks: window.rockon_data.tracks,
       bands: window.rockon_data.bands,
-      selectedTrack: window.rockon_data.selectedTrack,
-      selectedBand: window.rockon_data.selectedBand,
+      media: window.rockon_data.media,
+      selectedTrack: null,
+      selectedBand: null,
       currentTrackId: null,
+      playSong: null,
+      playSongBand: null,
+      toastAudioPlayer: null,
+      toastVisible: false
     }
   },
   components: {
     TrackList,
     BandList,
     BandDetails,
-    TrackDropdown
+    TrackDropdown,
+    SongList,
+    SongPlayer
   },
   methods: {
     selectTrack (track) {
@@ -158,7 +223,7 @@ const app = createApp({
       } else {
         url.pathname = `/bands/vote/`
       }
-      window.history.pushState({}, '', url)
+      window.history.replaceState({}, '', url)
     },
     selectBand (band) {
       console.debug('app selectBand:', band)
@@ -167,14 +232,22 @@ const app = createApp({
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       url.pathname = `/bands/vote/bid/${band.guid}/`
-      window.history.pushState({}, '', url)
+      window.history.replaceState({}, '', url)
     },
-    updateTrack(trackId) {
-      api_url = window.rockon_api.update_band.replace("pk_placeholder", this.selectedBand.id)
+    updateTrack (trackId) {
+      api_url = window.rockon_api.update_band.replace(
+        'pk_placeholder',
+        this.selectedBand.id
+      )
       console.debug('app updateTrack:', trackId)
-      this.selectedBand.track_id = trackId;
-      this.currentTrackId = trackId;
-      console.debug('Selected band:', this.selectedBand.id, this.currentTrackId, api_url)
+      this.selectedBand.track_id = trackId
+      this.currentTrackId = trackId
+      console.debug(
+        'Selected band:',
+        this.selectedBand.id,
+        this.currentTrackId,
+        api_url
+      )
       fetch(api_url, {
         method: 'PATCH',
         headers: {
@@ -183,38 +256,71 @@ const app = createApp({
         },
         body: JSON.stringify({
           band: this.selectedBand,
-          track: trackId,
-        }),
+          track: trackId
+        })
       })
-      .then(response => response.json())
-      .then(data => console.log('Success:', data))
-      .catch((error) => console.error('Error:', error));
+        .then(response => response.json())
+        .then(data => console.log('Success:', data))
+        .catch(error => console.error('Error:', error))
     },
+    updateComponent () {
+      console.debug('Mounted function called')
+      const url = new URL(window.location.href)
+      const pathSegments = url.pathname.split('/').filter(segment => segment)
+
+      if (pathSegments.includes('vote')) {
+        const voteType = pathSegments[pathSegments.indexOf('vote') + 1]
+        const id = pathSegments[pathSegments.indexOf('vote') + 2]
+
+        console.debug('Vote type:', voteType)
+        console.debug('ID:', id)
+
+        if (voteType === 'track') {
+          const track = this.tracks.find(track => track.slug === id)
+          this.selectedTrack = track
+          this.$emit('update:selectedTrack', track)
+          console.debug('Selected track:', this.selectedTrack)
+        }
+
+        if (voteType === 'bid') {
+          const band = this.bands.find(band => band.guid === id)
+          if (band) {
+            this.selectedBand = band
+            this.$emit('update:selectedBand', band)
+            console.debug('Selected band:', this.selectedBand)
+          }
+        }
+      }
+    },
+    handleSongSelect (song) {
+      console.debug('app handleSongSelect:', song)
+      this.playSong = song
+      this.playSongBand = this.bands.find(band => band.id === song.band_id)
+      this.toastAudioPlayer.show()
+    },
+    handleCloseClick () {
+      this.playSong = null
+      this.playSongBand = null
+    }
   },
   mounted () {
-    console.debug('Mounted function called')
-    const url = new URL(window.location.href)
-    const pathSegments = url.pathname.split('/').filter(segment => segment)
-
-    if (pathSegments.includes('vote')) {
-      const voteType = pathSegments[pathSegments.indexOf('vote') + 1]
-      const id = pathSegments[pathSegments.indexOf('vote') + 2]
-
-      console.debug('Vote type:', voteType)
-      console.debug('ID:', id)
-
-      if (voteType === 'track') {
-        const track = this.tracks.find(track => track.slug === id)
-        this.selectedTrack = track
-        console.debug('Selected track:', this.selectedTrack)
-      }
-
-      if (voteType === 'bid') {
-        const band = this.bands.find(band => band.guid === id)
-        if (band) {
-          this.selectedBand = band
-          console.debug('Selected band:', this.selectedBand)
-        }
+    window.addEventListener('popstate', this.updateComponent)
+    const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
+    const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(
+      toastAudioPlayerElement
+    )
+    bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
+    this.toastAudioPlayer = toastAudioPlayer
+    this.updateComponent()
+  },
+  beforeUnmount () {
+    window.removeEventListener('popstate', this.updateComponent)
+  },
+  watch: {
+    selectedBand: {
+      immediate: true,
+      handler (newValue, oldValue) {
+        console.log('selectedBand changed:', newValue)
       }
     }
   }

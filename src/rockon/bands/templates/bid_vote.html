@@ -11,8 +11,11 @@
 
 <script>
   window.rockon_data = {
+    media_url: "{{ media_url }}",
     bands: {{ bands }},
     tracks: {{ tracks }},
+    media: {{ media }},
+    media_type_map: {{ media_type_map }},
     selectedTrackId: {{ trackid }},
     selectedBand: {{ bandid }},
   }
@@ -25,7 +28,21 @@
 <div id="app">
   <track-list :tracks="tracks" @select-track="selectTrack"></track-list>
   <band-list v-if="!selectedBand" :bands="bands" :selected-track="selectedTrack" @select-band="selectBand"></band-list>
-  <band-details :selected-band="selectedBand" :tracks="tracks" @update:track="updateTrack"></band-details>
+  <band-details :selected-band="selectedBand" :tracks="tracks" :media="media" @update:track="updateTrack" @update:select-song="handleSongSelect" ></band-details>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastAudioPlayer" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+      <div class="toast-header">
+        <h5><strong class="me-auto"><i class="fas fa-music"></i> Rockify</strong></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" @click="handleCloseClick"></button>
+      </div>
+      <div id="player-toast-body" class="toast-body">
+        <div id="player-wrapper">
+          <song-player v-if="playSong" :song="playSong" :song-band="playSongBand" :media-url="mediaUrl" :key="playSong.id"></song-player>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endverbatim %}
 
