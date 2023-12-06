@@ -26,7 +26,7 @@ class Band(CustomModel):
     name = models.CharField(max_length=255, default=None, blank=True, null=True)
     has_management = models.BooleanField(default=False)
     are_students = models.BooleanField(default=False)
-    genre = models.CharField(max_length=32, default=None, blank=True, null=True)
+    genre = models.CharField(max_length=128, default=None, blank=True, null=True)
     federal_state = models.CharField(
         max_length=255,
         default=None,
