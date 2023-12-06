@@ -19,14 +19,14 @@ class AttendanceAdmin(CustomAdminModel):
     list_display = ("day", "event", "phase", "updated_at")
     search_fields = ("day", "event")
     ordering = ("day", "event", "created_at", "updated_at")
-    list_filter = ("day", "event", "phase")
+    list_filter = ("day", "event__name", "phase")
 
 
 class AttendanceAdditionAdmin(CustomAdminModel):
     list_display = ("attendance", "comment", "amount", "updated_at")
     search_fields = ("attendance", "comment", "amount")
     ordering = ("attendance", "comment", "amount", "updated_at")
-    list_filter = ("attendance", "comment", "amount", "updated_at")
+    list_filter = ("attendance__day", "comment", "amount", "updated_at")
 
 
 @admin.action(description="Mark selected crew members as confirmed")
@@ -64,8 +64,10 @@ class CrewMemberAdmin(CustomAdminModel):
     )
     ordering = ("user", "shirt", "nutrition", "stays_overnight", "updated_at")
     list_filter = (
+        "crew__name",
         "state",
-        "shirt",
+        "shirt__size",
+        "shirt__cut",
         "nutrition",
         "stays_overnight",
         "created_at",
@@ -78,14 +80,17 @@ class CrewAdmin(CustomAdminModel):
     list_display = ("name", "event", "created_at", "updated_at")
     search_fields = ("name",)
     ordering = ("name", "event", "created_at", "updated_at")
-    list_filter = ("name", "event", "created_at", "updated_at")
+    list_filter = ("event__name",)
 
 
 class ShirtAdmin(CustomAdminModel):
     list_display = ("size", "cut", "updated_at")
     search_fields = ("size", "cut")
     ordering = ("size", "cut", "updated_at")
-    list_filter = ("size", "cut", "updated_at")
+    list_filter = (
+        "size",
+        "cut",
+    )
 
 
 class SkillAdmin(CustomAdminModel):
@@ -105,21 +110,20 @@ class TeamAdmin(CustomAdminModel):
     )
     search_fields = ("name", "lead", "vize_lead", "description")
     ordering = ("name", "lead", "vize_lead", "is_public", "updated_at")
-    list_filter = ("name", "lead", "vize_lead", "is_public", "updated_at")
+    list_filter = ("name", "is_public", "updated_at")
 
 
 class TeamCategoryAdmin(CustomAdminModel):
     list_display = ("name", "description", "image", "updated_at")
     search_fields = ("name", "description")
     ordering = ("name", "description", "updated_at")
-    list_filter = ("name", "description", "updated_at")
 
 
 class TeamMemberAdmin(CustomAdminModel):
     list_display = ("crewmember", "team", "state", "created_at", "updated_at")
     search_fields = ("team", "crewmember")
     ordering = ("team", "state")
-    list_filter = ("team", "crewmember", "state")
+    list_filter = ("team__name",)
 
 
 admin.site.register(Attendance, AttendanceAdmin)
