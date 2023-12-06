@@ -7,7 +7,7 @@ from .models import Band, BandMedia, BandMember, Stage, TimeSlot, Track
 
 class TimeslotAdmin(CustomAdminModel):
     list_display = ("__str__", "start", "end", "band", "get_event_name")
-    list_filter = ("stage", "stage__event")
+    list_filter = ("stage__name", "stage__event__name")
     search_fields = ("stage__name",)
     ordering = ("day", "start", "end", "stage")
 
@@ -28,7 +28,7 @@ class BandAdmin(CustomAdminModel):
         "event",
     )
     list_filter = (
-        "event",
+        "event__name",
         "bid_status",
     )
     search_fields = ("name", "contact__username", "event__name")
@@ -59,7 +59,7 @@ class BandAdmin(CustomAdminModel):
 
 class BandMemberAdmin(CustomAdminModel):
     list_display = ("_user", "band", "position", "updated_at")
-    list_filter = ("band",)
+    list_filter = ("band__name",)
     search_fields = ("user__username", "band__name")
     readonly_fields = (
         "user",
@@ -79,7 +79,7 @@ class BandMediaAdmin(CustomAdminModel):
         "file",
         "thumbnail",
     )
-    list_filter = ("band", "media_type")
+    list_filter = ("band__name", "media_type")
     search_fields = ("band__name", "media_type", "url", "file", "thumbnail")
     readonly_fields = (
         "band",
@@ -90,13 +90,13 @@ class BandMediaAdmin(CustomAdminModel):
 
 class StageAdmin(CustomAdminModel):
     list_display = ("name", "event", "id")
-    list_filter = ("event",)
+    list_filter = ("event__name",)
     search_fields = ("name", "event__name")
 
 
 class TrackAdmin(CustomAdminModel):
     list_display = ("name", "id")
-    list_filter = ("events",)
+    list_filter = ("events__name",)
     search_fields = ("name", "events__name")
 
 
