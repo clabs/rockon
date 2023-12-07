@@ -94,11 +94,11 @@ const BandImages = Vue.defineComponent({
     <div class="row">
       <div class="col">
         <div><h5>Photo</h5></div>
-        <img :src="mediaUrl + currentBandPhoto.file" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-width: 300px;">
+        <img :src="mediaUrl + currentBandPhoto.file" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-height: 250px;">
       </div>
       <div class="col">
         <div><h5>Logo</h5></div>
-        <img :src="mediaUrl + currentBandLogo.file" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-width: 300px;">
+        <img :src="mediaUrl + currentBandLogo.file" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-height: 250px;">
       </div>
     </div>
   `
@@ -143,7 +143,7 @@ const TrackDropdown = Vue.defineComponent({
   emits: ['update:selectedTrack'],
   template: `
     <div>
-    <select @change="updateSelectedTrack" :value="currentTrackId">
+    <select @change="updateSelectedTrack" :value="currentTrackId" v-model="currentTrackId">
       <option value="">Track entfernen</option>
       <option v-for="track in tracks" :value="track.id" :key="track.id">
         {{ track.name }}
@@ -237,40 +237,46 @@ const BandDetails = Vue.defineComponent({
   components: { TrackDropdown, SongList, BandImages, BandDocuments, BandLinks },
   template: `
     <section class="row p-4 form-section">
-    <div>
-      <h2>{{ selectedBand.name||selectedBand.guid }}</h2>
-      <p>Genre: {{ selectedBand.genre }}</p>
-      <p>State: {{ selectedBand.federal_state }}</p>
-      <p>Homepage: <a :href="selectedBand.homepage" target="_blank">{{ selectedBand.homepage }}</a></p>
-      <p>Cover Letter: {{ selectedBand.cover_letter }}</p>
-      <p>Status: {{ selectedBand.bid_status }}</p>
-      <p>Has Management: {{ selectedBand.has_management }}</p>
-      <p>Are Students: {{ selectedBand.are_students }}</p>
-      <p>Repeated: {{ selectedBand.repeated }}</p>
-      <p>Created At: {{ selectedBand.created_at }}</p>
-      <p>Updated At: {{ selectedBand.updated_at }}</p>
-      <p>ID: {{ selectedBand.id }}</p>
-      <p>Event ID: {{ selectedBand.event_id }}</p>
-      <p>Contact ID: {{ selectedBand.contact_id }}</p>
-      <p>Track ID: {{ selectedBand.track_id }}</p>
-      <div><h3>Media</h3><div>
-        <div class="row">
-          <div class="col">
-            <div><h4>Songs</h4></div>
-            <SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" />
-          </div>
-          <div class="col">
-            <div><h4>Links</h4></div>
-            <BandLinks :selectedBand="selectedBand" :links="media[3]" />
-          </div>
+      <div class="row">
+        <h3>{{ selectedBand.name||selectedBand.guid }}</h3>
+        <p>Genre: {{ selectedBand.genre }}</p>
+        <p>State: {{ selectedBand.federal_state }}</p>
+        <p>Homepage: <a :href="selectedBand.homepage" target="_blank">{{ selectedBand.homepage }}</a></p>
+        <p>Cover Letter: {{ selectedBand.cover_letter }}</p>
+        <p>Status: {{ selectedBand.bid_status }}</p>
+        <p>Has Management: {{ selectedBand.has_management }}</p>
+        <p>Are Students: {{ selectedBand.are_students }}</p>
+        <p>Repeated: {{ selectedBand.repeated }}</p>
+        <p>Created At: {{ selectedBand.created_at }}</p>
+        <p>Updated At: {{ selectedBand.updated_at }}</p>
+        <p>ID: {{ selectedBand.id }}</p>
+        <p>Event ID: {{ selectedBand.event_id }}</p>
+        <p>Contact ID: {{ selectedBand.contact_id }}</p>
+        <p>Track ID: {{ selectedBand.track_id }}</p>
+      </div>
+      <div class="row">
+        <h3>Media</h3>
+        <div class="col">
+          <div><h4>Songs</h4></div>
+          <SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" />
         </div>
-      <div><h4>Bilder</h4><div>
-      <div class="row"><BandImages :selectedBand="selectedBand" :bandPhotos="media[4]" :bandLogos="media[5]" :media-url="mediaUrl"/></div>
-      <div><h4>Dokumente</h4><div>
-      <div class="row"><BandDocuments :selectedBand="selectedBand" :bandDocuments="media[1]" :media-url="mediaUrl"/></div>
-      <h3>Track</h3>
-      <div class="row"><TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" /></div>
-    </div>
+        <div class="col">
+          <div><h4>Links</h4></div>
+          <BandLinks :selectedBand="selectedBand" :links="media[3]" />
+        </div>
+      </div>
+      <div class="row">
+        <h4>Bilder</h4>
+        <BandImages :selectedBand="selectedBand" :bandPhotos="media[4]" :bandLogos="media[5]" :media-url="mediaUrl"/>
+      </div>
+      <div class="row">
+        <h4>Dokumente</h4>
+        <BandDocuments :selectedBand="selectedBand" :bandDocuments="media[1]" :media-url="mediaUrl"/>
+      </div>
+      <div class="row">
+        <h3>Track</h3>
+        <TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" />
+      </div>
     </section>
   `,
   methods: {
