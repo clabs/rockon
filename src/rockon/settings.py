@@ -321,6 +321,7 @@ if SENTRY_ENABLED and SENTRY_DSN:
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=SENTRY_SEND_DEFAULT_PII,
+        profiles_sample_rate=1.0,
     )
 
 FFMPEG_BIN = env.str("FFMPEG_BIN", default="ffmpeg")
