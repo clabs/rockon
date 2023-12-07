@@ -1,5 +1,7 @@
 const { createApp, ref } = Vue
 
+const DateTime = luxon.DateTime
+
 const SongInfo = Vue.defineComponent({
   props: ['song', 'band'],
   template: `
@@ -60,7 +62,7 @@ const BandDocuments = Vue.defineComponent({
     <div>
       <ul>
         <li v-for="document in filteredBandDocuments" :key="document.id">
-          <a :href="document.file" target="_blank">{{ document.file_name_original }}</a>
+          <a :href="mediaUrl + document.file" target="_blank">{{ document.file_name_original }}</a>
         </li>
       </ul>
     </div>
@@ -92,11 +94,11 @@ const BandImages = Vue.defineComponent({
   },
   template: `
     <div class="row">
-      <div class="col">
+      <div v-if="currentBandPhoto" class="col">
         <div><h5>Photo</h5></div>
         <img :src="mediaUrl + currentBandPhoto.file" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-height: 250px;">
       </div>
-      <div class="col">
+      <div v-if="currentBandLogo" class="col">
         <div><h5>Logo</h5></div>
         <img :src="mediaUrl + currentBandLogo.file" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-height: 250px;">
       </div>
@@ -231,28 +233,81 @@ const BandList = Vue.defineComponent({
   `
 })
 
+const BandTags = Vue.defineComponent({
+  props: ['selectedBand', 'federalStates'],
+  computed: {
+    federalStatesTag () {
+      console.debug('BandTags computed federalStatesTag:', this.federalStates)
+      const federalState = this.federalStates.find(
+        federalState => federalState[0] === this.selectedBand.federal_state
+      )
+      console.debug('BandTags computed federalState:', federalState)
+      return federalState ? federalState[1] : null
+    }
+  },
+  template: `
+    <div>
+      <a class="badge text-bg-primary m-1">{{ federalStatesTag }}</a>
+      <a v-if="selectedBand.has_management" class="badge text-bg-warning m-1">Management</a>
+      <a v-if="!selectedBand.has_management" class="badge text-bg-success m-1">Kein Management</a>
+      <a v-if="selectedBand.are_students" class="badge text-bg-warning m-1">Schülerband</a>
+      <a v-if="!selectedBand.are_students" class="badge text-bg-primary m-1">Keine Schülerband</a>
+      <a v-if="selectedBand.repeated" class="badge text-bg-warning m-1">Wiederholer</a>
+      <a v-if="!selectedBand.repeated" class="badge text-bg-primary m-1">Neu</a>
+      <a class="badge text-bg-primary m-1">{{ selectedBand.genre || "Kein Gerne" }}</a>
+      <a v-if="!selectedBand.cover_letter" class="badge text-bg-warning m-1">Kein Coverletter</a>
+      <a v-if="!selectedBand.homepage" class="badge text-bg-warning m-1">Keine Homepage</a>
+    </div>
+  `
+})
+
 const BandDetails = Vue.defineComponent({
-  props: ['selectedBand', 'tracks', 'media', 'mediaUrl'],
+  props: ['selectedBand', 'tracks', 'media', 'mediaUrl', 'federalStates'],
   emits: ['update:track', 'update:select-song'],
-  components: { TrackDropdown, SongList, BandImages, BandDocuments, BandLinks },
+  components: {
+    TrackDropdown,
+    SongList,
+    BandImages,
+    BandDocuments,
+    BandLinks,
+    BandTags
+  },
   template: `
     <section class="row p-4 form-section">
       <div class="row">
+        <div class="col">
         <h3>{{ selectedBand.name||selectedBand.guid }}</h3>
-        <p>Genre: {{ selectedBand.genre }}</p>
-        <p>State: {{ selectedBand.federal_state }}</p>
-        <p>Homepage: <a :href="selectedBand.homepage" target="_blank">{{ selectedBand.homepage }}</a></p>
-        <p>Cover Letter: {{ selectedBand.cover_letter }}</p>
-        <p>Status: {{ selectedBand.bid_status }}</p>
-        <p>Has Management: {{ selectedBand.has_management }}</p>
-        <p>Are Students: {{ selectedBand.are_students }}</p>
-        <p>Repeated: {{ selectedBand.repeated }}</p>
-        <p>Created At: {{ selectedBand.created_at }}</p>
-        <p>Updated At: {{ selectedBand.updated_at }}</p>
-        <p>ID: {{ selectedBand.id }}</p>
-        <p>Event ID: {{ selectedBand.event_id }}</p>
-        <p>Contact ID: {{ selectedBand.contact_id }}</p>
-        <p>Track ID: {{ selectedBand.track_id }}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-9">
+          <BandTags :selectedBand="selectedBand" :federalStates="federalStates" />
+        </div>
+        <div class="col-3">
+          <p>here be voting area</p>
+        </div>
+      </div>
+      <div class="row">
+        <h3>Allgemeines</h3>
+        <div class="col">
+          <div class="alert alert-secondary" role="alert">
+            {{ selectedBand.cover_letter || "Kein Cover Letter" }}
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col">
+            <div v-if="selectedBand.homepage">
+              <div><h5>Homepage</h5></div>
+              <a :href="selectedBand.homepage" target="_blank">{{ selectedBand.homepage }}</a>
+            </div>
+          </div>
+          <div class="col">
+            <div v-if="selectedBand.facebook">
+              <div><h5>Facebook</h5></div>
+              <a :href="selectedBand.facebook" target="_blank">{{ selectedBand.facebook }}</a>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="row">
         <h3>Media</h3>
@@ -267,15 +322,36 @@ const BandDetails = Vue.defineComponent({
       </div>
       <div class="row">
         <h4>Bilder</h4>
+        <div class="col">
         <BandImages :selectedBand="selectedBand" :bandPhotos="media[4]" :bandLogos="media[5]" :media-url="mediaUrl"/>
+        </div>
       </div>
       <div class="row">
         <h4>Dokumente</h4>
+        <div class="col">
         <BandDocuments :selectedBand="selectedBand" :bandDocuments="media[1]" :media-url="mediaUrl"/>
+        </div>
       </div>
-      <div class="row">
+      <div class="row mb-2">
         <h3>Track</h3>
+        <div class="col">
         <TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" />
+        </div>
+      </div>
+      <div class="row text-muted">
+        <h5>Techniches Zeug</h5>
+        <div class="col">
+          <p class="iso-datetime">Ertellt: {{ formatDate(selectedBand.created_at) }}</p>
+          <p class="iso-datetime">Aktuallisiert: {{ formatDate(selectedBand.updated_at) }}</p>
+        </div>
+        <div class="col">
+          <p>Band ID: {{ selectedBand.id }}</p>
+          <p>Event ID: {{ selectedBand.event_id }}</p>
+        </div>
+        <div class="col">
+          <p>Kontakt ID: {{ selectedBand.contact_id }}</p>
+          <p>Track ID: {{ selectedBand.track_id }}</p>
+        </div>
       </div>
     </section>
   `,
@@ -288,6 +364,10 @@ const BandDetails = Vue.defineComponent({
       // Update the data with the selected song
       console.debug('BandDetails handleSongSelect:', song)
       this.$emit('update:select-song', song)
+    },
+    formatDate (isoString) {
+      console.debug('BandDetails formatDate:', isoString)
+      return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
     }
   },
   watch: {
@@ -311,6 +391,7 @@ const app = createApp({
       tracks: window.rockon_data.tracks,
       bands: window.rockon_data.bands,
       media: window.rockon_data.media,
+      federalStates: window.rockon_data.federal_states,
       selectedTrack: null,
       selectedBand: null,
       currentTrackId: null,
@@ -330,7 +411,8 @@ const app = createApp({
     SongInfo,
     BandImages,
     BandDocuments,
-    BandLinks
+    BandLinks,
+    BandTags
   },
   methods: {
     selectTrack (track) {

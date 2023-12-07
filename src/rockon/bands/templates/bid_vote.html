@@ -20,6 +20,7 @@
     tracks: {{ tracks }},
     media: {{ media }},
     media_type_map: {{ media_type_map }},
+    federal_states: {{ federal_states }},
     selectedTrackId: {{ trackid }},
     selectedBand: {{ bandid }},
   }
@@ -32,7 +33,7 @@
 <div id="app">
   <track-list :tracks="tracks" @select-track="selectTrack"></track-list>
   <band-list v-if="!selectedBand" :bands="bands" :selected-track="selectedTrack" @select-band="selectBand"></band-list>
-  <band-details v-if="selectedBand" :selected-band="selectedBand" :tracks="tracks" :media="media" :media-url="mediaUrl" @update:track="updateTrack" @update:select-song="handleSongSelect" ></band-details>
+  <band-details v-if="selectedBand" :selected-band="selectedBand" :tracks="tracks" :media="media" :media-url="mediaUrl" :federal-states="federalStates" @update:track="updateTrack" @update:select-song="handleSongSelect" ></band-details>
 
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toastAudioPlayer" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">

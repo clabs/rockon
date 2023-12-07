@@ -127,6 +127,8 @@ def bid_vote(request, bid: str = None, track: str = None):
     media_json = mark_safe(
         json.dumps(list(media_by_type.values()), cls=CustomJSONEncoder)
     )
+    federal_states = FederalState.choices
+    federal_states_json = mark_safe(json.dumps(federal_states))
     track_slug_json = mark_safe(json.dumps(track, cls=CustomJSONEncoder))
     band_guid_json = mark_safe(json.dumps(bid, cls=CustomJSONEncoder))
     media_url = settings.MEDIA_URL
@@ -137,6 +139,7 @@ def bid_vote(request, bid: str = None, track: str = None):
         "tracks": tracks_json,
         "media": media_json,
         "media_type_map": media_type_map,
+        "federal_states": federal_states_json,
         "trackid": track_slug_json,
         "bandid": band_guid_json,
     }
