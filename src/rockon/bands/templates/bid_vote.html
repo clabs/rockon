@@ -9,6 +9,11 @@
 <script src="{% static 'vendor/vue.global.3.3.9.js' %}"></script>
 {% endcompress %}
 
+{% compress js file wavesurfer %}
+<script src='{% static "vendor/7.5.0.wavesurfer.min.js" %}'>
+</script>
+{% endcompress %}
+
 <script>
   window.rockon_data = {
     media_url: "{{ media_url }}",
@@ -37,8 +42,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" @click="handleCloseClick"></button>
       </div>
       <div id="player-toast-body" class="toast-body">
+        <song-info v-if="playSong" :song="playSong" :band="playSongBand"></song-info>
         <div id="player-wrapper">
-          <song-player v-if="playSong" :song="playSong" :song-band="playSongBand" :media-url="mediaUrl" :key="playSong.id"></song-player>
         </div>
       </div>
     </div>

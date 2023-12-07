@@ -1,19 +1,12 @@
 const { createApp, ref } = Vue
 
-const SongPlayer = Vue.defineComponent({
-  props: ['song', 'songBand', 'mediaUrl'],
-  computed: {
-    song_url () {
-      console.debug('SongPlayer:', this.song, this.mediaUrl)
-      return this.mediaUrl + this.song.file
-    }
-  },
+const SongInfo = Vue.defineComponent({
+  props: ['song', 'band'],
   template: `
-    <p>{{ songBand.name }}</p>
-    <p>{{ song.file_name_original }}</p>
-    <audio id="player-live" controls autoplay>
-      <source :src="song_url">
-    </audio>
+    <div>
+      <p><h5>Band</h5> {{ band.name }}</p>
+      <p><h5>Song</h5> {{ song.file_name_original }}</p>
+    </div>
   `
 })
 
@@ -155,7 +148,8 @@ const BandDetails = Vue.defineComponent({
       <p>Event ID: {{ selectedBand.event_id }}</p>
       <p>Contact ID: {{ selectedBand.contact_id }}</p>
       <p>Track ID: {{ selectedBand.track_id }}</p>
-      <h3>Media</h3>
+      <div><h3>Media</h3><div>
+      <div><h4>Songs</h4><div>
       <p><SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" /></p>
       <h3>Track</h3>
       <p><TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" /></p>
@@ -199,7 +193,8 @@ const app = createApp({
       playSong: null,
       playSongBand: null,
       toastAudioPlayer: null,
-      toastVisible: false
+      toastVisible: false,
+      wavesurfer: null,
     }
   },
   components: {
@@ -208,7 +203,7 @@ const app = createApp({
     BandDetails,
     TrackDropdown,
     SongList,
-    SongPlayer
+    SongInfo,
   },
   methods: {
     selectTrack (track) {
@@ -296,11 +291,42 @@ const app = createApp({
       console.debug('app handleSongSelect:', song)
       this.playSong = song
       this.playSongBand = this.bands.find(band => band.id === song.band_id)
-      this.toastAudioPlayer.show()
+      if (!this.toastVisible) {
+        this.toastAudioPlayer.show()
+        this.toastVisible = true
+      }
+
+      if (this.wavesurfer) {
+        this.wavesurfer.destroy();
+        this.wavesurfer = null;
+      }
+
+      this.playSong = song
+      this.playSongBand = this.bands.find(band => band.id === song.band_id)
+
+      this.wavesurfer = WaveSurfer.create({
+        container: document.getElementById('player-wrapper'),
+        waveColor: '#fff300',
+        progressColor: '#999400',
+        normalize: false,
+        splitChannels: false,
+        dragToSeek: true,
+        cursorWidth: 3,
+        url: this.mediaUrl + song.file,
+        mediaControls: true,
+        autoplay: true,
+      });
     },
     handleCloseClick () {
+      console.debug('app handleCloseClick')
+      console.log('this.wavesurfer:', this.wavesurfer);
+      if (this.wavesurfer) {
+        this.wavesurfer.destroy();
+        this.wavesurfer = null;
+      }
       this.playSong = null
       this.playSongBand = null
+      this.toastVisible = false
     }
   },
   mounted () {
