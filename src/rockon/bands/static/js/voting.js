@@ -10,6 +10,43 @@ const SongInfo = Vue.defineComponent({
   `
 })
 
+const BandImages = Vue.defineComponent({
+  props: ['bandPhotos', 'bandLogos', 'selectedBand', 'mediaUrl'],
+  computed: {
+    currentBandPhoto () {
+      console.debug('BandImages computed bandPhotos:', this.bandPhotos)
+      const filteredBandPhotos = this.bandPhotos.filter(
+        photo => photo.band_id === this.selectedBand.id
+      )
+      console.debug(
+        'BandImages computed filteredBandPhotos:',
+        filteredBandPhotos
+      )
+      return filteredBandPhotos[filteredBandPhotos.length - 1]
+    },
+    currentBandLogo () {
+      console.debug('BandImages computed bandLogos:', this.bandLogos)
+      const filteredBandLogos = this.bandLogos.filter(
+        logo => logo.band_id === this.selectedBand.id
+      )
+      console.debug('BandImages computed filteredBandLogos:', filteredBandLogos)
+      return filteredBandLogos[filteredBandLogos.length - 1]
+    }
+  },
+  template: `
+    <div class="row">
+      <div class="col">
+        <div><h5>Photo</h5></div>
+        <img :src="mediaUrl + currentBandPhoto.file" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-width: 300px;">
+      </div>
+      <div class="col">
+        <div><h5>Logo</h5></div>
+        <img :src="mediaUrl + currentBandLogo.file" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-width: 300px;">
+      </div>
+    </div>
+  `
+})
+
 const SongList = Vue.defineComponent({
   props: ['songs', 'selectedBand'],
   emits: ['select-song'],
@@ -128,9 +165,9 @@ const BandList = Vue.defineComponent({
 })
 
 const BandDetails = Vue.defineComponent({
-  props: ['selectedBand', 'tracks', 'media'],
+  props: ['selectedBand', 'tracks', 'media', 'mediaUrl'],
   emits: ['update:track', 'update:select-song'],
-  components: { TrackDropdown, SongList },
+  components: { TrackDropdown, SongList, BandImages },
   template: `
     <div v-if="selectedBand">
       <h2>{{ selectedBand.name||selectedBand.guid }}</h2>
@@ -150,7 +187,9 @@ const BandDetails = Vue.defineComponent({
       <p>Track ID: {{ selectedBand.track_id }}</p>
       <div><h3>Media</h3><div>
       <div><h4>Songs</h4><div>
-      <p><SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" /></p>
+      <div><SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" /></div>
+      <div><h4>Bilder</h4><div>
+      <div><BandImages :selectedBand="selectedBand" :bandPhotos="media[4]" :bandLogos="media[5]" :media-url="mediaUrl"/></div>
       <h3>Track</h3>
       <p><TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" /></p>
     </div>
@@ -194,7 +233,7 @@ const app = createApp({
       playSongBand: null,
       toastAudioPlayer: null,
       toastVisible: false,
-      wavesurfer: null,
+      wavesurfer: null
     }
   },
   components: {
@@ -204,6 +243,7 @@ const app = createApp({
     TrackDropdown,
     SongList,
     SongInfo,
+    BandImages
   },
   methods: {
     selectTrack (track) {
@@ -297,8 +337,8 @@ const app = createApp({
       }
 
       if (this.wavesurfer) {
-        this.wavesurfer.destroy();
-        this.wavesurfer = null;
+        this.wavesurfer.destroy()
+        this.wavesurfer = null
       }
 
       this.playSong = song
@@ -314,15 +354,15 @@ const app = createApp({
         cursorWidth: 3,
         url: this.mediaUrl + song.file,
         mediaControls: true,
-        autoplay: true,
-      });
+        autoplay: true
+      })
     },
     handleCloseClick () {
       console.debug('app handleCloseClick')
-      console.log('this.wavesurfer:', this.wavesurfer);
+      console.log('this.wavesurfer:', this.wavesurfer)
       if (this.wavesurfer) {
-        this.wavesurfer.destroy();
-        this.wavesurfer = null;
+        this.wavesurfer.destroy()
+        this.wavesurfer = null
       }
       this.playSong = null
       this.playSongBand = null
