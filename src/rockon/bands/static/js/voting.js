@@ -10,6 +10,36 @@ const SongInfo = Vue.defineComponent({
   `
 })
 
+const BandDocuments = Vue.defineComponent({
+  props: ['bandDocuments', 'selectedBand', 'mediaUrl'],
+  computed: {
+    filteredBandDocuments () {
+      console.debug(
+        'BandDocuments computed filtering for:',
+        this.selectedBand,
+        this.bandDocuments
+      )
+      const filtered_band_documents = this.bandDocuments.filter(
+        document => document.band_id === this.selectedBand.id
+      )
+      console.debug(
+        'BandDocuments computed filtered_band_documents:',
+        filtered_band_documents
+      )
+      return filtered_band_documents
+    }
+  },
+  template: `
+    <div>
+      <ul>
+        <li v-for="document in filteredBandDocuments" :key="document.id">
+          <a :href="document.file" target="_blank">{{ document.file_name_original }}</a>
+        </li>
+      </ul>
+    </div>
+  `
+})
+
 const BandImages = Vue.defineComponent({
   props: ['bandPhotos', 'bandLogos', 'selectedBand', 'mediaUrl'],
   computed: {
@@ -65,11 +95,13 @@ const SongList = Vue.defineComponent({
     }
   },
   template: `
-    <ul>
-      <li v-for="song in filteredSongs" :key="song.id" @click="handleSongClick(song)">
-        {{ song.file_name_original }}
-      </li>
-    </ul>
+    <div>
+      <ol>
+        <li v-for="song in filteredSongs" :key="song.id" @click="handleSongClick(song)">
+          {{ song.file_name_original }}
+        </li>
+      </ol>
+    </div>
   `,
   methods: {
     handleSongClick (song) {
@@ -83,12 +115,14 @@ const TrackDropdown = Vue.defineComponent({
   props: ['tracks', 'currentTrackId'],
   emits: ['update:selectedTrack'],
   template: `
+    <div>
     <select @change="updateSelectedTrack" :value="currentTrackId">
       <option value="">Track entfernen</option>
       <option v-for="track in tracks" :value="track.id" :key="track.id">
         {{ track.name }}
       </option>
     </select>
+    </div>
   `,
   methods: {
     updateSelectedTrack (event) {
@@ -167,7 +201,7 @@ const BandList = Vue.defineComponent({
 const BandDetails = Vue.defineComponent({
   props: ['selectedBand', 'tracks', 'media', 'mediaUrl'],
   emits: ['update:track', 'update:select-song'],
-  components: { TrackDropdown, SongList, BandImages },
+  components: { TrackDropdown, SongList, BandImages, BandDocuments },
   template: `
     <div v-if="selectedBand">
       <h2>{{ selectedBand.name||selectedBand.guid }}</h2>
@@ -187,11 +221,13 @@ const BandDetails = Vue.defineComponent({
       <p>Track ID: {{ selectedBand.track_id }}</p>
       <div><h3>Media</h3><div>
       <div><h4>Songs</h4><div>
-      <div><SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" /></div>
+      <div class="row"><SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" /></div>
       <div><h4>Bilder</h4><div>
-      <div><BandImages :selectedBand="selectedBand" :bandPhotos="media[4]" :bandLogos="media[5]" :media-url="mediaUrl"/></div>
+      <div class="row"><BandImages :selectedBand="selectedBand" :bandPhotos="media[4]" :bandLogos="media[5]" :media-url="mediaUrl"/></div>
+      <div><h4>Dokumente</h4><div>
+      <div class="row"><BandDocuments :selectedBand="selectedBand" :bandDocuments="media[1]" :media-url="mediaUrl"/></div>
       <h3>Track</h3>
-      <p><TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" /></p>
+      <div class="row"><TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" /></div>
     </div>
   `,
   methods: {
@@ -243,7 +279,8 @@ const app = createApp({
     TrackDropdown,
     SongList,
     SongInfo,
-    BandImages
+    BandImages,
+    BandDocuments
   },
   methods: {
     selectTrack (track) {
