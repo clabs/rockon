@@ -31,8 +31,8 @@
 
 {% verbatim %}
 <div id="app">
-  <track-list :tracks="tracks" :selected-track="selectedTrack" @select-track="selectTrack"></track-list>
-  <band-list v-if="!selectedBand" :bands="bands" :selected-track="selectedTrack" @select-band="selectBand"></band-list>
+  <track-list :tracks="tracks" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"></track-list>
+  <band-list v-if="!selectedBand" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" @select-band="selectBand"></band-list>
   <band-details v-if="selectedBand" :selected-band="selectedBand" :tracks="tracks" :media="media" :media-url="mediaUrl" :federal-states="federalStates" @update:track="updateTrack" @update:select-song="handleSongSelect" ></band-details>
 
   <div class="toast-container position-fixed bottom-0 end-0 p-3">

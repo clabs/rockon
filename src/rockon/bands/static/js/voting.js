@@ -168,39 +168,76 @@ const TrackDropdown = Vue.defineComponent({
 })
 
 const TrackList = Vue.defineComponent({
-  props: ['tracks', "selectedTrack"],
-  emits: ['select-track'],
+  props: ['tracks', 'selectedTrack', 'showBandNoName'],
+  emits: ['select-track', 'filter-no-name'],
+  computed: {
+    showBandNoNameComputed () {
+      return this.showBandNoName
+    }
+  },
   template: `
       <section class="row p-4 form-section">
       <div>
-        <a href="#" class="badge text-bg-secondary m-3" @click.prevent="handleDeselectTrack">Filter entfernen</a>
-        <a v-for="track in tracks" :key="track" class="badge m-3" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" href="#" @click.prevent="handleClick(track)">{{ track.name }}</a>
+        <span v-for="track in tracks" :key="track" class="badge m-3" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" @click="handleClick(track)">{{ track.name }}</span>
+        <span class="badge text-bg-primary m-3" :key="no-track" @click="handleShowBandsWithoutTrack">Ohne Track</span>
+        <span class="badge text-bg-secondary m-3" @click="handleDeselectTrack">Filter entfernen</span>
+        <div class="form-check form-switch m-3">
+          <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
+          <label class="form-check-label" >Bands ohne Namen verstecken</label>
+        </div>
       </div>
       </section>
     `,
   methods: {
     handleClick (track) {
       console.debug('TrackList handleClick:', track)
+      this.selectedTrack = track
       this.$emit('select-track', track)
     },
     handleDeselectTrack () {
       console.debug('TrackList handleDeselectTrack')
+      this.selectedTrack = null
       this.$emit('select-track', null)
+    },
+    handleShowBandsWithoutTrack () {
+      console.debug('TrackList handleShowBandsWithoutTrack')
+      this.selectedTrack = 'no-track'
+      this.$emit('select-track', 'no-track')
+    },
+    handleFilterNoNameChange (event) {
+      console.debug('TrackList handleFilterNoNameChange:', event.target.checked)
+      this.showBandNoName = event.target.checked
+      this.$emit('filter-no-name', event.target.checked)
     }
+  },
+  created () {
+    console.log(
+      'Component created. Initial value of showBandNoName:',
+      this.showBandNoName
+    )
   }
 })
 
 const BandList = Vue.defineComponent({
-  props: ['bands', 'selectedTrack'],
+  props: ['bands', 'selectedTrack', 'showBandNoName'],
   emits: ['select-band'],
   computed: {
     filteredBands () {
       console.debug('selectedTrack:', this.selectedTrack)
+      _bands = this.bands
+      if (this.showBandNoName) {
+        console.debug('Filtering for bands without a name.')
+        _bands = _bands.filter(band => band.name)
+      }
       if (!this.selectedTrack) {
         console.debug('No selected track id. Returning all.')
-        return this.bands
+        return _bands
       }
-      const filtered = this.bands.filter(
+      if (this.selectedTrack === 'no-track') {
+        console.debug('Filtering for bands without a track.')
+        return _bands.filter(band => !band.track_id)
+      }
+      const filtered = _bands.filter(
         band => band.track_id === this.selectedTrack.id
       )
       console.debug('Filtered bands:', filtered)
@@ -224,8 +261,8 @@ const BandList = Vue.defineComponent({
     <section v-if="groupedBands.length > 0" class="row p-4 form-section">
       <div v-for="(group, index) in groupedBands" :key="index">
         <ul class="list-group list-group-horizontal d-flex justify-content-start">
-          <li class="list-group-item col" v-for="band in group" :key="band">
-            <a href="#" @click.prevent="selectBand(band)">{{ band.name||band.guid }}</a>
+          <li class="list-group-item col" v-for="band in group" :key="band" @click="selectBand(band)">
+            <span>{{ band.name||band.guid }}</span>
           </li>
         </ul>
       </div>
@@ -247,16 +284,16 @@ const BandTags = Vue.defineComponent({
   },
   template: `
     <div>
-      <a class="badge text-bg-primary m-1">{{ federalStatesTag }}</a>
-      <a v-if="selectedBand.has_management" class="badge text-bg-warning m-1">Management</a>
-      <a v-if="!selectedBand.has_management" class="badge text-bg-success m-1">Kein Management</a>
-      <a v-if="selectedBand.are_students" class="badge text-bg-warning m-1">Schülerband</a>
-      <a v-if="!selectedBand.are_students" class="badge text-bg-primary m-1">Keine Schülerband</a>
-      <a v-if="selectedBand.repeated" class="badge text-bg-warning m-1">Wiederholer</a>
-      <a v-if="!selectedBand.repeated" class="badge text-bg-primary m-1">Neu</a>
-      <a class="badge text-bg-primary m-1">{{ selectedBand.genre || "Kein Gerne" }}</a>
-      <a v-if="!selectedBand.cover_letter" class="badge text-bg-warning m-1">Kein Coverletter</a>
-      <a v-if="!selectedBand.homepage" class="badge text-bg-warning m-1">Keine Homepage</a>
+      <span class="badge text-bg-primary m-1">{{ federalStatesTag }}</span>
+      <span v-if="selectedBand.has_management" class="badge text-bg-warning m-1">Management</span>
+      <span v-if="!selectedBand.has_management" class="badge text-bg-success m-1">Kein Management</span>
+      <span v-if="selectedBand.are_students" class="badge text-bg-warning m-1">Schülerband</span>
+      <span v-if="!selectedBand.are_students" class="badge text-bg-primary m-1">Keine Schülerband</span>
+      <span v-if="selectedBand.repeated" class="badge text-bg-warning m-1">Wiederholer</span>
+      <span v-if="!selectedBand.repeated" class="badge text-bg-primary m-1">Neu</span>
+      <span class="badge text-bg-primary m-1">{{ selectedBand.genre || "Kein Gerne" }}</span>
+      <span v-if="!selectedBand.cover_letter" class="badge text-bg-warning m-1">Kein Coverletter</span>
+      <span v-if="!selectedBand.homepage" class="badge text-bg-warning m-1">Keine Homepage</span>
     </div>
   `
 })
@@ -399,7 +436,8 @@ const app = createApp({
       playSongBand: null,
       toastAudioPlayer: null,
       toastVisible: false,
-      wavesurfer: null
+      wavesurfer: null,
+      showBandNoName: true
     }
   },
   components: {
@@ -536,6 +574,10 @@ const app = createApp({
       this.playSong = null
       this.playSongBand = null
       this.toastVisible = false
+    },
+    handleFilterShowBandNoNameChange (checked) {
+      console.debug('app handleFilterShowBandNoNameChange:', checked)
+      this.showBandNoName = checked
     }
   },
   mounted () {
@@ -555,7 +597,13 @@ const app = createApp({
     selectedBand: {
       immediate: true,
       handler (newValue, oldValue) {
-        console.log('selectedBand changed:', newValue)
+        console.log('watch selectedBand changed:', newValue)
+      }
+    },
+    showBandNoName: {
+      immediate: true,
+      handler (newValue, oldValue) {
+        console.log('watch showBandNoName changed:', newValue)
       }
     }
   }
