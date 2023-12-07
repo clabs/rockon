@@ -168,13 +168,13 @@ const TrackDropdown = Vue.defineComponent({
 })
 
 const TrackList = Vue.defineComponent({
-  props: ['tracks'],
+  props: ['tracks', "selectedTrack"],
   emits: ['select-track'],
   template: `
       <section class="row p-4 form-section">
       <div>
         <a href="#" class="badge text-bg-secondary m-3" @click.prevent="handleDeselectTrack">Filter entfernen</a>
-        <a v-for="track in tracks" :key="track" class="badge text-bg-primary m-3" href="#" @click.prevent="handleClick(track)">{{ track.name }}</a>
+        <a v-for="track in tracks" :key="track" class="badge m-3" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" href="#" @click.prevent="handleClick(track)">{{ track.name }}</a>
       </div>
       </section>
     `,
