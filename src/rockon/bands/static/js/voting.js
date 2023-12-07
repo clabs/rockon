@@ -10,6 +10,33 @@ const SongInfo = Vue.defineComponent({
   `
 })
 
+const BandLinks = Vue.defineComponent({
+  props: ['selectedBand', 'links'],
+  computed: {
+    filteredLinks () {
+      console.debug(
+        'BandLinks computed filtering for:',
+        this.selectedBand,
+        this.links
+      )
+      const filtered_links = this.links.filter(
+        link => link.band_id === this.selectedBand.id
+      )
+      console.debug('BandLinks computed filtered_links:', filtered_links)
+      return filtered_links
+    }
+  },
+  template: `
+    <div>
+      <ul>
+        <li v-for="link in filteredLinks" :key="link.id">
+          <a :href="link.url" target="_blank">{{ link.url }}</a>
+        </li>
+      </ul>
+    </div>
+  `
+})
+
 const BandDocuments = Vue.defineComponent({
   props: ['bandDocuments', 'selectedBand', 'mediaUrl'],
   computed: {
@@ -142,8 +169,12 @@ const TrackList = Vue.defineComponent({
   props: ['tracks'],
   emits: ['select-track'],
   template: `
-      <a href="#" class="badge text-bg-secondary m-3" @click.prevent="handleDeselectTrack">Filter entfernen</a>
-      <a v-for="track in tracks" :key="track" class="badge text-bg-primary m-3" href="#" @click.prevent="handleClick(track)">{{ track.name }}</a>
+      <section class="row p-4 form-section">
+      <div>
+        <a href="#" class="badge text-bg-secondary m-3" @click.prevent="handleDeselectTrack">Filter entfernen</a>
+        <a v-for="track in tracks" :key="track" class="badge text-bg-primary m-3" href="#" @click.prevent="handleClick(track)">{{ track.name }}</a>
+      </div>
+      </section>
     `,
   methods: {
     handleClick (track) {
@@ -188,22 +219,25 @@ const BandList = Vue.defineComponent({
     }
   },
   template: `
-    <div v-for="(group, index) in groupedBands" :key="index">
-      <ul class="list-group list-group-horizontal d-flex justify-content-start">
-        <li class="list-group-item col" v-for="band in group" :key="band">
-          <a href="#" @click.prevent="selectBand(band)">{{ band.name||band.guid }}</a>
-        </li>
-      </ul>
-    </div>
+    <section v-if="groupedBands.length > 0" class="row p-4 form-section">
+      <div v-for="(group, index) in groupedBands" :key="index">
+        <ul class="list-group list-group-horizontal d-flex justify-content-start">
+          <li class="list-group-item col" v-for="band in group" :key="band">
+            <a href="#" @click.prevent="selectBand(band)">{{ band.name||band.guid }}</a>
+          </li>
+        </ul>
+      </div>
+    </section>
   `
 })
 
 const BandDetails = Vue.defineComponent({
   props: ['selectedBand', 'tracks', 'media', 'mediaUrl'],
   emits: ['update:track', 'update:select-song'],
-  components: { TrackDropdown, SongList, BandImages, BandDocuments },
+  components: { TrackDropdown, SongList, BandImages, BandDocuments, BandLinks },
   template: `
-    <div v-if="selectedBand">
+    <section class="row p-4 form-section">
+    <div>
       <h2>{{ selectedBand.name||selectedBand.guid }}</h2>
       <p>Genre: {{ selectedBand.genre }}</p>
       <p>State: {{ selectedBand.federal_state }}</p>
@@ -220,8 +254,16 @@ const BandDetails = Vue.defineComponent({
       <p>Contact ID: {{ selectedBand.contact_id }}</p>
       <p>Track ID: {{ selectedBand.track_id }}</p>
       <div><h3>Media</h3><div>
-      <div><h4>Songs</h4><div>
-      <div class="row"><SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" /></div>
+        <div class="row">
+          <div class="col">
+            <div><h4>Songs</h4></div>
+            <SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" />
+          </div>
+          <div class="col">
+            <div><h4>Links</h4></div>
+            <BandLinks :selectedBand="selectedBand" :links="media[3]" />
+          </div>
+        </div>
       <div><h4>Bilder</h4><div>
       <div class="row"><BandImages :selectedBand="selectedBand" :bandPhotos="media[4]" :bandLogos="media[5]" :media-url="mediaUrl"/></div>
       <div><h4>Dokumente</h4><div>
@@ -229,6 +271,7 @@ const BandDetails = Vue.defineComponent({
       <h3>Track</h3>
       <div class="row"><TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" /></div>
     </div>
+    </section>
   `,
   methods: {
     updateTrack (trackId) {
@@ -280,7 +323,8 @@ const app = createApp({
     SongList,
     SongInfo,
     BandImages,
-    BandDocuments
+    BandDocuments,
+    BandLinks
   },
   methods: {
     selectTrack (track) {
