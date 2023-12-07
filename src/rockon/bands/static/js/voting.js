@@ -298,6 +298,59 @@ const BandTags = Vue.defineComponent({
   `
 })
 
+const BandRating = Vue.defineComponent({
+  props: ['selectedBand'],
+  template: `
+    <i
+      title="Daumen runter, 0 Sterne"
+      class="fa-solid fa-thumbs-down m-3"
+      @click="setRating(0)"
+      :class="{'highlight': isHovering}"
+      @mouseover="isHovering = true"
+      @mouseleave="isHovering = false">
+    </i>
+
+    <i
+      v-for="(star, index) in 5"
+        :key="index"
+        :index="index"
+        @click="setRating(index + 1)"
+        class="fa-solid fa-star m-2"
+        :class="{'highlight': hoverIndex >= index}"
+        @mouseover="hoverIndex = index"
+        @mouseleave="hoverIndex = -1">
+    </i>
+
+    <button class="btn btn-outline-primary" @click="removeRating">Enthaltung</button>
+  `,
+  data () {
+    return {
+      rating: 0,
+      hoverIndex: -1,
+      isHovering: false
+    }
+  },
+  methods: {
+    setRating (rating) {
+      console.debug('BandRating setRating:', rating)
+      this.rating = rating
+      // TODO: Save rating to backend
+      alert(`Rating: ${rating}`)
+    },
+    removeRating () {
+      console.debug('BandRating removeRating')
+      this.rating = null
+      // TODO: DELETE rating from backend
+      alert('Rating removed')
+    }
+  }
+  // watch: {
+  //   hoverIndex (newVal) {
+  //     console.debug('BandRating hoverIndex changed:', newVal)
+  //   }
+  // }
+})
+
 const BandDetails = Vue.defineComponent({
   props: ['selectedBand', 'tracks', 'media', 'mediaUrl', 'federalStates'],
   emits: ['update:track', 'update:select-song'],
@@ -307,7 +360,8 @@ const BandDetails = Vue.defineComponent({
     BandImages,
     BandDocuments,
     BandLinks,
-    BandTags
+    BandTags,
+    BandRating
   },
   template: `
     <section class="row p-4 form-section">
@@ -321,7 +375,7 @@ const BandDetails = Vue.defineComponent({
           <BandTags :selectedBand="selectedBand" :federalStates="federalStates" />
         </div>
         <div class="col-3">
-          <p>here be voting area</p>
+          <BandRating :selectedBand="selectedBand" />
         </div>
       </div>
       <div class="row">
@@ -437,7 +491,8 @@ const app = createApp({
       toastAudioPlayer: null,
       toastVisible: false,
       wavesurfer: null,
-      showBandNoName: true
+      showBandNoName: true,
+      BandRating: null
     }
   },
   components: {
@@ -450,7 +505,8 @@ const app = createApp({
     BandImages,
     BandDocuments,
     BandLinks,
-    BandTags
+    BandTags,
+    BandRating
   },
   methods: {
     selectTrack (track) {
