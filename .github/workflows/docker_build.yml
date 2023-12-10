@@ -7,7 +7,7 @@ on:
   # publish on pushes to the main branch (image tagged as "latest")
   push:
     branches:
-      - dev
+      # - dev
       - main
 
 jobs:
