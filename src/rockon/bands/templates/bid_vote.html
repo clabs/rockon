@@ -25,7 +25,9 @@
     selectedBand: {{ bandid }},
   }
   window.rockon_api = {
-    update_band: "{% url "bands-detail" pk="pk_placeholder" %}"
+    update_band: "{% url "bands-detail" pk="pk_placeholder" %}",
+    fetch_rating: "{% url 'band-votes-detail' pk='pk_placeholder' %}",
+    band_vote: "{% url 'band-votes-perform-create' %}",
   }
 </script>
 
@@ -33,7 +35,7 @@
 <div id="app">
   <track-list :tracks="tracks" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"></track-list>
   <band-list v-if="!selectedBand" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" @select-band="selectBand"></band-list>
-  <band-details v-if="selectedBand" :selected-band="selectedBand" :tracks="tracks" :media="media" :media-url="mediaUrl" :federal-states="federalStates" @update:track="updateTrack" @update:select-song="handleSongSelect" ></band-details>
+  <band-details v-if="selectedBand" :selected-band="selectedBand" :tracks="tracks" :media="media" :media-url="mediaUrl" :federal-states="federalStates" @update:track="updateTrack" @update:select-song="handleSongSelect" @update:rating="setRating" ></band-details>
 
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toastAudioPlayer" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">

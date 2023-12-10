@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from rockon.library.custom_admin import CustomAdminModel, admin
 
-from .models import Band, BandMedia, BandMember, Stage, TimeSlot, Track
+from .models import Band, BandMedia, BandMember, BandVote, Stage, TimeSlot, Track
 
 
 class TimeslotAdmin(CustomAdminModel):
@@ -100,9 +100,16 @@ class TrackAdmin(CustomAdminModel):
     search_fields = ("name", "events__name")
 
 
+class BandVoteAdmin(CustomAdminModel):
+    list_display = ("band", "user", "created_at")
+    list_filter = ("band__name", "user__username")
+    search_fields = ("band__name", "user__username")
+
+
 admin.site.register(Band, BandAdmin)
 admin.site.register(BandMedia, BandMediaAdmin)
 admin.site.register(BandMember, BandMemberAdmin)
+admin.site.register(BandVote, BandVoteAdmin)
 admin.site.register(Stage, StageAdmin)
 admin.site.register(TimeSlot, TimeslotAdmin)
 admin.site.register(Track, TrackAdmin)
