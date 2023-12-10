@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
-from platformdirs import user_cache_dir
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, parser_classes
 from rest_framework.parsers import JSONParser, MultiPartParser
