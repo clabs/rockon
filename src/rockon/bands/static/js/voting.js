@@ -306,7 +306,7 @@ const BandRating = Vue.defineComponent({
       title="Daumen runter, 0 Sterne"
       class="fa-solid fa-thumbs-down m-2"
       @click="emitRating(0)"
-      :class="{'highlight': isHovering, 'highlight': rating == 0}"
+      :class="{'highlight': isHovering == true}, {'highlight': rating == 0}"
       @mouseover="isHovering = true"
       @mouseleave="isHovering = false">
     </i>
@@ -317,7 +317,7 @@ const BandRating = Vue.defineComponent({
         :index="index"
         @click="emitRating(index + 1)"
         class="fa-solid fa-star m-2"
-        :class="{'highlight': hoverIndex >= index, 'highlight': index < rating}"
+        :class="{'highlight': hoverIndex >= index}, {'highlight': index < rating}"
         @mouseover="hoverIndex = index"
         @mouseleave="hoverIndex = -1">
     </i>
