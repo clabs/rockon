@@ -112,8 +112,7 @@ ajax_account_create_success = (data) => {
 ajax_error = (data) => {
   // FIXME: needs error handling
   console.error(data.responseJSON)
-  console.debug((data.responseJSON.status === "exists"))
-  if (data.responseJSON.status === "exists") {
+  if (data.responseJSON && data.responseJSON.status === "exists") {
     $('#form_message').html('<div class="alert alert-danger" role="alert">Diese E-Mail-Adresse ist bereits registiert, lasse dir einen magischen Link zukommen, um dich einzulogen.</div>')
     $("#signup :input").prop("disabled", true)
     $('#form_submit').prop("disabled", true)
