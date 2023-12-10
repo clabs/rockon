@@ -288,7 +288,7 @@ ajax_success = data => {
 ajax_error = (data, form_obj, url) => {
   // FIXME: needs error handling
   console.error(data)
-  const response = JSON.parse(data.responseText)
+  const response = responseJSON
   if (response.homepage || response.facebook) {
     return alert('Bitte gibt bei Homepage und Facebook die URL immer mit http:// oder https:// am Anfang ein.')
   }
