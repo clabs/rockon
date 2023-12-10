@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from rest_framework import serializers
 
-from rockon.bands.models import Band, BandMedia, Track, track
+from rockon.bands.models import Band, BandMedia, BandVote, Track
 
 
 class BandTrackSerializer(serializers.ModelSerializer):
@@ -47,3 +47,10 @@ class BandMediaSerializer(serializers.ModelSerializer):
             "thumbnail",
             "file_name_original",
         ]
+
+
+class BandVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BandVote
+        # fields not listed here can not be changed via the API
+        fields = ["band", "user", "vote"]

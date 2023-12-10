@@ -178,10 +178,10 @@ const TrackList = Vue.defineComponent({
   template: `
       <section class="row p-4 form-section">
       <div>
-        <span v-for="track in tracks" :key="track" class="badge m-3" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" @click="handleClick(track)">{{ track.name }}</span>
-        <span class="badge text-bg-primary m-3" :key="no-track" @click="handleShowBandsWithoutTrack">Ohne Track</span>
-        <span class="badge text-bg-secondary m-3" @click="handleDeselectTrack">Filter entfernen</span>
-        <div class="form-check form-switch m-3">
+        <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" @click="handleClick(track)">{{ track.name }}</span>
+        <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack">Ohne Track</span>
+        <span class="badge text-bg-secondary m-2" @click="handleDeselectTrack">Filter entfernen</span>
+        <div class="form-check form-switch m-2">
           <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
           <label class="form-check-label" >Bands ohne Namen verstecken</label>
         </div>
@@ -261,7 +261,7 @@ const BandList = Vue.defineComponent({
     <section v-if="groupedBands.length > 0" class="row p-4 form-section">
       <div v-for="(group, index) in groupedBands" :key="index">
         <ul class="list-group list-group-horizontal d-flex justify-content-start">
-          <li class="list-group-item col" v-for="band in group" :key="band" @click="selectBand(band)">
+          <li class="list-group-item col" v-for="band in group" :key="band" @click="selectBand(band)" style="cursor: pointer;">
             <span>{{ band.name||band.guid }}</span>
           </li>
         </ul>
@@ -300,12 +300,13 @@ const BandTags = Vue.defineComponent({
 
 const BandRating = Vue.defineComponent({
   props: ['selectedBand'],
+  emits: ['update:rating'],
   template: `
     <i
       title="Daumen runter, 0 Sterne"
-      class="fa-solid fa-thumbs-down m-3"
-      @click="setRating(0)"
-      :class="{'highlight': isHovering}"
+      class="fa-solid fa-thumbs-down m-2"
+      @click="emitRating(0)"
+      :class="{'highlight': isHovering, 'highlight': rating == 0}"
       @mouseover="isHovering = true"
       @mouseleave="isHovering = false">
     </i>
@@ -314,35 +315,51 @@ const BandRating = Vue.defineComponent({
       v-for="(star, index) in 5"
         :key="index"
         :index="index"
-        @click="setRating(index + 1)"
+        @click="emitRating(index + 1)"
         class="fa-solid fa-star m-2"
-        :class="{'highlight': hoverIndex >= index}"
+        :class="{'highlight': hoverIndex >= index, 'highlight': index < rating}"
         @mouseover="hoverIndex = index"
         @mouseleave="hoverIndex = -1">
     </i>
-
-    <button class="btn btn-outline-primary" @click="removeRating">Enthaltung</button>
+    <button class="btn btn-outline-primary" @click="emitRating(-1)">Enthaltung</button>
   `,
   data () {
     return {
-      rating: 0,
+      rating: null,
       hoverIndex: -1,
       isHovering: false
     }
   },
   methods: {
-    setRating (rating) {
-      console.debug('BandRating setRating:', rating)
+    emitRating (rating) {
+      console.debug('BandRating emitRating:', rating)
       this.rating = rating
-      // TODO: Save rating to backend
-      alert(`Rating: ${rating}`)
+      this.$emit('update:rating', rating)
     },
-    removeRating () {
-      console.debug('BandRating removeRating')
-      this.rating = null
-      // TODO: DELETE rating from backend
-      alert('Rating removed')
+    async fetchRating () {
+      const url = window.rockon_api.fetch_rating.replace(
+        'pk_placeholder',
+        this.selectedBand.id
+      )
+      console.debug('BandRating fetchRating:', url, this.selectedBand.id)
+      try {
+        const response = await fetch(url)
+        if (response.status === 404) {
+          console.debug('No rating found for band', this.selectedBand.id)
+          return
+        }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        this.rating = data.vote
+      } catch (error) {
+        console.error('Error fetching rating:', error)
+      }
     }
+  },
+  mounted () {
+    this.fetchRating()
   }
   // watch: {
   //   hoverIndex (newVal) {
@@ -353,7 +370,7 @@ const BandRating = Vue.defineComponent({
 
 const BandDetails = Vue.defineComponent({
   props: ['selectedBand', 'tracks', 'media', 'mediaUrl', 'federalStates'],
-  emits: ['update:track', 'update:select-song'],
+  emits: ['update:track', 'update:select-song', 'update:rating'],
   components: {
     TrackDropdown,
     SongList,
@@ -375,7 +392,7 @@ const BandDetails = Vue.defineComponent({
           <BandTags :selectedBand="selectedBand" :federalStates="federalStates" />
         </div>
         <div class="col-3">
-          <BandRating :selectedBand="selectedBand" />
+          <BandRating :selectedBand="selectedBand" @update:rating="emitRating" />
         </div>
       </div>
       <div class="row">
@@ -459,6 +476,10 @@ const BandDetails = Vue.defineComponent({
     formatDate (isoString) {
       console.debug('BandDetails formatDate:', isoString)
       return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
+    },
+    emitRating (rating) {
+      console.debug('BandDetails emitRating:', rating)
+      this.$emit('update:rating', rating)
     }
   },
   watch: {
@@ -634,6 +655,27 @@ const app = createApp({
     handleFilterShowBandNoNameChange (checked) {
       console.debug('app handleFilterShowBandNoNameChange:', checked)
       this.showBandNoName = checked
+    },
+    setRating (rating) {
+      console.debug('BandRating setRating:', rating)
+      this.rating = rating
+      // TODO: Save rating to backend
+      api_url = window.rockon_api.band_vote
+      console.debug('BandRating setRating:', this.selectedBand, rating, api_url)
+      fetch(api_url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.crsf_token
+        },
+        body: JSON.stringify({
+          band: this.selectedBand.id,
+          vote: rating
+        })
+      })
+        .then(response => response)
+        .then(data => console.log('Success:', data))
+        .catch(error => console.error('Error:', error))
     }
   },
   mounted () {
