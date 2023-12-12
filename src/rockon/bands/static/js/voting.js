@@ -126,7 +126,7 @@ const SongList = Vue.defineComponent({
   template: `
     <div>
       <ol>
-        <li v-for="song in filteredSongs" :key="song.id" @click="handleSongClick(song)">
+        <li v-for="song in filteredSongs" :key="song.id" @click="handleSongClick(song)" style="cursor: pointer;">
           {{ song.file_name_original }}
         </li>
       </ol>
