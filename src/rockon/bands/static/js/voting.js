@@ -613,6 +613,10 @@ const app = createApp({
     },
     handleSongSelect (song) {
       console.debug('app handleSongSelect:', song)
+      if (this.playSong === song) {
+        console.debug('app handleSongSelect: Song already playing. Doing nothing.')
+        return
+      }
       this.playSong = song
       this.playSongBand = this.bands.find(band => band.id === song.band_id)
       if (!this.toastVisible) {
