@@ -189,9 +189,9 @@ const TrackList = Vue.defineComponent({
   template: `
       <section class="row p-4 form-section">
       <div>
-        <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" @click="handleClick(track)">{{ track.name }}</span>
-        <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack">Ohne Track</span>
-        <span class="badge text-bg-secondary m-2" @click="handleDeselectTrack">Filter entfernen</span>
+        <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" style="cursor: pointer;" @click="handleClick(track)">{{ track.name }}</span>
+        <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack" style="cursor: pointer;">Ohne Track</span>
+        <span class="badge text-bg-secondary m-2" @click="handleDeselectTrack" style="cursor: pointer;">Filter entfernen</span>
         <div class="form-check form-switch m-2">
           <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
           <label class="form-check-label" >Bands ohne Namen verstecken</label>
@@ -295,16 +295,16 @@ const BandTags = Vue.defineComponent({
   },
   template: `
     <div>
-      <span class="badge text-bg-primary m-1">{{ federalStatesTag }}</span>
-      <span v-if="selectedBand.has_management" class="badge text-bg-warning m-1">Management</span>
-      <span v-if="!selectedBand.has_management" class="badge text-bg-success m-1">Kein Management</span>
-      <span v-if="selectedBand.are_students" class="badge text-bg-warning m-1">Schülerband</span>
-      <span v-if="!selectedBand.are_students" class="badge text-bg-primary m-1">Keine Schülerband</span>
-      <span v-if="selectedBand.repeated" class="badge text-bg-warning m-1">Wiederholer</span>
-      <span v-if="!selectedBand.repeated" class="badge text-bg-primary m-1">Neu</span>
-      <span class="badge text-bg-primary m-1">{{ selectedBand.genre || "Kein Gerne" }}</span>
-      <span v-if="!selectedBand.cover_letter" class="badge text-bg-warning m-1">Kein Coverletter</span>
-      <span v-if="!selectedBand.homepage" class="badge text-bg-warning m-1">Keine Homepage</span>
+      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
+      <span v-if="selectedBand.has_management" class="badge text-bg-warning m-1" style="cursor: pointer;">Management</span>
+      <span v-if="!selectedBand.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
+      <span v-if="selectedBand.are_students" class="badge text-bg-warning m-1" style="cursor: pointer;">Schülerband</span>
+      <span v-if="!selectedBand.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
+      <span v-if="selectedBand.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
+      <span v-if="!selectedBand.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
+      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBand.genre || "Kein Gerne" }}</span>
+      <span v-if="!selectedBand.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
+      <span v-if="!selectedBand.homepage" class="badge text-bg-warning m-1" style="cursor: pointer;">Keine Homepage</span>
     </div>
   `
 })
