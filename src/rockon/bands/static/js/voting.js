@@ -93,17 +93,28 @@ const BandImages = Vue.defineComponent({
     }
   },
   template: `
-    <div class="row">
+    <div class="row gallery">
       <div v-if="currentBandPhoto" class="col">
         <div><h5>Photo</h5></div>
+        <a :href="mediaUrl + currentBandPhoto.file">
         <img :src="mediaUrl + currentBandPhoto.file" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-height: 250px;">
+        </a>
       </div>
       <div v-if="currentBandLogo" class="col">
         <div><h5>Logo</h5></div>
+        <a :href="mediaUrl + currentBandLogo.file">
         <img :src="mediaUrl + currentBandLogo.file" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-height: 250px;">
+        </a>
       </div>
     </div>
-  `
+  `,
+  mounted () {
+    const options = {
+      overlayOpacity: 0.2
+    }
+    const lightbox = new SimpleLightbox('.gallery a', options)
+    console.debug('BandImages mounted lightbox:', lightbox)
+  }
 })
 
 const SongList = Vue.defineComponent({
@@ -513,7 +524,8 @@ const app = createApp({
       toastVisible: false,
       wavesurfer: null,
       showBandNoName: true,
-      BandRating: null
+      BandRating: null,
+      lightbox: null
     }
   },
   components: {
@@ -614,7 +626,9 @@ const app = createApp({
     handleSongSelect (song) {
       console.debug('app handleSongSelect:', song)
       if (this.playSong === song) {
-        console.debug('app handleSongSelect: Song already playing. Doing nothing.')
+        console.debug(
+          'app handleSongSelect: Song already playing. Doing nothing.'
+        )
         return
       }
       this.playSong = song

@@ -13,6 +13,14 @@
 <script src="{% static "vendor/wavesurfer.7.5.0.min.js" %}"></script>
 {% endcompress %}
 
+{% compress js file simplelightbox %}
+<script src="{% static "vendor/simple-lightbox.2.13.0.min.js" %}"></script>
+{% endcompress %}
+
+{% compress css file simplelightbox %}
+<link rel="stylesheet" type="text/css" href="{% static "vendor/simple-lightbox.2.13.0.min.css" %}">
+{% endcompress %}
+
 <script>
   window.rockon_data = {
     media_url: "{{ media_url }}",
