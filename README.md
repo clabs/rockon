@@ -141,3 +141,7 @@ Reenable signals.
 ### Wavesurfer
 
 <https://wavesurfer.xyz/>
+
+### Simple-lightbox
+
+<https://github.com/andreknieriem/simplelightbox>
