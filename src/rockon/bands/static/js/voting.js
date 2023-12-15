@@ -127,13 +127,13 @@ const BandImages = Vue.defineComponent({
       <div v-if="currentBandPhoto" class="col">
         <div><h5>Photo</h5></div>
         <a :href="mediaUrl + currentBandPhoto.file">
-        <img :src="currentBandPhotoThumbnail" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-height: 250px;">
+        <img :src="mediaUrl + currentBandPhoto.encoded_file || currentBandPhoto.file" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-height: 250px;">
         </a>
       </div>
       <div v-if="currentBandLogo" class="col">
         <div><h5>Logo</h5></div>
         <a :href="mediaUrl + currentBandLogo.file">
-        <img :src="currentBandLogoThumbnail" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-height: 250px;">
+        <img :src="mediaUrl + currentBandLogo.encoded_file || currentBandLogo.file" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-height: 250px;">
         </a>
       </div>
     </div>
@@ -676,14 +676,6 @@ const app = createApp({
       this.playSong = song
       this.playSongBand = this.bands.find(band => band.id === song.band_id)
 
-      let query_param = "?encoded="
-
-      if (song.encoded_file) {
-        query_param += "true"
-      } else {
-        query_param += "false"
-      }
-
       this.wavesurfer = WaveSurfer.create({
         container: document.getElementById('player-wrapper'),
         waveColor: '#fff300',
@@ -692,7 +684,7 @@ const app = createApp({
         splitChannels: false,
         dragToSeek: true,
         cursorWidth: 3,
-        url: this.mediaUrl + song.file + query_param,
+        url: this.mediaUrl + song.encoded_file || song.file,
         mediaControls: true,
         autoplay: true
       })
