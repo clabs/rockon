@@ -523,7 +523,7 @@ const app = createApp({
       toastAudioPlayer: null,
       toastVisible: false,
       wavesurfer: null,
-      showBandNoName: true,
+      showBandNoName: null,
       BandRating: null,
       lightbox: null
     }
@@ -672,6 +672,7 @@ const app = createApp({
     },
     handleFilterShowBandNoNameChange (checked) {
       console.debug('app handleFilterShowBandNoNameChange:', checked)
+      sessionStorage.setItem('filterShowBandsNoName', JSON.stringify(checked))
       this.showBandNoName = checked
     },
     setRating (rating) {
@@ -705,6 +706,7 @@ const app = createApp({
     bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
     this.toastAudioPlayer = toastAudioPlayer
     this.updateComponent()
+    this.showBandNoName = JSON.parse(sessionStorage.getItem('filterShowBandsNoName')) || true
   },
   beforeUnmount () {
     window.removeEventListener('popstate', this.updateComponent)
