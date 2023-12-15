@@ -83,6 +83,21 @@ const BandImages = Vue.defineComponent({
       )
       return filteredBandPhotos[filteredBandPhotos.length - 1]
     },
+    currentBandPhotoThumbnail () {
+      console.debug('currentBandPhotoThumbnail computed bandPhotos:', this.bandPhotos)
+      const filteredBandPhotos = this.bandPhotos.filter(
+        photo => photo.band_id === this.selectedBand.id
+      )
+      console.debug(
+        'currentBandPhotoThumbnail computed filteredBandPhotos:',
+        filteredBandPhotos
+      )
+      photo = filteredBandPhotos[filteredBandPhotos.length - 1]
+      if (photo.encoded_file) {
+        return this.mediaUrl + photo.file + '?encoded=true'
+      }
+      return this.mediaUrl + photo.file
+    },
     currentBandLogo () {
       console.debug('BandImages computed bandLogos:', this.bandLogos)
       const filteredBandLogos = this.bandLogos.filter(
@@ -90,20 +105,35 @@ const BandImages = Vue.defineComponent({
       )
       console.debug('BandImages computed filteredBandLogos:', filteredBandLogos)
       return filteredBandLogos[filteredBandLogos.length - 1]
-    }
+    },
+    currentBandLogoThumbnail () {
+      console.debug('currentBandLogoThumbnail computed bandPhotos:', this.bandLogos)
+      const filteredBandLogos = this.bandLogos.filter(
+        logo => logo.band_id === this.selectedBand.id
+      )
+      console.debug(
+        'currentBandLogoThumbnail computed filteredBandLogos:',
+        filteredBandLogos
+      )
+      logo = filteredBandLogos[filteredBandLogos.length - 1]
+      if (logo.encoded_file) {
+        return this.mediaUrl + logo.file + '?encoded=true'
+      }
+      return this.mediaUrl + logo.file
+    },
   },
   template: `
     <div class="row gallery">
       <div v-if="currentBandPhoto" class="col">
         <div><h5>Photo</h5></div>
         <a :href="mediaUrl + currentBandPhoto.file">
-        <img :src="mediaUrl + currentBandPhoto.file" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-height: 250px;">
+        <img :src="currentBandPhotoThumbnail" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-height: 250px;">
         </a>
       </div>
       <div v-if="currentBandLogo" class="col">
         <div><h5>Logo</h5></div>
         <a :href="mediaUrl + currentBandLogo.file">
-        <img :src="mediaUrl + currentBandLogo.file" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-height: 250px;">
+        <img :src="currentBandLogoThumbnail" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-height: 250px;">
         </a>
       </div>
     </div>
@@ -114,7 +144,7 @@ const BandImages = Vue.defineComponent({
     }
     const lightbox = new SimpleLightbox('.gallery a', options)
     console.debug('BandImages mounted lightbox:', lightbox)
-  }
+  },
 })
 
 const SongList = Vue.defineComponent({
@@ -646,6 +676,14 @@ const app = createApp({
       this.playSong = song
       this.playSongBand = this.bands.find(band => band.id === song.band_id)
 
+      let query_param = "?encoded="
+
+      if (song.encoded_file) {
+        query_param += "true"
+      } else {
+        query_param += "false"
+      }
+
       this.wavesurfer = WaveSurfer.create({
         container: document.getElementById('player-wrapper'),
         waveColor: '#fff300',
@@ -654,7 +692,7 @@ const app = createApp({
         splitChannels: false,
         dragToSeek: true,
         cursorWidth: 3,
-        url: this.mediaUrl + song.file,
+        url: this.mediaUrl + song.file + query_param,
         mediaControls: true,
         autoplay: true
       })
