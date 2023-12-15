@@ -1,11 +1,4 @@
-src/**/static/fonts/** linguist-vendored
-src/**/static/vendor/jquery* linguist-vendored
-src/**/static/vendor/bootstrap* linguist-vendored
-src/**/static/vendor/sentry* linguist-vendored
-src/**/static/vendor/chart* linguist-vendored
-src/**/static/vendor/qrcode.min.js linguist-vendored
-src/**/static/vendor/luxon* linguist-vendored
-src/**/static/fontawesome/** linguist-vendored
-src/**/static/css/bootstrap* linguist-vendored
-src/**/static/css/rockon* linguist-vendored
+src/base/static/fonts/** linguist-vendored
+src/**/vendor/** linguist-vendored
+src/base/static/fontawesome/** linguist-vendored
 src/themes/bootstrap/** linguist-vendored
