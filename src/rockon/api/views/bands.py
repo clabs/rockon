@@ -57,6 +57,7 @@ class BandMediaViewSet(viewsets.ModelViewSet):
         if not band.id == user.band.id and not user.is_staff:
             raise PermissionError("You can only upload media for your own band.")
         serializer.save()
+        serializer.instance.encode_file()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

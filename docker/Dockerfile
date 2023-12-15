@@ -58,7 +58,7 @@ RUN apt-get update && \
         vim \
         sudo \
         ffmpeg \
-        libpng-dev libjpeg-dev libtiff-dev imagemagick && \
+        libpng-dev libjpeg-dev libtiff-dev imagemagick ghostscript && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir -p /run/rockon /static_files && \
