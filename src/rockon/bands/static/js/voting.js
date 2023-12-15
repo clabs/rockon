@@ -736,7 +736,9 @@ const app = createApp({
     bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
     this.toastAudioPlayer = toastAudioPlayer
     this.updateComponent()
-    this.showBandNoName = JSON.parse(sessionStorage.getItem('filterShowBandsNoName')) || true
+    const filter = JSON.parse(sessionStorage.getItem('filterShowBandsNoName'))
+    console.debug('Mounted function called. filter:', filter)
+    this.showBandNoName = filter ? filter : false
   },
   beforeUnmount () {
     window.removeEventListener('popstate', this.updateComponent)
