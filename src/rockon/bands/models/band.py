@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
+
 from django.contrib.auth.models import User
+from django.core.serializers import serialize
 
 from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
@@ -80,3 +83,21 @@ class Band(CustomModel):
             return True
 
         return False
+
+    def get_logo(self):
+        return self.media.filter(media_type="logo").first()
+
+    def get_press_photo(self):
+        return self.media.filter(media_type="press_photo").first()
+
+    def get_songs(self):
+        query = self.media.filter(media_type="audio")
+        if not query.exists():
+            return None
+        return query
+
+    def get_links(self):
+        return self.media.filter(media_type="link")
+
+    def get_documents(self):
+        return self.media.filter(media_type="document")

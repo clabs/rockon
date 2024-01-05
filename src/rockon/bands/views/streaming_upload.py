@@ -26,7 +26,7 @@ def streaming_upload(request, band, filename):
             filename = filename.replace(ending, "")
 
     lookup = f"bids/{band}/{filename}"
-    media = BandMedia.objects.get(file__startswith=lookup)
+    media = BandMedia.objects.filter(file__startswith=lookup).first()
 
     if serve_encoded:
         file = open(media.encoded_file.path, "rb")

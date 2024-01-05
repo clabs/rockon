@@ -11,9 +11,11 @@ from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from rest_framework.renderers import JSONRenderer
 
+from rockon.api.serializers import BandListSerializer
 from rockon.bands.models import Band, BandMedia, MediaType, Track
-from rockon.base.models import Event
+from rockon.base.models import Event, event
 from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
 
@@ -24,6 +26,19 @@ class CustomJSONEncoder(DjangoJSONEncoder):
             return str(obj)
         if isinstance(obj, Event):
             return obj.id
+        # we need @property fields in the JSON
+        if hasattr(obj, "__dict__"):
+            data = obj.__dict__
+            # Add properties here
+            data.update(
+                {
+                    prop: getattr(obj, prop)
+                    for prop in dir(obj)
+                    if isinstance(getattr(obj, prop), property)
+                    and not prop.startswith("__")
+                }
+            )
+            return data
         return super().default(obj)
 
 
@@ -106,27 +121,8 @@ def bid_form(request, slug, guid):
 @login_required
 def bid_vote(request, bid: str = None, track: str = None):
     template = loader.get_template("bid_vote.html")
-    bands = Band.objects.filter(event__id=request.session["current_event"])
-    bands_json = mark_safe(json.dumps(list(bands.values()), cls=CustomJSONEncoder))
     tracks = Track.objects.filter(events__id=request.session["current_event"])
     tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
-    media = BandMedia.objects.filter(band__event__id=request.session["current_event"])
-    media_by_type = {}
-    media_type_map = mark_safe(
-        json.dumps(
-            [
-                {"key": media_type[0], "name": media_type[1]}
-                for media_type in MediaType.choices
-            ]
-        )
-    )
-    for media_type in MediaType.choices:
-        media_by_type[media_type[0]] = list(
-            media.filter(media_type=media_type[0]).values()
-        )
-    media_json = mark_safe(
-        json.dumps(list(media_by_type.values()), cls=CustomJSONEncoder)
-    )
     federal_states = FederalState.choices
     federal_states_json = mark_safe(json.dumps(federal_states))
     track_slug_json = mark_safe(json.dumps(track, cls=CustomJSONEncoder))
@@ -135,10 +131,8 @@ def bid_vote(request, bid: str = None, track: str = None):
     extra_context = {
         "media_url": media_url,
         "site_title": "Band Bewertung",
-        "bands": bands_json,
+        "event_slug": Event.objects.get(id=request.session["current_event"]).slug,
         "tracks": tracks_json,
-        "media": media_json,
-        "media_type_map": media_type_map,
         "federal_states": federal_states_json,
         "trackid": track_slug_json,
         "bandid": band_guid_json,

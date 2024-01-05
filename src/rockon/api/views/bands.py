@@ -9,11 +9,13 @@ from rest_framework.response import Response
 
 from rockon.api.permissions import IsOwner
 from rockon.api.serializers import (
+    BandDetailSerializer,
+    BandListSerializer,
     BandMediaSerializer,
-    BandSerializer,
+    BandTrackSerializer,
     BandVoteSerializer,
 )
-from rockon.bands.models import Band, BandMedia, BandVote
+from rockon.bands.models import Band, BandMedia, BandVote, Track
 
 
 class BandViewSet(viewsets.ModelViewSet):
@@ -22,8 +24,19 @@ class BandViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Band.objects.all()
-    serializer_class = BandSerializer
     permission_classes = [permissions.IsAdminUser | IsOwner]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return BandListSerializer
+        return BandDetailSerializer
+
+    def get_queryset(self):
+        queryset = Band.objects.all()
+        event_slug = self.request.query_params.get("event", None)
+        if event_slug is not None:
+            queryset = queryset.filter(event__slug=event_slug)
+        return queryset
 
 
 class BandMediaViewSet(viewsets.ModelViewSet):
@@ -109,3 +122,14 @@ class BandVoteViewSet(viewsets.ModelViewSet):
         except (KeyError, BandVote.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_201_CREATED)
+
+
+class BandTrackViewSet(viewsets.ModelViewSet):
+    serializer_class = BandTrackSerializer
+
+    def get_queryset(self):
+        queryset = Track.objects.all().filter(active=True)
+        event_slug = self.request.query_params.get("event", None)
+        if event_slug is not None:
+            queryset = queryset.filter(events__slug__icontains=event_slug)
+        return queryset

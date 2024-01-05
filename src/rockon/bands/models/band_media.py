@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 
 from django.conf import settings
+from django.core.serializers import serialize
 from django_q.tasks import AsyncTask
 
 from rockon.library.custom_model import CustomModel, models
@@ -79,6 +81,16 @@ class BandMedia(CustomModel):
             )
             _task.run()
         return
+
+    def json_dump(self):
+        """JSON dump."""
+        instance_json_str = serialize("json", [self])
+        instance_json = json.loads(instance_json_str)[0]
+        _instance = {}
+        _instance["id"] = instance_json["pk"]
+        _instance.update(instance_json["fields"])
+
+        return _instance
 
     @classmethod
     def encode_audio_file(cls, id) -> BandMedia:
