@@ -2,36 +2,47 @@ const { createApp, ref } = Vue
 
 const DateTime = luxon.DateTime
 
+const LoadingSpinner = Vue.defineComponent({
+  props: ['bands', 'bandsToFetch'],
+  computed: {
+    progress () {
+      return (this.bands.length / this.bandsToFetch) * 100
+    }
+  },
+  template: `
+  <div class="text-center mt-5">
+    <div class="spinner-border text-primary" style="width: 9rem; height: 9rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div class="text-center mt-5">
+  <h3 class="mt-3">Wir laden eine unfassbare Menge an Daten</h3>
+  <div v-if="bandsToFetch">
+    <div class="progress" role="progressbar" aria-label="Animated striped example" :aria-valuenow="bands.length" aria-valuemin="0" :aria-valuemax="bandsToFetch">
+      <div class="progress-bar progress-bar-striped progress-bar-animated" :style="{ 'width': progress + '%' }"></div>
+    </div>
+    <p>{{ bands.length }} / {{ bandsToFetch }} Bands</p>
+  </div>
+  </div>
+  `
+})
+
 const SongInfo = Vue.defineComponent({
   props: ['song', 'band'],
   template: `
     <div>
-      <p><h5>Band</h5> {{ band.name }}</p>
+      <p><h5>Band</h5> {{ band.name || band.guid }}</p>
       <p><h5>Song</h5> {{ song.file_name_original }}</p>
     </div>
   `
 })
 
 const BandLinks = Vue.defineComponent({
-  props: ['selectedBand', 'links'],
-  computed: {
-    filteredLinks () {
-      console.debug(
-        'BandLinks computed filtering for:',
-        this.selectedBand,
-        this.links
-      )
-      const filtered_links = this.links.filter(
-        link => link.band_id === this.selectedBand.id
-      )
-      console.debug('BandLinks computed filtered_links:', filtered_links)
-      return filtered_links
-    }
-  },
+  props: ['links'],
   template: `
     <div>
       <ul>
-        <li v-for="link in filteredLinks" :key="link.id">
+        <li v-for="link in links" :key="link.id">
           <a :href="link.url" target="_blank">{{ link.url }}</a>
         </li>
       </ul>
@@ -40,29 +51,12 @@ const BandLinks = Vue.defineComponent({
 })
 
 const BandDocuments = Vue.defineComponent({
-  props: ['bandDocuments', 'selectedBand', 'mediaUrl'],
-  computed: {
-    filteredBandDocuments () {
-      console.debug(
-        'BandDocuments computed filtering for:',
-        this.selectedBand,
-        this.bandDocuments
-      )
-      const filtered_band_documents = this.bandDocuments.filter(
-        document => document.band_id === this.selectedBand.id
-      )
-      console.debug(
-        'BandDocuments computed filtered_band_documents:',
-        filtered_band_documents
-      )
-      return filtered_band_documents
-    }
-  },
+  props: ['documents'],
   template: `
     <div>
       <ul>
-        <li v-for="document in filteredBandDocuments" :key="document.id">
-          <a :href="mediaUrl + document.file" target="_blank">{{ document.file_name_original }}</a>
+        <li v-for="document in documents" :key="document.id">
+          <a :href="document.file" target="_blank">{{ document.file_name_original }}</a>
         </li>
       </ul>
     </div>
@@ -70,70 +64,19 @@ const BandDocuments = Vue.defineComponent({
 })
 
 const BandImages = Vue.defineComponent({
-  props: ['bandPhotos', 'bandLogos', 'selectedBand', 'mediaUrl'],
-  computed: {
-    currentBandPhoto () {
-      console.debug('BandImages computed bandPhotos:', this.bandPhotos)
-      const filteredBandPhotos = this.bandPhotos.filter(
-        photo => photo.band_id === this.selectedBand.id
-      )
-      console.debug(
-        'BandImages computed filteredBandPhotos:',
-        filteredBandPhotos
-      )
-      return filteredBandPhotos[filteredBandPhotos.length - 1]
-    },
-    currentBandPhotoThumbnail () {
-      console.debug('currentBandPhotoThumbnail computed bandPhotos:', this.bandPhotos)
-      const filteredBandPhotos = this.bandPhotos.filter(
-        photo => photo.band_id === this.selectedBand.id
-      )
-      console.debug(
-        'currentBandPhotoThumbnail computed filteredBandPhotos:',
-        filteredBandPhotos
-      )
-      photo = filteredBandPhotos[filteredBandPhotos.length - 1]
-      if (photo.encoded_file) {
-        return this.mediaUrl + photo.file + '?encoded=true'
-      }
-      return this.mediaUrl + photo.file
-    },
-    currentBandLogo () {
-      console.debug('BandImages computed bandLogos:', this.bandLogos)
-      const filteredBandLogos = this.bandLogos.filter(
-        logo => logo.band_id === this.selectedBand.id
-      )
-      console.debug('BandImages computed filteredBandLogos:', filteredBandLogos)
-      return filteredBandLogos[filteredBandLogos.length - 1]
-    },
-    currentBandLogoThumbnail () {
-      console.debug('currentBandLogoThumbnail computed bandPhotos:', this.bandLogos)
-      const filteredBandLogos = this.bandLogos.filter(
-        logo => logo.band_id === this.selectedBand.id
-      )
-      console.debug(
-        'currentBandLogoThumbnail computed filteredBandLogos:',
-        filteredBandLogos
-      )
-      logo = filteredBandLogos[filteredBandLogos.length - 1]
-      if (logo.encoded_file) {
-        return this.mediaUrl + logo.file + '?encoded=true'
-      }
-      return this.mediaUrl + logo.file
-    },
-  },
+  props: ['selectedBandDetails'],
   template: `
     <div class="row gallery">
-      <div v-if="currentBandPhoto" class="col">
+      <div v-if="selectedBandDetails.press_photo" class="col">
         <div><h5>Photo</h5></div>
-        <a :href="mediaUrl + currentBandPhoto.file">
-        <img :src="mediaUrl + currentBandPhoto.encoded_file || currentBandPhoto.file" class="img-thumbnail" :alt="mediaUrl + currentBandPhoto.file" style="max-height: 250px;">
+        <a :href="selectedBandDetails.press_photo.file">
+        <img :src="selectedBandDetails.press_photo.encoded_file" :alt="selectedBandDetails.press_photo.encoded_file" style="max-height: 250px;">
         </a>
       </div>
-      <div v-if="currentBandLogo" class="col">
+      <div v-if="selectedBandDetails.logo" class="col">
         <div><h5>Logo</h5></div>
-        <a :href="mediaUrl + currentBandLogo.file">
-        <img :src="mediaUrl + currentBandLogo.encoded_file || currentBandLogo.file" class="img-thumbnail" :alt="mediaUrl + currentBandLogo.file" style="max-height: 250px;">
+        <a :href="selectedBandDetails.logo.file">
+        <img :src="selectedBandDetails.logo.encoded_file" :alt="selectedBandDetails.logo.encoded_file" style="max-height: 250px;">
         </a>
       </div>
     </div>
@@ -144,30 +87,16 @@ const BandImages = Vue.defineComponent({
     }
     const lightbox = new SimpleLightbox('.gallery a', options)
     console.debug('BandImages mounted lightbox:', lightbox)
-  },
+  }
 })
 
 const SongList = Vue.defineComponent({
-  props: ['songs', 'selectedBand'],
+  props: ['songs'],
   emits: ['select-song'],
-  computed: {
-    filteredSongs () {
-      console.debug(
-        'SongList computed filtering for:',
-        this.selectedBand,
-        this.songs
-      )
-      const filtered_songs = this.songs.filter(
-        song => song.band_id === this.selectedBand.id
-      )
-      console.debug('SongList:', filtered_songs)
-      return filtered_songs
-    }
-  },
   template: `
     <div>
       <ol>
-        <li v-for="song in filteredSongs" :key="song.id" @click="handleSongClick(song)" style="cursor: pointer;">
+        <li v-for="song in songs" :key="song.id" @click="handleSongClick(song)" style="cursor: pointer;">
           {{ song.file_name_original }}
         </li>
       </ol>
@@ -182,14 +111,22 @@ const SongList = Vue.defineComponent({
 })
 
 const TrackDropdown = Vue.defineComponent({
-  props: ['tracks', 'currentTrackId'],
+  props: ['tracks', 'selectedBandDetails'],
   emits: ['update:selectedTrack'],
+  mounted () {
+    console.debug(
+      'TrackDropdown mounted:',
+      this.tracks,
+      this.selectedBandDetails.track
+    )
+  },
   template: `
     <div>
-    <select @change="updateSelectedTrack" :value="currentTrackId" v-model="currentTrackId">
-      <option value="">Track entfernen</option>
+    <select @change="updateSelectedTrack" v-model="selectedBandDetails.track">
+      <option v-if="!selectedBandDetails.track" disabled v-bind:value="null">Track auswählen</option>
+      <option v-if="selectedBandDetails.track" value="">Track entfernen</option>
       <option v-for="track in tracks" :value="track.id" :key="track.id">
-        {{ track.name }}
+        {{ track.name || "Kein Track" }}
       </option>
     </select>
     </div>
@@ -202,15 +139,14 @@ const TrackDropdown = Vue.defineComponent({
   },
   watch: {
     currentTrackId (newVal) {
-      const selectedTrack = this.tracks.find(track => track.id === newVal)
-      console.log('Selected track:', selectedTrack)
+      console.log('Selected track:', newVal)
     }
   }
 })
 
 const TrackList = Vue.defineComponent({
-  props: ['tracks', 'selectedTrack', 'showBandNoName'],
-  emits: ['select-track', 'filter-no-name'],
+  props: ['tracks', 'selectedTrack', 'showBandNoName', 'showIncompleteBids'],
+  emits: ['select-track', 'filter-no-name', 'filter-incomplete-bids'],
   computed: {
     showBandNoNameComputed () {
       return this.showBandNoName
@@ -225,6 +161,10 @@ const TrackList = Vue.defineComponent({
         <div class="form-check form-switch m-2">
           <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
           <label class="form-check-label" >Bands ohne Namen verstecken</label>
+        </div>
+        <div class="form-check form-switch m-2">
+          <input class="form-check-input" type="checkbox" role="switch" :checked="showIncompleteBids" @change="handleFilterIncompleteBids" />
+          <label class="form-check-label" >Unvollständige Bewerbungen verstecken</label>
         </div>
       </div>
       </section>
@@ -249,6 +189,14 @@ const TrackList = Vue.defineComponent({
       console.debug('TrackList handleFilterNoNameChange:', event.target.checked)
       this.showBandNoName = event.target.checked
       this.$emit('filter-no-name', event.target.checked)
+    },
+    handleFilterIncompleteBids (event) {
+      console.debug(
+        'TrackList handleFilterIncompleteBids:',
+        event.target.checked
+      )
+      this.showIncompleteBids = event.target.checked
+      this.$emit('filter-incomplete-bids', event.target.checked)
     }
   },
   created () {
@@ -260,12 +208,16 @@ const TrackList = Vue.defineComponent({
 })
 
 const BandList = Vue.defineComponent({
-  props: ['bands', 'selectedTrack', 'showBandNoName'],
+  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids'],
   emits: ['select-band'],
   computed: {
     filteredBands () {
       console.debug('selectedTrack:', this.selectedTrack)
       _bands = this.bands
+      if (this.showIncompleteBids) {
+        console.debug('Filtering for bands with incomplete bids.')
+        _bands = _bands.filter(band => band.bid_complete === true)
+      }
       if (this.showBandNoName) {
         console.debug('Filtering for bands without a name.')
         _bands = _bands.filter(band => band.name)
@@ -276,10 +228,10 @@ const BandList = Vue.defineComponent({
       }
       if (this.selectedTrack === 'no-track') {
         console.debug('Filtering for bands without a track.')
-        return _bands.filter(band => !band.track_id)
+        return _bands.filter(band => !band.track)
       }
       const filtered = _bands.filter(
-        band => band.track_id === this.selectedTrack.id
+        band => band.track && band.track === this.selectedTrack.id
       )
       console.debug('Filtered bands:', filtered)
       return filtered
@@ -292,32 +244,59 @@ const BandList = Vue.defineComponent({
       return groups
     }
   },
+  data () {
+    return {
+      selectedBand: null,
+      bgColor: 'var(--rockon-card-bg)'
+    }
+  },
   methods: {
     selectBand (band) {
       console.debug('BandList selectBand:', band)
       this.$emit('select-band', band)
+    },
+    cardImage (band) {
+      if (!band.press_photo) {
+        return window.rockon_data.placeholder
+      }
+      return band.press_photo.encoded_file || band.press_photo.file
+    },
+    hoverBand (band) {
+      this.selectedBand = band
+      this.bgColor = 'var(--rockon-secondary-text-emphasis)'
+    },
+    leaveBand (band) {
+      if (this.selectedBand === band) {
+        this.selectedBand = null
+        this.bgColor = 'var(--rockon-card-bg)'
+      }
     }
   },
   template: `
     <section v-if="groupedBands.length > 0" class="row p-4 form-section">
-      <div v-for="(group, index) in groupedBands" :key="index">
-        <ul class="list-group list-group-horizontal d-flex justify-content-start">
-          <li class="list-group-item col" v-for="band in group" :key="band" @click="selectBand(band)" style="cursor: pointer;">
-            <span>{{ band.name||band.guid }}</span>
-          </li>
-        </ul>
+    <div v-for="(group, index) in groupedBands" :key="index">
+      <div class="card-group">
+        <div class="card" v-for="band in group" @click="selectBand(band)" style="cursor: pointer; max-width: 312px; height: 340px" :style="{ backgroundColor: selectedBand === band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(band)" @mouseleave="leaveBand(band)">
+          <img :src="cardImage(band)" class="card-img-top img-fluid" style="height: 250px; object-fit: cover; object-position: center;" :alt="band.name || band.guid" loading="lazy">
+          <div class="card-body">
+            <h6 class="card-title">{{ band.name || band.guid }}</h6>
+            <p class="card-text"><small class="text-body-secondary">{{band.bid_complete ? "Bewerbung vollständig" : "Bewerbung unvollständig"}}</small></p>
+          </div>
+        </div>
       </div>
+    </div>
     </section>
   `
 })
 
 const BandTags = Vue.defineComponent({
-  props: ['selectedBand', 'federalStates'],
+  props: ['selectedBandDetails', 'federalStates'],
   computed: {
     federalStatesTag () {
       console.debug('BandTags computed federalStatesTag:', this.federalStates)
       const federalState = this.federalStates.find(
-        federalState => federalState[0] === this.selectedBand.federal_state
+        federalState =>
+          federalState[0] === this.selectedBandDetails.federal_state
       )
       console.debug('BandTags computed federalState:', federalState)
       return federalState ? federalState[1] : null
@@ -325,22 +304,23 @@ const BandTags = Vue.defineComponent({
   },
   template: `
     <div>
+      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
-      <span v-if="selectedBand.has_management" class="badge text-bg-warning m-1" style="cursor: pointer;">Management</span>
-      <span v-if="!selectedBand.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
-      <span v-if="selectedBand.are_students" class="badge text-bg-warning m-1" style="cursor: pointer;">Schülerband</span>
-      <span v-if="!selectedBand.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
-      <span v-if="selectedBand.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
-      <span v-if="!selectedBand.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
-      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBand.genre || "Kein Gerne" }}</span>
-      <span v-if="!selectedBand.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
-      <span v-if="!selectedBand.homepage" class="badge text-bg-warning m-1" style="cursor: pointer;">Keine Homepage</span>
+      <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1" style="cursor: pointer;">Management</span>
+      <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
+      <span v-if="selectedBandDetails.are_students" class="badge text-bg-warning m-1" style="cursor: pointer;">Schülerband</span>
+      <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
+      <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
+      <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
+      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
+      <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
+      <span v-if="!selectedBandDetails.homepage" class="badge text-bg-warning m-1" style="cursor: pointer;">Keine Homepage</span>
     </div>
   `
 })
 
 const BandRating = Vue.defineComponent({
-  props: ['selectedBand'],
+  props: ['selectedBandDetails'],
   emits: ['update:rating'],
   template: `
     <i
@@ -380,13 +360,13 @@ const BandRating = Vue.defineComponent({
     async fetchRating () {
       const url = window.rockon_api.fetch_rating.replace(
         'pk_placeholder',
-        this.selectedBand.id
+        this.selectedBandDetails.id
       )
-      console.debug('BandRating fetchRating:', url, this.selectedBand.id)
+      console.debug('BandRating fetchRating:', url, this.selectedBandDetails.id)
       try {
         const response = await fetch(url)
         if (response.status === 404) {
-          console.debug('No rating found for band', this.selectedBand.id)
+          console.debug('No rating found for band', this.selectedBandDetails.id)
           return
         }
         if (!response.ok) {
@@ -410,7 +390,13 @@ const BandRating = Vue.defineComponent({
 })
 
 const BandDetails = Vue.defineComponent({
-  props: ['selectedBand', 'tracks', 'media', 'mediaUrl', 'federalStates'],
+  props: [
+    'tracks',
+    'media',
+    'federalStates',
+    'selectedBandDetails',
+    'currentTrackId'
+  ],
   emits: ['update:track', 'update:select-song', 'update:rating'],
   components: {
     TrackDropdown,
@@ -421,87 +407,105 @@ const BandDetails = Vue.defineComponent({
     BandTags,
     BandRating
   },
+  created () {
+    console.debug('BandDetails created:', this.selectedBandDetails)
+  },
+  computed: {
+    bandName () {
+      if (!this.selectedBandDetails.name) {
+        return this.selectedBandDetails.guid
+      }
+      return this.selectedBandDetails.name
+    },
+    trackId () {
+      console.debug('BandDetails trackId:', this.selectedBandDetails.track)
+      if (this.selectedBandDetails.track === null) {
+        return 'null'
+      }
+      return this.selectedBandDetails.track
+    }
+  },
   template: `
-    <section class="row p-4 form-section">
-      <div class="row">
-        <div class="col">
-        <h3>{{ selectedBand.name||selectedBand.guid }}</h3>
-        </div>
+    <section :v-if="selectedBandDetails" class="row p-4 form-section">
+    <div class="row">
+      <div class="col">
+          <h3>{{ bandName }}</h3>
       </div>
       <div class="row">
-        <div class="col-9">
-          <BandTags :selectedBand="selectedBand" :federalStates="federalStates" />
-        </div>
-        <div class="col-3">
-          <BandRating :selectedBand="selectedBand" @update:rating="emitRating" />
-        </div>
+      <div class="col-9">
+          <BandTags :selectedBandDetails="selectedBandDetails" :federalStates="federalStates" />
+      </div>
+      <div class="col-3">
+          <BandRating :selectedBandDetails="selectedBandDetails" @update:rating="emitRating" />
+      </div>
       </div>
       <div class="row">
-        <h3>Allgemeines</h3>
-        <div class="col">
-          <div class="alert alert-secondary" role="alert">
-            {{ selectedBand.cover_letter || "Kein Cover Letter" }}
-          </div>
-        </div>
-        <div class="row mb-2">
+          <h3>Allgemeines</h3>
           <div class="col">
-            <div v-if="selectedBand.homepage">
-              <div><h5>Homepage</h5></div>
-              <a :href="selectedBand.homepage" target="_blank">{{ selectedBand.homepage }}</a>
-            </div>
-          </div>
-          <div class="col">
-            <div v-if="selectedBand.facebook">
-              <div><h5>Facebook</h5></div>
-              <a :href="selectedBand.facebook" target="_blank">{{ selectedBand.facebook }}</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <h3>Media</h3>
-        <div class="col">
-          <div><h4>Songs</h4></div>
-          <SongList :songs="media[2]" :selectedBand="selectedBand" @select-song="handleSongSelect" />
-        </div>
-        <div class="col">
-          <div><h4>Links</h4></div>
-          <BandLinks :selectedBand="selectedBand" :links="media[3]" />
-        </div>
-      </div>
-      <div class="row">
-        <h4>Bilder</h4>
-        <div class="col">
-        <BandImages :selectedBand="selectedBand" :bandPhotos="media[4]" :bandLogos="media[5]" :media-url="mediaUrl"/>
-        </div>
-      </div>
-      <div class="row">
-        <h4>Dokumente</h4>
-        <div class="col">
-        <BandDocuments :selectedBand="selectedBand" :bandDocuments="media[1]" :media-url="mediaUrl"/>
-        </div>
+              <div class="alert alert-secondary" role="alert">
+              {{ selectedBandDetails.cover_letter || "Kein Cover Letter" }}
+              </div>
       </div>
       <div class="row mb-2">
-        <h3>Track</h3>
-        <div class="col">
-        <TrackDropdown :tracks="tracks" :currentTrackId="selectedBand.track_id" @update:selectedTrack="updateTrack" />
-        </div>
+          <div class="col">
+              <div v-if="selectedBandDetails.homepage">
+              <div><h5>Homepage</h5></div>
+              <a :href="selectedBandDetails.homepage" target="_blank">{{ selectedBandDetails.homepage }}</a>
+              </div>
+          </div>
+          <div class="col">
+              <div v-if="selectedBandDetails.facebook">
+              <div><h5>Facebook</h5></div>
+              <a :href="selectedBandDetails.facebook" target="_blank">{{ selectedBandDetails.facebook }}</a>
+              </div>
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <h3>Media</h3>
+          <div class="col">
+              <div><h4>Songs</h4></div>
+              <SongList :songs="selectedBandDetails.songs" @select-song="handleSongSelect" />
+          </div>
+          <div class="col">
+              <div><h4>Links</h4></div>
+              <BandLinks :links="selectedBandDetails.links" />
+          </div>
+      </div>
+      <div class="row">
+          <h4>Bilder</h4>
+          <div class="col">
+              <BandImages :selectedBandDetails="selectedBandDetails" />
+          </div>
+      </div>
+      <div class="row">
+          <h4>Dokumente</h4>
+          <div class="col">
+              <BandDocuments :documents="selectedBandDetails.documents" />
+          </div>
+      </div>
+      <div class="row mb-2">
+          <h3>Track</h3>
+          <div class="col">
+              <TrackDropdown :tracks="tracks" :selectedBandDetails="selectedBandDetails" :currentTrackId="currentTrackId" @update:selectedTrack="updateTrack" />
+          </div>
       </div>
       <div class="row text-muted">
-        <h5>Techniches Zeug</h5>
-        <div class="col">
-          <p class="iso-datetime">Ertellt: {{ formatDate(selectedBand.created_at) }}</p>
-          <p class="iso-datetime">Aktuallisiert: {{ formatDate(selectedBand.updated_at) }}</p>
-        </div>
-        <div class="col">
-          <p>Band ID: {{ selectedBand.id }}</p>
-          <p>Event ID: {{ selectedBand.event_id }}</p>
-        </div>
-        <div class="col">
-          <p>Kontakt ID: {{ selectedBand.contact_id }}</p>
-          <p>Track ID: {{ selectedBand.track_id }}</p>
-        </div>
+          <h5>Techniches Zeug</h5>
+          <div class="col">
+          <p class="iso-datetime">Ertellt: {{ formatDate(selectedBandDetails.created_at) }}</p>
+          <p class="iso-datetime">Aktuallisiert: {{ formatDate(selectedBandDetails.updated_at) }}</p>
+          </div>
+          <div class="col">
+          <p>Band ID: {{ selectedBandDetails.id }}</p>
+          <p>Event ID: {{ selectedBandDetails.event }}</p>
+          </div>
+          <div class="col">
+          <p>Kontakt ID: {{ selectedBandDetails.contact }}</p>
+          <p>Track ID: {{ trackId }}</p>
+          </div>
       </div>
+    </div>
     </section>
   `,
   methods: {
@@ -522,11 +526,6 @@ const BandDetails = Vue.defineComponent({
       console.debug('BandDetails emitRating:', rating)
       this.$emit('update:rating', rating)
     }
-  },
-  watch: {
-    selectedBand (newVal) {
-      console.debug('BandDetails selectedBand changed:', newVal)
-    }
   }
 })
 
@@ -539,21 +538,24 @@ const app = createApp({
   // },
   data () {
     return {
+      bandListLoaded: false,
+      bandsToFetch: null,
       crsf_token: $('[name=csrfmiddlewaretoken]').val(),
-      mediaUrl: window.rockon_data.media_url,
+      bandListUrl: window.rockon_api.list_bands,
       tracks: window.rockon_data.tracks,
-      bands: window.rockon_data.bands,
-      media: window.rockon_data.media,
+      bands: [],
       federalStates: window.rockon_data.federal_states,
       selectedTrack: null,
       selectedBand: null,
-      currentTrackId: null,
+      selectedBandDetails: null,
+      bandDetailLoaded: false,
       playSong: null,
       playSongBand: null,
       toastAudioPlayer: null,
       toastVisible: false,
       wavesurfer: null,
       showBandNoName: null,
+      showIncompleteBids: null,
       BandRating: null,
       lightbox: null
     }
@@ -569,14 +571,18 @@ const app = createApp({
     BandDocuments,
     BandLinks,
     BandTags,
-    BandRating
+    BandRating,
+    LoadingSpinner
+  },
+  created () {
+    this.getBandList(this.bandListUrl, window.rockon_data.event_slug)
   },
   methods: {
     selectTrack (track) {
       this.selectedTrack = track
       console.debug('Selected track:', this.selectedTrack)
       this.selectedBand = null
-      this.currentTrackId = null
+      this.selectedBandDetails = null
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       if (track) {
@@ -589,24 +595,26 @@ const app = createApp({
     selectBand (band) {
       console.debug('app selectBand:', band)
       this.selectedBand = band
-      this.currentTrackId = band.track_id
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       url.pathname = `/bands/vote/bid/${band.guid}/`
       window.history.replaceState({}, '', url)
+      this.bandDetailLoaded = false
+      this.getBandDetails(band.id)
     },
     updateTrack (trackId) {
       api_url = window.rockon_api.update_band.replace(
         'pk_placeholder',
-        this.selectedBand.id
+        this.selectedBandDetails.id
       )
       console.debug('app updateTrack:', trackId)
-      this.selectedBand.track_id = trackId
-      this.currentTrackId = trackId
+      const track = this.tracks.find(track => track.id === trackId) || null
+
+      console.debug('app updateTrack find:', track)
       console.debug(
         'Selected band:',
-        this.selectedBand.id,
-        this.currentTrackId,
+        this.selectedBandDetails.id,
+        trackId,
         api_url
       )
       fetch(api_url, {
@@ -616,13 +624,15 @@ const app = createApp({
           'X-CSRFToken': this.crsf_token
         },
         body: JSON.stringify({
-          band: this.selectedBand,
           track: trackId
         })
       })
         .then(response => response.json())
         .then(data => console.log('Success:', data))
         .catch(error => console.error('Error:', error))
+      this.selectedBand.track = trackId
+      this.selectedBandDetails.track = trackId
+      this.selectedTrack = track
     },
     updateComponent () {
       console.debug('Mounted function called')
@@ -662,7 +672,7 @@ const app = createApp({
         return
       }
       this.playSong = song
-      this.playSongBand = this.bands.find(band => band.id === song.band_id)
+      this.playSongBand = this.selectedBandDetails
       if (!this.toastVisible) {
         this.toastAudioPlayer.show()
         this.toastVisible = true
@@ -673,9 +683,6 @@ const app = createApp({
         this.wavesurfer = null
       }
 
-      this.playSong = song
-      this.playSongBand = this.bands.find(band => band.id === song.band_id)
-
       this.wavesurfer = WaveSurfer.create({
         container: document.getElementById('player-wrapper'),
         waveColor: '#fff300',
@@ -684,7 +691,7 @@ const app = createApp({
         splitChannels: false,
         dragToSeek: true,
         cursorWidth: 3,
-        url: this.mediaUrl + song.encoded_file || song.file,
+        url: song.encoded_file || song.file,
         mediaControls: true,
         autoplay: true
       })
@@ -705,10 +712,14 @@ const app = createApp({
       sessionStorage.setItem('filterShowBandsNoName', JSON.stringify(checked))
       this.showBandNoName = checked
     },
+    handleFilterIncompleteBidsChange (checked) {
+      console.debug('app handleFilterIncompleteBidsChange:', checked)
+      sessionStorage.setItem('filterIncompleteBids', JSON.stringify(checked))
+      this.showIncompleteBids = checked
+    },
     setRating (rating) {
       console.debug('BandRating setRating:', rating)
       this.rating = rating
-      // TODO: Save rating to backend
       api_url = window.rockon_api.band_vote
       console.debug('BandRating setRating:', this.selectedBand, rating, api_url)
       fetch(api_url, {
@@ -725,9 +736,48 @@ const app = createApp({
         .then(response => response)
         .then(data => console.log('Success:', data))
         .catch(error => console.error('Error:', error))
+    },
+    getBandList (url, _event = null) {
+      console.debug('app getBandList:', url, _event)
+      if (_event) {
+        url = url + `?event=${_event}`
+      }
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          console.debug('app getBandList:', data)
+          this.bands = [...this.bands, ...data.results]
+          this.bandsToFetch = data.count
+          if (data.next) {
+            this.getBandList(data.next)
+          } else {
+            this.bandListLoaded = true
+            console.debug('app getBandList:', this.bands)
+            this.updateComponent()
+          }
+        })
+        .catch(error => console.error('Error:', error))
+    },
+    getBandDetails (selectedBandId) {
+      url = window.rockon_api.update_band.replace(
+        'pk_placeholder',
+        selectedBandId
+      )
+      console.debug('App getBandDetails:', url)
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          console.debug('App getBandDetails:', data)
+          this.selectedBandDetails = data
+          this.bandDetailLoaded = true
+        })
+        .catch(error => {
+          console.error('Error:', error)
+        })
     }
   },
   mounted () {
+    console.debug('Mounted function called')
     window.addEventListener('popstate', this.updateComponent)
     const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
     const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(
@@ -736,9 +786,16 @@ const app = createApp({
     bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
     this.toastAudioPlayer = toastAudioPlayer
     this.updateComponent()
-    const filter = JSON.parse(sessionStorage.getItem('filterShowBandsNoName'))
-    console.debug('Mounted function called. filter:', filter)
-    this.showBandNoName = filter ? filter : false
+    const filterNoName = JSON.parse(
+      sessionStorage.getItem('filterShowBandsNoName')
+    )
+    this.showBandNoName = filterNoName ? filterNoName : false
+    const filterIncompleteBids = JSON.parse(
+      sessionStorage.getItem('filterIncompleteBids')
+    )
+    this.showIncompleteBids = filterIncompleteBids
+      ? filterIncompleteBids
+      : false
   },
   beforeUnmount () {
     window.removeEventListener('popstate', this.updateComponent)
@@ -748,6 +805,15 @@ const app = createApp({
       immediate: true,
       handler (newValue, oldValue) {
         console.log('watch selectedBand changed:', newValue)
+        if (newValue && !this.selectedBandDetails) {
+          this.getBandDetails(newValue.id)
+        }
+      }
+    },
+    selectedBandDetails: {
+      immediate: true,
+      handler (newValue, oldValue) {
+        console.log('watch selectedBandDetails changed:', newValue)
       }
     },
     showBandNoName: {

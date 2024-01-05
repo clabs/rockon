@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from .band import (
+    BandDetailSerializer,
+    BandListSerializer,
     BandMediaSerializer,
-    BandSerializer,
     BandTrackSerializer,
     BandVoteSerializer,
 )
