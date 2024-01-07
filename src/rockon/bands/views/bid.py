@@ -121,7 +121,10 @@ def bid_form(request, slug, guid):
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crew").exists())
 def bid_vote(request, bid: str = None, track: str = None):
-    if not Event.objects.get(id=request.session["current_event"]).bid_vote_allowed:
+    if (
+        not Event.objects.get(id=request.session["current_event"]).bid_vote_allowed
+        and not request.user.groups.filter(name="booking").exists()
+    ):
         template = loader.get_template("errors/403.html")
         return HttpResponseForbidden(
             template.render(
