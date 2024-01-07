@@ -35,6 +35,7 @@
     update_band: "{% url "bands-detail" pk="pk_placeholder" %}",
     fetch_rating: "{% url 'band-votes-detail' pk='pk_placeholder' %}",
     band_vote: "{% url 'band-votes-perform-create' %}",
+    allow_changes: {{ allow_changes }}
   }
 </script>
 
@@ -43,7 +44,7 @@
   <track-list :tracks="tracks" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids" @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange" @filter-incomplete-bids="handleFilterIncompleteBidsChange"></track-list>
   <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
   <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids" @select-band="selectBand"></band-list>
-  <band-details v-if="bandDetailLoaded && selectedBandDetails" :selected-band-details="selectedBandDetails" :tracks="tracks" :federal-states="federalStates" @update:track="updateTrack" @update:select-song="handleSongSelect" @update:rating="setRating" ></band-details>
+  <band-details v-if="bandDetailLoaded && selectedBandDetails" :selected-band-details="selectedBandDetails" :allow-changes="allowChanges" :tracks="tracks" :federal-states="federalStates" @update:track="updateTrack" @update:select-song="handleSongSelect" @update:rating="setRating" ></band-details>
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toastAudioPlayer" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
         <div class="toast-header">

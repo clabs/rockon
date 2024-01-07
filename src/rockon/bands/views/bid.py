@@ -127,6 +127,9 @@ def bid_vote(request, bid: str = None, track: str = None):
     federal_states_json = mark_safe(json.dumps(federal_states))
     track_slug_json = mark_safe(json.dumps(track, cls=CustomJSONEncoder))
     band_guid_json = mark_safe(json.dumps(bid, cls=CustomJSONEncoder))
+    allow_changes = mark_safe(
+        json.dumps(request.user.groups.filter(name="booking").exists())
+    )
     media_url = settings.MEDIA_URL
     extra_context = {
         "media_url": media_url,
@@ -136,5 +139,6 @@ def bid_vote(request, bid: str = None, track: str = None):
         "federal_states": federal_states_json,
         "trackid": track_slug_json,
         "bandid": band_guid_json,
+        "allow_changes": allow_changes,
     }
     return HttpResponse(template.render(extra_context, request))

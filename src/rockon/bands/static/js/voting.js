@@ -395,7 +395,8 @@ const BandDetails = Vue.defineComponent({
     'media',
     'federalStates',
     'selectedBandDetails',
-    'currentTrackId'
+    'currentTrackId',
+    'allowChanges'
   ],
   emits: ['update:track', 'update:select-song', 'update:rating'],
   components: {
@@ -484,13 +485,13 @@ const BandDetails = Vue.defineComponent({
               <BandDocuments :documents="selectedBandDetails.documents" />
           </div>
       </div>
-      <div class="row mb-2">
+      <div v-if="allowChanges" class="row mb-2">
           <h3>Track</h3>
           <div class="col">
               <TrackDropdown :tracks="tracks" :selectedBandDetails="selectedBandDetails" :currentTrackId="currentTrackId" @update:selectedTrack="updateTrack" />
           </div>
       </div>
-      <div class="row text-muted">
+      <div v-if="allowChanges" class="row text-muted">
           <h5>Techniches Zeug</h5>
           <div class="col">
           <p class="iso-datetime">Ertellt: {{ formatDate(selectedBandDetails.created_at) }}</p>
@@ -540,6 +541,7 @@ const app = createApp({
     return {
       bandListLoaded: false,
       bandsToFetch: null,
+      allowChanges: window.rockon_api.allow_changes,
       crsf_token: $('[name=csrfmiddlewaretoken]').val(),
       bandListUrl: window.rockon_api.list_bands,
       tracks: window.rockon_data.tracks,
