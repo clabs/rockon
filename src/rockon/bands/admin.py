@@ -102,7 +102,7 @@ class TrackAdmin(CustomAdminModel):
 
 class BandVoteAdmin(CustomAdminModel):
     list_display = ("band", "user", "created_at")
-    list_filter = ("band__name", "user__username")
+    list_filter = ("band__name",)
     search_fields = ("band__name", "user__username")
 
 
