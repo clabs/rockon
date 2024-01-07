@@ -4,7 +4,7 @@ import json
 from uuid import UUID
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect
@@ -119,7 +119,16 @@ def bid_form(request, slug, guid):
 
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name="crew").exists())
 def bid_vote(request, bid: str = None, track: str = None):
+    if not Event.objects.get(id=request.session["current_event"]).bid_vote_allowed:
+        template = loader.get_template("errors/403.html")
+        return HttpResponseForbidden(
+            template.render(
+                {"more_info": "Die Bandbewertung ist für dieses Event nicht aktiv."},
+                request,
+            )
+        )
     template = loader.get_template("bid_vote.html")
     tracks = Track.objects.filter(events__id=request.session["current_event"])
     tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
