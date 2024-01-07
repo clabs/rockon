@@ -63,6 +63,9 @@ class Event(CustomModel):
         max_length=12, choices=SignUpType.choices, default=SignUpType.UNKNOWN
     )
     is_current = models.BooleanField(default=False)
+    bid_vote_allowed = models.BooleanField(
+        default=False, help_text="Bandbewertung aktiv"
+    )
 
     def __str__(self):
         return self.name
