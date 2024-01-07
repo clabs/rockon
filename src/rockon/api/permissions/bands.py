@@ -14,3 +14,16 @@ class IsOwner(permissions.BasePermission):
             return obj.contact == request.user
         if getattr(obj, "band", None):
             return obj.band.contact == request.user
+
+
+class IsCrewReadOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow crew members to view the object.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        if (
+            request.user.groups.filter(name="crew").exists()
+            and request.method in permissions.SAFE_METHODS
+        ):
+            return True
