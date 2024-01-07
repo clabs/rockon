@@ -1,13 +1,14 @@
 {% extends "base.html" %} {% block content %}
 
 <div class="row">
-<h1>Fehler 404</h1>
+<div><h1>Fehler 404</h1></div>
 </div>
 <div class="row">
-<h2>Seite nicht gefunden</h2>
+<h3>Seite nicht gefunden</h3>
 </div>
 <div class="row">
 <p>Tut mir leid, ich konnte die geforderte Seite nicht finden.</p>
+<p>{{more_info|default:""}}</p>
 </div>
 
 {% endblock content %}

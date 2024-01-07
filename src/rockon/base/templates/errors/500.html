@@ -1,13 +1,14 @@
 {% extends "base.html" %} {% block content %}
 
 <div class="row">
-<h1>Fehler 500</h1>
+<div><h1>Fehler 500</h1></div>
 </div>
 <div class="row">
 <h2>Interner Serverfehler</h2>
 </div>
 <div class="row">
 <p>Es tut mir leid, hier ist etwas schrecklich schief gelaufen.</p>
+<p>{{more_info|default:""}}</p>
 </div>
 
 {% endblock content %}
