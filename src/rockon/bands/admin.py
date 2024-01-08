@@ -30,6 +30,7 @@ class BandAdmin(CustomAdminModel):
     list_filter = (
         "event__name",
         "bid_status",
+        "bid_complete",
     )
     search_fields = ("name", "contact__username", "event__name")
     readonly_fields = (
