@@ -422,6 +422,12 @@ const BandDetails = Vue.defineComponent({
         return 'null'
       }
       return this.selectedBandDetails.track
+    },
+    coverLetter () {
+      if (!this.selectedBandDetails.cover_letter) {
+        return 'Kein Cover Letter'
+      }
+      return this.selectedBandDetails.cover_letter.replace(/\r\n/g, '<br>')
     }
   },
   template: `
@@ -441,8 +447,7 @@ const BandDetails = Vue.defineComponent({
       <div class="row">
           <h3>Allgemeines</h3>
           <div class="col">
-              <div class="alert alert-secondary" role="alert">
-              {{ selectedBandDetails.cover_letter || "Kein Cover Letter" }}
+              <div v-html="coverLetter" class="alert alert-secondary" role="alert">
               </div>
       </div>
       <div class="row mb-2">
