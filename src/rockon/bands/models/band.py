@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import json
-
 from django.contrib.auth.models import User
-from django.core.serializers import serialize
+from django.db.models import Q
 
 from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
@@ -56,14 +54,18 @@ class Band(CustomModel):
     track = models.ForeignKey(
         "Track", on_delete=models.SET_NULL, null=True, related_name="bands"
     )
+    bid_complete = models.BooleanField(default=False)
 
     def __str__(self):
         if self.name:
             return self.name
         return self.guid
 
-    @property
-    def bid_complete(self) -> bool:
+    def save(self, *args, **kwargs):
+        self.bid_complete = self.check_bid_complete()
+        super().save(*args, **kwargs)
+
+    def check_bid_complete(self) -> bool:
         fields = [
             self.name,
             self.genre,
