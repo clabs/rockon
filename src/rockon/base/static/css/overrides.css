@@ -1,3 +1,10 @@
 ::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
+
+.table-fixed-header thead {
+  position: sticky;
+  top: 62px;
+  background-color: #343a40;
+  color: white;
+}

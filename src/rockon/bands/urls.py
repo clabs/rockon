@@ -8,6 +8,7 @@ from .views import (
     bid_root,
     bid_router,
     bid_vote,
+    booking_bide_overview,
     members,
     techrider,
 )
@@ -29,6 +30,7 @@ urlpatterns = [
     path("bid/<slug>/", bid_router, name="bid_router"),
     path("bid/<slug>/closed/", bid_closed, name="bid_closed"),
     path("bid/<slug>/<guid>/", bid_form, name="bid_form"),
+    path("booking/bid_overview/", booking_bide_overview, name="booking_bid_overview"),
     # path("<slug>/techrider/", techrider, name="bands_techrider"),
     # path("<slug>/members/", members, name="bands_members"),
 ]

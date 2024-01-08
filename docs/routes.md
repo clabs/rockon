@@ -11,7 +11,7 @@
 /account/login/ -> Request magic link
 /account/login/<token> -> Login with magic link
 /account/logout/ -> Logout
-/account/register/<? context> -> Register
+/account/register/?ctx= -> Register
 /account/verify/<token> -> Verify email
 
 ## Crew
