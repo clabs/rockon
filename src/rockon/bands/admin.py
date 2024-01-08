@@ -24,6 +24,7 @@ class BandAdmin(CustomAdminModel):
         "bid_status",
         "bid_complete",
         "_has_techrider",
+        "track",
         "slot",
         "event",
     )
