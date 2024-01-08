@@ -69,9 +69,8 @@ class Band(CustomModel):
         fields = [
             self.name,
             self.genre,
+            any([self.homepage, self.facebook]),
             self.federal_state,
-            self.homepage,
-            self.facebook,
             self.cover_letter,
         ]
 
