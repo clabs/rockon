@@ -270,7 +270,7 @@ const BandList = Vue.defineComponent({
   template: `
     <section class="row p-4 form-section">
     <div class="row">
-      <h3>{{ filteredBands.length }} Bands<span v-if="selectedTrack.name"> in Track {{selectedTrack.name}}</span></h3>
+      <h3>{{ filteredBands.length }} Bands<span v-if="selectedTrack"> in Track {{selectedTrack.name}}</span></h3>
     </div>
     <div v-if="groupedBands.length > 0" v-for="(group, index) in groupedBands" :key="index">
       <div class="card-group">
