@@ -58,7 +58,6 @@ class BandDetailSerializer(serializers.ModelSerializer):
     songs = BandMediaSerializer(source="get_songs", read_only=True, many=True)
     links = BandMediaSerializer(source="get_links", read_only=True, many=True)
     documents = BandMediaSerializer(source="get_documents", read_only=True, many=True)
-    bid_complete = serializers.ReadOnlyField()
 
     class Meta:
         model = Band
