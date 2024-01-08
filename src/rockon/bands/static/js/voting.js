@@ -147,11 +147,6 @@ const TrackDropdown = Vue.defineComponent({
 const TrackList = Vue.defineComponent({
   props: ['tracks', 'selectedTrack', 'showBandNoName', 'showIncompleteBids'],
   emits: ['select-track', 'filter-no-name', 'filter-incomplete-bids'],
-  computed: {
-    showBandNoNameComputed () {
-      return this.showBandNoName
-    }
-  },
   template: `
       <section class="row p-4 form-section">
       <div>
@@ -273,8 +268,11 @@ const BandList = Vue.defineComponent({
     }
   },
   template: `
-    <section v-if="groupedBands.length > 0" class="row p-4 form-section">
-    <div v-for="(group, index) in groupedBands" :key="index">
+    <section class="row p-4 form-section">
+    <div class="row">
+      <h3>{{ filteredBands.length }} Bands<span v-if="selectedTrack.name"> in Track {{selectedTrack.name}}</span></h3>
+    </div>
+    <div v-if="groupedBands.length > 0" v-for="(group, index) in groupedBands" :key="index">
       <div class="card-group">
         <div class="card" v-for="band in group" @click="selectBand(band)" style="cursor: pointer; max-width: 312px; height: 340px" :style="{ backgroundColor: selectedBand === band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(band)" @mouseleave="leaveBand(band)">
           <img :src="cardImage(band)" class="card-img-top img-fluid" style="height: 250px; object-fit: cover; object-position: center;" :alt="band.name || band.guid" loading="lazy">
