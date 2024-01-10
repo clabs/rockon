@@ -22,7 +22,9 @@ def join_slug(request, slug):
         url = reverse("base:login_request")
         url += f"?ctx=crew"
         return redirect(url)
-    if CrewMember.objects.filter(user=request.user).exists():
+    if CrewMember.objects.filter(
+        user=request.user, crew__event=request.session.get("current_event")
+    ).exists():
         return redirect("crew:join_submitted")
     template = loader.get_template("join.html")
     event = Event.objects.get(slug=slug)
