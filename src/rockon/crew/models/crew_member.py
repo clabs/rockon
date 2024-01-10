@@ -29,7 +29,9 @@ class CrewMember(CustomModel):
     """Crewmember model."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    crew = models.ForeignKey(Crew, on_delete=models.CASCADE)
+    crew = models.ForeignKey(
+        Crew, on_delete=models.CASCADE, related_name="crew_members"
+    )
     state = models.CharField(
         max_length=12,
         choices=CrewMemberStatus.choices,
