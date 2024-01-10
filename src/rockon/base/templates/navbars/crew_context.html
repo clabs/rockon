@@ -15,7 +15,7 @@
 {% for group in user.groups.all %}
   {% if group.name == 'crewcoord' %}
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crewkoordination</a>
+      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew</a>
       <ul class="dropdown-menu">
         <li>
           <a class="dropdown-item" href="{% url 'crew:coord_overview' %}">Übersicht</a>
