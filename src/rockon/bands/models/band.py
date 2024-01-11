@@ -52,7 +52,11 @@ class Band(CustomModel):
     repeated = models.BooleanField(default=False)
     techrider = models.JSONField(default=dict, blank=True, null=True)
     track = models.ForeignKey(
-        "Track", on_delete=models.SET_NULL, null=True, related_name="bands"
+        "Track",
+        on_delete=models.SET_NULL,
+        null=True,
+        default=None,
+        related_name="bands",
     )
     bid_complete = models.BooleanField(default=False)
 
