@@ -1,9 +1,34 @@
 {% extends 'base.html' %} {% block content %}
+{% load static %}
+{% load compress %}
 
 <div><h1>Band Bewertungen</h1></div>
 
+{% compress css file datatables %}
+<link href="{% static "vendor/datatables.1.13.8.min.css" %}" rel="stylesheet">
+{% endcompress %}
+
+{% compress js file datatables %}
+<script src="{% static "vendor/datatables.1.13.8.min.js" %}"></script>
+{% endcompress %}
+
+{% compress js file datatables-init %}
+<script>
+  $(document).ready( function () {
+    $('#band-table').DataTable(
+      {
+        paging: true,
+        pageLength: 50,
+        order: [[ 1, 'desc' ], [ 2, 'desc' ]],
+      }
+    )
+} );
+</script>
+{% endcompress %}
+
 <section class="row p-4 form-section">
-  <table class="table table-dark table-striped table-bordered table-hover table-fixed-header">
+  <div id="foo"></div>
+  <table id="band-table" class="table table-dark table-striped table-bordered table-hover table-fixed-header">
     <thead>
       <tr>
         <th scope="col">Bandname</th>
@@ -11,6 +36,7 @@
         <th scope="col">Summe</th>
         <th scope="col">Bewertungen</th>
         <th scope="col">Track</th>
+        <th scope="col">Kontakt</th>
         <th scope="col">Backstage</th>
       </tr>
     </thead>
@@ -22,6 +48,7 @@
           <td>{{ band.votes_sum|default:"0" }}</td>
           <td>{{ band.votes_count|default:"0" }}</td>
           <td>{{ band.track.name }}</td>
+          <td><a href="mailto:{{ band.contact.email }}">{{ band.contact.email }}</a></td>
           <td><a href="{% url "admin:rockonbands_band_change" object_id=band.id %}" target="_blank" title="Bearbeiten"><i class="fas fa-cog"></i></a></td>
         </tr>
       {% endfor %}
