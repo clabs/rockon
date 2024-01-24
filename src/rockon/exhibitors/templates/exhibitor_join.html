@@ -166,7 +166,7 @@
   ajax_success = (data) => {
     console.info(data)
     $(window).unbind('beforeunload')
-    window.location.href = "{% url "crew_signup_submitted" slug=slug %}"
+    window.location.href = "{% url "exhibitors:join_submitted" %}"
   }
   ajax_error = (data) => {
     // FIXME: needs error handling

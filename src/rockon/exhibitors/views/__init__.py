@@ -1,3 +1,3 @@
 from __future__ import annotations
 
-from .signup import signup, signup_submitted
+from .join import join_forward, join_slug, signup, signup_submitted

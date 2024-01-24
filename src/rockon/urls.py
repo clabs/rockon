@@ -33,7 +33,7 @@ urlpatterns = [
     path("bands/", include("rockon.bands.urls", namespace="bands")),
     path("crew/", include("rockon.crew.urls", namespace="crew")),
     path("account/", include("rockon.base.urls", namespace="base")),
-    path("exhibitors/", include("rockon.exhibitors.urls")),
+    path("exhibitors/", include("rockon.exhibitors.urls", namespace="exhibitors")),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),

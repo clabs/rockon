@@ -82,8 +82,8 @@ class UserProfile(CustomModel):
 
         return False
 
-    def is_profile_complete_band(self) -> bool:
-        """Check if user profile is complete for band application."""
+    def is_profile_complete_exhibitor(self) -> bool:
+        """Check if user profile is complete for exhibitor application."""
         data_required = [
             self.user.first_name,
             self.user.last_name,

@@ -15,6 +15,9 @@
             {% if group.name == 'bands' %}
               {% include './band_context.html' %}
             {% endif %}
+            {% if group.name == 'exhibitors' %}
+              {% include './exhibitors_context.html' %}
+            {% endif %}
           {% endfor %}
           {% if not user.groups.all %}
           <li class="nav-item">
