@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.utils.timezone import make_aware
 
-from rockon.base.models import EmailVerification
 from rockon.crew.models import Crew, CrewMember, Shirt, Team, TeamMember
 
 
@@ -41,7 +37,6 @@ def crew_signup(request, slug):
 
     try:
         crew = Crew.objects.get(event__slug=slug)
-        event = crew.event
     except Crew.DoesNotExist:
         return JsonResponse(
             {"status": "error", "message": "Crew not found"}, status=404
