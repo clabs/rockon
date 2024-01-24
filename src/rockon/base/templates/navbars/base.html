@@ -35,7 +35,7 @@
               </ul>
             </li>
             <li class="nav-item">
-              <span class="nav-link" title="Event"><i class="fa-solid fa-calendar"></i> {{ current_event }}</span>
+              {% include './current_event.html' %}
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'base:logout' %}">Log out</a>

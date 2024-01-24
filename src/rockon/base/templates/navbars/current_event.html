@@ -1,0 +1,8 @@
+{% load has_group %}
+<span class="nav-link" title="Event"><i class="fa-solid fa-calendar"></i>&nbsp;
+  {% if user|has_group:'exhibitors' %}
+    {{ current_event.sub_events.first.name }}
+  {% else %}
+    {{ current_event }}
+  {% endif %}
+</span>
