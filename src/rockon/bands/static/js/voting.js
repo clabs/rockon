@@ -306,7 +306,7 @@ const BandTags = Vue.defineComponent({
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
       <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1" style="cursor: pointer;">Management</span>
       <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
-      <span v-if="selectedBandDetails.are_students" class="badge text-bg-warning m-1" style="cursor: pointer;">Schülerband</span>
+      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
       <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
       <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
       <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
