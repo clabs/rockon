@@ -48,7 +48,7 @@ def crew_signup(request, slug):
         )
 
     try:
-        crew_member = CrewMember.objects.get(user=request.user)
+        crew_member = CrewMember.objects.get(user=request.user, crew=crew)
     except CrewMember.DoesNotExist:
         crew_member = CrewMember.objects.create(
             user=request.user,
