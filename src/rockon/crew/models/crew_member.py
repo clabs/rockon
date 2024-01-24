@@ -22,7 +22,7 @@ class CrewMemberNutrion(models.TextChoices):
     UNKNOWN = "unknown", "Unbekannt"
     VEGAN = "vegan", "Vegan"
     VEGETARIAN = "vegetarian", "Vegetarisch"
-    OMNIVORE = "omnivore", "Omnivor"
+    OMNIVORE = "omnivore", "Omnivore"
 
 
 class CrewMember(CustomModel):
