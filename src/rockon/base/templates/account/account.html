@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% load has_group %} {% block content %}
 <script>
 const validateEmail = (email) => {
   return String(email)
@@ -129,6 +129,35 @@ $(document).ready(() => {
 <h1>Account</h1>
 <div class="alert alert-secondary mt-3">
   <p>Hier kannst du deine persönlichen Daten einsehen und ändern.</p>
+  {% if user|has_group:'exhibitors' %}
+  <p>Für eine Anmeldung als Austeller beim Spielfest benötigen wir mindestens folgende Informationen von dir:</p>
+  <ul>
+    <li>Vorname</li>
+    <li>Nachname</li>
+    <li>E-Mail</li>
+    <li>Telefonnummer</li>
+  </ul>
+  {% endif %}
+  {% if user|has_group:'crew' %}
+  <p>Für eine Anmeldung als Crewmitglied beim Rocktreff und Spielfest benötigen wir mindestens folgende Informationen von dir:</p>
+  <ul>
+    <li>Vorname</li>
+    <li>Nachname</li>
+    <li>E-Mail</li>
+    <li>Telefonnummer</li>
+    <li>Adresse</li>
+    <li>Geburtstag</li>
+  </ul>
+  {% endif %}
+  {% if user|has_group:'bands' %}
+  <p>Für eine Band Bewerbung für den ROCKTREFF benötigen wir mindestens folgende Informationen von dir:</p>
+  <ul>
+    <li>Vorname</li>
+    <li>Nachname</li>
+    <li>E-Mail</li>
+    <li>Telefonnummer</li>
+  </ul>
+  {% endif %}
 </div>
 <form id="account_data" class="row align-items-center needs-validation" novalidate>
   <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
