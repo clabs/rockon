@@ -28,6 +28,8 @@ class Exhibitor(CustomModel):
         max_length=255, default=None, null=True, blank=True, unique=True
     )
     general_note = models.TextField(null=True, default=None, blank=True)
+    about_note = models.TextField(null=True, default=None, blank=True)
+    offer_note = models.TextField(null=True, default=None, blank=True)
     internal_comment = models.TextField(null=True, default=None, blank=True)
 
     def __str__(self):

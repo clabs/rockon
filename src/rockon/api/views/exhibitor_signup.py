@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 
@@ -15,6 +16,7 @@ from rockon.exhibitors.models import (
 )
 
 
+@user_passes_test(lambda u: u.groups.filter(name="exhibitors").exists())
 def exhibitor_signup(request, slug):
     created_user = False
     # FIXME: refactor to Django forms to validate input and use Django's CSRF protection
@@ -30,28 +32,8 @@ def exhibitor_signup(request, slug):
             {"status": "error", "message": "Event not found"}, status=404
         )
 
-    try:
-        user = User.objects.get(email=body["user_email"])
-    except User.DoesNotExist:
-        user = User.objects.create_user(
-            username=body["user_email"],
-            email=body["user_email"],
-            password=None,
-            first_name=body["user_first_name"],
-            last_name=body["user_last_name"],
-        )
-
-        # Save is needed to create a profile for the user with the post_save signal
-        user.save()
-
-        # FIXME: need try create and catch IntegrityError
-        user.profile.phone = body.get("user_phone")
-        EmailVerification.create_and_send(user=user)
-
-        created_user = True
-
-    user.profile.events.add(event)
-    user.save()
+    request.user.profile.events.add(event)
+    request.user.save()
 
     try:
         organisation = Organisation.objects.get(org_name=body["organisation_name"])
@@ -65,7 +47,7 @@ def exhibitor_signup(request, slug):
             org_place=body["organisation_place"],
         )
 
-    organisation.members.add(user)
+    organisation.members.add(request.user)
     organisation.save()
 
     _attendance_list = []
@@ -91,6 +73,8 @@ def exhibitor_signup(request, slug):
             event=event,
             organisation=organisation,
             general_note=body.get("general_note"),
+            about_note=body.get("about_note"),
+            offer_note=body.get("offer_note"),
         )
 
         for attendance in _attendance_list:
