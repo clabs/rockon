@@ -143,6 +143,10 @@ def bid_vote(request, bid: str = None, track: str = None):
         json.dumps(request.user.groups.filter(name="booking").exists())
     )
     media_url = settings.MEDIA_URL
+    user_votes = request.user.band_votes.filter(event__id=request.session["current_event"]).values_list("band__id", flat=True)
+    user_votes_json = mark_safe(
+        json.dumps(list(user_votes), cls=CustomJSONEncoder)
+    )
     extra_context = {
         "media_url": media_url,
         "site_title": "Band Bewertung",
@@ -151,6 +155,7 @@ def bid_vote(request, bid: str = None, track: str = None):
         "federal_states": federal_states_json,
         "trackid": track_slug_json,
         "bandid": band_guid_json,
+        "user_votes": user_votes_json,
         "allow_changes": allow_changes,
     }
     return HttpResponse(template.render(extra_context, request))

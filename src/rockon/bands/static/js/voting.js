@@ -202,8 +202,76 @@ const TrackList = Vue.defineComponent({
   }
 })
 
+const BandTags = Vue.defineComponent({
+  props: ['selectedBandDetails', 'federalStates'],
+  computed: {
+    federalStatesTag () {
+      console.debug('BandTags computed federalStatesTag:', this.federalStates)
+      const federalState = this.federalStates.find(
+        federalState =>
+          federalState[0] === this.selectedBandDetails.federal_state
+      )
+      console.debug('BandTags computed federalState:', federalState)
+      return federalState ? federalState[1] : null
+    }
+  },
+  init: function () {
+    console.debug('BandTags init:', this.selectedBandDetails)
+  },
+  template: `
+    <div>
+      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
+      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
+      <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1" style="cursor: pointer;">Management</span>
+      <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
+      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
+      <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
+      <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
+      <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
+      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
+      <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
+      <span v-if="!selectedBandDetails.homepage" class="badge text-bg-warning m-1" style="cursor: pointer;">Keine Homepage</span>
+    </div>
+  `
+})
+
+const BandListTags = Vue.defineComponent({
+  props: ['selectedBandDetails', 'federalStates', 'userVotes'],
+  computed: {
+    federalStatesTag () {
+      console.debug('BandTags computed federalStatesTag:', this.federalStates)
+      const federalState = this.federalStates.find(
+        federalState =>
+          federalState[0] === this.selectedBandDetails.federal_state
+      )
+      console.debug('BandTags computed federalState:', federalState)
+      return federalState ? federalState[1] : null
+    }
+  },
+  methods: {
+    hasVote (band) {
+      const userVote = this.userVotes.find(vote => vote === band.id)
+      console.debug('BandList hasVote:', userVote)
+      return userVote
+    }
+  },
+  init: function () {
+    console.debug('BandTags init:', this.selectedBandDetails)
+  },
+  template: `
+    <div>
+      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
+      <span v-if="hasVote(selectedBandDetails)" class="badge text-bg-success m-1" style="cursor: pointer;">Bewertet</span>
+      <span v-if="!hasVote(selectedBandDetails)" class="badge text-bg-secondary m-1" style="cursor: pointer;">Enthalten</span>
+      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
+      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
+    </div>
+  `
+})
+
 const BandList = Vue.defineComponent({
-  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids'],
+  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'federalStates', 'userVotes'],
+  components: {BandListTags},
   emits: ['select-band'],
   computed: {
     filteredBands () {
@@ -274,46 +342,16 @@ const BandList = Vue.defineComponent({
     </div>
     <div v-if="groupedBands.length > 0" v-for="(group, index) in groupedBands" :key="index">
       <div class="card-group">
-        <div class="card" v-for="band in group" @click="selectBand(band)" style="cursor: pointer; max-width: 312px; height: 340px" :style="{ backgroundColor: selectedBand === band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(band)" @mouseleave="leaveBand(band)">
+        <div class="card" v-for="band in group" @click="selectBand(band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(band)" @mouseleave="leaveBand(band)">
           <img :src="cardImage(band)" class="card-img-top img-fluid" style="height: 250px; object-fit: cover; object-position: center;" :alt="band.name || band.guid" loading="lazy">
           <div class="card-body">
             <h6 class="card-title">{{ band.name || band.guid }}</h6>
-            <p class="card-text"><small class="text-body-secondary">{{band.bid_complete ? "Bewerbung vollständig" : "Bewerbung unvollständig"}}</small></p>
+            <BandListTags :selectedBandDetails="band" :federalStates="federalStates" :userVotes="userVotes" />
           </div>
         </div>
       </div>
     </div>
     </section>
-  `
-})
-
-const BandTags = Vue.defineComponent({
-  props: ['selectedBandDetails', 'federalStates'],
-  computed: {
-    federalStatesTag () {
-      console.debug('BandTags computed federalStatesTag:', this.federalStates)
-      const federalState = this.federalStates.find(
-        federalState =>
-          federalState[0] === this.selectedBandDetails.federal_state
-      )
-      console.debug('BandTags computed federalState:', federalState)
-      return federalState ? federalState[1] : null
-    }
-  },
-  template: `
-    <div>
-      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
-      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
-      <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1" style="cursor: pointer;">Management</span>
-      <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
-      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
-      <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
-      <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
-      <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
-      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
-      <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
-      <span v-if="!selectedBandDetails.homepage" class="badge text-bg-warning m-1" style="cursor: pointer;">Keine Homepage</span>
-    </div>
   `
 })
 
@@ -552,6 +590,7 @@ const app = createApp({
       federalStates: window.rockon_data.federal_states,
       selectedTrack: null,
       selectedBand: null,
+      userVotes: window.rockon_data.user_votes,
       selectedBandDetails: null,
       bandDetailLoaded: false,
       playSong: null,
@@ -576,6 +615,7 @@ const app = createApp({
     BandDocuments,
     BandLinks,
     BandTags,
+    BandListTags,
     BandRating,
     LoadingSpinner
   },
@@ -739,8 +779,18 @@ const app = createApp({
         })
       })
         .then(response => response)
-        .then(data => console.log('Success:', data))
-        .catch(error => console.error('Error:', error))
+        .then(data => {
+          console.log('Success:', data)
+        })
+        .catch(error => {
+          console.error('Error:', error)
+          alert('Fehler beim Speichern der Bewertung, bitte schrei um Hilfe!')
+        })
+      if (rating === -1) {
+        this.userVotes = this.userVotes.filter(vote => vote !== this.selectedBand.id)
+      } else {
+        this.userVotes.push(this.selectedBand.id)
+      }
     },
     getBandList (url, _event = null) {
       console.debug('app getBandList:', url, _event)
