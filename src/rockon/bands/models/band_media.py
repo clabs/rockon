@@ -134,7 +134,7 @@ class BandMedia(CustomModel):
         file_name = os.path.basename(_file.file.name)
         file_name_without_extension = "".join(file_name.split(".")[:-1])
 
-        new_file_name = f"{file_name_without_extension}-thumbnail.png"
+        new_file_name = f"{file_name_without_extension}-thumbnail.webp"
         new_absolute_path = os.path.abspath(
             os.path.join(os.path.dirname(_file.file.path), new_file_name)
         )
@@ -148,14 +148,19 @@ class BandMedia(CustomModel):
 
         convert_bin = settings.CONVERT_BIN
         convert_cmd = (
-            f"{convert_bin} {_file.file.path} -resize 400x {new_absolute_path}"
+            f"{convert_bin} {_file.file.path} -quality 70% -resize 310x {new_absolute_path}"
         )
-        return_code = subprocess.call(convert_cmd, shell=True)
+        try:
+            return_code = subprocess.call(convert_cmd, shell=True)
 
-        if return_code != 0:
-            raise RuntimeError("Encoding failed")
+            if return_code != 0:
+                raise RuntimeError("Encoding failed")
 
-        _file.encoded_file = new_relative_path
-        _file.save()
+            _file.encoded_file = new_relative_path
+            _file.save()
 
-        return _file
+            return _file
+
+        except RuntimeError:
+            # FIXME: placeholder logic
+            return

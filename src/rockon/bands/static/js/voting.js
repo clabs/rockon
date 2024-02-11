@@ -343,7 +343,7 @@ const BandList = Vue.defineComponent({
     <div v-if="groupedBands.length > 0" v-for="(group, index) in groupedBands" :key="index">
       <div class="card-group">
         <div class="card" v-for="band in group" @click="selectBand(band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(band)" @mouseleave="leaveBand(band)">
-          <img :src="cardImage(band)" class="card-img-top img-fluid" style="height: 250px; object-fit: cover; object-position: center;" :alt="band.name || band.guid" loading="lazy">
+          <img :src="cardImage(band)" class="card-img-top img-fluid" style="height: 250px; object-fit: cover; object-position: center;" :alt="band.name || band.guid" :loading="index > 2 ? 'lazy' : 'auto'">
           <div class="card-body">
             <h6 class="card-title">{{ band.name || band.guid }}</h6>
             <BandListTags :selectedBandDetails="band" :federalStates="federalStates" :userVotes="userVotes" />

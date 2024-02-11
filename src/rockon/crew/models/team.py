@@ -49,4 +49,4 @@ class Team(CustomModel):
     def get_image_url(self):
         if self.image:
             return self.image.url
-        return static("assets/4_3_placeholder.png")
+        return static("assets/4_3_placeholder.webp")

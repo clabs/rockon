@@ -18,24 +18,15 @@ def streaming_upload(request, band, filename):
     except FileNotFoundError:
         return JsonResponse({"message": "File not found"}, status=404)
 
-    serve_encoded = False
-    endings = ["-thumbnail.png", "-encoded.mp3"]
-    if filename.endswith(tuple(endings)):
-        serve_encoded = True
-        for ending in endings:
-            filename = filename.replace(ending, "")
-
-    lookup = f"bids/{band}/{filename}"
-    media = BandMedia.objects.filter(file__startswith=lookup).first()
-
-    if serve_encoded:
-        file = open(media.encoded_file.path, "rb")
-        file_size = os.path.getsize(media.encoded_file.path)
-
-    if media.media_type == "audio":
+    if filename.endswith(".mp3"):
         response = FileResponse(file, status=206)
         response["Accept-Ranges"] = "bytes"
         response["Content-Range"] = f"bytes 0-{file_size-1}/{file_size}"
+        return response
+
+    if filename.endswith(".webp"):
+        response = FileResponse(file, status=200)
+        response["Content-Type"] = "image/webp"
         return response
 
     return FileResponse(file, status=200)
