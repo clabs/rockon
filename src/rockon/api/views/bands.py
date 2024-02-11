@@ -4,7 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, parser_classes
-from rest_framework.parsers import JSONParser, MultiPartParser
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 from rockon.api.permissions import IsCrewReadOnly, IsOwner
@@ -16,7 +16,8 @@ from rockon.api.serializers import (
     BandVoteSerializer,
 )
 from rockon.bands.models import Band, BandMedia, BandVote, Track
-
+from rockon.base.models import Event
+from django.core.exceptions import ObjectDoesNotExist
 
 class BandViewSet(viewsets.ModelViewSet):
     """
@@ -115,7 +116,7 @@ class BandVoteViewSet(viewsets.ModelViewSet):
                 BandVote.objects.filter(band=band, user=user).delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             vote = BandVote.objects.update_or_create(
-                band=band, user=user, defaults={"vote": vote}
+                band=band, user=user, defaults={"vote": vote, "event": band.event}
             )
         except (KeyError, BandVote.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)

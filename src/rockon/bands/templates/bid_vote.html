@@ -28,6 +28,7 @@
     federal_states: {{ federal_states }},
     selectedTrackId: {{ trackid }},
     selectedBand: {{ bandid }},
+    user_votes: {{ user_votes }},
     placeholder: "{% static 'assets/4_3_placeholder.png' %}"
   }
   window.rockon_api = {
@@ -43,7 +44,7 @@
 <div id="app">
   <track-list :tracks="tracks" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids" @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange" @filter-incomplete-bids="handleFilterIncompleteBidsChange"></track-list>
   <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
-  <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids" @select-band="selectBand" :federal-states="federalStates"></band-list>
+  <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids" @select-band="selectBand" :federal-states="federalStates" :user-votes="userVotes"></band-list>
   <band-details v-if="bandDetailLoaded && selectedBandDetails" :selected-band-details="selectedBandDetails" :allow-changes="allowChanges" :tracks="tracks" :federal-states="federalStates" @update:track="updateTrack" @update:select-song="handleSongSelect" @update:rating="setRating" ></band-details>
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toastAudioPlayer" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">

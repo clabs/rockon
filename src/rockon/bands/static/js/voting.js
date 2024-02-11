@@ -236,7 +236,7 @@ const BandTags = Vue.defineComponent({
 })
 
 const BandListTags = Vue.defineComponent({
-  props: ['selectedBandDetails', 'federalStates'],
+  props: ['selectedBandDetails', 'federalStates', 'userVotes'],
   computed: {
     federalStatesTag () {
       console.debug('BandTags computed federalStatesTag:', this.federalStates)
@@ -248,12 +248,21 @@ const BandListTags = Vue.defineComponent({
       return federalState ? federalState[1] : null
     }
   },
+  methods: {
+    hasVote (band) {
+      const userVote = this.userVotes.find(vote => vote === band.id)
+      console.debug('BandList hasVote:', userVote)
+      return userVote
+    }
+  },
   init: function () {
     console.debug('BandTags init:', this.selectedBandDetails)
   },
   template: `
     <div>
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
+      <span v-if="hasVote(selectedBandDetails)" class="badge text-bg-success m-1" style="cursor: pointer;">Bewertet</span>
+      <span v-if="!hasVote(selectedBandDetails)" class="badge text-bg-secondary m-1" style="cursor: pointer;">Enthalten</span>
       <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
       <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
     </div>
@@ -261,7 +270,7 @@ const BandListTags = Vue.defineComponent({
 })
 
 const BandList = Vue.defineComponent({
-  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'federalStates'],
+  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'federalStates', 'userVotes'],
   components: {BandListTags},
   emits: ['select-band'],
   computed: {
@@ -337,7 +346,7 @@ const BandList = Vue.defineComponent({
           <img :src="cardImage(band)" class="card-img-top img-fluid" style="height: 250px; object-fit: cover; object-position: center;" :alt="band.name || band.guid" loading="lazy">
           <div class="card-body">
             <h6 class="card-title">{{ band.name || band.guid }}</h6>
-            <BandListTags :selectedBandDetails="band" :federalStates="federalStates" />
+            <BandListTags :selectedBandDetails="band" :federalStates="federalStates" :userVotes="userVotes" />
           </div>
         </div>
       </div>
@@ -581,6 +590,7 @@ const app = createApp({
       federalStates: window.rockon_data.federal_states,
       selectedTrack: null,
       selectedBand: null,
+      userVotes: window.rockon_data.user_votes,
       selectedBandDetails: null,
       bandDetailLoaded: false,
       playSong: null,
@@ -605,6 +615,7 @@ const app = createApp({
     BandDocuments,
     BandLinks,
     BandTags,
+    BandListTags,
     BandRating,
     LoadingSpinner
   },
@@ -768,8 +779,18 @@ const app = createApp({
         })
       })
         .then(response => response)
-        .then(data => console.log('Success:', data))
-        .catch(error => console.error('Error:', error))
+        .then(data => {
+          console.log('Success:', data)
+        })
+        .catch(error => {
+          console.error('Error:', error)
+          alert('Fehler beim Speichern der Bewertung, bitte schrei um Hilfe!')
+        })
+      if (rating === -1) {
+        this.userVotes = this.userVotes.filter(vote => vote !== this.selectedBand.id)
+      } else {
+        this.userVotes.push(this.selectedBand.id)
+      }
     },
     getBandList (url, _event = null) {
       console.debug('app getBandList:', url, _event)
