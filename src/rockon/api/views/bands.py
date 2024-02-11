@@ -95,14 +95,12 @@ class BandVoteViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
     def get_queryset(self):
-        print(self.request)
         if isinstance(self.request.user, AnonymousUser):
             return BandVote.objects.none()
         all_votes = BandVote.objects.filter(user=self.request.user)
         band_id = self.kwargs.get("pk", None)
         if band_id:
             vote = all_votes.filter(band__id=band_id, user=self.request.user)
-            print(vote)
             return vote
         return all_votes
 
