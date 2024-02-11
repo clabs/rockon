@@ -66,6 +66,18 @@
   .highlight {
     color: #fff300;
   }
+  .image-container {
+    overflow: hidden;
+  }
+  
+  .zoom-image {
+    transition: transform 0.6s ease-in-out;
+    transform: scale(1);
+  }
+  
+  .card:hover .zoom-image {
+    transform: scale(1.1);
+  }
 </style>
 
 {% compress js file voting %}
