@@ -65,18 +65,40 @@ const BandDocuments = Vue.defineComponent({
 
 const BandImages = Vue.defineComponent({
   props: ['selectedBandDetails'],
+  methods: {
+    pressPhoto (band) {
+      let file = band?.press_photo?.encoded_file || band?.press_photo?.file
+      if (!file) {
+        return window.rockon_data.placeholder
+      }
+      if (!file.endsWith('.webp')) {
+        return window.rockon_data.media_offline
+      }
+      return file
+    },
+    logo (band) {
+      let file = band?.logo?.encoded_file || band?.logo?.file
+      if (!file) {
+        return window.rockon_data.placeholder
+      }
+      if (!file.endsWith('.webp')) {
+        return window.rockon_data.media_offline
+      }
+      return file
+    },
+  },
   template: `
     <div class="row gallery">
       <div v-if="selectedBandDetails.press_photo" class="col">
         <div><h5>Photo</h5></div>
         <a :href="selectedBandDetails.press_photo.file">
-        <img :src="selectedBandDetails.press_photo.encoded_file" :alt="selectedBandDetails.press_photo.encoded_file" style="max-height: 250px;">
+        <img :src="pressPhoto(selectedBandDetails)" :alt="selectedBandDetails.press_photo.encoded_file" style="max-height: 250px;">
         </a>
       </div>
       <div v-if="selectedBandDetails.logo" class="col">
         <div><h5>Logo</h5></div>
         <a :href="selectedBandDetails.logo.file">
-        <img :src="selectedBandDetails.logo.encoded_file" :alt="selectedBandDetails.logo.encoded_file" style="max-height: 250px;">
+        <img :src="logo(selectedBandDetails)" :alt="selectedBandDetails.logo.encoded_file" style="max-height: 250px;">
         </a>
       </div>
     </div>
@@ -319,10 +341,14 @@ const BandList = Vue.defineComponent({
       this.$emit('select-band', band)
     },
     cardImage (band) {
-      if (!band.press_photo) {
+      let file = band?.press_photo?.encoded_file || band?.press_photo?.file
+      if (!file) {
         return window.rockon_data.placeholder
       }
-      return band.press_photo.encoded_file || band.press_photo.file
+      if (!file.endsWith('.webp')) {
+        return window.rockon_data.media_offline
+      }
+      return file
     },
     hoverBand (band) {
       this.selectedBand = band

@@ -29,7 +29,8 @@
     selectedTrackId: {{ trackid }},
     selectedBand: {{ bandid }},
     user_votes: {{ user_votes }},
-    placeholder: "{% static 'assets/4_3_placeholder.webp' %}"
+    placeholder: "{% static 'assets/4_3_placeholder.webp' %}",
+    media_offline: "{% static 'assets/media-offline.webp' %}"
   }
   window.rockon_api = {
     list_bands: "{% url "bands-list" %}",
