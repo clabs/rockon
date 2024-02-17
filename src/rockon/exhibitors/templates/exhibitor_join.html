@@ -205,9 +205,14 @@
 <form id="signup" class="row align-items-center needs-validation" novalidate>
   {% csrf_token %}
 
-
-
   <section class="row p-4 form-section">
+    {% if org %}
+    <input type="hidden" name="org_id" value="{{ org.id }}" />
+    <div class="alert alert-secondary" role="alert">
+      <h4 class="alert-heading">Datenübernahme</h4>
+      <p>Deine Organisation wurde bereits angelegt. Sollte etwas nicht richtig sein, dann schicke uns bitte eine Mail an <a href="mailto:spielfest@cpye.de">spielfest@cpye.de</a></p>
+    </div>
+    {% endif %}
     <div class="col-lg-8">
       <div class="row">
         <div class="col-lg-12">
@@ -217,7 +222,7 @@
       <div class="row">
         <div class="col-sm-12 g-4">
           <label for="organisation_name">Organisation</label>
-          <input type="text" class="form-control not-empty" name="organisation_name" id="organisation_name" placeholder="Organisation" autocomplete="off" />
+          <input type="text" class="form-control not-empty" name="organisation_name" id="organisation_name" value="{{ org.org_name|default_if_none:"" }}" placeholder="Organisation" autocomplete="off" {% if org %}disabled{% endif %}/>
           <div class="valid-feedback">
           </div>
           <div class="invalid-feedback">
@@ -228,7 +233,7 @@
       <div class="row">
         <div class="col-sm-9 g-4">
           <label for="organisation_address">Straße</label>
-          <input type="text" name="organisation_address" class="form-control not-empty" id="organisation_address" placeholder="Am Geldspeicher" autocomplete="street-address" />
+          <input type="text" name="organisation_address" class="form-control not-empty" id="organisation_address" value="{{ org.org_address|default_if_none:"" }}" placeholder="Am Geldspeicher" autocomplete="street-address" {% if org %}disabled{% endif %}/>
           <div class="valid-feedback">
           </div>
           <div class="invalid-feedback">
@@ -237,7 +242,7 @@
         </div>
         <div class="col-sm-3 g-4">
           <label for="organisation_address_housenumber">Hausnummer</label>
-          <input type="text" class="form-control not-empty" name="organisation_address_housenumber" id="organisation_address_housenumber" placeholder="23a" />
+          <input type="text" class="form-control not-empty" name="organisation_address_housenumber" id="organisation_address_housenumber" value="{{ org.org_house_number|default_if_none:"" }}" placeholder="23a" {% if org %}disabled{% endif %}/>
           <div class="valid-feedback">
           </div>
           <div class="invalid-feedback">
@@ -248,13 +253,13 @@
       <div class="row">
         <div class="col-sm-12 g-4">
           <label for="organisation_address_extension">Addresszusatz</label>
-          <input type="text" class="form-control" name="organisation_address_extension" id="organisation_address_extension" placeholder="Addresszusatz" autocomplete="off" />
+          <input type="text" class="form-control" name="organisation_address_extension" id="organisation_address_extension" value="{{ org.organisation_address_extension|default_if_none:"" }}" placeholder="Addresszusatz" autocomplete="off" {% if org %}disabled{% endif %}/>
         </div>
       </div>
       <div class="row">
         <div class="col-sm-3 g-4">
           <label for="organisation_zip">Postleitzahl</label>
-          <input type="text" pattern="[0-9]{5}" inputmode="numeric" name="organisation_zip" id="organisation_zip" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" />
+          <input type="text" pattern="[0-9]{5}" inputmode="numeric" name="organisation_zip" id="organisation_zip" value="{{ org.org_zip|default_if_none:"" }}" class="form-control not-empty" placeholder="10000" maxlength="5" autocomplete="postal-code" {% if org %}disabled{% endif %}/>
           <div class="valid-feedback">
           </div>
           <div class="invalid-feedback">
@@ -263,7 +268,7 @@
         </div>
         <div class="col-sm-9 g-4">
           <label for="organisation_place">Ort</label>
-          <input type="text" class="form-control not-empty" name="organisation_place" id="user_place" placeholder="Entenhausen" autocomplete="home city"/>
+          <input type="text" class="form-control not-empty" name="organisation_place" id="user_place" value="{{ org.org_place|default_if_none:"" }}" placeholder="Entenhausen" autocomplete="home city" {% if org %}disabled{% endif %}/>
           <div class="valid-feedback">
           </div>
           <div class="invalid-feedback">

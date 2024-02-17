@@ -3,10 +3,9 @@ from __future__ import annotations
 import json
 
 from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 
-from rockon.base.models import EmailVerification, Event, Organisation
+from rockon.base.models import Event, Organisation
 from rockon.exhibitors.models import (
     Asset,
     Attendance,
@@ -36,7 +35,7 @@ def exhibitor_signup(request, slug):
     request.user.save()
 
     try:
-        organisation = Organisation.objects.get(org_name=body["organisation_name"])
+        organisation = Organisation.objects.get(id=body.get("org_id"))
     except Organisation.DoesNotExist:
         organisation = Organisation.objects.create(
             org_name=body["organisation_name"],
