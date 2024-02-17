@@ -28,6 +28,10 @@ def join_slug(request, slug):
         return redirect("exhibitors:join_submitted")
     template = loader.get_template("exhibitor_join.html")
     event = Event.objects.get(slug=slug)
+    try:
+        org  = Organisation.objects.get(members__in=[request.user])
+    except Organisation.DoesNotExist:
+        org = None
     if not request.user.profile.is_profile_complete_exhibitor():
         template = loader.get_template("exhibitor_join_profile_incomplete.html")
         extra_context = {
@@ -46,6 +50,7 @@ def join_slug(request, slug):
         "attendances": attendances,
         "assets": assets,
         "slug": slug,
+        "org": org,
     }
     return HttpResponse(template.render(extra_context, request))
 
