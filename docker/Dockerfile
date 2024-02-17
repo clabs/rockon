@@ -58,6 +58,7 @@ RUN apt-get update && \
         vim \
         sudo \
         ffmpeg \
+        sass \
         libpng-dev libjpeg-dev libtiff-dev imagemagick ghostscript && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \

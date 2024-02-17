@@ -305,7 +305,7 @@ with env.prefixed("SENTRY_"):
     SENTRY_FRONTEND_ENABLED = env.bool("FRONTEND_ENABLED", default=False)
     SENTRY_DSN = env.str("DSN", default=None)
     SENTRY_ENVIRONMENT = env.str("ENVIRONMENT", default="dev")
-    SENTRY_TRACES_SAMPLE_RATE = env.float("TRACES_SAMPLE_RATE", default="1.0")
+    SENTRY_TRACES_SAMPLE_RATE = env.float("TRACES_SAMPLE_RATE", default=float(1.0))
     SENTRY_SEND_DEFAULT_PII = env.bool("SEND_DEFAULT_PII", default=False)
 
 if SENTRY_ENABLED and SENTRY_DSN:
