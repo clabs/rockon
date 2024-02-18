@@ -25,5 +25,4 @@ def booking_bide_overview(request):
         "site_title": "Bandbewertungen",
         "bands": bands,
     }
-    print(bands[0].name, bands[0].votes_avg, bands[0].votes_sum, bands[0].votes_count)
     return HttpResponse(template.render(extra_context, request))
