@@ -44,6 +44,7 @@ class BandListSerializer(serializers.ModelSerializer):
             "guid",
             "name",
             "track",
+            "bid_status",
             "federal_state",
             "are_students",
             "bid_complete",

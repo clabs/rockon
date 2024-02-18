@@ -167,8 +167,11 @@ const TrackDropdown = Vue.defineComponent({
 })
 
 const TrackList = Vue.defineComponent({
-  props: ['tracks', 'selectedTrack', 'showBandNoName', 'showIncompleteBids'],
-  emits: ['select-track', 'filter-no-name', 'filter-incomplete-bids'],
+  props: ['tracks', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'showDeclinedBids'],
+  emits: ['select-track', 'filter-no-name', 'filter-incomplete-bids', 'filter-declined-bids'],
+  mounted() {
+    console.debug('TrackList init:', this.showDeclinedBids)
+  },
   template: `
       <section class="row p-4 form-section">
       <div>
@@ -183,6 +186,10 @@ const TrackList = Vue.defineComponent({
           <input class="form-check-input" type="checkbox" role="switch" :checked="showIncompleteBids" @change="handleFilterIncompleteBids" />
           <label class="form-check-label" >Unvollständige Bewerbungen verstecken</label>
         </div>
+        <div class="form-check form-switch m-2">
+        <input class="form-check-input" type="checkbox" role="switch" :checked="showDeclinedBids" @change="handleFilterDeclinedeBids"/>
+        <label class="form-check-label" >Abgelehnte Bewerbungen verstecken</label>
+      </div>
       </div>
       </section>
     `,
@@ -214,6 +221,14 @@ const TrackList = Vue.defineComponent({
       )
       this.showIncompleteBids = event.target.checked
       this.$emit('filter-incomplete-bids', event.target.checked)
+    },
+    handleFilterDeclinedeBids (event) {
+      console.debug(
+        'TrackList handleFilterDeclinedeBids:',
+        event.target.checked
+      )
+      this.showDeclinedBids = event.target.checked
+      this.$emit('filter-declined-bids', event.target.checked)
     }
   },
   created () {
@@ -253,6 +268,7 @@ const BandTags = Vue.defineComponent({
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
       <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
       <span v-if="!selectedBandDetails.homepage" class="badge text-bg-warning m-1" style="cursor: pointer;">Keine Homepage</span>
+      <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung abgelehnt</span>
     </div>
   `
 })
@@ -272,9 +288,12 @@ const BandListTags = Vue.defineComponent({
   },
   methods: {
     hasVote (band) {
-      const userVote = this.userVotes.find(vote => vote === band.id)
+      const userVote = this.userVotes.find(vote => vote.band__id === band.id)
       console.debug('BandList hasVote:', userVote)
       return userVote
+    },
+    voteCount (band) {
+      return this.userVotes.find(vote => vote.band__id === band.id).vote
     }
   },
   init: function () {
@@ -283,8 +302,9 @@ const BandListTags = Vue.defineComponent({
   template: `
     <div>
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
-      <span v-if="hasVote(selectedBandDetails)" class="badge text-bg-success m-1" style="cursor: pointer;">Bewertet</span>
-      <span v-if="!hasVote(selectedBandDetails)" class="badge text-bg-secondary m-1" style="cursor: pointer;">Enthalten</span>
+      <span v-if="hasVote(selectedBandDetails)" class="badge text-bg-success m-1" style="cursor: pointer;">Bewertet: {{ voteCount(selectedBandDetails) }} 💖</span>
+      <span v-if="!hasVote(selectedBandDetails) && (selectedBandDetails.bid_status !== 'declined')" class="badge text-bg-secondary m-1" style="cursor: pointer;">Enthalten</span>
+      <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Abgelehnt</span>
       <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
       <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
     </div>
@@ -292,7 +312,7 @@ const BandListTags = Vue.defineComponent({
 })
 
 const BandList = Vue.defineComponent({
-  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'federalStates', 'userVotes'],
+  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'showDeclinedBids', 'federalStates', 'userVotes'],
   components: {BandListTags},
   emits: ['select-band'],
   computed: {
@@ -314,6 +334,10 @@ const BandList = Vue.defineComponent({
       if (this.selectedTrack === 'no-track') {
         console.debug('Filtering for bands without a track.')
         return _bands.filter(band => !band.track)
+      }
+      if (this.showDeclinedBids) {
+        console.debug('Filtering for bands with declined bids.')
+        _bands = _bands.filter(band => band.bid_status !== 'declined')
       }
       const filtered = _bands.filter(
         band => band.track && band.track === this.selectedTrack.id
@@ -502,11 +526,21 @@ const BandDetails = Vue.defineComponent({
       <div class="col">
           <h3>{{ bandName }}</h3>
       </div>
+      <div v-if="selectedBandDetails.bid_status === 'declined'" class="row mt-2">
+      <div class="col">
+        <div class="alert alert-secondary" role="alert">
+            <h4 class="alert-heading">❌ Bewerbung abgelehnt ❌</h4>
+            <hr>
+            <p>Diese Band hat es leider in der Vorauswahl nicht geschafft und die Mindestanforderungen des Bandgewerks erfüllt.</p>
+            <p> Aus Transparenzgründen ist sie hier gelistet und du kannst ihre Tracks anhören, die Band kann aber nicht bewertet werden.</p>
+        </div>
+        </div>
+      </div>
       <div class="row">
       <div class="col-9">
           <BandTags :selectedBandDetails="selectedBandDetails" :federalStates="federalStates" />
       </div>
-      <div class="col-3">
+      <div v-if="selectedBandDetails.bid_status !== 'declined'" class="col-3">
           <BandRating :selectedBandDetails="selectedBandDetails" @update:rating="emitRating" />
       </div>
       </div>
@@ -628,6 +662,7 @@ const app = createApp({
       wavesurfer: null,
       showBandNoName: null,
       showIncompleteBids: null,
+      showDeclinedBids: null,
       BandRating: null,
       lightbox: null
     }
@@ -790,6 +825,11 @@ const app = createApp({
       sessionStorage.setItem('filterIncompleteBids', JSON.stringify(checked))
       this.showIncompleteBids = checked
     },
+    handleFilterDeclinedBidsChange (checked) {
+      console.debug('app handleFilterDeclinedBidsChange:', checked)
+      sessionStorage.setItem('filterDeclinedBids', JSON.stringify(checked))
+      this.showDeclinedBids = checked
+    },
     setRating (rating) {
       console.debug('BandRating setRating:', rating)
       this.rating = rating
@@ -876,6 +916,10 @@ const app = createApp({
     const filterIncompleteBids = JSON.parse(
       sessionStorage.getItem('filterIncompleteBids')
     )
+    const filterDeclinedBids = JSON.parse(
+      sessionStorage.getItem('filterDeclinedBids')
+    )
+    this.showDeclinedBids = filterDeclinedBids ? filterDeclinedBids : true
     this.showIncompleteBids = filterIncompleteBids
       ? filterIncompleteBids
       : false

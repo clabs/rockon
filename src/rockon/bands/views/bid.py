@@ -143,7 +143,7 @@ def bid_vote(request, bid: str = None, track: str = None):
         json.dumps(request.user.groups.filter(name="booking").exists())
     )
     media_url = settings.MEDIA_URL
-    user_votes = request.user.band_votes.filter(event__id=request.session["current_event"]).values_list("band__id", flat=True)
+    user_votes = request.user.band_votes.filter(event__id=request.session["current_event"]).values("band__id", "vote")
     user_votes_json = mark_safe(
         json.dumps(list(user_votes), cls=CustomJSONEncoder)
     )

@@ -40,15 +40,18 @@
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Booking</a>
     <ul class="dropdown-menu">
+      <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{% url 'bands:bid_vote' %}">Band Bewertung</a>
+      </li>
       <li>
         <a class="dropdown-item" href="{% url 'bands:booking_bid_overview' %}">Übersicht Bewertungen</a>
       </li>
     </ul>
   </li>
 {% endif %}
-  {% if group.name == 'crew' and current_event.bid_vote_allowed or group.name == 'booking' %}
-    <li class="nav-item">
-      <a class="nav-link" aria-current="page" href="{% url 'bands:bid_vote' %}">Band Bewertung</a>
-    </li>
-  {% endif %}
 {% endfor %}
+{% if group.name == 'crew' and current_event.bid_vote_allowed %}
+<li class="nav-item">
+  <a class="nav-link" aria-current="page" href="{% url 'bands:bid_vote' %}">Band Bewertung</a>
+</li>
+{% endif %}

@@ -12,32 +12,59 @@
 <script src="{% static "vendor/datatables.1.13.8.min.js" %}"></script>
 {% endcompress %}
 
+{% compress js file sparklines %}
+<script src="{% static "vendor/jquery.sparkline.2.1.2.min.js" %}"></script>
+{% endcompress %}
+
 {% compress js file datatables-init %}
 <script>
-  $(document).ready( function () {
+  $(document).ready(function () {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     $('#band-table').DataTable(
       {
         paging: true,
         pageLength: 50,
         order: [[ 1, 'desc' ], [ 2, 'desc' ]],
+        "drawCallback": function() {
+          $('.inlinesparkline:not(:has(canvas))').sparkline('html', {
+            type: 'bar',
+            barWidth: '20px',
+            barColor: '#fff300',
+            disableTooltips: true,
+            chartRangeMax: 6
+          });
+        }
       }
     )
-} );
+  })
 </script>
 {% endcompress %}
+
+<style>
+  .jqstooltip {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+  }
+  .no-wrap {
+    white-space: nowrap;
+  }
+</style>
 
 <section class="row p-4 form-section">
   <div id="foo"></div>
   <table id="band-table" class="table table-dark table-striped table-bordered table-hover table-fixed-header">
-    <thead>
+    <thead class="no-wrap">
       <tr>
-        <th scope="col">Bandname</th>
-        <th scope="col">&#216; Sterne</th>
-        <th scope="col">Summe</th>
-        <th scope="col">Bewertungen</th>
-        <th scope="col">Track</th>
-        <th scope="col">Kontakt</th>
-        <th scope="col">Backstage</th>
+        <th class="no-wrap" scope="col">Bandname</th>
+        <th class="no-wrap" scope="col">&#216; ⭐</th>
+        <th class="no-wrap" scope="col">Summe</th>
+        <th class="no-wrap" scope="col">Stimmen</th>
+        <th class="no-wrap" scope="col">Verteilung</th>
+        <th class="no-wrap" scope="col">Track</th>
+        <th class="no-wrap" scope="col">Kontakt</th>
+        <th class="no-wrap" scope="col">Backstage</th>
       </tr>
     </thead>
     <tbody>
@@ -47,6 +74,7 @@
           <td>{{ band.votes_avg|default:"0" |floatformat }}</td>
           <td>{{ band.votes_sum|default:"0" }}</td>
           <td>{{ band.votes_count|default:"0" }}</td>
+          <td {% if band.counters %} data-n="1" class="inlinesparkline" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true"data-bs-title="{% for k, v in band.counters.items %}{% if v %}{{v}}x {{k}}⭐{% if not forloop.last %}<br />{% endif %}{% endif %}{% endfor %}"{% endif %}>{% for _, v in band.counters.items %}{{v}}{% if not forloop.last %},{% endif %}{% endfor %}</td>
           <td>{{ band.track.name }}</td>
           <td><a href="mailto:{{ band.contact.email }}">{{ band.contact.email }}</a></td>
           <td><a href="{% url "admin:rockonbands_band_change" object_id=band.id %}" target="_blank" title="Bearbeiten"><i class="fas fa-cog"></i></a></td>

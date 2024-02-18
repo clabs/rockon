@@ -19,7 +19,6 @@ def account(request):
     extra_context = {"site_title": "Profil"}
     account_context = request.GET.get("ctx")
     if account_context in ["crew", "bands", "exhibitors"]:
-        print(account_context)
         group = Group.objects.get(name=account_context)
         request.user.groups.add(group)
         request.user.save()
