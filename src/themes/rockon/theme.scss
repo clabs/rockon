@@ -190,6 +190,8 @@ $btn-close-hover-opacity:           1 !default;
 // Code
 $pre-color:                         inherit !default;
 
+// Tooltip
+$tooltip-color:                     $white !default;
 
 @import "../bootstrap/bootstrap.scss";
 @import "_body.scss";
