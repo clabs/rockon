@@ -169,9 +169,6 @@ const TrackDropdown = Vue.defineComponent({
 const TrackList = Vue.defineComponent({
   props: ['tracks', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'showDeclinedBids'],
   emits: ['select-track', 'filter-no-name', 'filter-incomplete-bids', 'filter-declined-bids'],
-  mounted() {
-    console.debug('TrackList init:', this.showDeclinedBids)
-  },
   template: `
       <section class="row p-4 form-section">
       <div>
