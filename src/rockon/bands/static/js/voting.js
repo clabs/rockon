@@ -854,7 +854,7 @@ const app = createApp({
       if (rating === -1) {
         this.userVotes = this.userVotes.filter(vote => vote !== this.selectedBand.id)
       } else {
-        this.userVotes.push(this.selectedBand.id)
+        this.userVotes.push({"band__id": this.selectedBand.id, "vote": rating})
       }
     },
     getBandList (url, _event = null) {
