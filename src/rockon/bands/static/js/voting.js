@@ -288,9 +288,12 @@ const BandListTags = Vue.defineComponent({
   },
   methods: {
     hasVote (band) {
-      const userVote = this.userVotes.find(vote => vote === band.id)
+      const userVote = this.userVotes.find(vote => vote.band__id === band.id)
       console.debug('BandList hasVote:', userVote)
       return userVote
+    },
+    voteCount (band) {
+      return this.userVotes.find(vote => vote.band__id === band.id).vote
     }
   },
   init: function () {
@@ -299,7 +302,7 @@ const BandListTags = Vue.defineComponent({
   template: `
     <div>
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
-      <span v-if="hasVote(selectedBandDetails)" class="badge text-bg-success m-1" style="cursor: pointer;">Bewertet</span>
+      <span v-if="hasVote(selectedBandDetails)" class="badge text-bg-success m-1" style="cursor: pointer;">Bewertet: {{ voteCount(selectedBandDetails) }} 💖</span>
       <span v-if="!hasVote(selectedBandDetails) && (selectedBandDetails.bid_status !== 'declined')" class="badge text-bg-secondary m-1" style="cursor: pointer;">Enthalten</span>
       <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Abgelehnt</span>
       <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
