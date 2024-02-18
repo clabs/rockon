@@ -7,15 +7,14 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from rest_framework.renderers import JSONRenderer
 
-from rockon.api.serializers import BandListSerializer
 from rockon.bands.models import Band, BandMedia, MediaType, Track
-from rockon.base.models import Event, event
+from rockon.base.models import Event
 from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
 
@@ -121,6 +120,8 @@ def bid_form(request, slug, guid):
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crew").exists())
 def bid_vote(request, bid: str = None, track: str = None):
+    if not request.user.crewmember_set.filter(crew__event__id=request.session["current_event"], state="confirmed").exists():
+        raise PermissionDenied("Du bist nicht berechtigt, Bandbewertungen abzugeben, bitte wende dich an die Crewkoordination und lasse dich für die Crew freischalten.")
     if (
         not Event.objects.get(id=request.session["current_event"]).bid_vote_allowed
         and not request.user.groups.filter(name="booking").exists()
