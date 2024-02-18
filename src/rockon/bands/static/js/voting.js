@@ -174,18 +174,18 @@ const TrackList = Vue.defineComponent({
       <div>
         <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" style="cursor: pointer;" @click="handleClick(track)">{{ track.name }}</span>
         <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack" style="cursor: pointer;">Ohne Track</span>
-        <span class="badge text-bg-secondary m-2" @click="handleDeselectTrack" style="cursor: pointer;">Filter entfernen</span>
+        <span class="badge text-bg-primary m-2" @click="handleDeselectTrack" style="cursor: pointer;">Alle Bands</span>
         <div class="form-check form-switch m-2">
           <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
-          <label class="form-check-label" >Bands ohne Namen verstecken</label>
+          <label class="form-check-label" >Bands ohne Namen anzeigen</label>
         </div>
         <div class="form-check form-switch m-2">
           <input class="form-check-input" type="checkbox" role="switch" :checked="showIncompleteBids" @change="handleFilterIncompleteBids" />
-          <label class="form-check-label" >Unvollständige Bewerbungen verstecken</label>
+          <label class="form-check-label" >Unvollständige Bewerbungen anzeigen</label>
         </div>
         <div class="form-check form-switch m-2">
         <input class="form-check-input" type="checkbox" role="switch" :checked="showDeclinedBids" @change="handleFilterDeclinedeBids"/>
-        <label class="form-check-label" >Abgelehnte Bewerbungen verstecken</label>
+        <label class="form-check-label" >Abgelehnte Bewerbungen anzeigen</label>
       </div>
       </div>
       </section>
@@ -316,25 +316,25 @@ const BandList = Vue.defineComponent({
     filteredBands () {
       console.debug('selectedTrack:', this.selectedTrack)
       _bands = this.bands
-      if (this.showIncompleteBids) {
+      if (!this.showIncompleteBids) {
         console.debug('Filtering for bands with incomplete bids.')
         _bands = _bands.filter(band => band.bid_complete === true)
       }
-      if (this.showBandNoName) {
+      if (!this.showBandNoName) {
         console.debug('Filtering for bands without a name.')
         _bands = _bands.filter(band => band.name)
       }
-      if (!this.selectedTrack) {
-        console.debug('No selected track id. Returning all.')
-        return _bands
+      if (!this.showDeclinedBids) {
+        console.debug('Filtering for bands with declined bids.')
+        _bands = _bands.filter(band => band.bid_status !== 'declined')
       }
       if (this.selectedTrack === 'no-track') {
         console.debug('Filtering for bands without a track.')
         return _bands.filter(band => !band.track)
       }
-      if (this.showDeclinedBids) {
-        console.debug('Filtering for bands with declined bids.')
-        _bands = _bands.filter(band => band.bid_status !== 'declined')
+      if (!this.selectedTrack) {
+        console.debug('No selected track id. Returning all.')
+        return _bands
       }
       const filtered = _bands.filter(
         band => band.track && band.track === this.selectedTrack.id
@@ -916,7 +916,7 @@ const app = createApp({
     const filterDeclinedBids = JSON.parse(
       sessionStorage.getItem('filterDeclinedBids')
     )
-    this.showDeclinedBids = filterDeclinedBids ? filterDeclinedBids : true
+    this.showDeclinedBids = filterDeclinedBids ? filterDeclinedBids : false
     this.showIncompleteBids = filterIncompleteBids
       ? filterIncompleteBids
       : false
