@@ -174,6 +174,7 @@ const TrackList = Vue.defineComponent({
       <div>
         <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" style="cursor: pointer;" @click="handleClick(track)">{{ track.name }}</span>
         <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack" style="cursor: pointer;">Ohne Track</span>
+        <span class="badge text-bg-primary m-2" :key="no-vote" @click="handleShowBandsWithoutVote" style="cursor: pointer;">Unbewertete Bands</span>
         <span class="badge text-bg-primary m-2" @click="handleDeselectTrack" style="cursor: pointer;">Alle Bands</span>
         <div class="form-check form-switch m-2">
           <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
@@ -205,6 +206,11 @@ const TrackList = Vue.defineComponent({
       console.debug('TrackList handleShowBandsWithoutTrack')
       this.selectedTrack = 'no-track'
       this.$emit('select-track', 'no-track')
+    },
+    handleShowBandsWithoutVote () {
+      console.debug('TrackList handleShowBandsWithoutTrack')
+      this.selectedTrack = 'no-vote'
+      this.$emit('select-track', 'no-vote')
     },
     handleFilterNoNameChange (event) {
       console.debug('TrackList handleFilterNoNameChange:', event.target.checked)
@@ -331,6 +337,10 @@ const BandList = Vue.defineComponent({
       if (this.selectedTrack === 'no-track') {
         console.debug('Filtering for bands without a track.')
         return _bands.filter(band => !band.track)
+      }
+      if (this.selectedTrack === 'no-vote') {
+        console.debug('Filtering for bands without a track.')
+        return _bands.filter(a1 => !this.userVotes.some(a2 => a2.band__id === a1.id))
       }
       if (!this.selectedTrack) {
         console.debug('No selected track id. Returning all.')
@@ -690,7 +700,13 @@ const app = createApp({
       this.selectedBandDetails = null
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
-      if (track) {
+      if (track === 'no-vote') {
+        url.pathname = `/bands/vote/track/no-vote/`
+      }
+      else if (track === 'no-track') {
+        url.pathname = `/bands/vote/track/no-track/`
+      }
+      else if (track) {
         url.pathname = `/bands/vote/track/${track.slug}/`
       } else {
         url.pathname = `/bands/vote/`
@@ -751,8 +767,16 @@ const app = createApp({
         console.debug('Vote type:', voteType)
         console.debug('ID:', id)
 
+        let track
+
         if (voteType === 'track') {
-          const track = this.tracks.find(track => track.slug === id)
+          if (id === 'no-vote') {
+            track = this.selectedTrack = 'no-vote'
+          } else if (id === 'no-track') {
+            track = this.selectedTrack = 'no-track'
+          } else {
+            track = this.tracks.find(track => track.slug === id)
+          }
           this.selectedTrack = track
           this.$emit('update:selectedTrack', track)
           console.debug('Selected track:', this.selectedTrack)
@@ -871,6 +895,7 @@ const app = createApp({
           if (data.next) {
             this.getBandList(data.next)
           } else {
+
             this.bandListLoaded = true
             console.debug('app getBandList:', this.bands)
             this.updateComponent()
