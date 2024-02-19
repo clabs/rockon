@@ -22,7 +22,7 @@ RUN apt-get update && \
     useradd -u $DOCKER_UID -ms /bin/bash -d /app appuser
 
 WORKDIR /app
-COPY pyproject.toml poetry.lock package.json package-lock.json /app/
+COPY pyproject.toml poetry.lock /app/
 ENV PATH=/app/.venv/bin:/root/.local/bin:$PATH
 RUN pip3 install --user poetry && \
     poetry config virtualenvs.in-project true && \

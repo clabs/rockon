@@ -340,6 +340,7 @@ const BandList = Vue.defineComponent({
       }
       if (this.selectedTrack === 'no-vote') {
         console.debug('Filtering for bands without a track.')
+        _bands = _bands.filter(band => band.bid_status !== 'declined')
         return _bands.filter(a1 => !this.userVotes.some(a2 => a2.band__id === a1.id))
       }
       if (!this.selectedTrack) {
