@@ -24,6 +24,8 @@ def bandmember_signup(request):
         person_dict = {}
         for item in person:
             person_dict[item["name"]] = item["value"]
+        person_dict["email"] = person_dict["email"].lower()
+
         try:
             user = User.objects.get(email=person_dict["email"])
             # if a user already exists, create a new mail alias
