@@ -21,6 +21,7 @@ def verify_email(request):
         user.profile.email_is_verified = True
         if verification.new_email:
             user.email = verification.new_email
+            user.username = verification.new_email
         user.save()
         verification.is_active = False
         verification.save()

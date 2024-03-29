@@ -15,6 +15,13 @@ def account_create(request):
     for item in body_list:
         body[item["name"]] = item["value"]
 
+    body["user_email"] = body.get("user_email", "").lower()
+
+    if not body.get("user_email"):
+        return JsonResponse(
+            {"status": "error", "message": "Email is required"}, status=400
+        )
+
     try:
         user = User.objects.get(email=body.get("user_email"))
         return JsonResponse(
