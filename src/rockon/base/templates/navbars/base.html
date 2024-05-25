@@ -8,6 +8,26 @@
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="{% url 'crm_user_home' %}">Home</a>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Mitmachen!</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              {% for group in user.groups.all %}
+                {% if group.name == 'crew' %}
+                  <a class="dropdown-item" href="{% url 'crew:join' %}">Rocktreff Crew</a>
+                {% endif %}
+                {% if group.name == 'bands' %}
+                {% if user.band %}
+                  <a href="{% url 'bands:bid_form' slug=request.user.band.event.slug guid=user.band.guid %}" class="dropdown-item">Band Bewerbung</a>
+                {% else %}
+                  <a class="dropdown-item" href="{% url 'bands:bid_root' %}">Band Bewerbung</a>
+                {% endif %}
+                {% endif %}
+                {% if group.name == 'exhibitors' %}
+                  <a class="dropdown-item" href="{% url 'exhibitors:join_slug' slug=current_event.sub_events.first.slug %}">Spielfest Austeller</a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </li>
           {% for group in user.groups.all %}
             {% if group.name == 'crew' %}
               {% include './crew_context.html' %}
@@ -20,9 +40,9 @@
             {% endif %}
           {% endfor %}
           {% if not user.groups.all %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'base:select_context' %}">Kontoart wählen</a>
-          </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'base:select_context' %}">Kontoart wählen</a>
+            </li>
           {% endif %}
         {% endif %}
       </ul>
@@ -31,11 +51,9 @@
           <ul class="navbar-nav me-auto mb-2 mb-md-0">
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-user"></i> Hey <strong>{{ user.first_name|default:user.username }}!</strong></a>
-              <ul class="dropdown-menu">
-                <li>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <a class="dropdown-item" href="{% url 'base:account' %}">Mein Account</a>
-                </li>
-              </ul>
+              </div>
             </li>
             <li class="nav-item">
               {% include './current_event.html' %}
