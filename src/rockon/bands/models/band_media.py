@@ -147,9 +147,7 @@ class BandMedia(CustomModel):
         )
 
         convert_bin = settings.CONVERT_BIN
-        convert_cmd = (
-            f"{convert_bin} {_file.file.path} -quality 70% -resize 310x {new_absolute_path}"
-        )
+        convert_cmd = f"{convert_bin} {_file.file.path} -quality 70% -resize 310x {new_absolute_path}"
         try:
             return_code = subprocess.call(convert_cmd, shell=True)
 

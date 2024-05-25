@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 
-# from django.core.cache import cache
-from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Avg, Count, Sum
 from django.http import HttpResponse
 from django.template import loader
+
+# from django.core.cache import cache
+from django.views.decorators.cache import cache_page
 
 from rockon.bands.models import Band
 
@@ -22,7 +23,7 @@ def booking_bide_overview(request):
             votes_count=Count("votes"),
             votes_sum=Sum("votes__vote"),
             votes_avg=Avg("votes__vote"),
-            vote_counters=Count("votes__vote", distinct=True)
+            vote_counters=Count("votes__vote", distinct=True),
         )
         .order_by("-votes_sum", "-votes_avg", "track")
     )
@@ -41,6 +42,7 @@ def booking_bide_overview(request):
         "bands": bands,
     }
     return HttpResponse(template.render(extra_context, request))
+
 
 # def get_data(request):
 #     data = cache.get('band_bid_results')

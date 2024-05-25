@@ -29,7 +29,7 @@ def join_slug(request, slug):
     template = loader.get_template("exhibitor_join.html")
     event = Event.objects.get(slug=slug)
     try:
-        org  = Organisation.objects.get(members__in=[request.user])
+        org = Organisation.objects.get(members__in=[request.user])
     except Organisation.DoesNotExist:
         org = None
     if not request.user.profile.is_profile_complete_exhibitor():

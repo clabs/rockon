@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, parser_classes
@@ -17,7 +18,7 @@ from rockon.api.serializers import (
 )
 from rockon.bands.models import Band, BandMedia, BandVote, Track
 from rockon.base.models import Event
-from django.core.exceptions import ObjectDoesNotExist
+
 
 class BandViewSet(viewsets.ModelViewSet):
     """
