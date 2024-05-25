@@ -48,6 +48,7 @@ def bandmember_signup(request):
             )
 
         user.profile.address = person_dict["address"]
+        user.profile.house_number = person_dict["house_number"]
         user.profile.zip_code = person_dict["zip_code"]
         user.profile.place = person_dict["place"]
 
