@@ -35,7 +35,7 @@ def join_slug(request, slug):
     if not request.user.profile.is_profile_complete_exhibitor():
         template = loader.get_template("exhibitor_join_profile_incomplete.html")
         extra_context = {
-            "site_title": "Profil unvollständig - Austelleranmeldung",
+            "site_title": "Profil unvollständig - Ausstelleranmeldung",
             "event": event,
             "slug": slug,
         }

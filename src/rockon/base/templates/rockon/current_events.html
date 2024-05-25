@@ -28,7 +28,7 @@
                   <p><a href="{% url 'bands:bid_router' slug=event.slug %}">Bewerbe dich mit deiner Band</a><br><small class="text-muted">Bewerbungsfrist: {{event.band_application_end|date:"d.m.Y, H:i"}}</small></p>
                   {% elif event.signup_type == "exhibitor" and event.exhibitor_application_open %}
                   <h4>Mitmachen</h4>
-                  <p><a href="{% url 'exhibitors:join_slug' slug=event.slug %}">Melde dich als Austeller an</a><br><small class="text-muted">Anmeldefrist: {{event.exhibitor_application_end|date:"d.m.Y, H:i"}}</small></p>
+                  <p><a href="{% url 'exhibitors:join_slug' slug=event.slug %}">Melde dich als Aussteller an</a><br><small class="text-muted">Anmeldefrist: {{event.exhibitor_application_end|date:"d.m.Y, H:i"}}</small></p>
                   {% endif %}
                 {% endif %}
               </p>
