@@ -4,6 +4,7 @@
 const persons = []
 const slots = {{ slots }}
 const band_id = "{{ band.id }}"
+const currentMembers = JSON.parse('{{ current_members | safe }}')
 
 $(document).ready(() => {
   if (slots === 0) {
@@ -17,6 +18,10 @@ $(document).ready(() => {
       return "Die Seite hat ungespeicherte Änderungen.";
     })
   })
+
+  for (const [index, member] of currentMembers.entries()) {
+    $('#currentMembers').append(`<li>${member.user.last_name}, ${member.user.first_name}</li>`)
+  }
 
   $("#new_person_send").click((event) => {
     event.preventDefault()
@@ -153,10 +158,13 @@ $('body').on('click', '.person-delete', event => {
     <p>Damit sich unser Catering möglichst gut vorbereiten kann, gebt bitte die Ernährungsgewohnheit mit an.</p>
     <p>Um einen reibungslosen Ablauf gewährleisten zu können, teilt uns bitte auch mit, welche Funktion die Personen haben.</p>
     <p>Aktuell könnt ihr noch {{ slots }} Personen anmelden.</p>
+    <p>Solltet ihr Personen entfernen wollen, die bereits gemeldet habt, setzt euch bitte mit der Bandbetreuung in Verbindung.</p>
 </div>
 
 <div id="main_content" class="row">
 <h3>Personen</h3>
+<p>Aktuelle Meldungen:</p>
+<ul id="currentMembers"></ul>
 <div class="pb-3">
 <button id="new_person_model_open" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new_person_modal">
   Person hinzufügen

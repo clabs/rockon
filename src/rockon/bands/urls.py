@@ -32,5 +32,5 @@ urlpatterns = [
     path("bid/<slug>/<guid>/", bid_form, name="bid_form"),
     path("booking/bid_overview/", booking_bide_overview, name="booking_bid_overview"),
     # path("<slug>/techrider/", techrider, name="bands_techrider"),
-    # path("<slug>/members/", members, name="bands_members"),
+    path("<slug>/members/", members, name="bands_members"),
 ]
