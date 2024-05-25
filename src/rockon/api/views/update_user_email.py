@@ -20,6 +20,8 @@ def update_user_email(request):
         return JsonResponse({"status": "error", "message": "E-Mail is required"})
 
     EmailVerification.objects.filter(user=user).delete()
-    EmailVerification.create_and_send(user=user, new_email=body["changeEmailNew"].lower())
+    EmailVerification.create_and_send(
+        user=user, new_email=body["changeEmailNew"].lower()
+    )
 
     return JsonResponse({"status": "ok", "message": "E-Mail updated"})

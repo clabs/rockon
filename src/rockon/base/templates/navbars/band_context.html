@@ -1,7 +1,0 @@
-<li class="nav-item">
-  {% if user.band %}
-    <a href="{% url 'bands:bid_form' slug=request.user.band.event.slug guid=user.band.guid %}" class="nav-link">Band Bewerbung</a>
-  {% else %}
-    <a class="nav-link" href="{% url 'bands:bid_root' %}">Band Bewerbung</a>
-  {% endif %}
-</li>

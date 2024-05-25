@@ -11,7 +11,7 @@ from rockon.library.custom_model import CustomModel, models
 class SignUpType(models.TextChoices):
     UNKNOWN = "unknown", "Unbekannt"
     CREW = "crew", "Crew"
-    EXHIBITOR = "exhibitor", "Austeller"
+    EXHIBITOR = "exhibitor", "Aussteller"
 
 
 class Event(CustomModel):
