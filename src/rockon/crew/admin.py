@@ -123,7 +123,10 @@ class TeamMemberAdmin(CustomAdminModel):
     list_display = ("crewmember", "team", "state", "created_at", "updated_at")
     search_fields = ("team", "crewmember")
     ordering = ("team", "state")
-    list_filter = ("team__name",)
+    list_filter = (
+        "team__name",
+        "crewmember__crew__event",
+    )
 
 
 admin.site.register(Attendance, AttendanceAdmin)

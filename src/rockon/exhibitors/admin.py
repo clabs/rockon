@@ -7,7 +7,7 @@ from .models import Asset, Attendance, Exhibitor, ExhibitorAsset, ExhibitorAtten
 
 class ExhibitorAssetAdmin(CustomAdminModel):
     list_display = ("exhibitor", "asset", "count")
-    list_filter = ("exhibitor", "asset")
+    list_filter = ("exhibitor", "asset", "exhibitor__event")
     search_fields = ("exhibitor", "asset")
 
 
