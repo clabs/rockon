@@ -10,10 +10,14 @@
       $('.copybtn').click(function () {
         const $inputField = $(this).closest('.input-group').find('.voucherfield')
         if ($inputField.length) {
+          const originalValue = $inputField.val()
+          const modifiedValue = 'https://backstage.rocktreff.de/redeem?voucher=' + originalValue
+          $inputField.val(modifiedValue)
           $inputField.select()
           document.execCommand('copy')
+          $inputField.val(originalValue)
           $inputField.blur()
-          showToast('Voucher kopiert')
+          showToast('Voucher-Link kopiert')
         }
       })
 
@@ -61,9 +65,9 @@
   </div>
   <div class="alert alert-secondary" role="alert">
     <p>
-      Jedes Crew-Mitglied darf pro Tag 2 Personen auf die Gästeliste für den Backstage setzen. Alles was du dafür tun musst: kopiere einen der beiden Voucher für den passenden Tag und lasse ihn der Person zukommen, mit diesem Voucher kann die Person sich auf <a href="https://backstage.rocktreff.de" target="_blank">backstage.rocktreff.de</a> sich selbstständig ein Ticket erstellen. Dies wird am Eingang vorgezeigt, fertig.
+      Jedes Crew-Mitglied darf pro Tag 2 Personen auf die Gästeliste für den Backstage setzen. Alles was du dafür tun musst: kopiere einen der beiden Voucher für den passenden Tag und lasse ihn der Person zukommen, mit diesem Voucher kann die Person sich auf <a href="https://backstage.rocktreff.de" target="_blank">https://backstage.rocktreff.de</a> sich selbstständig ein Ticket erstellen. Dies wird am Eingang vorgezeigt, fertig.
     </p>
-    <p>Mit dem Kopier Button kannst du den Voucher direkt in die Zwischenablage kopieren.</p>
+    <p>Mit dem Kopier Button kannst du einen Aktivierungslink mit dem Voucher direkt in die Zwischenablagekopieren.</p>
     <p>Du kannst einen Voucher als "gebraucht" markieren, indem du auf das Häkchen klickst. Dies ist nützlich, um den Überblick zu behalten, welche Voucher bereits verwendet wurden.</p>
   </div>
   <section class="row p-4 form-section">
