@@ -137,6 +137,13 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
+    "qcluster": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    },
     "offline_compress": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
         "LOCATION": tempfile.gettempdir(),
@@ -148,9 +155,9 @@ CACHES = {
 }
 
 if DEBUG:
-    CACHES['default'] = {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
+    CACHES["default"] = {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_CACHE_ALIAS = "default"
@@ -161,7 +168,7 @@ Q_CLUSTER = {
     "workers": 4,
     "retry": 60,
     "timeout": 30,
-    "django_redis": "default",
+    "django_redis": "qcluster",
 }
 
 # Password validation
