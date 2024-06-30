@@ -4,6 +4,7 @@ from .attendance import Attendance, AttendancePhase
 from .attendance_addition import AttendanceAddition
 from .crew import Crew
 from .crew_member import CrewMember, CrewMemberNutrion, CrewMemberStatus
+from .guestlist_entry import GuestListEntry
 from .shirt import Shirt
 from .skill import Skill
 from .team import Team

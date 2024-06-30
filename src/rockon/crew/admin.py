@@ -7,6 +7,7 @@ from .models import (
     AttendanceAddition,
     Crew,
     CrewMember,
+    GuestListEntry,
     Shirt,
     Skill,
     Team,
@@ -83,6 +84,13 @@ class CrewAdmin(CustomAdminModel):
     list_filter = ("event__name",)
 
 
+class GuestListEntryAdmin(CustomAdminModel):
+    list_display = ("crew_member", "voucher", "day", "send", "updated_at")
+    search_fields = ("crew_member__user__last_name", "voucher")
+    ordering = ("crew_member", "voucher", "day", "send", "updated_at")
+    list_filter = ("day", "send", "updated_at")
+
+
 class ShirtAdmin(CustomAdminModel):
     list_display = ("size", "cut", "updated_at")
     search_fields = ("size", "cut")
@@ -133,6 +141,7 @@ admin.site.register(Attendance, AttendanceAdmin)
 admin.site.register(AttendanceAddition, AttendanceAdditionAdmin)
 admin.site.register(Crew, CrewAdmin)
 admin.site.register(CrewMember, CrewMemberAdmin)
+admin.site.register(GuestListEntry, GuestListEntryAdmin)
 admin.site.register(Shirt, ShirtAdmin)
 admin.site.register(Skill, SkillAdmin)
 admin.site.register(Team, TeamAdmin)
