@@ -1,6 +1,7 @@
 <li class="nav-item dropdown">
   <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew</a>
   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+    <a class="dropdown-item" href="{% url 'crew:guestlist_entries' %}">Gästeliste</a>
     {% if group.name == 'crew' and current_event.bid_vote_allowed %}
       <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' %}">Band Bewertung</a>
     {% endif %}
