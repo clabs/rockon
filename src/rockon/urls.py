@@ -31,10 +31,13 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("backstage/", admin.site.urls),
     path("api/", include("rockon.api.urls")),
-    path("bands/", include("rockon.bands.urls", namespace="bands")),
-    path("crew/", include("rockon.crew.urls", namespace="crew")),
+    path("event/<slug:slug>/bands/", include("rockon.bands.urls", namespace="bands")),
+    path("event/<slug:slug>/crew/", include("rockon.crew.urls", namespace="crew")),
     path("account/", include("rockon.base.urls", namespace="base")),
-    path("exhibitors/", include("rockon.exhibitors.urls", namespace="exhibitors")),
+    path(
+        "event/<slug:slug>/exhibitors/",
+        include("rockon.exhibitors.urls", namespace="exhibitors"),
+    ),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),

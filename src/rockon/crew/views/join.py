@@ -12,19 +12,12 @@ from rockon.crew.models import Attendance, Shirt, Skill, TeamCategory
 from rockon.crew.models.crew_member import CrewMember
 
 
-def join_forward(request):
-    event = Event.objects.get(id=request.session["current_event"])
-    return redirect("crew:join_slug", slug=event.slug)
-
-
-def join_slug(request, slug):
+def join(request, slug):
     if not request.user.is_authenticated:
         url = reverse("base:login_request")
         url += f"?ctx=crew"
         return redirect(url)
-    if CrewMember.objects.filter(
-        user=request.user, crew__event=request.session.get("current_event")
-    ).exists():
+    if CrewMember.objects.filter(user=request.user, crew__event__slug=slug).exists():
         return redirect("crew:join_submitted")
     template = loader.get_template("join.html")
     event = Event.objects.get(slug=slug)
@@ -32,8 +25,6 @@ def join_slug(request, slug):
         template = loader.get_template("join_profile_incomplete.html")
         extra_context = {
             "site_title": "Profil unvollständig - Crewanmeldung",
-            "event": event,
-            "slug": slug,
         }
         return HttpResponse(template.render(extra_context, request))
 

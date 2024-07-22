@@ -11,10 +11,10 @@ from rockon.crew.models import Attendance, Crew, CrewMember, CrewMemberStatus, S
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
-def crew_chart(request):
+def crew_chart(request, slug):
     template = loader.get_template("crew_overview.html")
     try:
-        event = Event.objects.get(id=request.session["current_event"])
+        event = Event.objects.get(slug=slug)
         attendances = (
             Attendance.objects.filter(
                 event=event,
@@ -52,10 +52,10 @@ def crew_chart(request):
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
-def crew_shirts(request):
+def crew_shirts(request, slug):
     template = loader.get_template("crewcoord_tshirts.html")
     try:
-        event = Event.objects.get(id=request.session["current_event"])
+        event = Event.objects.get(slug=slug)
         crews = Crew.objects.filter(event=event)
         crew_members = CrewMember.objects.filter(crew__in=crews).exclude(
             state__in=[CrewMemberStatus.UNKNOWN, CrewMemberStatus.REJECTED]

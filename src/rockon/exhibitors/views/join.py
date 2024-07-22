@@ -9,19 +9,12 @@ from rockon.base.models import Event, Organisation
 from rockon.exhibitors.models import Asset, Attendance, Exhibitor
 
 
-def join_forward(request):
-    event = Event.objects.get(id=request.session["current_event"]).sub_events.first()
-    return redirect("exhibitors:join_slug", slug=event.slug)
-
-
-def join_slug(request, slug):
+def join(request, slug):
     if not request.user.is_authenticated:
         url = reverse("base:login_request")
         url += f"?ctx=exhibitors"
         return redirect(url)
-    event = Event.objects.get(
-        id=request.session.get("current_event")
-    ).sub_events.first()
+    event = Event.objects.get(slug=slug).sub_events.first()
     if Exhibitor.objects.filter(
         organisation__members__in=[request.user], event=event
     ).exists():

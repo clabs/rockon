@@ -61,7 +61,8 @@ def login_token(request, token):
     current_event = Event.get_current_event()
 
     # Store current_event in user session
-    request.session["current_event"] = str(current_event.id)
+    request.session["current_event_id"] = str(current_event.id)
+    request.session["current_event_slug"] = current_event.slug
     request.session.save()
 
     if not user.groups.all().exists():

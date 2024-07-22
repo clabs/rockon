@@ -42,19 +42,6 @@ class CustomJSONEncoder(DjangoJSONEncoder):
 
 
 @login_required
-@check_band_application_open
-def bid_root(request):
-    if getattr(request.user, "band", None):
-        return redirect(
-            "bands:bid_form",
-            slug=request.user.band.event.slug,
-            guid=request.user.band.guid,
-        )
-    event = Event.objects.get(id=request.session["current_event"])
-    return redirect("bands:bid_router", slug=event.slug)
-
-
-@login_required
 def bid_closed(request, slug):
     template = loader.get_template("bid_closed.html")
     event = Event.objects.get(slug=slug)
@@ -119,15 +106,15 @@ def bid_form(request, slug, guid):
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crew").exists())
-def bid_vote(request, bid: str = None, track: str = None):
+def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
     if not request.user.crewmember_set.filter(
-        crew__event__id=request.session["current_event"], state="confirmed"
+        crew__event__slug=slug, state="confirmed"
     ).exists():
         raise PermissionDenied(
             "Du bist nicht berechtigt, Bandbewertungen abzugeben, bitte wende dich an die Crewkoordination und lasse dich für die Crew freischalten."
         )
     if (
-        not Event.objects.get(id=request.session["current_event"]).bid_vote_allowed
+        not Event.objects.get(slug=slug).bid_vote_allowed
         and not request.user.groups.filter(name="booking").exists()
     ):
         template = loader.get_template("errors/403.html")
@@ -138,7 +125,7 @@ def bid_vote(request, bid: str = None, track: str = None):
             )
         )
     template = loader.get_template("bid_vote.html")
-    tracks = Track.objects.filter(events__id=request.session["current_event"])
+    tracks = Track.objects.filter(events__slug=slug)
     tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
     federal_states = FederalState.choices
     federal_states_json = mark_safe(json.dumps(federal_states))
@@ -148,14 +135,14 @@ def bid_vote(request, bid: str = None, track: str = None):
         json.dumps(request.user.groups.filter(name="booking").exists())
     )
     media_url = settings.MEDIA_URL
-    user_votes = request.user.band_votes.filter(
-        event__id=request.session["current_event"]
-    ).values("band__id", "vote")
+    user_votes = request.user.band_votes.filter(event__slug=slug).values(
+        "band__id", "vote"
+    )
     user_votes_json = mark_safe(json.dumps(list(user_votes), cls=CustomJSONEncoder))
     extra_context = {
         "media_url": media_url,
         "site_title": "Band Bewertung",
-        "event_slug": Event.objects.get(id=request.session["current_event"]).slug,
+        "event_slug": Event.objects.get(slug=slug).slug,
         "tracks": tracks_json,
         "federal_states": federal_states_json,
         "trackid": track_slug_json,

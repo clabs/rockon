@@ -16,9 +16,9 @@ from rockon.bands.models import Band
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="booking").exists())
 @cache_page(60 * 5)
-def booking_bide_overview(request):
+def booking_bid_overview(request, slug):
     bands = (
-        Band.objects.filter(event__id=request.session["current_event"])
+        Band.objects.filter(event__slug=slug)
         .annotate(
             votes_count=Count("votes"),
             votes_sum=Sum("votes__vote"),
@@ -42,28 +42,3 @@ def booking_bide_overview(request):
         "bands": bands,
     }
     return HttpResponse(template.render(extra_context, request))
-
-
-# def get_data(request):
-#     data = cache.get('band_bid_results')
-#     if data is None:
-#         bands = (
-#             Band.objects.filter(event__id=request.session["current_event"])
-#             .annotate(
-#                 votes_count=Count("votes"),
-#                 votes_sum=Sum("votes__vote"),
-#                 votes_avg=Avg("votes__vote"),
-#                 vote_counters=Count("votes__vote", distinct=True)
-#             )
-#             .order_by("-votes_sum", "-votes_avg", "track")
-#         )
-#         for index, band in enumerate(bands):
-#             counters = defaultdict(int, Counter(band.votes.values_list("vote", flat=True)))
-#             if not counters:
-#                 continue
-#             for i in range(6):
-#                 counters[i]
-#             counters = dict(sorted(counters.items()))
-#             setattr(bands[index], "counters", dict(counters))
-#         cache.set('band_bid_results', bands, 60 * 5)
-#     return data
