@@ -13,17 +13,17 @@
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               {% for group in user.groups.all %}
                 {% if group.name == 'crew' %}
-                  <a class="dropdown-item" href="{% url 'crew:join' %}">Rocktreff Crew</a>
+                  <a class="dropdown-item" href="{% url 'crew:join' slug=current_event.slug %}">Rocktreff Crew</a>
                 {% endif %}
                 {% if group.name == 'bands' %}
                 {% if user.band %}
-                  <a href="{% url 'bands:bid_form' slug=request.user.band.event.slug guid=user.band.guid %}" class="dropdown-item">Band Bewerbung</a>
+                  <a href="{% url 'bands:bid_form' slug=current_event.slug guid=user.band.guid %}" class="dropdown-item">Band Bewerbung</a>
                 {% else %}
-                  <a class="dropdown-item" href="{% url 'bands:bid_root' %}">Band Bewerbung</a>
+                  <a class="dropdown-item" href="{% url 'bands:bid_router' slug=current_event.slug %}">Band Bewerbung</a>
                 {% endif %}
                 {% endif %}
                 {% if group.name == 'exhibitors' %}
-                  <a class="dropdown-item" href="{% url 'exhibitors:join_slug' slug=current_event.sub_events.first.slug %}">Spielfest Austeller</a>
+                  <a class="dropdown-item" href="{% url 'exhibitors:join' slug=current_event.sub_events.first.slug %}">Spielfest Austeller</a>
                 {% endif %}
               {% endfor %}
             </div>

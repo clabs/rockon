@@ -18,7 +18,7 @@ def mark_voucher(request):
             {"status": "error", "message": "No data provided"}, status=400
         )
 
-    event = Event.objects.get(id=request.session.get("current_event"))
+    event = Event.objects.get(id=request.session.get("current_event_id"))
 
     crew_member = CrewMember.objects.get(user=request.user, crew__event=event)
 

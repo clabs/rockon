@@ -7,8 +7,7 @@ from .views import (
     crew_chart,
     crew_shirts,
     guestlist_entries,
-    join_forward,
-    join_slug,
+    join,
     join_submitted,
 )
 
@@ -18,13 +17,12 @@ from .views import (
 app_name = "crew"
 
 urlpatterns = [
-    path("join/", join_forward, name="join"),
     path(
         "join/submitted/",
         join_submitted,
         name="join_submitted",
     ),
-    path("join/<slug:slug>/", join_slug, name="join_slug"),
+    path("join/", join, name="join"),
     path("guestlist/", guestlist_entries, name="guestlist_entries"),
     path("catering/attendance/", attendance_table, name="catering_attendance"),
     path("coord/overview/", crew_chart, name="coord_overview"),

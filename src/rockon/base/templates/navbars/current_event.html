@@ -3,6 +3,6 @@
   {% if user|has_group:'exhibitors' %}
     {{ current_event.sub_events.first.name }}
   {% else %}
-    {{ current_event }}
+    {{ current_event.name }}
   {% endif %}
 </span>

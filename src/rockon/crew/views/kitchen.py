@@ -18,10 +18,10 @@ from rockon.exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorSt
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="catering_food").exists())
-def attendance_table(request):
+def attendance_table(request, slug):
     template = loader.get_template("catering_attendance.html")
     try:
-        event = Event.objects.get(id=request.session["current_event"])
+        event = Event.objects.get(slug=slug)
     except Event.DoesNotExist:
         event = None
     attendances = Attendance.objects.filter(event=event)

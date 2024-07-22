@@ -1,9 +1,9 @@
 <li class="nav-item dropdown">
   <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew</a>
   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-    <a class="dropdown-item" href="{% url 'crew:guestlist_entries' %}">Gästeliste</a>
+    <a class="dropdown-item" href="{% url 'crew:guestlist_entries' slug=current_event.slug %}">Gästeliste</a>
     {% if group.name == 'crew' and current_event.bid_vote_allowed %}
-      <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' %}">Band Bewertung</a>
+      <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band Bewertung</a>
     {% endif %}
   </div>
 </li>
@@ -12,8 +12,8 @@
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew Coord.</a>
       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="{% url 'crew:coord_overview' %}">Übersicht</a>
-          <a class="dropdown-item" href="{% url 'crew:coord_tshirts' %}">T-Shirts</a>
+          <a class="dropdown-item" href="{% url 'crew:coord_overview' slug=current_event.slug %}">Übersicht</a>
+          <a class="dropdown-item" href="{% url 'crew:coord_tshirts' slug=current_event.slug %}">T-Shirts</a>
       </div>
     </li>
   {% endif %}
@@ -21,7 +21,7 @@
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Catering</a>
       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="{% url 'crew:catering_attendance' %}">Mengenliste</a>
+          <a class="dropdown-item" href="{% url 'crew:catering_attendance' slug=current_event.slug %}">Mengenliste</a>
       </div>
     </li>
   {% endif %}
@@ -29,8 +29,8 @@
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Booking</a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-        <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' %}">Band Bewertung</a>
-        <a class="dropdown-item" href="{% url 'bands:booking_bid_overview' %}">Übersicht Bewertungen</a>
+        <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band Bewertung</a>
+        <a class="dropdown-item" href="{% url 'bands:booking_bid_overview' slug=current_event.slug %}">Übersicht Bewertungen</a>
     </div>
   </li>
 {% endif %}

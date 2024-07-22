@@ -9,12 +9,13 @@ class SessionCurrentEventMiddleware:
 
     def __call__(self, request):
         authenticated = request.user.is_authenticated
-        event_not_set = not request.session.get("current_event", None)
+        event_not_set = not request.session.get("current_event_id", None)
 
         if authenticated and event_not_set:
             current_event = Event.get_current_event()
             if current_event:
-                request.session["current_event"] = str(current_event.id)
+                request.session["current_event_id"] = str(current_event.id)
+                request.session["current_event_slug"] = current_event.slug
 
         response = self.get_response(request)
         return response
