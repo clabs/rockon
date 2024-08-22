@@ -53,17 +53,19 @@
           <div class="toast-header">
               <strong class="me-auto">
                 <i class="fas fa-music" style="padding-right: 0.5em;"></i>
-                <span v-if="!toastIsMinimized">Rockify</span>
+                <span v-if="toastIsMaximized">Rockify</span>
                 <div v-else class="scrolling-container">
-                  <song-info-scrolling :song="playSong" :band="playSongBand"></song-info-scrolling>
+                  <div class="scrolling-text-wrapper">
+                    <span class="scrolling-text">{{ playSongBand.name || playSongBand.guid || "" }} - {{ playSong.file_name_original }}</span>
+                  </div>
                 </div>
               </strong>
-              <button class="btn" style="color: var(--rockon-btn-close-color)" type="button" data-bs-toggle="collapse" data-bs-target="#player-toast-body" :aria-expanded="!toastIsMinimized" aria-controls="player-toast-body" @click="toggleIcon" title="Minimieren">
-                <i :class="toastIsMinimized ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+              <button class="btn" style="color: var(--rockon-btn-close-color)" type="button" data-bs-toggle="collapse" data-bs-target="#player-toast-body" :aria-expanded="toastIsMaximized" aria-controls="player-toast-body" @click="toggleIcon" title="Minimieren">
+                <i :class="toastIsMaximized ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
               </button>
               <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" @click="handleCloseClick" title="Schließen"></button>
           </div>
-          <div id="player-toast-body" class="collapse show">
+          <div id="player-toast-body" :class="['collapse', { 'show': toastIsMaximized }]">
               <div class="toast-body">
                   <song-info v-if="playSong" :song="playSong" :band="playSongBand"></song-info>
                   <div id="player-wrapper"></div>
@@ -93,26 +95,34 @@
     transform: scale(1.1);
   }
 
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(calc(-100% + 230px));
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .scrolling-text-wrapper {
+    display: flex;
+    width: max-content;
+    animation: scroll 15s linear infinite;
+  }
+
   .scrolling-container {
-    width: 200px; /* Adjust the width as needed */
+    width: 230px; /* Adjust the width as needed */
     overflow: hidden;
     display: inline-block;
     vertical-align: middle;
+    position: relative;
   }
 
   .scrolling-text {
-    display: inline-block;
     white-space: nowrap;
-    animation: scroll 10s linear infinite;
-  }
-
-  @keyframes scroll {
-    0% {
-      transform: translateX(100%);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
   }
 </style>
 
