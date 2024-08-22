@@ -273,7 +273,6 @@ const BandTags = Vue.defineComponent({
       <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
       <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
-      <span v-if="!selectedBandDetails.homepage" class="badge text-bg-warning m-1" style="cursor: pointer;">Keine Homepage</span>
       <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung abgelehnt</span>
     </div>
   `
@@ -564,17 +563,8 @@ const BandDetails = Vue.defineComponent({
       </div>
       <div class="row mb-2">
           <div class="col">
-              <div v-if="selectedBandDetails.homepage">
-              <div><h5>Homepage</h5></div>
-              <a :href="selectedBandDetails.homepage" target="_blank">{{ selectedBandDetails.homepage }}</a>
-              </div>
-          </div>
-          <div class="col">
-              <div v-if="selectedBandDetails.facebook">
-              <div><h5>Facebook</h5></div>
-              <a :href="selectedBandDetails.facebook" target="_blank">{{ selectedBandDetails.facebook }}</a>
-              </div>
-              </div>
+              <div><h4>Web</h4></div>
+              <BandLinks :links="selectedBandDetails.web_links" />
           </div>
       </div>
       <div class="row">

@@ -3,6 +3,7 @@ console.debug('bandbewerbung-form.js loaded')
 const DateTime = luxon.DateTime
 
 $(document).ready(() => {
+  console.debug('document ready')
   const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
   const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(
     toastAudioPlayerElement
@@ -21,8 +22,17 @@ $(document).ready(() => {
     const url = $('#url_input').val()
     if (url === '') return
     $('#url_input').val('')
-    api_add_url(url)
+    api_add_url(url, 'link')
     $('#add_url').prop('disabled', true)
+  })
+  $('#add_web_url').on('click', event => {
+    event.preventDefault()
+    console.debug('add url')
+    const url = $('#web_url_input').val()
+    if (url === '') return
+    $('#web_url_input').val('')
+    api_add_web_url(url, 'web')
+    $('#add_web_url').prop('disabled', true)
   })
   $(document).on('click', '[data-remove-url]', event => {
     event.preventDefault()
@@ -48,6 +58,14 @@ $(document).ready(() => {
       $('#add_url').prop('disabled', false)
     } else {
       $('#add_url').prop('disabled', true)
+    }
+  })
+  $('#web_url_input').on('blur change', function () {
+    const url = $(this).val()
+    if (isValidURL(url)) {
+      $('#add_web_url').prop('disabled', false)
+    } else {
+      $('#add_web_url').prop('disabled', true)
     }
   })
   $('#selectedFileDocument').on('change', event => {
@@ -132,6 +150,11 @@ const li_add_url = url => {
   $('#url_list').append(element)
 }
 
+const li_add_web_url = url => {
+  const element = `<li id="url-${url.id}"><a href="${url.url}" target="_blank">${url.url}</a><span class="btn btn-default btn-xs" data-remove-url="${url.id}"><i class="fa fa-trash"></i></span></li>`
+  $('#web_url_list').append(element)
+}
+
 const li_add_document = document => {
   const element = `<li id="document-${document.id}" class="list-group-item d-flex justify-content-between align-items-center"><a href="${document.file}" target="_blank">${document.file_name_original}</a><span class="btn btn-default btn-xs" data-remove-document="${document.id}"><i class="fa fa-trash"></i></span></li>`
   $('#document_list').append(element)
@@ -204,11 +227,11 @@ const save_success = data => {
   alert("Bandbewerbung gespeichert.")
 }
 
-const api_add_url = url => {
-  console.debug('add url')
+const api_add_url = (url, type) => {
+  console.debug('add url api')
   media_obj = {
     url: url,
-    media_type: 'link',
+    media_type: type,
     band: window.rockon_data.band_id
   }
   $.ajax({
@@ -222,6 +245,29 @@ const api_add_url = url => {
     mode: 'same-origin',
     dataType: 'json',
     success: data => li_add_url(data),
+    error: data => ajax_error(data),
+    complete: data => ajax_complete(data)
+  })
+}
+
+const api_add_web_url = (url, type) => {
+  console.debug('add web url api')
+  media_obj = {
+    url: url,
+    media_type: type,
+    band: window.rockon_data.band_id
+  }
+  $.ajax({
+    type: 'POST',
+    url: window.rockon_data.api_url_new_media + 'upload/',
+    data: JSON.stringify(media_obj),
+    contentType: 'application/json',
+    headers: {
+      'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+    },
+    mode: 'same-origin',
+    dataType: 'json',
+    success: data => li_add_web_url(data),
     error: data => ajax_error(data),
     complete: data => ajax_complete(data)
   })
@@ -291,9 +337,6 @@ ajax_error = (data, form_obj, url) => {
   // FIXME: needs error handling
   console.error(data)
   const response = responseJSON
-  if (response.homepage || response.facebook) {
-    return alert('Bitte gibt bei Homepage und Facebook die URL immer mit http:// oder https:// am Anfang ein.')
-  }
   $('#api_message').html(`
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <strong>Fehler!</strong> Bitte schicke uns folgenden Text an <a href="mailto:hallo@rockon.dev">hallo@rockon.dev</a>: <br>

@@ -55,8 +55,8 @@
         </div>
         <div class="col-lg-8">
           <label for="name">Bandname</label>
-          <input type="text" class="form-control" id="name" name="name" placeholder="Bandname" value="{{band.name|default:""}}" />
-          <label for="band_region">Bundesland</label>
+          <input type="text" class="form-control" id="name" name="name" placeholder="Bandname" value="{{band.name|default:""}}" autocomplete="off" />
+          <label for="federal_state">Bundesland</label>
           <select class="form-select" aria-label="Bundesland" id="federal_state" name="federal_state">
             {% if not band.federal_state %}
             <option value="" selected ></option>
@@ -75,20 +75,29 @@
         </div>
         <div class="col-lg-4 gy-0">
           <p>
-            Ihr habt eine Seite im Netz? Wir wollen sie sehen!
-            Alternativ reicht uns Euer Facebook-Profil.
+            Ihr habt eine Seite im Netz? Wir wollen sie sehen! Genauso wie
+            eure Social-Media Profile. Tragt sie hier ein, damit wir uns ein
+            Bild von euch machen können.
           </p>
         </div>
         <div class="col-lg-8 gy-0">
           <div>
-            <label for="homepage">Homepage</label>
-            <input type="url" class="form-control" id="homepage" name="homepage" placeholder="https://example.net" value="{{band.homepage|default:""}}" />
+            <div class="input-group mb-3">
+              <input id="web_url_input" name="web_url_input" type="url" class="form-control" placeholder="https://example.net" value="">
+              <button id="add_web_url" class="btn btn-primary" type="button" disabled>
+                <i class="fas fa-save"></i> Hinzufügen
+              </button>
+            </div>
           </div>
-          <div>
-            <label for="facebook">Facebook</label>
-            <input type="url" class="form-control" id="facebook" name="facebook" placeholder="https://www.facebook.com/" value="{{band.facebook|default:""}}" />
-          </div>
-          <div class="alert alert-warning mt-2">URLs für Homepage und Facebook müssen mit <strong>http:// oder https:// beginnen.</strong></div>
+          <ul id="web_url_list" class="list-unstyled links">
+            {% for url in media_by_type.web %}
+              <li id="url-{{url.id}}">
+                <a href="{{url.url}}" target="_blank">{{url.url}}</a>
+                <span class="btn btn-default btn-xs" data-remove-url="{{url.id}}"><i class="fa fa-trash"></i></span>
+              </li>
+            {% endfor %}
+          </ul>
+          <div class="alert alert-warning mt-2">URLs müssen mit <strong>http:// oder https://</strong> beginnen.</strong></div>
         </div>
       </div>
       <div class="row gy-4">

@@ -37,8 +37,6 @@ class Band(CustomModel):
         null=True,
         choices=FederalState.choices,
     )
-    homepage = models.URLField(default=None, blank=True, null=True)
-    facebook = models.URLField(default=None, blank=True, null=True)
     cover_letter = models.TextField(default=None, blank=True, null=True)
     contact = models.OneToOneField(
         User,
@@ -111,3 +109,6 @@ class Band(CustomModel):
 
     def get_documents(self):
         return self.media.filter(media_type="document")
+
+    def get_web_links(self):
+        return self.media.filter(media_type="web")
