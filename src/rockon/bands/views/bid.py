@@ -142,7 +142,6 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
     extra_context = {
         "media_url": media_url,
         "site_title": "Band Bewertung",
-        "event_slug": Event.objects.get(slug=slug).slug,
         "tracks": tracks_json,
         "federal_states": federal_states_json,
         "trackid": track_slug_json,

@@ -652,6 +652,7 @@ const app = createApp({
     return {
       bandListLoaded: false,
       bandsToFetch: null,
+      eventSlug : window.rockon_data.event_slug,
       allowChanges: window.rockon_api.allow_changes,
       crsf_token: $('[name=csrfmiddlewaretoken]').val(),
       bandListUrl: window.rockon_api.list_bands,
@@ -702,15 +703,15 @@ const app = createApp({
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       if (track === 'no-vote') {
-        url.pathname = `/bands/vote/track/no-vote/`
+        url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-vote/`
       }
       else if (track === 'no-track') {
-        url.pathname = `/bands/vote/track/no-track/`
+        url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-track/`
       }
       else if (track) {
-        url.pathname = `/bands/vote/track/${track.slug}/`
+        url.pathname = `/event/${this.eventSlug}/bands/vote/track/${track.slug}/`
       } else {
-        url.pathname = `/bands/vote/`
+        url.pathname = `/event/${this.eventSlug}/bands/vote/`
       }
       window.history.replaceState({}, '', url)
     },
@@ -719,7 +720,7 @@ const app = createApp({
       this.selectedBand = band
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
-      url.pathname = `/bands/vote/bid/${band.guid}/`
+      url.pathname = `/event/${this.eventSlug}/bands/vote/bid/${band.guid}/`
       window.history.replaceState({}, '', url)
       this.bandDetailLoaded = false
       this.getBandDetails(band.id)
