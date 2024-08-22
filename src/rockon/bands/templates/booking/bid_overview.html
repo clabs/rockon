@@ -30,13 +30,11 @@
       tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl)
     )
     new DataTable('#band-table', {
-      layout: {
-        topStart: {
-          buttons: ['csv', 'excel']
-        }
-      },
+      dom: 'Blfrtip',
+      buttons: ['csv', 'excel'],
       paging: true,
-      pageLength: 50,
+      pageLength: 25,
+      lengthMenu: [10, 25, 50, 75, 100],
       order: [
         [1, 'desc'],
         [2, 'desc']
