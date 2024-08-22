@@ -8,3 +8,33 @@
   background-color: #343a40;
   color: white;
 }
+
+.sl-wrapper .sl-close {
+  display: none;
+  position: fixed;
+  right: 30px;
+  top: 90px !important;
+  z-index: 10060;
+  margin-top: -14px;
+  margin-right: -14px;
+  height: 44px;
+  width: 44px;
+  line-height: 44px;
+  font-family: Arial,Baskerville,monospace;
+  color: var(--rockon-primary) !important;
+  font-size: 3rem
+}
+
+.sl-wrapper .sl-navigation button {
+  position: fixed;
+  top: 50%;
+  margin-top: -22px;
+  height: 44px;
+  width: 22px;
+  line-height: 44px;
+  text-align: center;
+  display: block;
+  z-index: 10060;
+  font-family: Arial,Baskerville,monospace;
+  color: var(--rockon-primary) !important;
+}

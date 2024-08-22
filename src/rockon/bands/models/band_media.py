@@ -22,11 +22,12 @@ class MediaType(models.TextChoices):
     """Media type."""
 
     UNKNOWN = "unknown", "Unbekannt"
-    DOCUMENT = "document", "Dokument"
     AUDIO = "audio", "Audio"
+    DOCUMENT = "document", "Dokument"
     LINK = "link", "Link"
-    PRESS_PHOTO = "press_photo", "Pressefoto"
     LOGO = "logo", "Logo"
+    PRESS_PHOTO = "press_photo", "Pressefoto"
+    WEB = "web", "Webseite"
 
 
 class BandMedia(CustomModel):

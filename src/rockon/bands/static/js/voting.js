@@ -105,7 +105,7 @@ const BandImages = Vue.defineComponent({
   `,
   mounted () {
     const options = {
-      overlayOpacity: 0.2
+      overlayOpacity: 0.4,
     }
     const lightbox = new SimpleLightbox('.gallery a', options)
     console.debug('BandImages mounted lightbox:', lightbox)
@@ -266,11 +266,13 @@ const BandTags = Vue.defineComponent({
       <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
       <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
       <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
+      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1" style="cursor: pointer;">Unter 27</span>
+      <span v-if="!selectedBandDetails.mean_age_under_27" class="badge text-bg-primary m-1" style="cursor: pointer;">Über 27</span>
+      <span v-if="selectedBandDetails.is_coverband" class="badge text-bg-warning m-1" style="cursor: pointer;">Coverband</span>
       <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
       <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
       <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
-      <span v-if="!selectedBandDetails.homepage" class="badge text-bg-warning m-1" style="cursor: pointer;">Keine Homepage</span>
       <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung abgelehnt</span>
     </div>
   `
@@ -309,6 +311,7 @@ const BandListTags = Vue.defineComponent({
       <span v-if="!hasVote(selectedBandDetails) && (selectedBandDetails.bid_status !== 'declined')" class="badge text-bg-secondary m-1" style="cursor: pointer;">Enthalten</span>
       <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Abgelehnt</span>
       <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
+      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1" style="cursor: pointer;">Unter 27</span>
       <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
     </div>
   `
@@ -560,17 +563,8 @@ const BandDetails = Vue.defineComponent({
       </div>
       <div class="row mb-2">
           <div class="col">
-              <div v-if="selectedBandDetails.homepage">
-              <div><h5>Homepage</h5></div>
-              <a :href="selectedBandDetails.homepage" target="_blank">{{ selectedBandDetails.homepage }}</a>
-              </div>
-          </div>
-          <div class="col">
-              <div v-if="selectedBandDetails.facebook">
-              <div><h5>Facebook</h5></div>
-              <a :href="selectedBandDetails.facebook" target="_blank">{{ selectedBandDetails.facebook }}</a>
-              </div>
-              </div>
+              <div><h4>Web</h4></div>
+              <BandLinks :links="selectedBandDetails.web_links" />
           </div>
       </div>
       <div class="row">
@@ -652,6 +646,7 @@ const app = createApp({
     return {
       bandListLoaded: false,
       bandsToFetch: null,
+      eventSlug : window.rockon_data.event_slug,
       allowChanges: window.rockon_api.allow_changes,
       crsf_token: $('[name=csrfmiddlewaretoken]').val(),
       bandListUrl: window.rockon_api.list_bands,
@@ -667,6 +662,7 @@ const app = createApp({
       playSongBand: null,
       toastAudioPlayer: null,
       toastVisible: false,
+      toastIsMaximized: true,
       wavesurfer: null,
       showBandNoName: null,
       showIncompleteBids: null,
@@ -702,15 +698,15 @@ const app = createApp({
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       if (track === 'no-vote') {
-        url.pathname = `/bands/vote/track/no-vote/`
+        url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-vote/`
       }
       else if (track === 'no-track') {
-        url.pathname = `/bands/vote/track/no-track/`
+        url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-track/`
       }
       else if (track) {
-        url.pathname = `/bands/vote/track/${track.slug}/`
+        url.pathname = `/event/${this.eventSlug}/bands/vote/track/${track.slug}/`
       } else {
-        url.pathname = `/bands/vote/`
+        url.pathname = `/event/${this.eventSlug}/bands/vote/`
       }
       window.history.replaceState({}, '', url)
     },
@@ -719,7 +715,7 @@ const app = createApp({
       this.selectedBand = band
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
-      url.pathname = `/bands/vote/bid/${band.guid}/`
+      url.pathname = `/event/${this.eventSlug}/bands/vote/bid/${band.guid}/`
       window.history.replaceState({}, '', url)
       this.bandDetailLoaded = false
       this.getBandDetails(band.id)
@@ -826,6 +822,9 @@ const app = createApp({
         autoplay: true
       })
     },
+    toggleIcon() {
+      this.toastIsMaximized = !this.toastIsMaximized;
+    },
     handleCloseClick () {
       console.debug('app handleCloseClick')
       console.log('this.wavesurfer:', this.wavesurfer)
@@ -836,6 +835,7 @@ const app = createApp({
       this.playSong = null
       this.playSongBand = null
       this.toastVisible = false
+      this.toastIsMaximized = true
     },
     handleFilterShowBandNoNameChange (checked) {
       console.debug('app handleFilterShowBandNoNameChange:', checked)

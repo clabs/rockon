@@ -47,6 +47,8 @@ class BandListSerializer(serializers.ModelSerializer):
             "bid_status",
             "federal_state",
             "are_students",
+            "mean_age_under_27",
+            "is_coverband",
             "bid_complete",
             "press_photo",
         ]
@@ -61,6 +63,7 @@ class BandDetailSerializer(serializers.ModelSerializer):
     songs = BandMediaSerializer(source="get_songs", read_only=True, many=True)
     links = BandMediaSerializer(source="get_links", read_only=True, many=True)
     documents = BandMediaSerializer(source="get_documents", read_only=True, many=True)
+    web_links = BandMediaSerializer(source="get_web_links", read_only=True, many=True)
 
     class Meta:
         model = Band

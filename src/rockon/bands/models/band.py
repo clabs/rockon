@@ -27,6 +27,8 @@ class Band(CustomModel):
     name = models.CharField(max_length=255, default=None, blank=True, null=True)
     has_management = models.BooleanField(default=False)
     are_students = models.BooleanField(default=False)
+    mean_age_under_27 = models.BooleanField(default=False)
+    is_coverband = models.BooleanField(default=False)
     genre = models.CharField(max_length=128, default=None, blank=True, null=True)
     federal_state = models.CharField(
         max_length=255,
@@ -35,8 +37,6 @@ class Band(CustomModel):
         null=True,
         choices=FederalState.choices,
     )
-    homepage = models.URLField(default=None, blank=True, null=True)
-    facebook = models.URLField(default=None, blank=True, null=True)
     cover_letter = models.TextField(default=None, blank=True, null=True)
     contact = models.OneToOneField(
         User,
@@ -109,3 +109,6 @@ class Band(CustomModel):
 
     def get_documents(self):
         return self.media.filter(media_type="document")
+
+    def get_web_links(self):
+        return self.media.filter(media_type="web")
