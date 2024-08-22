@@ -47,6 +47,7 @@ class BandListSerializer(serializers.ModelSerializer):
             "bid_status",
             "federal_state",
             "are_students",
+            "mean_age_under_27",
             "bid_complete",
             "press_photo",
         ]
