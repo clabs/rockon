@@ -105,7 +105,7 @@ const BandImages = Vue.defineComponent({
   `,
   mounted () {
     const options = {
-      overlayOpacity: 0.2
+      overlayOpacity: 0.4,
     }
     const lightbox = new SimpleLightbox('.gallery a', options)
     console.debug('BandImages mounted lightbox:', lightbox)
