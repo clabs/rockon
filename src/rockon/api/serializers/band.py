@@ -48,6 +48,7 @@ class BandListSerializer(serializers.ModelSerializer):
             "federal_state",
             "are_students",
             "mean_age_under_27",
+            "is_coverband",
             "bid_complete",
             "press_photo",
         ]

@@ -28,6 +28,7 @@ class Band(CustomModel):
     has_management = models.BooleanField(default=False)
     are_students = models.BooleanField(default=False)
     mean_age_under_27 = models.BooleanField(default=False)
+    is_coverband = models.BooleanField(default=False)
     genre = models.CharField(max_length=128, default=None, blank=True, null=True)
     federal_state = models.CharField(
         max_length=255,
