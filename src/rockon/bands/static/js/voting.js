@@ -37,6 +37,14 @@ const SongInfo = Vue.defineComponent({
   `
 })
 
+const SongInfoScrolling = Vue.defineComponent({
+  props: ['song', 'band'],
+  template: `
+    <span class="scrolling-text">{{ band.name || band.guid }} - {{ song.file_name_original }}</span>
+    </div>
+  `
+})
+
 const BandLinks = Vue.defineComponent({
   props: ['links'],
   template: `
@@ -662,6 +670,7 @@ const app = createApp({
       playSongBand: null,
       toastAudioPlayer: null,
       toastVisible: false,
+      toastIsMinimized: false,
       wavesurfer: null,
       showBandNoName: null,
       showIncompleteBids: null,
@@ -677,6 +686,7 @@ const app = createApp({
     TrackDropdown,
     SongList,
     SongInfo,
+    SongInfoScrolling,
     BandImages,
     BandDocuments,
     BandLinks,
@@ -820,6 +830,9 @@ const app = createApp({
         mediaControls: true,
         autoplay: true
       })
+    },
+    toggleIcon() {
+      this.toastIsMinimized = !this.toastIsMinimized;
     },
     handleCloseClick () {
       console.debug('app handleCloseClick')
