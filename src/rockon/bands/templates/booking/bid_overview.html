@@ -10,6 +10,10 @@
 
 {% compress js file datatables %}
 <script src="{% static "vendor/datatables.2.1.0.min.js" %}"></script>
+<script src="{% static "vendor/dataTables.buttons.js" %}"></script>
+<script src="{% static "vendor/buttons.dataTables.js" %}"></script>
+<script src="{% static "vendor/jszip.min.js" %}"></script>
+<script src="{% static "vendor/buttons.html5.min.js" %}"></script>
 {% endcompress %}
 
 {% compress js file sparklines %}
@@ -19,24 +23,34 @@
 {% compress js file datatables-init %}
 <script>
   $(document).ready(function () {
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-    $('#band-table').DataTable(
-      {
-        paging: true,
-        pageLength: 50,
-        order: [[ 1, 'desc' ], [ 2, 'desc' ]],
-        "drawCallback": function() {
-          $('.inlinesparkline:not(:has(canvas))').sparkline('html', {
-            type: 'bar',
-            barWidth: '20px',
-            barColor: '#fff300',
-            disableTooltips: true,
-            chartRangeMax: 6
-          });
-        }
-      }
+    const tooltipTriggerList = document.querySelectorAll(
+      '[data-bs-toggle="tooltip"]'
     )
+    const tooltipList = [...tooltipTriggerList].map(
+      tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl)
+    )
+    new DataTable('#band-table', {
+      layout: {
+        topStart: {
+          buttons: ['csv', 'excel']
+        }
+      },
+      paging: true,
+      pageLength: 50,
+      order: [
+        [1, 'desc'],
+        [2, 'desc']
+      ],
+      drawCallback: function () {
+        $('.inlinesparkline:not(:has(canvas))').sparkline('html', {
+          type: 'bar',
+          barWidth: '20px',
+          barColor: '#fff300',
+          disableTooltips: true,
+          chartRangeMax: 6
+        })
+      }
+    })
   })
 </script>
 {% endcompress %}
@@ -62,6 +76,7 @@
         <th class="no-wrap" scope="col">Summe</th>
         <th class="no-wrap" scope="col">Stimmen</th>
         <th class="no-wrap" scope="col">Verteilung</th>
+        <th class="no-wrap" scope="col">Status</th>
         <th class="no-wrap" scope="col">Track</th>
         <th class="no-wrap" scope="col">Kontakt</th>
         <th class="no-wrap" scope="col">Backstage</th>
@@ -75,6 +90,7 @@
           <td>{{ band.votes_sum|default:"0" }}</td>
           <td>{{ band.votes_count|default:"0" }}</td>
           <td {% if band.counters %} data-n="1" class="inlinesparkline" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true"data-bs-title="{% for k, v in band.counters.items %}{% if v %}{{v}}x {{k}}⭐{% if not forloop.last %}<br />{% endif %}{% endif %}{% endfor %}"{% endif %}>{% for _, v in band.counters.items %}{{v}}{% if not forloop.last %},{% endif %}{% endfor %}</td>
+          <td>{{ band.bid_status }}</td>
           <td>{{ band.track.name }}</td>
           <td><a href="mailto:{{ band.contact.email }}">{{ band.contact.email }}</a></td>
           <td><a href="{% url "admin:rockonbands_band_change" object_id=band.id %}" target="_blank" title="Bearbeiten"><i class="fas fa-cog"></i></a></td>
