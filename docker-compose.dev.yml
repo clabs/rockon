@@ -1,7 +1,15 @@
 services:
   mailhog:
-      image: mailhog/mailhog:latest
+      image: axllent/mailpit
       restart: unless-stopped
+      environment:
+        TZ: Europe/Berlin
+        MP_DATABASE: /data/mailpit.db
+        MP_MAX_MESSAGES: 5000
+        MP_SMTP_AUTH_ACCEPT_ANY: 1
+        MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      volumes:
+        - mailpit-data:/data
       ports:
         - "${DOCKER_BIND_INTERFACE}:1025:1025"
         - "${DOCKER_BIND_INTERFACE}:8025:8025"
@@ -13,12 +21,7 @@ services:
       - "${DOCKER_BIND_INTERFACE}:6379:6379"
     volumes:
       - redis-data:/data:rw
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
 
 volumes:
-  postgres-data:
+  mailpit-data:
   redis-data:
