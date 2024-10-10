@@ -116,6 +116,12 @@ import: `python -Xutf8 ./src/manage.py loaddata ./dumpall.json`
 
 Reenable signals.
 
+### Export used default groups
+
+To export the default groups use the following command:
+
+`python -Xutf8 .\src\manage.py dumpdata --natural-foreign --natural-primary --indent 2 contenttypes.contenttype auth.permission auth.group -o .\src\rockon\fixtures\base_groups.json`
+
 ## Docs
 
 ### Bootstrap
