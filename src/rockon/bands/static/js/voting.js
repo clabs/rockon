@@ -647,12 +647,6 @@ const BandDetails = Vue.defineComponent({
 })
 
 const app = createApp({
-  // setup() {
-  //   const message = ref('Hello vue!')
-  //   return {
-  //     message
-  //   }
-  // },
   data () {
     return {
       bandListLoaded: false,
