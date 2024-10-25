@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from django.contrib.auth.models import AnonymousUser
-from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, parser_classes
 from rest_framework.parsers import MultiPartParser
@@ -17,7 +15,6 @@ from rockon.api.serializers import (
     BandVoteSerializer,
 )
 from rockon.bands.models import Band, BandMedia, BandVote, Track
-from rockon.base.models import Event
 
 
 class BandViewSet(viewsets.ModelViewSet):
@@ -87,14 +84,16 @@ class BandVoteViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         if isinstance(request.user, AnonymousUser):
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        all_votes = BandVote.objects.filter(user=request.user)
+            return Response(status=status.HTTP_403_FORBIDDEN)
         band_id = kwargs.get("pk", None)
-        if band_id:
-            vote = get_object_or_404(all_votes, band__id=band_id)
-            serializer = self.get_serializer(vote)
-            return Response(serializer.data)
-        return super().retrieve(request, *args, **kwargs)
+        if not band_id:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        votes = BandVote.objects.filter(user=request.user, band__id=band_id)
+        if not votes.exists():
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        vote = votes.first()
+        serializer = self.get_serializer(vote)
+        return Response(serializer.data)
 
     def get_queryset(self):
         if isinstance(self.request.user, AnonymousUser):

@@ -1,2192 +1,4482 @@
 [
-{
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "admin",
-        "model": "logentry"
+      "app_label": "admin",
+      "model": "logentry"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "auth",
-        "model": "permission"
+      "app_label": "auth",
+      "model": "permission"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "auth",
-        "model": "group"
+      "app_label": "auth",
+      "model": "group"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "auth",
-        "model": "user"
+      "app_label": "auth",
+      "model": "user"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "contenttypes",
-        "model": "contenttype"
+      "app_label": "contenttypes",
+      "model": "contenttype"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "sessions",
-        "model": "session"
+      "app_label": "sessions",
+      "model": "session"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "django_q",
-        "model": "schedule"
+      "app_label": "django_q",
+      "model": "schedule"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "django_q",
-        "model": "task"
+      "app_label": "django_q",
+      "model": "task"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "django_q",
-        "model": "failure"
+      "app_label": "django_q",
+      "model": "failure"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "django_q",
-        "model": "success"
+      "app_label": "django_q",
+      "model": "success"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "django_q",
-        "model": "ormq"
+      "app_label": "django_q",
+      "model": "ormq"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "event"
+      "app_label": "rockonbase",
+      "model": "event"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "sponsoring"
+      "app_label": "rockonbase",
+      "model": "sponsoring"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "task"
+      "app_label": "rockonbase",
+      "model": "task"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "timeline"
+      "app_label": "rockonbase",
+      "model": "timeline"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "userprofile"
+      "app_label": "rockonbase",
+      "model": "userprofile"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "organisation"
+      "app_label": "rockonbase",
+      "model": "organisation"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "magiclink"
+      "app_label": "rockonbase",
+      "model": "magiclink"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "emailverification"
+      "app_label": "rockonbase",
+      "model": "emailverification"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbands",
-        "model": "band"
+      "app_label": "rockonbands",
+      "model": "band"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbands",
-        "model": "stage"
+      "app_label": "rockonbands",
+      "model": "stage"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbands",
-        "model": "timeslot"
+      "app_label": "rockonbands",
+      "model": "timeslot"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbands",
-        "model": "bandmember"
+      "app_label": "rockonbands",
+      "model": "bandmember"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbands",
-        "model": "bandmedia"
+      "app_label": "rockonbands",
+      "model": "bandmedia"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "attendance"
+      "app_label": "rockoncrew",
+      "model": "attendance"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "crew"
+      "app_label": "rockoncrew",
+      "model": "crew"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "crewmember"
+      "app_label": "rockoncrew",
+      "model": "crewmember"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "shirt"
+      "app_label": "rockoncrew",
+      "model": "shirt"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "skill"
+      "app_label": "rockoncrew",
+      "model": "skill"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "team"
+      "app_label": "rockoncrew",
+      "model": "team"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "teamcategory"
+      "app_label": "rockoncrew",
+      "model": "teamcategory"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "teammember"
+      "app_label": "rockoncrew",
+      "model": "teammember"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockoncrew",
-        "model": "attendanceaddition"
+      "app_label": "rockoncrew",
+      "model": "attendanceaddition"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonexhibitors",
-        "model": "asset"
+      "app_label": "rockonexhibitors",
+      "model": "asset"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonexhibitors",
-        "model": "attendance"
+      "app_label": "rockonexhibitors",
+      "model": "attendance"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonexhibitors",
-        "model": "exhibitor"
+      "app_label": "rockonexhibitors",
+      "model": "exhibitor"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonexhibitors",
-        "model": "exhibitorattendance"
+      "app_label": "rockonexhibitors",
+      "model": "exhibitorattendance"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonexhibitors",
-        "model": "exhibitorasset"
+      "app_label": "rockonexhibitors",
+      "model": "exhibitorasset"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockontools",
-        "model": "linkshortener"
+      "app_label": "rockontools",
+      "model": "linkshortener"
     }
-},
-{
+  },
+  {
     "model": "contenttypes.contenttype",
     "fields": {
-        "app_label": "rockonbase",
-        "model": "accountcontext"
+      "app_label": "bands",
+      "model": "band"
     }
-},
-{
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bands",
+      "model": "stage"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bands",
+      "model": "timeslot"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bands",
+      "model": "bandmember"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "teamcategory"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "skill"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "attendanceaddition"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "crew"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "team"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "teammember"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "shirt"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "crewmember"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crew",
+      "model": "attendance"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crm",
+      "model": "sponsoring"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crm",
+      "model": "type"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crm",
+      "model": "userprofile"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crm",
+      "model": "magiclink"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crm",
+      "model": "emailverification"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crm",
+      "model": "organisation"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "crm",
+      "model": "accountcontext"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "event",
+      "model": "task"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "event",
+      "model": "timeline"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "event",
+      "model": "event"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "exhibitors",
+      "model": "attendance"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "exhibitors",
+      "model": "asset"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "exhibitors",
+      "model": "exhibitor"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "exhibitors",
+      "model": "exhibitorasset"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "exhibitors",
+      "model": "exhibitorattendance"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "tools",
+      "model": "linkshortener"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "user"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "region"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "token"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "track"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "media"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "vote"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "event"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "bid"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "bblegacy",
+      "model": "note"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "rockonbase",
+      "model": "accountcontext"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "rockonbands",
+      "model": "track"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "rockonbands",
+      "model": "bandvote"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "fields": {
+      "app_label": "rockoncrew",
+      "model": "guestlistentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add log entry",
+      "content_type": [
+        "admin",
+        "logentry"
+      ],
+      "codename": "add_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change log entry",
+      "content_type": [
+        "admin",
+        "logentry"
+      ],
+      "codename": "change_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete log entry",
+      "content_type": [
+        "admin",
+        "logentry"
+      ],
+      "codename": "delete_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view log entry",
+      "content_type": [
+        "admin",
+        "logentry"
+      ],
+      "codename": "view_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add permission",
+      "content_type": [
+        "auth",
+        "permission"
+      ],
+      "codename": "add_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change permission",
+      "content_type": [
+        "auth",
+        "permission"
+      ],
+      "codename": "change_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete permission",
+      "content_type": [
+        "auth",
+        "permission"
+      ],
+      "codename": "delete_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view permission",
+      "content_type": [
+        "auth",
+        "permission"
+      ],
+      "codename": "view_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add group",
+      "content_type": [
+        "auth",
+        "group"
+      ],
+      "codename": "add_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change group",
+      "content_type": [
+        "auth",
+        "group"
+      ],
+      "codename": "change_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete group",
+      "content_type": [
+        "auth",
+        "group"
+      ],
+      "codename": "delete_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view group",
+      "content_type": [
+        "auth",
+        "group"
+      ],
+      "codename": "view_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add user",
+      "content_type": [
+        "auth",
+        "user"
+      ],
+      "codename": "add_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change user",
+      "content_type": [
+        "auth",
+        "user"
+      ],
+      "codename": "change_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete user",
+      "content_type": [
+        "auth",
+        "user"
+      ],
+      "codename": "delete_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view user",
+      "content_type": [
+        "auth",
+        "user"
+      ],
+      "codename": "view_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add content type",
+      "content_type": [
+        "contenttypes",
+        "contenttype"
+      ],
+      "codename": "add_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change content type",
+      "content_type": [
+        "contenttypes",
+        "contenttype"
+      ],
+      "codename": "change_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete content type",
+      "content_type": [
+        "contenttypes",
+        "contenttype"
+      ],
+      "codename": "delete_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view content type",
+      "content_type": [
+        "contenttypes",
+        "contenttype"
+      ],
+      "codename": "view_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add session",
+      "content_type": [
+        "sessions",
+        "session"
+      ],
+      "codename": "add_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change session",
+      "content_type": [
+        "sessions",
+        "session"
+      ],
+      "codename": "change_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete session",
+      "content_type": [
+        "sessions",
+        "session"
+      ],
+      "codename": "delete_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view session",
+      "content_type": [
+        "sessions",
+        "session"
+      ],
+      "codename": "view_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add Scheduled task",
+      "content_type": [
+        "django_q",
+        "schedule"
+      ],
+      "codename": "add_schedule"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change Scheduled task",
+      "content_type": [
+        "django_q",
+        "schedule"
+      ],
+      "codename": "change_schedule"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete Scheduled task",
+      "content_type": [
+        "django_q",
+        "schedule"
+      ],
+      "codename": "delete_schedule"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view Scheduled task",
+      "content_type": [
+        "django_q",
+        "schedule"
+      ],
+      "codename": "view_schedule"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add task",
+      "content_type": [
+        "django_q",
+        "task"
+      ],
+      "codename": "add_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change task",
+      "content_type": [
+        "django_q",
+        "task"
+      ],
+      "codename": "change_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete task",
+      "content_type": [
+        "django_q",
+        "task"
+      ],
+      "codename": "delete_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view task",
+      "content_type": [
+        "django_q",
+        "task"
+      ],
+      "codename": "view_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add Failed task",
+      "content_type": [
+        "django_q",
+        "failure"
+      ],
+      "codename": "add_failure"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change Failed task",
+      "content_type": [
+        "django_q",
+        "failure"
+      ],
+      "codename": "change_failure"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete Failed task",
+      "content_type": [
+        "django_q",
+        "failure"
+      ],
+      "codename": "delete_failure"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view Failed task",
+      "content_type": [
+        "django_q",
+        "failure"
+      ],
+      "codename": "view_failure"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add Successful task",
+      "content_type": [
+        "django_q",
+        "success"
+      ],
+      "codename": "add_success"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change Successful task",
+      "content_type": [
+        "django_q",
+        "success"
+      ],
+      "codename": "change_success"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete Successful task",
+      "content_type": [
+        "django_q",
+        "success"
+      ],
+      "codename": "delete_success"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view Successful task",
+      "content_type": [
+        "django_q",
+        "success"
+      ],
+      "codename": "view_success"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add Queued task",
+      "content_type": [
+        "django_q",
+        "ormq"
+      ],
+      "codename": "add_ormq"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change Queued task",
+      "content_type": [
+        "django_q",
+        "ormq"
+      ],
+      "codename": "change_ormq"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete Queued task",
+      "content_type": [
+        "django_q",
+        "ormq"
+      ],
+      "codename": "delete_ormq"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view Queued task",
+      "content_type": [
+        "django_q",
+        "ormq"
+      ],
+      "codename": "view_ormq"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add event",
+      "content_type": [
+        "rockonbase",
+        "event"
+      ],
+      "codename": "add_event"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change event",
+      "content_type": [
+        "rockonbase",
+        "event"
+      ],
+      "codename": "change_event"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete event",
+      "content_type": [
+        "rockonbase",
+        "event"
+      ],
+      "codename": "delete_event"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view event",
+      "content_type": [
+        "rockonbase",
+        "event"
+      ],
+      "codename": "view_event"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add sponsoring",
+      "content_type": [
+        "rockonbase",
+        "sponsoring"
+      ],
+      "codename": "add_sponsoring"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change sponsoring",
+      "content_type": [
+        "rockonbase",
+        "sponsoring"
+      ],
+      "codename": "change_sponsoring"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete sponsoring",
+      "content_type": [
+        "rockonbase",
+        "sponsoring"
+      ],
+      "codename": "delete_sponsoring"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view sponsoring",
+      "content_type": [
+        "rockonbase",
+        "sponsoring"
+      ],
+      "codename": "view_sponsoring"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add task",
+      "content_type": [
+        "rockonbase",
+        "task"
+      ],
+      "codename": "add_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change task",
+      "content_type": [
+        "rockonbase",
+        "task"
+      ],
+      "codename": "change_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete task",
+      "content_type": [
+        "rockonbase",
+        "task"
+      ],
+      "codename": "delete_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view task",
+      "content_type": [
+        "rockonbase",
+        "task"
+      ],
+      "codename": "view_task"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add timeline",
+      "content_type": [
+        "rockonbase",
+        "timeline"
+      ],
+      "codename": "add_timeline"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change timeline",
+      "content_type": [
+        "rockonbase",
+        "timeline"
+      ],
+      "codename": "change_timeline"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete timeline",
+      "content_type": [
+        "rockonbase",
+        "timeline"
+      ],
+      "codename": "delete_timeline"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view timeline",
+      "content_type": [
+        "rockonbase",
+        "timeline"
+      ],
+      "codename": "view_timeline"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add user profile",
+      "content_type": [
+        "rockonbase",
+        "userprofile"
+      ],
+      "codename": "add_userprofile"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change user profile",
+      "content_type": [
+        "rockonbase",
+        "userprofile"
+      ],
+      "codename": "change_userprofile"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete user profile",
+      "content_type": [
+        "rockonbase",
+        "userprofile"
+      ],
+      "codename": "delete_userprofile"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view user profile",
+      "content_type": [
+        "rockonbase",
+        "userprofile"
+      ],
+      "codename": "view_userprofile"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add organisation",
+      "content_type": [
+        "rockonbase",
+        "organisation"
+      ],
+      "codename": "add_organisation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change organisation",
+      "content_type": [
+        "rockonbase",
+        "organisation"
+      ],
+      "codename": "change_organisation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete organisation",
+      "content_type": [
+        "rockonbase",
+        "organisation"
+      ],
+      "codename": "delete_organisation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view organisation",
+      "content_type": [
+        "rockonbase",
+        "organisation"
+      ],
+      "codename": "view_organisation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add magic link",
+      "content_type": [
+        "rockonbase",
+        "magiclink"
+      ],
+      "codename": "add_magiclink"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change magic link",
+      "content_type": [
+        "rockonbase",
+        "magiclink"
+      ],
+      "codename": "change_magiclink"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete magic link",
+      "content_type": [
+        "rockonbase",
+        "magiclink"
+      ],
+      "codename": "delete_magiclink"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view magic link",
+      "content_type": [
+        "rockonbase",
+        "magiclink"
+      ],
+      "codename": "view_magiclink"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add email verification",
+      "content_type": [
+        "rockonbase",
+        "emailverification"
+      ],
+      "codename": "add_emailverification"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change email verification",
+      "content_type": [
+        "rockonbase",
+        "emailverification"
+      ],
+      "codename": "change_emailverification"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete email verification",
+      "content_type": [
+        "rockonbase",
+        "emailverification"
+      ],
+      "codename": "delete_emailverification"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view email verification",
+      "content_type": [
+        "rockonbase",
+        "emailverification"
+      ],
+      "codename": "view_emailverification"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add band",
+      "content_type": [
+        "rockonbands",
+        "band"
+      ],
+      "codename": "add_band"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change band",
+      "content_type": [
+        "rockonbands",
+        "band"
+      ],
+      "codename": "change_band"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete band",
+      "content_type": [
+        "rockonbands",
+        "band"
+      ],
+      "codename": "delete_band"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view band",
+      "content_type": [
+        "rockonbands",
+        "band"
+      ],
+      "codename": "view_band"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add stage",
+      "content_type": [
+        "rockonbands",
+        "stage"
+      ],
+      "codename": "add_stage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change stage",
+      "content_type": [
+        "rockonbands",
+        "stage"
+      ],
+      "codename": "change_stage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete stage",
+      "content_type": [
+        "rockonbands",
+        "stage"
+      ],
+      "codename": "delete_stage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view stage",
+      "content_type": [
+        "rockonbands",
+        "stage"
+      ],
+      "codename": "view_stage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add time slot",
+      "content_type": [
+        "rockonbands",
+        "timeslot"
+      ],
+      "codename": "add_timeslot"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change time slot",
+      "content_type": [
+        "rockonbands",
+        "timeslot"
+      ],
+      "codename": "change_timeslot"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete time slot",
+      "content_type": [
+        "rockonbands",
+        "timeslot"
+      ],
+      "codename": "delete_timeslot"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view time slot",
+      "content_type": [
+        "rockonbands",
+        "timeslot"
+      ],
+      "codename": "view_timeslot"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add band member",
+      "content_type": [
+        "rockonbands",
+        "bandmember"
+      ],
+      "codename": "add_bandmember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change band member",
+      "content_type": [
+        "rockonbands",
+        "bandmember"
+      ],
+      "codename": "change_bandmember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete band member",
+      "content_type": [
+        "rockonbands",
+        "bandmember"
+      ],
+      "codename": "delete_bandmember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view band member",
+      "content_type": [
+        "rockonbands",
+        "bandmember"
+      ],
+      "codename": "view_bandmember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add band media",
+      "content_type": [
+        "rockonbands",
+        "bandmedia"
+      ],
+      "codename": "add_bandmedia"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change band media",
+      "content_type": [
+        "rockonbands",
+        "bandmedia"
+      ],
+      "codename": "change_bandmedia"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete band media",
+      "content_type": [
+        "rockonbands",
+        "bandmedia"
+      ],
+      "codename": "delete_bandmedia"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view band media",
+      "content_type": [
+        "rockonbands",
+        "bandmedia"
+      ],
+      "codename": "view_bandmedia"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add attendance",
+      "content_type": [
+        "rockoncrew",
+        "attendance"
+      ],
+      "codename": "add_attendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change attendance",
+      "content_type": [
+        "rockoncrew",
+        "attendance"
+      ],
+      "codename": "change_attendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete attendance",
+      "content_type": [
+        "rockoncrew",
+        "attendance"
+      ],
+      "codename": "delete_attendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view attendance",
+      "content_type": [
+        "rockoncrew",
+        "attendance"
+      ],
+      "codename": "view_attendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add crew",
+      "content_type": [
+        "rockoncrew",
+        "crew"
+      ],
+      "codename": "add_crew"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change crew",
+      "content_type": [
+        "rockoncrew",
+        "crew"
+      ],
+      "codename": "change_crew"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete crew",
+      "content_type": [
+        "rockoncrew",
+        "crew"
+      ],
+      "codename": "delete_crew"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view crew",
+      "content_type": [
+        "rockoncrew",
+        "crew"
+      ],
+      "codename": "view_crew"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add crew member",
+      "content_type": [
+        "rockoncrew",
+        "crewmember"
+      ],
+      "codename": "add_crewmember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change crew member",
+      "content_type": [
+        "rockoncrew",
+        "crewmember"
+      ],
+      "codename": "change_crewmember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete crew member",
+      "content_type": [
+        "rockoncrew",
+        "crewmember"
+      ],
+      "codename": "delete_crewmember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view crew member",
+      "content_type": [
+        "rockoncrew",
+        "crewmember"
+      ],
+      "codename": "view_crewmember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add shirt",
+      "content_type": [
+        "rockoncrew",
+        "shirt"
+      ],
+      "codename": "add_shirt"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change shirt",
+      "content_type": [
+        "rockoncrew",
+        "shirt"
+      ],
+      "codename": "change_shirt"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete shirt",
+      "content_type": [
+        "rockoncrew",
+        "shirt"
+      ],
+      "codename": "delete_shirt"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view shirt",
+      "content_type": [
+        "rockoncrew",
+        "shirt"
+      ],
+      "codename": "view_shirt"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add skill",
+      "content_type": [
+        "rockoncrew",
+        "skill"
+      ],
+      "codename": "add_skill"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change skill",
+      "content_type": [
+        "rockoncrew",
+        "skill"
+      ],
+      "codename": "change_skill"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete skill",
+      "content_type": [
+        "rockoncrew",
+        "skill"
+      ],
+      "codename": "delete_skill"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view skill",
+      "content_type": [
+        "rockoncrew",
+        "skill"
+      ],
+      "codename": "view_skill"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add team",
+      "content_type": [
+        "rockoncrew",
+        "team"
+      ],
+      "codename": "add_team"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change team",
+      "content_type": [
+        "rockoncrew",
+        "team"
+      ],
+      "codename": "change_team"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete team",
+      "content_type": [
+        "rockoncrew",
+        "team"
+      ],
+      "codename": "delete_team"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view team",
+      "content_type": [
+        "rockoncrew",
+        "team"
+      ],
+      "codename": "view_team"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add team category",
+      "content_type": [
+        "rockoncrew",
+        "teamcategory"
+      ],
+      "codename": "add_teamcategory"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change team category",
+      "content_type": [
+        "rockoncrew",
+        "teamcategory"
+      ],
+      "codename": "change_teamcategory"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete team category",
+      "content_type": [
+        "rockoncrew",
+        "teamcategory"
+      ],
+      "codename": "delete_teamcategory"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view team category",
+      "content_type": [
+        "rockoncrew",
+        "teamcategory"
+      ],
+      "codename": "view_teamcategory"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add team member",
+      "content_type": [
+        "rockoncrew",
+        "teammember"
+      ],
+      "codename": "add_teammember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change team member",
+      "content_type": [
+        "rockoncrew",
+        "teammember"
+      ],
+      "codename": "change_teammember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete team member",
+      "content_type": [
+        "rockoncrew",
+        "teammember"
+      ],
+      "codename": "delete_teammember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view team member",
+      "content_type": [
+        "rockoncrew",
+        "teammember"
+      ],
+      "codename": "view_teammember"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add attendance addition",
+      "content_type": [
+        "rockoncrew",
+        "attendanceaddition"
+      ],
+      "codename": "add_attendanceaddition"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change attendance addition",
+      "content_type": [
+        "rockoncrew",
+        "attendanceaddition"
+      ],
+      "codename": "change_attendanceaddition"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete attendance addition",
+      "content_type": [
+        "rockoncrew",
+        "attendanceaddition"
+      ],
+      "codename": "delete_attendanceaddition"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view attendance addition",
+      "content_type": [
+        "rockoncrew",
+        "attendanceaddition"
+      ],
+      "codename": "view_attendanceaddition"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add asset",
+      "content_type": [
+        "rockonexhibitors",
+        "asset"
+      ],
+      "codename": "add_asset"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change asset",
+      "content_type": [
+        "rockonexhibitors",
+        "asset"
+      ],
+      "codename": "change_asset"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete asset",
+      "content_type": [
+        "rockonexhibitors",
+        "asset"
+      ],
+      "codename": "delete_asset"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view asset",
+      "content_type": [
+        "rockonexhibitors",
+        "asset"
+      ],
+      "codename": "view_asset"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add attendance",
+      "content_type": [
+        "rockonexhibitors",
+        "attendance"
+      ],
+      "codename": "add_attendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change attendance",
+      "content_type": [
+        "rockonexhibitors",
+        "attendance"
+      ],
+      "codename": "change_attendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete attendance",
+      "content_type": [
+        "rockonexhibitors",
+        "attendance"
+      ],
+      "codename": "delete_attendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view attendance",
+      "content_type": [
+        "rockonexhibitors",
+        "attendance"
+      ],
+      "codename": "view_attendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add exhibitor",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitor"
+      ],
+      "codename": "add_exhibitor"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change exhibitor",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitor"
+      ],
+      "codename": "change_exhibitor"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete exhibitor",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitor"
+      ],
+      "codename": "delete_exhibitor"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view exhibitor",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitor"
+      ],
+      "codename": "view_exhibitor"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add exhibitor attendance",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitorattendance"
+      ],
+      "codename": "add_exhibitorattendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change exhibitor attendance",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitorattendance"
+      ],
+      "codename": "change_exhibitorattendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete exhibitor attendance",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitorattendance"
+      ],
+      "codename": "delete_exhibitorattendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view exhibitor attendance",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitorattendance"
+      ],
+      "codename": "view_exhibitorattendance"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add exhibitor asset",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitorasset"
+      ],
+      "codename": "add_exhibitorasset"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change exhibitor asset",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitorasset"
+      ],
+      "codename": "change_exhibitorasset"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete exhibitor asset",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitorasset"
+      ],
+      "codename": "delete_exhibitorasset"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view exhibitor asset",
+      "content_type": [
+        "rockonexhibitors",
+        "exhibitorasset"
+      ],
+      "codename": "view_exhibitorasset"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add link shortener",
+      "content_type": [
+        "rockontools",
+        "linkshortener"
+      ],
+      "codename": "add_linkshortener"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change link shortener",
+      "content_type": [
+        "rockontools",
+        "linkshortener"
+      ],
+      "codename": "change_linkshortener"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete link shortener",
+      "content_type": [
+        "rockontools",
+        "linkshortener"
+      ],
+      "codename": "delete_linkshortener"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view link shortener",
+      "content_type": [
+        "rockontools",
+        "linkshortener"
+      ],
+      "codename": "view_linkshortener"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add band",
+      "content_type": [
+        "bands",
+        "band"
+      ],
+      "codename": "add_band"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change band",
+      "content_type": [
+        "bands",
+        "band"
+      ],
+      "codename": "change_band"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete band",
+      "content_type": [
+        "bands",
+        "band"
+      ],
+      "codename": "delete_band"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view band",
+      "content_type": [
+        "bands",
+        "band"
+      ],
+      "codename": "view_band"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can add stage",
+      "content_type": [
+        "bands",
+        "stage"
+      ],
+      "codename": "add_stage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can change stage",
+      "content_type": [
+        "bands",
+        "stage"
+      ],
+      "codename": "change_stage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can delete stage",
+      "content_type": [
+        "bands",
+        "stage"
+      ],
+      "codename": "delete_stage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "fields": {
+      "name": "Can view stage",
+      "content_type": [
+        "bands",
+        "stage"
+      ],
+      "codename": "view_stage"
+    }
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add log entry",
-        "content_type": [
-            "admin",
-            "logentry"
-        ],
-        "codename": "add_logentry"
+      "name": "Can add time slot",
+      "content_type": [
+        "bands",
+        "timeslot"
+      ],
+      "codename": "add_timeslot"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change log entry",
-        "content_type": [
-            "admin",
-            "logentry"
-        ],
-        "codename": "change_logentry"
+      "name": "Can change time slot",
+      "content_type": [
+        "bands",
+        "timeslot"
+      ],
+      "codename": "change_timeslot"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete log entry",
-        "content_type": [
-            "admin",
-            "logentry"
-        ],
-        "codename": "delete_logentry"
+      "name": "Can delete time slot",
+      "content_type": [
+        "bands",
+        "timeslot"
+      ],
+      "codename": "delete_timeslot"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view log entry",
-        "content_type": [
-            "admin",
-            "logentry"
-        ],
-        "codename": "view_logentry"
+      "name": "Can view time slot",
+      "content_type": [
+        "bands",
+        "timeslot"
+      ],
+      "codename": "view_timeslot"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add permission",
-        "content_type": [
-            "auth",
-            "permission"
-        ],
-        "codename": "add_permission"
+      "name": "Can add band member",
+      "content_type": [
+        "bands",
+        "bandmember"
+      ],
+      "codename": "add_bandmember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change permission",
-        "content_type": [
-            "auth",
-            "permission"
-        ],
-        "codename": "change_permission"
+      "name": "Can change band member",
+      "content_type": [
+        "bands",
+        "bandmember"
+      ],
+      "codename": "change_bandmember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete permission",
-        "content_type": [
-            "auth",
-            "permission"
-        ],
-        "codename": "delete_permission"
+      "name": "Can delete band member",
+      "content_type": [
+        "bands",
+        "bandmember"
+      ],
+      "codename": "delete_bandmember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view permission",
-        "content_type": [
-            "auth",
-            "permission"
-        ],
-        "codename": "view_permission"
+      "name": "Can view band member",
+      "content_type": [
+        "bands",
+        "bandmember"
+      ],
+      "codename": "view_bandmember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add group",
-        "content_type": [
-            "auth",
-            "group"
-        ],
-        "codename": "add_group"
+      "name": "Can add team category",
+      "content_type": [
+        "crew",
+        "teamcategory"
+      ],
+      "codename": "add_teamcategory"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change group",
-        "content_type": [
-            "auth",
-            "group"
-        ],
-        "codename": "change_group"
+      "name": "Can change team category",
+      "content_type": [
+        "crew",
+        "teamcategory"
+      ],
+      "codename": "change_teamcategory"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete group",
-        "content_type": [
-            "auth",
-            "group"
-        ],
-        "codename": "delete_group"
+      "name": "Can delete team category",
+      "content_type": [
+        "crew",
+        "teamcategory"
+      ],
+      "codename": "delete_teamcategory"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view group",
-        "content_type": [
-            "auth",
-            "group"
-        ],
-        "codename": "view_group"
+      "name": "Can view team category",
+      "content_type": [
+        "crew",
+        "teamcategory"
+      ],
+      "codename": "view_teamcategory"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add user",
-        "content_type": [
-            "auth",
-            "user"
-        ],
-        "codename": "add_user"
+      "name": "Can add skill",
+      "content_type": [
+        "crew",
+        "skill"
+      ],
+      "codename": "add_skill"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change user",
-        "content_type": [
-            "auth",
-            "user"
-        ],
-        "codename": "change_user"
+      "name": "Can change skill",
+      "content_type": [
+        "crew",
+        "skill"
+      ],
+      "codename": "change_skill"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete user",
-        "content_type": [
-            "auth",
-            "user"
-        ],
-        "codename": "delete_user"
+      "name": "Can delete skill",
+      "content_type": [
+        "crew",
+        "skill"
+      ],
+      "codename": "delete_skill"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view user",
-        "content_type": [
-            "auth",
-            "user"
-        ],
-        "codename": "view_user"
+      "name": "Can view skill",
+      "content_type": [
+        "crew",
+        "skill"
+      ],
+      "codename": "view_skill"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add content type",
-        "content_type": [
-            "contenttypes",
-            "contenttype"
-        ],
-        "codename": "add_contenttype"
+      "name": "Can add attendance addition",
+      "content_type": [
+        "crew",
+        "attendanceaddition"
+      ],
+      "codename": "add_attendanceaddition"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change content type",
-        "content_type": [
-            "contenttypes",
-            "contenttype"
-        ],
-        "codename": "change_contenttype"
+      "name": "Can change attendance addition",
+      "content_type": [
+        "crew",
+        "attendanceaddition"
+      ],
+      "codename": "change_attendanceaddition"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete content type",
-        "content_type": [
-            "contenttypes",
-            "contenttype"
-        ],
-        "codename": "delete_contenttype"
+      "name": "Can delete attendance addition",
+      "content_type": [
+        "crew",
+        "attendanceaddition"
+      ],
+      "codename": "delete_attendanceaddition"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view content type",
-        "content_type": [
-            "contenttypes",
-            "contenttype"
-        ],
-        "codename": "view_contenttype"
+      "name": "Can view attendance addition",
+      "content_type": [
+        "crew",
+        "attendanceaddition"
+      ],
+      "codename": "view_attendanceaddition"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add session",
-        "content_type": [
-            "sessions",
-            "session"
-        ],
-        "codename": "add_session"
+      "name": "Can add crew",
+      "content_type": [
+        "crew",
+        "crew"
+      ],
+      "codename": "add_crew"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change session",
-        "content_type": [
-            "sessions",
-            "session"
-        ],
-        "codename": "change_session"
+      "name": "Can change crew",
+      "content_type": [
+        "crew",
+        "crew"
+      ],
+      "codename": "change_crew"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete session",
-        "content_type": [
-            "sessions",
-            "session"
-        ],
-        "codename": "delete_session"
+      "name": "Can delete crew",
+      "content_type": [
+        "crew",
+        "crew"
+      ],
+      "codename": "delete_crew"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view session",
-        "content_type": [
-            "sessions",
-            "session"
-        ],
-        "codename": "view_session"
+      "name": "Can view crew",
+      "content_type": [
+        "crew",
+        "crew"
+      ],
+      "codename": "view_crew"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add Scheduled task",
-        "content_type": [
-            "django_q",
-            "schedule"
-        ],
-        "codename": "add_schedule"
+      "name": "Can add team",
+      "content_type": [
+        "crew",
+        "team"
+      ],
+      "codename": "add_team"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change Scheduled task",
-        "content_type": [
-            "django_q",
-            "schedule"
-        ],
-        "codename": "change_schedule"
+      "name": "Can change team",
+      "content_type": [
+        "crew",
+        "team"
+      ],
+      "codename": "change_team"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete Scheduled task",
-        "content_type": [
-            "django_q",
-            "schedule"
-        ],
-        "codename": "delete_schedule"
+      "name": "Can delete team",
+      "content_type": [
+        "crew",
+        "team"
+      ],
+      "codename": "delete_team"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view Scheduled task",
-        "content_type": [
-            "django_q",
-            "schedule"
-        ],
-        "codename": "view_schedule"
+      "name": "Can view team",
+      "content_type": [
+        "crew",
+        "team"
+      ],
+      "codename": "view_team"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add task",
-        "content_type": [
-            "django_q",
-            "task"
-        ],
-        "codename": "add_task"
+      "name": "Can add team member",
+      "content_type": [
+        "crew",
+        "teammember"
+      ],
+      "codename": "add_teammember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change task",
-        "content_type": [
-            "django_q",
-            "task"
-        ],
-        "codename": "change_task"
+      "name": "Can change team member",
+      "content_type": [
+        "crew",
+        "teammember"
+      ],
+      "codename": "change_teammember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete task",
-        "content_type": [
-            "django_q",
-            "task"
-        ],
-        "codename": "delete_task"
+      "name": "Can delete team member",
+      "content_type": [
+        "crew",
+        "teammember"
+      ],
+      "codename": "delete_teammember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view task",
-        "content_type": [
-            "django_q",
-            "task"
-        ],
-        "codename": "view_task"
+      "name": "Can view team member",
+      "content_type": [
+        "crew",
+        "teammember"
+      ],
+      "codename": "view_teammember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add Failed task",
-        "content_type": [
-            "django_q",
-            "failure"
-        ],
-        "codename": "add_failure"
+      "name": "Can add shirt",
+      "content_type": [
+        "crew",
+        "shirt"
+      ],
+      "codename": "add_shirt"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change Failed task",
-        "content_type": [
-            "django_q",
-            "failure"
-        ],
-        "codename": "change_failure"
+      "name": "Can change shirt",
+      "content_type": [
+        "crew",
+        "shirt"
+      ],
+      "codename": "change_shirt"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete Failed task",
-        "content_type": [
-            "django_q",
-            "failure"
-        ],
-        "codename": "delete_failure"
+      "name": "Can delete shirt",
+      "content_type": [
+        "crew",
+        "shirt"
+      ],
+      "codename": "delete_shirt"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view Failed task",
-        "content_type": [
-            "django_q",
-            "failure"
-        ],
-        "codename": "view_failure"
+      "name": "Can view shirt",
+      "content_type": [
+        "crew",
+        "shirt"
+      ],
+      "codename": "view_shirt"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add Successful task",
-        "content_type": [
-            "django_q",
-            "success"
-        ],
-        "codename": "add_success"
+      "name": "Can add crew member",
+      "content_type": [
+        "crew",
+        "crewmember"
+      ],
+      "codename": "add_crewmember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change Successful task",
-        "content_type": [
-            "django_q",
-            "success"
-        ],
-        "codename": "change_success"
+      "name": "Can change crew member",
+      "content_type": [
+        "crew",
+        "crewmember"
+      ],
+      "codename": "change_crewmember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete Successful task",
-        "content_type": [
-            "django_q",
-            "success"
-        ],
-        "codename": "delete_success"
+      "name": "Can delete crew member",
+      "content_type": [
+        "crew",
+        "crewmember"
+      ],
+      "codename": "delete_crewmember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view Successful task",
-        "content_type": [
-            "django_q",
-            "success"
-        ],
-        "codename": "view_success"
+      "name": "Can view crew member",
+      "content_type": [
+        "crew",
+        "crewmember"
+      ],
+      "codename": "view_crewmember"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add Queued task",
-        "content_type": [
-            "django_q",
-            "ormq"
-        ],
-        "codename": "add_ormq"
+      "name": "Can add attendance",
+      "content_type": [
+        "crew",
+        "attendance"
+      ],
+      "codename": "add_attendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change Queued task",
-        "content_type": [
-            "django_q",
-            "ormq"
-        ],
-        "codename": "change_ormq"
+      "name": "Can change attendance",
+      "content_type": [
+        "crew",
+        "attendance"
+      ],
+      "codename": "change_attendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete Queued task",
-        "content_type": [
-            "django_q",
-            "ormq"
-        ],
-        "codename": "delete_ormq"
+      "name": "Can delete attendance",
+      "content_type": [
+        "crew",
+        "attendance"
+      ],
+      "codename": "delete_attendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view Queued task",
-        "content_type": [
-            "django_q",
-            "ormq"
-        ],
-        "codename": "view_ormq"
+      "name": "Can view attendance",
+      "content_type": [
+        "crew",
+        "attendance"
+      ],
+      "codename": "view_attendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add event",
-        "content_type": [
-            "rockonbase",
-            "event"
-        ],
-        "codename": "add_event"
+      "name": "Can add sponsoring",
+      "content_type": [
+        "crm",
+        "sponsoring"
+      ],
+      "codename": "add_sponsoring"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change event",
-        "content_type": [
-            "rockonbase",
-            "event"
-        ],
-        "codename": "change_event"
+      "name": "Can change sponsoring",
+      "content_type": [
+        "crm",
+        "sponsoring"
+      ],
+      "codename": "change_sponsoring"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete event",
-        "content_type": [
-            "rockonbase",
-            "event"
-        ],
-        "codename": "delete_event"
+      "name": "Can delete sponsoring",
+      "content_type": [
+        "crm",
+        "sponsoring"
+      ],
+      "codename": "delete_sponsoring"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view event",
-        "content_type": [
-            "rockonbase",
-            "event"
-        ],
-        "codename": "view_event"
+      "name": "Can view sponsoring",
+      "content_type": [
+        "crm",
+        "sponsoring"
+      ],
+      "codename": "view_sponsoring"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add sponsoring",
-        "content_type": [
-            "rockonbase",
-            "sponsoring"
-        ],
-        "codename": "add_sponsoring"
+      "name": "Can add type",
+      "content_type": [
+        "crm",
+        "type"
+      ],
+      "codename": "add_type"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change sponsoring",
-        "content_type": [
-            "rockonbase",
-            "sponsoring"
-        ],
-        "codename": "change_sponsoring"
+      "name": "Can change type",
+      "content_type": [
+        "crm",
+        "type"
+      ],
+      "codename": "change_type"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete sponsoring",
-        "content_type": [
-            "rockonbase",
-            "sponsoring"
-        ],
-        "codename": "delete_sponsoring"
+      "name": "Can delete type",
+      "content_type": [
+        "crm",
+        "type"
+      ],
+      "codename": "delete_type"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view sponsoring",
-        "content_type": [
-            "rockonbase",
-            "sponsoring"
-        ],
-        "codename": "view_sponsoring"
+      "name": "Can view type",
+      "content_type": [
+        "crm",
+        "type"
+      ],
+      "codename": "view_type"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add task",
-        "content_type": [
-            "rockonbase",
-            "task"
-        ],
-        "codename": "add_task"
+      "name": "Can add user profile",
+      "content_type": [
+        "crm",
+        "userprofile"
+      ],
+      "codename": "add_userprofile"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change task",
-        "content_type": [
-            "rockonbase",
-            "task"
-        ],
-        "codename": "change_task"
+      "name": "Can change user profile",
+      "content_type": [
+        "crm",
+        "userprofile"
+      ],
+      "codename": "change_userprofile"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete task",
-        "content_type": [
-            "rockonbase",
-            "task"
-        ],
-        "codename": "delete_task"
+      "name": "Can delete user profile",
+      "content_type": [
+        "crm",
+        "userprofile"
+      ],
+      "codename": "delete_userprofile"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view task",
-        "content_type": [
-            "rockonbase",
-            "task"
-        ],
-        "codename": "view_task"
+      "name": "Can view user profile",
+      "content_type": [
+        "crm",
+        "userprofile"
+      ],
+      "codename": "view_userprofile"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add timeline",
-        "content_type": [
-            "rockonbase",
-            "timeline"
-        ],
-        "codename": "add_timeline"
+      "name": "Can add magic link",
+      "content_type": [
+        "crm",
+        "magiclink"
+      ],
+      "codename": "add_magiclink"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change timeline",
-        "content_type": [
-            "rockonbase",
-            "timeline"
-        ],
-        "codename": "change_timeline"
+      "name": "Can change magic link",
+      "content_type": [
+        "crm",
+        "magiclink"
+      ],
+      "codename": "change_magiclink"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete timeline",
-        "content_type": [
-            "rockonbase",
-            "timeline"
-        ],
-        "codename": "delete_timeline"
+      "name": "Can delete magic link",
+      "content_type": [
+        "crm",
+        "magiclink"
+      ],
+      "codename": "delete_magiclink"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view timeline",
-        "content_type": [
-            "rockonbase",
-            "timeline"
-        ],
-        "codename": "view_timeline"
+      "name": "Can view magic link",
+      "content_type": [
+        "crm",
+        "magiclink"
+      ],
+      "codename": "view_magiclink"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add user profile",
-        "content_type": [
-            "rockonbase",
-            "userprofile"
-        ],
-        "codename": "add_userprofile"
+      "name": "Can add email verification",
+      "content_type": [
+        "crm",
+        "emailverification"
+      ],
+      "codename": "add_emailverification"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change user profile",
-        "content_type": [
-            "rockonbase",
-            "userprofile"
-        ],
-        "codename": "change_userprofile"
+      "name": "Can change email verification",
+      "content_type": [
+        "crm",
+        "emailverification"
+      ],
+      "codename": "change_emailverification"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete user profile",
-        "content_type": [
-            "rockonbase",
-            "userprofile"
-        ],
-        "codename": "delete_userprofile"
+      "name": "Can delete email verification",
+      "content_type": [
+        "crm",
+        "emailverification"
+      ],
+      "codename": "delete_emailverification"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view user profile",
-        "content_type": [
-            "rockonbase",
-            "userprofile"
-        ],
-        "codename": "view_userprofile"
+      "name": "Can view email verification",
+      "content_type": [
+        "crm",
+        "emailverification"
+      ],
+      "codename": "view_emailverification"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add organisation",
-        "content_type": [
-            "rockonbase",
-            "organisation"
-        ],
-        "codename": "add_organisation"
+      "name": "Can add organisation",
+      "content_type": [
+        "crm",
+        "organisation"
+      ],
+      "codename": "add_organisation"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change organisation",
-        "content_type": [
-            "rockonbase",
-            "organisation"
-        ],
-        "codename": "change_organisation"
+      "name": "Can change organisation",
+      "content_type": [
+        "crm",
+        "organisation"
+      ],
+      "codename": "change_organisation"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete organisation",
-        "content_type": [
-            "rockonbase",
-            "organisation"
-        ],
-        "codename": "delete_organisation"
+      "name": "Can delete organisation",
+      "content_type": [
+        "crm",
+        "organisation"
+      ],
+      "codename": "delete_organisation"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view organisation",
-        "content_type": [
-            "rockonbase",
-            "organisation"
-        ],
-        "codename": "view_organisation"
+      "name": "Can view organisation",
+      "content_type": [
+        "crm",
+        "organisation"
+      ],
+      "codename": "view_organisation"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add magic link",
-        "content_type": [
-            "rockonbase",
-            "magiclink"
-        ],
-        "codename": "add_magiclink"
+      "name": "Can add account context",
+      "content_type": [
+        "crm",
+        "accountcontext"
+      ],
+      "codename": "add_accountcontext"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change magic link",
-        "content_type": [
-            "rockonbase",
-            "magiclink"
-        ],
-        "codename": "change_magiclink"
+      "name": "Can change account context",
+      "content_type": [
+        "crm",
+        "accountcontext"
+      ],
+      "codename": "change_accountcontext"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete magic link",
-        "content_type": [
-            "rockonbase",
-            "magiclink"
-        ],
-        "codename": "delete_magiclink"
+      "name": "Can delete account context",
+      "content_type": [
+        "crm",
+        "accountcontext"
+      ],
+      "codename": "delete_accountcontext"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view magic link",
-        "content_type": [
-            "rockonbase",
-            "magiclink"
-        ],
-        "codename": "view_magiclink"
+      "name": "Can view account context",
+      "content_type": [
+        "crm",
+        "accountcontext"
+      ],
+      "codename": "view_accountcontext"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add email verification",
-        "content_type": [
-            "rockonbase",
-            "emailverification"
-        ],
-        "codename": "add_emailverification"
+      "name": "Can add task",
+      "content_type": [
+        "event",
+        "task"
+      ],
+      "codename": "add_task"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change email verification",
-        "content_type": [
-            "rockonbase",
-            "emailverification"
-        ],
-        "codename": "change_emailverification"
+      "name": "Can change task",
+      "content_type": [
+        "event",
+        "task"
+      ],
+      "codename": "change_task"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete email verification",
-        "content_type": [
-            "rockonbase",
-            "emailverification"
-        ],
-        "codename": "delete_emailverification"
+      "name": "Can delete task",
+      "content_type": [
+        "event",
+        "task"
+      ],
+      "codename": "delete_task"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view email verification",
-        "content_type": [
-            "rockonbase",
-            "emailverification"
-        ],
-        "codename": "view_emailverification"
+      "name": "Can view task",
+      "content_type": [
+        "event",
+        "task"
+      ],
+      "codename": "view_task"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add band",
-        "content_type": [
-            "rockonbands",
-            "band"
-        ],
-        "codename": "add_band"
+      "name": "Can add timeline",
+      "content_type": [
+        "event",
+        "timeline"
+      ],
+      "codename": "add_timeline"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change band",
-        "content_type": [
-            "rockonbands",
-            "band"
-        ],
-        "codename": "change_band"
+      "name": "Can change timeline",
+      "content_type": [
+        "event",
+        "timeline"
+      ],
+      "codename": "change_timeline"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete band",
-        "content_type": [
-            "rockonbands",
-            "band"
-        ],
-        "codename": "delete_band"
+      "name": "Can delete timeline",
+      "content_type": [
+        "event",
+        "timeline"
+      ],
+      "codename": "delete_timeline"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view band",
-        "content_type": [
-            "rockonbands",
-            "band"
-        ],
-        "codename": "view_band"
+      "name": "Can view timeline",
+      "content_type": [
+        "event",
+        "timeline"
+      ],
+      "codename": "view_timeline"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add stage",
-        "content_type": [
-            "rockonbands",
-            "stage"
-        ],
-        "codename": "add_stage"
+      "name": "Can add event",
+      "content_type": [
+        "event",
+        "event"
+      ],
+      "codename": "add_event"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change stage",
-        "content_type": [
-            "rockonbands",
-            "stage"
-        ],
-        "codename": "change_stage"
+      "name": "Can change event",
+      "content_type": [
+        "event",
+        "event"
+      ],
+      "codename": "change_event"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete stage",
-        "content_type": [
-            "rockonbands",
-            "stage"
-        ],
-        "codename": "delete_stage"
+      "name": "Can delete event",
+      "content_type": [
+        "event",
+        "event"
+      ],
+      "codename": "delete_event"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view stage",
-        "content_type": [
-            "rockonbands",
-            "stage"
-        ],
-        "codename": "view_stage"
+      "name": "Can view event",
+      "content_type": [
+        "event",
+        "event"
+      ],
+      "codename": "view_event"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add time slot",
-        "content_type": [
-            "rockonbands",
-            "timeslot"
-        ],
-        "codename": "add_timeslot"
+      "name": "Can add attendance",
+      "content_type": [
+        "exhibitors",
+        "attendance"
+      ],
+      "codename": "add_attendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change time slot",
-        "content_type": [
-            "rockonbands",
-            "timeslot"
-        ],
-        "codename": "change_timeslot"
+      "name": "Can change attendance",
+      "content_type": [
+        "exhibitors",
+        "attendance"
+      ],
+      "codename": "change_attendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete time slot",
-        "content_type": [
-            "rockonbands",
-            "timeslot"
-        ],
-        "codename": "delete_timeslot"
+      "name": "Can delete attendance",
+      "content_type": [
+        "exhibitors",
+        "attendance"
+      ],
+      "codename": "delete_attendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view time slot",
-        "content_type": [
-            "rockonbands",
-            "timeslot"
-        ],
-        "codename": "view_timeslot"
+      "name": "Can view attendance",
+      "content_type": [
+        "exhibitors",
+        "attendance"
+      ],
+      "codename": "view_attendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add band member",
-        "content_type": [
-            "rockonbands",
-            "bandmember"
-        ],
-        "codename": "add_bandmember"
+      "name": "Can add asset",
+      "content_type": [
+        "exhibitors",
+        "asset"
+      ],
+      "codename": "add_asset"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change band member",
-        "content_type": [
-            "rockonbands",
-            "bandmember"
-        ],
-        "codename": "change_bandmember"
+      "name": "Can change asset",
+      "content_type": [
+        "exhibitors",
+        "asset"
+      ],
+      "codename": "change_asset"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete band member",
-        "content_type": [
-            "rockonbands",
-            "bandmember"
-        ],
-        "codename": "delete_bandmember"
+      "name": "Can delete asset",
+      "content_type": [
+        "exhibitors",
+        "asset"
+      ],
+      "codename": "delete_asset"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view band member",
-        "content_type": [
-            "rockonbands",
-            "bandmember"
-        ],
-        "codename": "view_bandmember"
+      "name": "Can view asset",
+      "content_type": [
+        "exhibitors",
+        "asset"
+      ],
+      "codename": "view_asset"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add band media",
-        "content_type": [
-            "rockonbands",
-            "bandmedia"
-        ],
-        "codename": "add_bandmedia"
+      "name": "Can add exhibitor",
+      "content_type": [
+        "exhibitors",
+        "exhibitor"
+      ],
+      "codename": "add_exhibitor"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change band media",
-        "content_type": [
-            "rockonbands",
-            "bandmedia"
-        ],
-        "codename": "change_bandmedia"
+      "name": "Can change exhibitor",
+      "content_type": [
+        "exhibitors",
+        "exhibitor"
+      ],
+      "codename": "change_exhibitor"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete band media",
-        "content_type": [
-            "rockonbands",
-            "bandmedia"
-        ],
-        "codename": "delete_bandmedia"
+      "name": "Can delete exhibitor",
+      "content_type": [
+        "exhibitors",
+        "exhibitor"
+      ],
+      "codename": "delete_exhibitor"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view band media",
-        "content_type": [
-            "rockonbands",
-            "bandmedia"
-        ],
-        "codename": "view_bandmedia"
+      "name": "Can view exhibitor",
+      "content_type": [
+        "exhibitors",
+        "exhibitor"
+      ],
+      "codename": "view_exhibitor"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add attendance",
-        "content_type": [
-            "rockoncrew",
-            "attendance"
-        ],
-        "codename": "add_attendance"
+      "name": "Can add exhibitor asset",
+      "content_type": [
+        "exhibitors",
+        "exhibitorasset"
+      ],
+      "codename": "add_exhibitorasset"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change attendance",
-        "content_type": [
-            "rockoncrew",
-            "attendance"
-        ],
-        "codename": "change_attendance"
+      "name": "Can change exhibitor asset",
+      "content_type": [
+        "exhibitors",
+        "exhibitorasset"
+      ],
+      "codename": "change_exhibitorasset"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete attendance",
-        "content_type": [
-            "rockoncrew",
-            "attendance"
-        ],
-        "codename": "delete_attendance"
+      "name": "Can delete exhibitor asset",
+      "content_type": [
+        "exhibitors",
+        "exhibitorasset"
+      ],
+      "codename": "delete_exhibitorasset"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view attendance",
-        "content_type": [
-            "rockoncrew",
-            "attendance"
-        ],
-        "codename": "view_attendance"
+      "name": "Can view exhibitor asset",
+      "content_type": [
+        "exhibitors",
+        "exhibitorasset"
+      ],
+      "codename": "view_exhibitorasset"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add crew",
-        "content_type": [
-            "rockoncrew",
-            "crew"
-        ],
-        "codename": "add_crew"
+      "name": "Can add exhibitor attendance",
+      "content_type": [
+        "exhibitors",
+        "exhibitorattendance"
+      ],
+      "codename": "add_exhibitorattendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change crew",
-        "content_type": [
-            "rockoncrew",
-            "crew"
-        ],
-        "codename": "change_crew"
+      "name": "Can change exhibitor attendance",
+      "content_type": [
+        "exhibitors",
+        "exhibitorattendance"
+      ],
+      "codename": "change_exhibitorattendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete crew",
-        "content_type": [
-            "rockoncrew",
-            "crew"
-        ],
-        "codename": "delete_crew"
+      "name": "Can delete exhibitor attendance",
+      "content_type": [
+        "exhibitors",
+        "exhibitorattendance"
+      ],
+      "codename": "delete_exhibitorattendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view crew",
-        "content_type": [
-            "rockoncrew",
-            "crew"
-        ],
-        "codename": "view_crew"
+      "name": "Can view exhibitor attendance",
+      "content_type": [
+        "exhibitors",
+        "exhibitorattendance"
+      ],
+      "codename": "view_exhibitorattendance"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add crew member",
-        "content_type": [
-            "rockoncrew",
-            "crewmember"
-        ],
-        "codename": "add_crewmember"
+      "name": "Can add link shortener",
+      "content_type": [
+        "tools",
+        "linkshortener"
+      ],
+      "codename": "add_linkshortener"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change crew member",
-        "content_type": [
-            "rockoncrew",
-            "crewmember"
-        ],
-        "codename": "change_crewmember"
+      "name": "Can change link shortener",
+      "content_type": [
+        "tools",
+        "linkshortener"
+      ],
+      "codename": "change_linkshortener"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete crew member",
-        "content_type": [
-            "rockoncrew",
-            "crewmember"
-        ],
-        "codename": "delete_crewmember"
+      "name": "Can delete link shortener",
+      "content_type": [
+        "tools",
+        "linkshortener"
+      ],
+      "codename": "delete_linkshortener"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view crew member",
-        "content_type": [
-            "rockoncrew",
-            "crewmember"
-        ],
-        "codename": "view_crewmember"
+      "name": "Can view link shortener",
+      "content_type": [
+        "tools",
+        "linkshortener"
+      ],
+      "codename": "view_linkshortener"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add shirt",
-        "content_type": [
-            "rockoncrew",
-            "shirt"
-        ],
-        "codename": "add_shirt"
+      "name": "Can add user",
+      "content_type": [
+        "bblegacy",
+        "user"
+      ],
+      "codename": "add_user"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change shirt",
-        "content_type": [
-            "rockoncrew",
-            "shirt"
-        ],
-        "codename": "change_shirt"
+      "name": "Can change user",
+      "content_type": [
+        "bblegacy",
+        "user"
+      ],
+      "codename": "change_user"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete shirt",
-        "content_type": [
-            "rockoncrew",
-            "shirt"
-        ],
-        "codename": "delete_shirt"
+      "name": "Can delete user",
+      "content_type": [
+        "bblegacy",
+        "user"
+      ],
+      "codename": "delete_user"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view shirt",
-        "content_type": [
-            "rockoncrew",
-            "shirt"
-        ],
-        "codename": "view_shirt"
+      "name": "Can view user",
+      "content_type": [
+        "bblegacy",
+        "user"
+      ],
+      "codename": "view_user"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add skill",
-        "content_type": [
-            "rockoncrew",
-            "skill"
-        ],
-        "codename": "add_skill"
+      "name": "Can add Region",
+      "content_type": [
+        "bblegacy",
+        "region"
+      ],
+      "codename": "add_region"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change skill",
-        "content_type": [
-            "rockoncrew",
-            "skill"
-        ],
-        "codename": "change_skill"
+      "name": "Can change Region",
+      "content_type": [
+        "bblegacy",
+        "region"
+      ],
+      "codename": "change_region"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete skill",
-        "content_type": [
-            "rockoncrew",
-            "skill"
-        ],
-        "codename": "delete_skill"
+      "name": "Can delete Region",
+      "content_type": [
+        "bblegacy",
+        "region"
+      ],
+      "codename": "delete_region"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view skill",
-        "content_type": [
-            "rockoncrew",
-            "skill"
-        ],
-        "codename": "view_skill"
+      "name": "Can view Region",
+      "content_type": [
+        "bblegacy",
+        "region"
+      ],
+      "codename": "view_region"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add team",
-        "content_type": [
-            "rockoncrew",
-            "team"
-        ],
-        "codename": "add_team"
+      "name": "Can add token",
+      "content_type": [
+        "bblegacy",
+        "token"
+      ],
+      "codename": "add_token"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change team",
-        "content_type": [
-            "rockoncrew",
-            "team"
-        ],
-        "codename": "change_team"
+      "name": "Can change token",
+      "content_type": [
+        "bblegacy",
+        "token"
+      ],
+      "codename": "change_token"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete team",
-        "content_type": [
-            "rockoncrew",
-            "team"
-        ],
-        "codename": "delete_team"
+      "name": "Can delete token",
+      "content_type": [
+        "bblegacy",
+        "token"
+      ],
+      "codename": "delete_token"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view team",
-        "content_type": [
-            "rockoncrew",
-            "team"
-        ],
-        "codename": "view_team"
+      "name": "Can view token",
+      "content_type": [
+        "bblegacy",
+        "token"
+      ],
+      "codename": "view_token"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add team category",
-        "content_type": [
-            "rockoncrew",
-            "teamcategory"
-        ],
-        "codename": "add_teamcategory"
+      "name": "Can add track",
+      "content_type": [
+        "bblegacy",
+        "track"
+      ],
+      "codename": "add_track"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change team category",
-        "content_type": [
-            "rockoncrew",
-            "teamcategory"
-        ],
-        "codename": "change_teamcategory"
+      "name": "Can change track",
+      "content_type": [
+        "bblegacy",
+        "track"
+      ],
+      "codename": "change_track"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete team category",
-        "content_type": [
-            "rockoncrew",
-            "teamcategory"
-        ],
-        "codename": "delete_teamcategory"
+      "name": "Can delete track",
+      "content_type": [
+        "bblegacy",
+        "track"
+      ],
+      "codename": "delete_track"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view team category",
-        "content_type": [
-            "rockoncrew",
-            "teamcategory"
-        ],
-        "codename": "view_teamcategory"
+      "name": "Can view track",
+      "content_type": [
+        "bblegacy",
+        "track"
+      ],
+      "codename": "view_track"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add team member",
-        "content_type": [
-            "rockoncrew",
-            "teammember"
-        ],
-        "codename": "add_teammember"
+      "name": "Can add Media",
+      "content_type": [
+        "bblegacy",
+        "media"
+      ],
+      "codename": "add_media"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change team member",
-        "content_type": [
-            "rockoncrew",
-            "teammember"
-        ],
-        "codename": "change_teammember"
+      "name": "Can change Media",
+      "content_type": [
+        "bblegacy",
+        "media"
+      ],
+      "codename": "change_media"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete team member",
-        "content_type": [
-            "rockoncrew",
-            "teammember"
-        ],
-        "codename": "delete_teammember"
+      "name": "Can delete Media",
+      "content_type": [
+        "bblegacy",
+        "media"
+      ],
+      "codename": "delete_media"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view team member",
-        "content_type": [
-            "rockoncrew",
-            "teammember"
-        ],
-        "codename": "view_teammember"
+      "name": "Can view Media",
+      "content_type": [
+        "bblegacy",
+        "media"
+      ],
+      "codename": "view_media"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add attendance addition",
-        "content_type": [
-            "rockoncrew",
-            "attendanceaddition"
-        ],
-        "codename": "add_attendanceaddition"
+      "name": "Can add Vote",
+      "content_type": [
+        "bblegacy",
+        "vote"
+      ],
+      "codename": "add_vote"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change attendance addition",
-        "content_type": [
-            "rockoncrew",
-            "attendanceaddition"
-        ],
-        "codename": "change_attendanceaddition"
+      "name": "Can change Vote",
+      "content_type": [
+        "bblegacy",
+        "vote"
+      ],
+      "codename": "change_vote"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete attendance addition",
-        "content_type": [
-            "rockoncrew",
-            "attendanceaddition"
-        ],
-        "codename": "delete_attendanceaddition"
+      "name": "Can delete Vote",
+      "content_type": [
+        "bblegacy",
+        "vote"
+      ],
+      "codename": "delete_vote"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view attendance addition",
-        "content_type": [
-            "rockoncrew",
-            "attendanceaddition"
-        ],
-        "codename": "view_attendanceaddition"
+      "name": "Can view Vote",
+      "content_type": [
+        "bblegacy",
+        "vote"
+      ],
+      "codename": "view_vote"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add asset",
-        "content_type": [
-            "rockonexhibitors",
-            "asset"
-        ],
-        "codename": "add_asset"
+      "name": "Can add event",
+      "content_type": [
+        "bblegacy",
+        "event"
+      ],
+      "codename": "add_event"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change asset",
-        "content_type": [
-            "rockonexhibitors",
-            "asset"
-        ],
-        "codename": "change_asset"
+      "name": "Can change event",
+      "content_type": [
+        "bblegacy",
+        "event"
+      ],
+      "codename": "change_event"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete asset",
-        "content_type": [
-            "rockonexhibitors",
-            "asset"
-        ],
-        "codename": "delete_asset"
+      "name": "Can delete event",
+      "content_type": [
+        "bblegacy",
+        "event"
+      ],
+      "codename": "delete_event"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view asset",
-        "content_type": [
-            "rockonexhibitors",
-            "asset"
-        ],
-        "codename": "view_asset"
+      "name": "Can view event",
+      "content_type": [
+        "bblegacy",
+        "event"
+      ],
+      "codename": "view_event"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add attendance",
-        "content_type": [
-            "rockonexhibitors",
-            "attendance"
-        ],
-        "codename": "add_attendance"
+      "name": "Can add bid",
+      "content_type": [
+        "bblegacy",
+        "bid"
+      ],
+      "codename": "add_bid"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change attendance",
-        "content_type": [
-            "rockonexhibitors",
-            "attendance"
-        ],
-        "codename": "change_attendance"
+      "name": "Can change bid",
+      "content_type": [
+        "bblegacy",
+        "bid"
+      ],
+      "codename": "change_bid"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete attendance",
-        "content_type": [
-            "rockonexhibitors",
-            "attendance"
-        ],
-        "codename": "delete_attendance"
+      "name": "Can delete bid",
+      "content_type": [
+        "bblegacy",
+        "bid"
+      ],
+      "codename": "delete_bid"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view attendance",
-        "content_type": [
-            "rockonexhibitors",
-            "attendance"
-        ],
-        "codename": "view_attendance"
+      "name": "Can view bid",
+      "content_type": [
+        "bblegacy",
+        "bid"
+      ],
+      "codename": "view_bid"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add exhibitor",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitor"
-        ],
-        "codename": "add_exhibitor"
+      "name": "Can add note",
+      "content_type": [
+        "bblegacy",
+        "note"
+      ],
+      "codename": "add_note"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change exhibitor",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitor"
-        ],
-        "codename": "change_exhibitor"
+      "name": "Can change note",
+      "content_type": [
+        "bblegacy",
+        "note"
+      ],
+      "codename": "change_note"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete exhibitor",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitor"
-        ],
-        "codename": "delete_exhibitor"
+      "name": "Can delete note",
+      "content_type": [
+        "bblegacy",
+        "note"
+      ],
+      "codename": "delete_note"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view exhibitor",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitor"
-        ],
-        "codename": "view_exhibitor"
+      "name": "Can view note",
+      "content_type": [
+        "bblegacy",
+        "note"
+      ],
+      "codename": "view_note"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add exhibitor attendance",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitorattendance"
-        ],
-        "codename": "add_exhibitorattendance"
+      "name": "Can add account context",
+      "content_type": [
+        "rockonbase",
+        "accountcontext"
+      ],
+      "codename": "add_accountcontext"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change exhibitor attendance",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitorattendance"
-        ],
-        "codename": "change_exhibitorattendance"
+      "name": "Can change account context",
+      "content_type": [
+        "rockonbase",
+        "accountcontext"
+      ],
+      "codename": "change_accountcontext"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete exhibitor attendance",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitorattendance"
-        ],
-        "codename": "delete_exhibitorattendance"
+      "name": "Can delete account context",
+      "content_type": [
+        "rockonbase",
+        "accountcontext"
+      ],
+      "codename": "delete_accountcontext"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view exhibitor attendance",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitorattendance"
-        ],
-        "codename": "view_exhibitorattendance"
+      "name": "Can view account context",
+      "content_type": [
+        "rockonbase",
+        "accountcontext"
+      ],
+      "codename": "view_accountcontext"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add exhibitor asset",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitorasset"
-        ],
-        "codename": "add_exhibitorasset"
+      "name": "Can add Track",
+      "content_type": [
+        "rockonbands",
+        "track"
+      ],
+      "codename": "add_track"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change exhibitor asset",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitorasset"
-        ],
-        "codename": "change_exhibitorasset"
+      "name": "Can change Track",
+      "content_type": [
+        "rockonbands",
+        "track"
+      ],
+      "codename": "change_track"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete exhibitor asset",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitorasset"
-        ],
-        "codename": "delete_exhibitorasset"
+      "name": "Can delete Track",
+      "content_type": [
+        "rockonbands",
+        "track"
+      ],
+      "codename": "delete_track"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view exhibitor asset",
-        "content_type": [
-            "rockonexhibitors",
-            "exhibitorasset"
-        ],
-        "codename": "view_exhibitorasset"
+      "name": "Can view Track",
+      "content_type": [
+        "rockonbands",
+        "track"
+      ],
+      "codename": "view_track"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add link shortener",
-        "content_type": [
-            "rockontools",
-            "linkshortener"
-        ],
-        "codename": "add_linkshortener"
+      "name": "Can add band vote",
+      "content_type": [
+        "rockonbands",
+        "bandvote"
+      ],
+      "codename": "add_bandvote"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change link shortener",
-        "content_type": [
-            "rockontools",
-            "linkshortener"
-        ],
-        "codename": "change_linkshortener"
+      "name": "Can change band vote",
+      "content_type": [
+        "rockonbands",
+        "bandvote"
+      ],
+      "codename": "change_bandvote"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete link shortener",
-        "content_type": [
-            "rockontools",
-            "linkshortener"
-        ],
-        "codename": "delete_linkshortener"
+      "name": "Can delete band vote",
+      "content_type": [
+        "rockonbands",
+        "bandvote"
+      ],
+      "codename": "delete_bandvote"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view link shortener",
-        "content_type": [
-            "rockontools",
-            "linkshortener"
-        ],
-        "codename": "view_linkshortener"
+      "name": "Can view band vote",
+      "content_type": [
+        "rockonbands",
+        "bandvote"
+      ],
+      "codename": "view_bandvote"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can add account context",
-        "content_type": [
-            "rockonbase",
-            "accountcontext"
-        ],
-        "codename": "add_accountcontext"
+      "name": "Can add guest list entry",
+      "content_type": [
+        "rockoncrew",
+        "guestlistentry"
+      ],
+      "codename": "add_guestlistentry"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can change account context",
-        "content_type": [
-            "rockonbase",
-            "accountcontext"
-        ],
-        "codename": "change_accountcontext"
+      "name": "Can change guest list entry",
+      "content_type": [
+        "rockoncrew",
+        "guestlistentry"
+      ],
+      "codename": "change_guestlistentry"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can delete account context",
-        "content_type": [
-            "rockonbase",
-            "accountcontext"
-        ],
-        "codename": "delete_accountcontext"
+      "name": "Can delete guest list entry",
+      "content_type": [
+        "rockoncrew",
+        "guestlistentry"
+      ],
+      "codename": "delete_guestlistentry"
     }
-},
-{
+  },
+  {
     "model": "auth.permission",
     "fields": {
-        "name": "Can view account context",
-        "content_type": [
-            "rockonbase",
-            "accountcontext"
-        ],
-        "codename": "view_accountcontext"
+      "name": "Can view guest list entry",
+      "content_type": [
+        "rockoncrew",
+        "guestlistentry"
+      ],
+      "codename": "view_guestlistentry"
     }
-},
-{
+  },
+  {
     "model": "auth.group",
     "fields": {
-        "name": "catering_food",
-        "permissions": [
-            [
-                "add_attendanceaddition",
-                "rockoncrew",
-                "attendanceaddition"
-            ],
-            [
-                "change_attendanceaddition",
-                "rockoncrew",
-                "attendanceaddition"
-            ],
-            [
-                "delete_attendanceaddition",
-                "rockoncrew",
-                "attendanceaddition"
-            ],
-            [
-                "view_attendanceaddition",
-                "rockoncrew",
-                "attendanceaddition"
-            ]
+      "name": "catering_food",
+      "permissions": [
+        [
+          "add_attendanceaddition",
+          "rockoncrew",
+          "attendanceaddition"
+        ],
+        [
+          "change_attendanceaddition",
+          "rockoncrew",
+          "attendanceaddition"
+        ],
+        [
+          "delete_attendanceaddition",
+          "rockoncrew",
+          "attendanceaddition"
+        ],
+        [
+          "view_attendanceaddition",
+          "rockoncrew",
+          "attendanceaddition"
         ]
+      ]
     }
-},
-{
+  },
+  {
     "model": "auth.group",
     "fields": {
-        "name": "crewcoord",
-        "permissions": [
-            [
-                "view_crew",
-                "rockoncrew",
-                "crew"
-            ],
-            [
-                "change_crewmember",
-                "rockoncrew",
-                "crewmember"
-            ],
-            [
-                "view_crewmember",
-                "rockoncrew",
-                "crewmember"
-            ],
-            [
-                "view_team",
-                "rockoncrew",
-                "team"
-            ],
-            [
-                "view_teamcategory",
-                "rockoncrew",
-                "teamcategory"
-            ],
-            [
-                "add_teammember",
-                "rockoncrew",
-                "teammember"
-            ],
-            [
-                "change_teammember",
-                "rockoncrew",
-                "teammember"
-            ],
-            [
-                "view_teammember",
-                "rockoncrew",
-                "teammember"
-            ]
+      "name": "crewcoord",
+      "permissions": [
+        [
+          "view_crew",
+          "rockoncrew",
+          "crew"
+        ],
+        [
+          "change_crewmember",
+          "rockoncrew",
+          "crewmember"
+        ],
+        [
+          "view_crewmember",
+          "rockoncrew",
+          "crewmember"
+        ],
+        [
+          "view_team",
+          "rockoncrew",
+          "team"
+        ],
+        [
+          "view_teamcategory",
+          "rockoncrew",
+          "teamcategory"
+        ],
+        [
+          "add_teammember",
+          "rockoncrew",
+          "teammember"
+        ],
+        [
+          "change_teammember",
+          "rockoncrew",
+          "teammember"
+        ],
+        [
+          "view_teammember",
+          "rockoncrew",
+          "teammember"
         ]
+      ]
     }
-},
-{
+  },
+  {
     "model": "auth.group",
     "fields": {
-        "name": "booking",
-        "permissions": [
-            [
-                "change_band",
-                "rockonbands",
-                "band"
-            ],
-            [
-                "view_band",
-                "rockonbands",
-                "band"
-            ],
-            [
-                "change_bandmember",
-                "rockonbands",
-                "bandmember"
-            ],
-            [
-                "view_bandmember",
-                "rockonbands",
-                "bandmember"
-            ],
-            [
-                "view_stage",
-                "rockonbands",
-                "stage"
-            ],
-            [
-                "add_timeslot",
-                "rockonbands",
-                "timeslot"
-            ],
-            [
-                "change_timeslot",
-                "rockonbands",
-                "timeslot"
-            ],
-            [
-                "delete_timeslot",
-                "rockonbands",
-                "timeslot"
-            ],
-            [
-                "view_timeslot",
-                "rockonbands",
-                "timeslot"
-            ]
+      "name": "booking",
+      "permissions": [
+        [
+          "change_band",
+          "rockonbands",
+          "band"
+        ],
+        [
+          "view_band",
+          "rockonbands",
+          "band"
+        ],
+        [
+          "change_bandmember",
+          "rockonbands",
+          "bandmember"
+        ],
+        [
+          "view_bandmember",
+          "rockonbands",
+          "bandmember"
+        ],
+        [
+          "view_stage",
+          "rockonbands",
+          "stage"
+        ],
+        [
+          "add_timeslot",
+          "rockonbands",
+          "timeslot"
+        ],
+        [
+          "change_timeslot",
+          "rockonbands",
+          "timeslot"
+        ],
+        [
+          "delete_timeslot",
+          "rockonbands",
+          "timeslot"
+        ],
+        [
+          "view_timeslot",
+          "rockonbands",
+          "timeslot"
         ]
+      ]
     }
-},
-{
+  },
+  {
     "model": "auth.group",
     "fields": {
-        "name": "bands",
-        "permissions": []
+      "name": "bands",
+      "permissions": [
+        [
+          "add_band",
+          "rockonbands",
+          "band"
+        ],
+        [
+          "change_band",
+          "rockonbands",
+          "band"
+        ],
+        [
+          "view_band",
+          "rockonbands",
+          "band"
+        ],
+        [
+          "add_bandmedia",
+          "rockonbands",
+          "bandmedia"
+        ],
+        [
+          "change_bandmedia",
+          "rockonbands",
+          "bandmedia"
+        ],
+        [
+          "view_bandmedia",
+          "rockonbands",
+          "bandmedia"
+        ],
+        [
+          "add_bandmember",
+          "rockonbands",
+          "bandmember"
+        ],
+        [
+          "change_bandmember",
+          "rockonbands",
+          "bandmember"
+        ],
+        [
+          "view_bandmember",
+          "rockonbands",
+          "bandmember"
+        ],
+        [
+          "add_stage",
+          "rockonbands",
+          "stage"
+        ],
+        [
+          "change_stage",
+          "rockonbands",
+          "stage"
+        ],
+        [
+          "view_stage",
+          "rockonbands",
+          "stage"
+        ],
+        [
+          "add_timeslot",
+          "rockonbands",
+          "timeslot"
+        ],
+        [
+          "change_timeslot",
+          "rockonbands",
+          "timeslot"
+        ],
+        [
+          "view_timeslot",
+          "rockonbands",
+          "timeslot"
+        ],
+        [
+          "add_track",
+          "rockonbands",
+          "track"
+        ],
+        [
+          "change_track",
+          "rockonbands",
+          "track"
+        ],
+        [
+          "view_track",
+          "rockonbands",
+          "track"
+        ]
+      ]
     }
-},
-{
+  },
+  {
     "model": "auth.group",
     "fields": {
-        "name": "crew",
-        "permissions": []
+      "name": "crew",
+      "permissions": []
     }
-},
-{
+  },
+  {
     "model": "auth.group",
     "fields": {
-        "name": "exhibitors",
-        "permissions": []
+      "name": "exhibitors",
+      "permissions": []
     }
-}
+  },
+  {
+    "model": "auth.group",
+    "fields": {
+      "name": "exhibitor_admins",
+      "permissions": [
+        [
+          "add_organisation",
+          "crm",
+          "organisation"
+        ],
+        [
+          "change_organisation",
+          "crm",
+          "organisation"
+        ],
+        [
+          "delete_organisation",
+          "crm",
+          "organisation"
+        ],
+        [
+          "view_organisation",
+          "crm",
+          "organisation"
+        ],
+        [
+          "add_asset",
+          "exhibitors",
+          "asset"
+        ],
+        [
+          "change_asset",
+          "exhibitors",
+          "asset"
+        ],
+        [
+          "delete_asset",
+          "exhibitors",
+          "asset"
+        ],
+        [
+          "view_asset",
+          "exhibitors",
+          "asset"
+        ],
+        [
+          "add_exhibitor",
+          "exhibitors",
+          "exhibitor"
+        ],
+        [
+          "change_exhibitor",
+          "exhibitors",
+          "exhibitor"
+        ],
+        [
+          "delete_exhibitor",
+          "exhibitors",
+          "exhibitor"
+        ],
+        [
+          "view_exhibitor",
+          "exhibitors",
+          "exhibitor"
+        ],
+        [
+          "add_exhibitorasset",
+          "exhibitors",
+          "exhibitorasset"
+        ],
+        [
+          "change_exhibitorasset",
+          "exhibitors",
+          "exhibitorasset"
+        ],
+        [
+          "delete_exhibitorasset",
+          "exhibitors",
+          "exhibitorasset"
+        ],
+        [
+          "view_exhibitorasset",
+          "exhibitors",
+          "exhibitorasset"
+        ],
+        [
+          "add_exhibitorattendance",
+          "exhibitors",
+          "exhibitorattendance"
+        ],
+        [
+          "change_exhibitorattendance",
+          "exhibitors",
+          "exhibitorattendance"
+        ],
+        [
+          "delete_exhibitorattendance",
+          "exhibitors",
+          "exhibitorattendance"
+        ],
+        [
+          "view_exhibitorattendance",
+          "exhibitors",
+          "exhibitorattendance"
+        ]
+      ]
+    }
+  }
 ]

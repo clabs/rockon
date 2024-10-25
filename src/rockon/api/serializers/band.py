@@ -1,8 +1,15 @@
 from __future__ import annotations
 
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from rockon.bands.models import Band, BandMedia, BandVote, Track
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "first_name", "last_name"]
 
 
 class BandMediaSerializer(serializers.ModelSerializer):
@@ -64,6 +71,7 @@ class BandDetailSerializer(serializers.ModelSerializer):
     links = BandMediaSerializer(source="get_links", read_only=True, many=True)
     documents = BandMediaSerializer(source="get_documents", read_only=True, many=True)
     web_links = BandMediaSerializer(source="get_web_links", read_only=True, many=True)
+    contact = UserSerializer(read_only=True)
 
     class Meta:
         model = Band

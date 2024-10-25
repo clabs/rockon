@@ -2,8 +2,13 @@ from __future__ import annotations
 
 import json
 
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.models import Group
+from django.core.mail import send_mail
 from django.http import JsonResponse
+from django.template import loader
+from django_q.tasks import async_task
 
 from rockon.base.models import Event, Organisation
 from rockon.exhibitors.models import (
@@ -93,6 +98,28 @@ def exhibitor_signup(request, slug):
             )
 
             asset_exhibitor.save()
+
+        template = loader.get_template("mail/exhibitor_signup.html")
+        extra_context = {
+            "event_name": event.name,
+            "organisation": organisation.org_name,
+        }
+
+        message = f"Hallo Admin-Team,\nes gibt eine neue Anmeldung eines Aussteller bei \
+                    {{event.name}}. Bitte überprüft die Angaben und schaut ob alles stimmt."
+
+        async_task(
+            send_mail,
+            subject=f"{settings.EMAIL_SUBJECT_PREFIX} Neue Ausstelleranmeldung",
+            message=message,
+            from_email=settings.EMAIL_DEFAULT_FROM,
+            recipient_list=[
+                user.email
+                for user in Group.objects.get(name="exhibitor_admins").user_set.all()
+            ],
+            html_message=template.render(extra_context),
+            fail_silently=False,
+        )
 
     if created_user:
         return JsonResponse({"status": "created", "message": "User created"})

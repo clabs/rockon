@@ -15,16 +15,14 @@ def join(request, slug):
         url += f"?ctx=exhibitors"
         return redirect(url)
     event = Event.objects.get(slug=slug).sub_events.first()
-    if Exhibitor.objects.filter(
-        organisation__members__in=[request.user], event=event
-    ).exists():
-        return redirect("exhibitors:join_submitted")
     template = loader.get_template("exhibitor_join.html")
     event = Event.objects.get(slug=slug)
     try:
         org = Organisation.objects.get(members__in=[request.user])
     except Organisation.DoesNotExist:
         org = None
+    if org and Exhibitor.objects.filter(organisation=org, event=event).exists():
+        return redirect("exhibitors:join_submitted", slug=slug)
     if not request.user.profile.is_profile_complete_exhibitor():
         template = loader.get_template("exhibitor_join_profile_incomplete.html")
         extra_context = {
@@ -63,7 +61,7 @@ def signup(request, slug):
     return HttpResponse(template.render(extra_context, request))
 
 
-def signup_submitted(request):
+def signup_submitted(request, slug):
     template = loader.get_template("exhibitor_signup_submitted.html")
     extra_context = {
         "site_title": "Anmeldung abgeschlossen",

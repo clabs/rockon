@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from django.contrib.auth.models import User
-from django.db.models import Q
+from slugify import slugify
 
 from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
@@ -70,22 +70,24 @@ class Band(CustomModel):
 
     def save(self, *args, **kwargs):
         self.bid_complete = self.check_bid_complete()
+        if self.name:
+            self.slug = f"{slugify(self.name)}-{self.guid}"
         super().save(*args, **kwargs)
 
     def check_bid_complete(self) -> bool:
         fields = [
             self.name,
             self.genre,
-            any([self.homepage, self.facebook]),
             self.federal_state,
             self.cover_letter,
         ]
 
         audio_count = self.media.filter(media_type="audio").count() >= 3
+        social_media = self.media.filter(media_type="link").count() >= 1
         logo = self.media.filter(media_type="logo").count() >= 1
         press = self.media.filter(media_type="press_photo").count() >= 1
 
-        conditions = [*fields, audio_count, logo, press]
+        conditions = [*fields, social_media, audio_count, logo, press]
 
         if all(conditions):
             return True

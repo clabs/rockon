@@ -175,6 +175,7 @@ const TrackList = Vue.defineComponent({
         <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" style="cursor: pointer;" @click="handleClick(track)">{{ track.name }}</span>
         <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack" style="cursor: pointer;">Ohne Track</span>
         <span class="badge text-bg-primary m-2" :key="no-vote" @click="handleShowBandsWithoutVote" style="cursor: pointer;">Unbewertete Bands</span>
+        <span class="badge text-bg-primary m-2" @click="handleShowStudentBands" style="cursor: pointer;">Schülerbands</span>
         <span class="badge text-bg-primary m-2" @click="handleDeselectTrack" style="cursor: pointer;">Alle Bands</span>
         <div class="form-check form-switch m-2">
           <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
@@ -206,6 +207,11 @@ const TrackList = Vue.defineComponent({
       console.debug('TrackList handleShowBandsWithoutTrack')
       this.selectedTrack = 'no-track'
       this.$emit('select-track', 'no-track')
+    },
+    handleShowStudentBands () {
+      console.debug('TrackList handleShowStudentBands')
+      this.selectedTrack = 'student-bands'
+      this.$emit('select-track', 'student-bands')
     },
     handleShowBandsWithoutVote () {
       console.debug('TrackList handleShowBandsWithoutTrack')
@@ -341,6 +347,10 @@ const BandList = Vue.defineComponent({
         console.debug('Filtering for bands without a track.')
         return _bands.filter(band => !band.track)
       }
+      if (this.selectedTrack === 'student-bands') {
+        console.debug('Filtering for student bands.')
+        return _bands.filter(band => band.are_students)
+      }
       if (this.selectedTrack === 'no-vote') {
         console.debug('Filtering for bands without a track.')
         _bands = _bands.filter(band => band.bid_status !== 'declined')
@@ -464,7 +474,7 @@ const BandRating = Vue.defineComponent({
       console.debug('BandRating fetchRating:', url, this.selectedBandDetails.id)
       try {
         const response = await fetch(url)
-        if (response.status === 404) {
+        if (response.status === 204) {
           console.debug('No rating found for band', this.selectedBandDetails.id)
           return
         }
@@ -596,6 +606,17 @@ const BandDetails = Vue.defineComponent({
               <TrackDropdown :tracks="tracks" :selectedBandDetails="selectedBandDetails" :currentTrackId="currentTrackId" @update:selectedTrack="updateTrack" />
           </div>
       </div>
+      <div v-if="allowChanges" class="row">
+          <h4>Booking</h4>
+          <div class="col">
+          <p>Name: {{ selectedBandDetails.contact.first_name || "Kein Vorname" }} {{ selectedBandDetails.contact.last_name || "Kein Nachname" }}</p>
+          <p>E-Mail: <a :href="'mailto:' + selectedBandDetails.contact.email">{{ selectedBandDetails.contact.email }}</a></p>
+          </div>
+          <div class="col">
+          </div>
+          <div class="col">
+          </div>
+      </div>
       <div v-if="allowChanges" class="row text-muted">
           <h5>Techniches Zeug</h5>
           <div class="col">
@@ -607,7 +628,7 @@ const BandDetails = Vue.defineComponent({
           <p>Event ID: {{ selectedBandDetails.event }}</p>
           </div>
           <div class="col">
-          <p>Kontakt ID: {{ selectedBandDetails.contact }}</p>
+          <p>Kontakt ID: {{ selectedBandDetails.contact.id }}</p>
           <p>Track ID: {{ trackId }}</p>
           </div>
       </div>
@@ -636,12 +657,6 @@ const BandDetails = Vue.defineComponent({
 })
 
 const app = createApp({
-  // setup() {
-  //   const message = ref('Hello vue!')
-  //   return {
-  //     message
-  //   }
-  // },
   data () {
     return {
       bandListLoaded: false,
@@ -699,11 +714,11 @@ const app = createApp({
       const url = new URL(window.location.href)
       if (track === 'no-vote') {
         url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-vote/`
-      }
-      else if (track === 'no-track') {
+      } else if (track === 'no-track') {
         url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-track/`
-      }
-      else if (track) {
+      } else if (track === 'student-bands') {
+        url.pathname = `/event/${this.eventSlug}/bands/vote/track/student-bands/`
+      } else if (track) {
         url.pathname = `/event/${this.eventSlug}/bands/vote/track/${track.slug}/`
       } else {
         url.pathname = `/event/${this.eventSlug}/bands/vote/`
@@ -771,6 +786,8 @@ const app = createApp({
             track = this.selectedTrack = 'no-vote'
           } else if (id === 'no-track') {
             track = this.selectedTrack = 'no-track'
+          } else if (id === 'student-bands') {
+            track = this.selectedTrack = 'student-bands'
           } else {
             track = this.tracks.find(track => track.slug === id)
           }
