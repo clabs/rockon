@@ -19,7 +19,7 @@ class EmailVerification(CustomModel):
         User, on_delete=models.CASCADE, related_name="email_verification"
     )
     token = models.UUIDField(default=uuid4, editable=False)
-    new_email = models.EmailField(max_length=1024, null=True, default=None)
+    new_email = models.EmailField(max_length=1024, null=True, default=None, blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
