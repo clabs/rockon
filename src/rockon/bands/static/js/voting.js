@@ -596,6 +596,17 @@ const BandDetails = Vue.defineComponent({
               <TrackDropdown :tracks="tracks" :selectedBandDetails="selectedBandDetails" :currentTrackId="currentTrackId" @update:selectedTrack="updateTrack" />
           </div>
       </div>
+      <div v-if="allowChanges" class="row">
+          <h4>Booking</h4>
+          <div class="col">
+          <p>Name: {{ selectedBandDetails.contact.first_name || "Kein Vorname" }} {{ selectedBandDetails.contact.last_name || "Kein Nachname" }}</p>
+          <p>E-Mail: <a :href="'mailto:' + selectedBandDetails.contact.email">{{ selectedBandDetails.contact.email }}</a></p>
+          </div>
+          <div class="col">
+          </div>
+          <div class="col">
+          </div>
+      </div>
       <div v-if="allowChanges" class="row text-muted">
           <h5>Techniches Zeug</h5>
           <div class="col">
@@ -607,7 +618,7 @@ const BandDetails = Vue.defineComponent({
           <p>Event ID: {{ selectedBandDetails.event }}</p>
           </div>
           <div class="col">
-          <p>Kontakt ID: {{ selectedBandDetails.contact }}</p>
+          <p>Kontakt ID: {{ selectedBandDetails.contact.id }}</p>
           <p>Track ID: {{ trackId }}</p>
           </div>
       </div>
