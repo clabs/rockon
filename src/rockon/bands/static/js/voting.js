@@ -464,7 +464,7 @@ const BandRating = Vue.defineComponent({
       console.debug('BandRating fetchRating:', url, this.selectedBandDetails.id)
       try {
         const response = await fetch(url)
-        if (response.status === 404) {
+        if (response.status === 204) {
           console.debug('No rating found for band', this.selectedBandDetails.id)
           return
         }
