@@ -726,8 +726,35 @@ const app = createApp({
   },
   created () {
     this.getBandList(this.bandListUrl, window.rockon_data.event_slug)
+    window.addEventListener('popstate', this.handlePopState)
   },
   methods: {
+    handlePopState (event) {
+      const url = new URL(window.location.href)
+      const hashSegments = url.hash.split('/').filter(segment => segment)
+
+      if (hashSegments.includes('track')) {
+        const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
+        const track =
+          this.tracks.find(track => track.slug === trackSlug) || null
+        this.selectedTrack = track
+        this.selectedBand = null
+        this.selectedBandDetails = null
+      } else if (hashSegments.includes('bid')) {
+        const bandGuid = hashSegments[hashSegments.indexOf('bid') + 1]
+        const band = this.bands.find(band => band.guid === bandGuid) || null
+        this.selectedBand = band
+        this.selectedTrack = null
+        this.selectedBandDetails = null
+        if (band) {
+          this.getBandDetails(band.id)
+        }
+      } else {
+        this.selectedTrack = null
+        this.selectedBand = null
+        this.selectedBandDetails = null
+      }
+    },
     selectTrack (track) {
       this.selectedTrack = track
       console.debug('Selected track:', this.selectedTrack)
@@ -736,25 +763,25 @@ const app = createApp({
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       if (track === 'no-vote') {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-vote/`
+        url.hash = '#/track/no-vote/'
       } else if (track === 'no-track') {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-track/`
+        url.hash = '#/track/no-track/'
       } else if (track === 'student-bands') {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/track/student-bands/`
+        url.hash = '#/track/student-bands/'
       } else if (track) {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/track/${track.slug}/`
+        url.hash = `#/track/${track.slug}/`
       } else {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/`
+        url.hash = ''
       }
-      window.history.replaceState({}, '', url)
+      window.history.pushState({}, '', url)
     },
     selectBand (band) {
       console.debug('app selectBand:', band)
       this.selectedBand = band
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
-      url.pathname = `/event/${this.eventSlug}/bands/vote/bid/${band.guid}/`
-      window.history.replaceState({}, '', url)
+      url.hash = `#/bid/${band.guid}/`
+      window.history.pushState({}, '', url)
       this.bandDetailLoaded = false
       this.getBandDetails(band.id)
     },
@@ -789,45 +816,6 @@ const app = createApp({
       this.selectedBand.track = trackId
       this.selectedBandDetails.track = trackId
       this.selectedTrack = track
-    },
-    updateComponent () {
-      console.debug('Mounted function called')
-      const url = new URL(window.location.href)
-      const pathSegments = url.pathname.split('/').filter(segment => segment)
-
-      if (pathSegments.includes('vote')) {
-        const voteType = pathSegments[pathSegments.indexOf('vote') + 1]
-        const id = pathSegments[pathSegments.indexOf('vote') + 2]
-
-        console.debug('Vote type:', voteType)
-        console.debug('ID:', id)
-
-        let track
-
-        if (voteType === 'track') {
-          if (id === 'no-vote') {
-            track = this.selectedTrack = 'no-vote'
-          } else if (id === 'no-track') {
-            track = this.selectedTrack = 'no-track'
-          } else if (id === 'student-bands') {
-            track = this.selectedTrack = 'student-bands'
-          } else {
-            track = this.tracks.find(track => track.slug === id)
-          }
-          this.selectedTrack = track
-          this.$emit('update:selectedTrack', track)
-          console.debug('Selected track:', this.selectedTrack)
-        }
-
-        if (voteType === 'bid') {
-          const band = this.bands.find(band => band.guid === id)
-          if (band) {
-            this.selectedBand = band
-            this.$emit('update:selectedBand', band)
-            console.debug('Selected band:', this.selectedBand)
-          }
-        }
-      }
     },
     handleSongSelect (song) {
       console.debug('app handleSongSelect:', song)
@@ -940,7 +928,7 @@ const app = createApp({
           } else {
             this.bandListLoaded = true
             console.debug('app getBandList:', this.bands)
-            this.updateComponent()
+            this.handlePopState()
           }
         })
         .catch(error => console.error('Error:', error))
@@ -965,14 +953,14 @@ const app = createApp({
   },
   mounted () {
     console.debug('Mounted function called')
-    window.addEventListener('popstate', this.updateComponent)
+    window.addEventListener('popstate', this.handlePopState)
     const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
     const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(
       toastAudioPlayerElement
     )
     bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
     this.toastAudioPlayer = toastAudioPlayer
-    this.updateComponent()
+    this.handlePopState()
     const filterNoName = JSON.parse(
       sessionStorage.getItem('filterShowBandsNoName')
     )
@@ -988,8 +976,8 @@ const app = createApp({
       ? filterIncompleteBids
       : false
   },
-  beforeUnmount () {
-    window.removeEventListener('popstate', this.updateComponent)
+  beforeDestroy () {
+    window.removeEventListener('popstate', this.handlePopState)
   },
   watch: {
     selectedBand: {
