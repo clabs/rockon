@@ -278,21 +278,21 @@ const BandTags = Vue.defineComponent({
     console.debug('BandTags init:', this.selectedBandDetails)
   },
   template: `
-    <div>
-      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
-      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
-      <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1" style="cursor: pointer;">Management</span>
-      <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
-      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
-      <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
-      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1" style="cursor: pointer;">Unter 27</span>
-      <span v-if="!selectedBandDetails.mean_age_under_27" class="badge text-bg-primary m-1" style="cursor: pointer;">Über 27</span>
-      <span v-if="selectedBandDetails.is_coverband" class="badge text-bg-warning m-1" style="cursor: pointer;">Coverband</span>
-      <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
-      <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
-      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
-      <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
-      <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung abgelehnt</span>
+    <div style="user-select: none;">
+      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1">Bewerbung unvollständig!</span>
+      <span class="badge text-bg-primary m-1">{{ federalStatesTag }}</span>
+      <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1">Management</span>
+      <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1">Kein Management</span>
+      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1">Schülerband</span>
+      <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1">Keine Schülerband</span>
+      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1">Unter 27</span>
+      <span v-if="!selectedBandDetails.mean_age_under_27" class="badge text-bg-primary m-1">Über 27</span>
+      <span v-if="selectedBandDetails.is_coverband" class="badge text-bg-warning m-1">Coverband</span>
+      <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1">Wiederholer</span>
+      <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1">Neu</span>
+      <span class="badge text-bg-primary m-1">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
+      <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1">Kein Coverletter</span>
+      <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1">Bewerbung abgelehnt</span>
     </div>
   `
 })
