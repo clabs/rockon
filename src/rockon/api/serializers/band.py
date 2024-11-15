@@ -18,6 +18,17 @@ class BandMediaSerializer(serializers.ModelSerializer):
         # fields not listed here can not be changed via the API
         fields = "__all__"
 
+    # only booking team can see contact
+    def get_contact(self, obj):
+        request = self.context.get("request")
+        if (
+            request
+            and request.user
+            and request.user.groups.filter(name="booking").exists()
+        ):
+            return UserSerializer(obj.contact).data
+        return None
+
 
 class BandListMediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -78,14 +89,6 @@ class BandDetailSerializer(serializers.ModelSerializer):
         # fields not listed here can not be changed via the API
         # FIXME: needs auth + permissions
         fields = "__all__"
-
-    # def update(self, instance, validated_data):
-    #     # print(self, instance, validated_data)
-    #     track_data = validated_data.pop("track")
-    #     print(track_data)
-    #     instance.track = track_data
-    #     instance.save()
-    #     return instance
 
 
 class BandVoteSerializer(serializers.ModelSerializer):

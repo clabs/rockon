@@ -3,7 +3,7 @@
 <script src="{% static 'js/exhibitor-join.js' %}"></script>
 {% endcompress %}
 
-<script>
+<script nonce="{{request.csp_nonce}}">
   window.rockon = {
     joinSubmitted: "{% url "exhibitors:join_submitted" slug=event.slug %}",
     signup: "{% url "api_exhibitor_signup" slug=slug %}",

@@ -32,6 +32,8 @@ redis = {extras = ["hiredis"], version = "*"}
 sentry-sdk = "*"
 tzdata = "*"
 python-slugify = {extras = ["unidecode"], version = "*"}
+djlint = "*"
+django-csp = "*"
 
 [tool.poetry.group.dev.dependencies]
 django-debug-toolbar = "*"

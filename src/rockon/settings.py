@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import tempfile
 from os import getenv, path
+from urllib.parse import urlparse
 
 import sentry_sdk
 from environs import Env
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_q",
+    "csp",
     "corsheaders",
     "rest_framework",
     "rockon.base",
@@ -74,6 +76,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "csp.middleware.CSPMiddleware",
     "rockon.library.session_current_event.SessionCurrentEventMiddleware",
 ]
 
@@ -98,6 +101,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "csp.context_processors.nonce",
                 "rockon.library.context_processors.app_info.get_build_date",
                 "rockon.library.context_processors.app_info.get_build_hash",
                 "rockon.library.context_processors.sentry_frontend.get_sentry_data",
@@ -339,3 +343,23 @@ if SENTRY_ENABLED and SENTRY_DSN:
 
 FFMPEG_BIN = env.str("FFMPEG_BIN", default="ffmpeg")
 CONVERT_BIN = env.str("CONVERT_BIN", default="convert")
+
+# Content Security Policy
+CSP_DEFAULT_SRC = ["'self'"]
+CSP_SCRIPT_SRC = ["'self'", "'unsafe-eval'"]
+CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]
+CSP_IMG_SRC = ["'self'", "data:"]
+CSP_CONNECT_SRC = ["'self'"]
+CSP_FONT_SRC = ["'self'"]
+CSP_OBJECT_SRC = ["'none'"]
+CSP_FRAME_SRC = ["'none'"]
+CSP_MEDIA_SRC = ["'self'"]
+CSP_FRAME_ANCESTORS = ["'none'"]
+CSP_FORM_ACTION = ["'self'"]
+CSP_BASE_URI = ["'self'"]
+CSP_INCLUDE_NONCE_IN = ["script-src"]
+
+if SENTRY_DSN:
+    sentry_target = urlparse(SENTRY_DSN)
+    CSP_SCRIPT_SRC.append(sentry_target.hostname)
+    CSP_CONNECT_SRC.append(sentry_target.hostname)

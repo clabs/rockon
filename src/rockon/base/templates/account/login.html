@@ -4,7 +4,7 @@
 <script src="{% static 'js/login.js' %}"></script>
 {% endcompress %}
 
-<script language="javascript">
+<script language="javascript" nonce="{{request.csp_nonce}}">
   window.rockon_data = {
     api_crm_account_create: "{% url "api_crm_account_create" %}",
     api_crm_request_magic_link: "{% url "api_crm_request_magic_link" %}",

@@ -21,7 +21,7 @@
 {% endcompress %}
 
 {% compress js file datatables-init %}
-<script>
+<script nonce="{{request.csp_nonce}}">
   $(document).ready(function () {
     const tooltipTriggerList = document.querySelectorAll(
       '[data-bs-toggle="tooltip"]'
@@ -97,6 +97,6 @@
     </tbody>
   </table>
   </div>
-<section>
+</section>
 
 {% endblock %}

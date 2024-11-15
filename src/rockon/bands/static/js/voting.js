@@ -85,7 +85,7 @@ const BandImages = Vue.defineComponent({
         return window.rockon_data.media_offline
       }
       return file
-    },
+    }
   },
   template: `
     <div class="row gallery">
@@ -105,7 +105,7 @@ const BandImages = Vue.defineComponent({
   `,
   mounted () {
     const options = {
-      overlayOpacity: 0.4,
+      overlayOpacity: 0.4
     }
     const lightbox = new SimpleLightbox('.gallery a', options)
     console.debug('BandImages mounted lightbox:', lightbox)
@@ -167,12 +167,25 @@ const TrackDropdown = Vue.defineComponent({
 })
 
 const TrackList = Vue.defineComponent({
-  props: ['tracks', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'showDeclinedBids'],
-  emits: ['select-track', 'filter-no-name', 'filter-incomplete-bids', 'filter-declined-bids'],
+  props: [
+    'tracks',
+    'selectedTrack',
+    'showBandNoName',
+    'showIncompleteBids',
+    'showDeclinedBids'
+  ],
+  emits: [
+    'select-track',
+    'filter-no-name',
+    'filter-incomplete-bids',
+    'filter-declined-bids'
+  ],
   template: `
       <section class="row p-4 form-section">
       <div>
+      <div><h5>Tracks</h5></div>
         <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" style="cursor: pointer;" @click="handleClick(track)">{{ track.name }}</span>
+        <div><h5>Filter</h5></div>
         <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack" style="cursor: pointer;">Ohne Track</span>
         <span class="badge text-bg-primary m-2" :key="no-vote" @click="handleShowBandsWithoutVote" style="cursor: pointer;">Unbewertete Bands</span>
         <span class="badge text-bg-primary m-2" @click="handleShowStudentBands" style="cursor: pointer;">Schülerbands</span>
@@ -265,21 +278,21 @@ const BandTags = Vue.defineComponent({
     console.debug('BandTags init:', this.selectedBandDetails)
   },
   template: `
-    <div>
-      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
-      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
-      <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1" style="cursor: pointer;">Management</span>
-      <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1" style="cursor: pointer;">Kein Management</span>
-      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
-      <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1" style="cursor: pointer;">Keine Schülerband</span>
-      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1" style="cursor: pointer;">Unter 27</span>
-      <span v-if="!selectedBandDetails.mean_age_under_27" class="badge text-bg-primary m-1" style="cursor: pointer;">Über 27</span>
-      <span v-if="selectedBandDetails.is_coverband" class="badge text-bg-warning m-1" style="cursor: pointer;">Coverband</span>
-      <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1" style="cursor: pointer;">Wiederholer</span>
-      <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1" style="cursor: pointer;">Neu</span>
-      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
-      <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1" style="cursor: pointer;">Kein Coverletter</span>
-      <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung abgelehnt</span>
+    <div style="user-select: none;">
+      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1">Bewerbung unvollständig!</span>
+      <span class="badge text-bg-primary m-1">{{ federalStatesTag }}</span>
+      <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1">Management</span>
+      <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1">Kein Management</span>
+      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1">Schülerband</span>
+      <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1">Keine Schülerband</span>
+      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1">Unter 27</span>
+      <span v-if="!selectedBandDetails.mean_age_under_27" class="badge text-bg-primary m-1">Über 27</span>
+      <span v-if="selectedBandDetails.is_coverband" class="badge text-bg-warning m-1">Coverband</span>
+      <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1">Wiederholer</span>
+      <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1">Neu</span>
+      <span class="badge text-bg-primary m-1">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
+      <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1">Kein Coverletter</span>
+      <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1">Bewerbung abgelehnt</span>
     </div>
   `
 })
@@ -324,8 +337,16 @@ const BandListTags = Vue.defineComponent({
 })
 
 const BandList = Vue.defineComponent({
-  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'showDeclinedBids', 'federalStates', 'userVotes'],
-  components: {BandListTags},
+  props: [
+    'bands',
+    'selectedTrack',
+    'showBandNoName',
+    'showIncompleteBids',
+    'showDeclinedBids',
+    'federalStates',
+    'userVotes'
+  ],
+  components: { BandListTags },
   emits: ['select-band'],
   computed: {
     filteredBands () {
@@ -354,7 +375,9 @@ const BandList = Vue.defineComponent({
       if (this.selectedTrack === 'no-vote') {
         console.debug('Filtering for bands without a track.')
         _bands = _bands.filter(band => band.bid_status !== 'declined')
-        return _bands.filter(a1 => !this.userVotes.some(a2 => a2.band__id === a1.id))
+        return _bands.filter(
+          a1 => !this.userVotes.some(a2 => a2.band__id === a1.id)
+        )
       }
       if (!this.selectedTrack) {
         console.debug('No selected track id. Returning all.')
@@ -491,11 +514,6 @@ const BandRating = Vue.defineComponent({
   mounted () {
     this.fetchRating()
   }
-  // watch: {
-  //   hoverIndex (newVal) {
-  //     console.debug('BandRating hoverIndex changed:', newVal)
-  //   }
-  // }
 })
 
 const BandDetails = Vue.defineComponent({
@@ -661,7 +679,7 @@ const app = createApp({
     return {
       bandListLoaded: false,
       bandsToFetch: null,
-      eventSlug : window.rockon_data.event_slug,
+      eventSlug: window.rockon_data.event_slug,
       allowChanges: window.rockon_api.allow_changes,
       crsf_token: $('[name=csrfmiddlewaretoken]').val(),
       bandListUrl: window.rockon_api.list_bands,
@@ -703,8 +721,35 @@ const app = createApp({
   },
   created () {
     this.getBandList(this.bandListUrl, window.rockon_data.event_slug)
+    window.addEventListener('popstate', this.handlePopState)
   },
   methods: {
+    handlePopState (event) {
+      const url = new URL(window.location.href)
+      const hashSegments = url.hash.split('/').filter(segment => segment)
+
+      if (hashSegments.includes('track')) {
+        const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
+        const track =
+          this.tracks.find(track => track.slug === trackSlug) || null
+        this.selectedTrack = track
+        this.selectedBand = null
+        this.selectedBandDetails = null
+      } else if (hashSegments.includes('bid')) {
+        const bandGuid = hashSegments[hashSegments.indexOf('bid') + 1]
+        const band = this.bands.find(band => band.guid === bandGuid) || null
+        this.selectedBand = band
+        this.selectedTrack = null
+        this.selectedBandDetails = null
+        if (band) {
+          this.getBandDetails(band.id)
+        }
+      } else {
+        this.selectedTrack = null
+        this.selectedBand = null
+        this.selectedBandDetails = null
+      }
+    },
     selectTrack (track) {
       this.selectedTrack = track
       console.debug('Selected track:', this.selectedTrack)
@@ -713,25 +758,25 @@ const app = createApp({
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
       if (track === 'no-vote') {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-vote/`
+        url.hash = '#/track/no-vote/'
       } else if (track === 'no-track') {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/track/no-track/`
+        url.hash = '#/track/no-track/'
       } else if (track === 'student-bands') {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/track/student-bands/`
+        url.hash = '#/track/student-bands/'
       } else if (track) {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/track/${track.slug}/`
+        url.hash = `#/track/${track.slug}/`
       } else {
-        url.pathname = `/event/${this.eventSlug}/bands/vote/`
+        url.hash = ''
       }
-      window.history.replaceState({}, '', url)
+      window.history.pushState({}, '', url)
     },
     selectBand (band) {
       console.debug('app selectBand:', band)
       this.selectedBand = band
       console.debug('Selected band:', this.selectedBand)
       const url = new URL(window.location.href)
-      url.pathname = `/event/${this.eventSlug}/bands/vote/bid/${band.guid}/`
-      window.history.replaceState({}, '', url)
+      url.hash = `#/bid/${band.guid}/`
+      window.history.pushState({}, '', url)
       this.bandDetailLoaded = false
       this.getBandDetails(band.id)
     },
@@ -767,45 +812,6 @@ const app = createApp({
       this.selectedBandDetails.track = trackId
       this.selectedTrack = track
     },
-    updateComponent () {
-      console.debug('Mounted function called')
-      const url = new URL(window.location.href)
-      const pathSegments = url.pathname.split('/').filter(segment => segment)
-
-      if (pathSegments.includes('vote')) {
-        const voteType = pathSegments[pathSegments.indexOf('vote') + 1]
-        const id = pathSegments[pathSegments.indexOf('vote') + 2]
-
-        console.debug('Vote type:', voteType)
-        console.debug('ID:', id)
-
-        let track
-
-        if (voteType === 'track') {
-          if (id === 'no-vote') {
-            track = this.selectedTrack = 'no-vote'
-          } else if (id === 'no-track') {
-            track = this.selectedTrack = 'no-track'
-          } else if (id === 'student-bands') {
-            track = this.selectedTrack = 'student-bands'
-          } else {
-            track = this.tracks.find(track => track.slug === id)
-          }
-          this.selectedTrack = track
-          this.$emit('update:selectedTrack', track)
-          console.debug('Selected track:', this.selectedTrack)
-        }
-
-        if (voteType === 'bid') {
-          const band = this.bands.find(band => band.guid === id)
-          if (band) {
-            this.selectedBand = band
-            this.$emit('update:selectedBand', band)
-            console.debug('Selected band:', this.selectedBand)
-          }
-        }
-      }
-    },
     handleSongSelect (song) {
       console.debug('app handleSongSelect:', song)
       if (this.playSong === song) {
@@ -839,8 +845,8 @@ const app = createApp({
         autoplay: true
       })
     },
-    toggleIcon() {
-      this.toastIsMaximized = !this.toastIsMaximized;
+    toggleIcon () {
+      this.toastIsMaximized = !this.toastIsMaximized
     },
     handleCloseClick () {
       console.debug('app handleCloseClick')
@@ -894,9 +900,11 @@ const app = createApp({
           alert('Fehler beim Speichern der Bewertung, bitte schrei um Hilfe!')
         })
       if (rating === -1) {
-        this.userVotes = this.userVotes.filter(vote => vote !== this.selectedBand.id)
+        this.userVotes = this.userVotes.filter(
+          vote => vote !== this.selectedBand.id
+        )
       } else {
-        this.userVotes.push({"band__id": this.selectedBand.id, "vote": rating})
+        this.userVotes.push({ band__id: this.selectedBand.id, vote: rating })
       }
     },
     getBandList (url, _event = null) {
@@ -913,10 +921,9 @@ const app = createApp({
           if (data.next) {
             this.getBandList(data.next)
           } else {
-
             this.bandListLoaded = true
             console.debug('app getBandList:', this.bands)
-            this.updateComponent()
+            this.handlePopState()
           }
         })
         .catch(error => console.error('Error:', error))
@@ -941,14 +948,14 @@ const app = createApp({
   },
   mounted () {
     console.debug('Mounted function called')
-    window.addEventListener('popstate', this.updateComponent)
+    window.addEventListener('popstate', this.handlePopState)
     const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
     const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(
       toastAudioPlayerElement
     )
     bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
     this.toastAudioPlayer = toastAudioPlayer
-    this.updateComponent()
+    this.handlePopState()
     const filterNoName = JSON.parse(
       sessionStorage.getItem('filterShowBandsNoName')
     )
@@ -964,8 +971,8 @@ const app = createApp({
       ? filterIncompleteBids
       : false
   },
-  beforeUnmount () {
-    window.removeEventListener('popstate', this.updateComponent)
+  beforeDestroy () {
+    window.removeEventListener('popstate', this.handlePopState)
   },
   watch: {
     selectedBand: {
