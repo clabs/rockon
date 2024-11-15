@@ -23,7 +23,7 @@
 <meta name="theme-color" content="#303030">
 {% if SENTRY_FRONTEND_ENABLED %}
 <script src="{% static "vendor/sentry.8.19.0.bundle.tracing.min.js" %}"></script>
-<script language="javascript">
+<script language="javascript" nonce="{{request.csp_nonce}}">
 Sentry.init({
   dsn: '{{ SENTRY_DSN }}',
   tracesSampleRate: {{SENTRY_TRACES_SAMPLE_RATE|floatformat:2}},
@@ -32,7 +32,7 @@ Sentry.init({
 });
 </script>
 {% endif %}
-<script language="javascript">
+<script language="javascript" nonce="{{request.csp_nonce}}">
   $(document).ready(() => {
     const DateTime = luxon.DateTime
     $('.date-format-huge').each((_, el) => {

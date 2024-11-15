@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<script language="javascript">
+<script language="javascript" nonce="{{request.csp_nonce}}">
   $(document).ready(() => {
     $('#form_submit').on('click', (event) => {
       event.preventDefault()

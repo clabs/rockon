@@ -61,7 +61,7 @@
 
 </div>
 
-<script>
+<script nonce="{{request.csp_nonce}}">
   const plugin = {
     id: 'customCanvasBackgroundColor',
     beforeDraw: (chart, args, options) => {
