@@ -514,11 +514,6 @@ const BandRating = Vue.defineComponent({
   mounted () {
     this.fetchRating()
   }
-  // watch: {
-  //   hoverIndex (newVal) {
-  //     console.debug('BandRating hoverIndex changed:', newVal)
-  //   }
-  // }
 })
 
 const BandDetails = Vue.defineComponent({
