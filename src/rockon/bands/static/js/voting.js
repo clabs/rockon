@@ -183,7 +183,9 @@ const TrackList = Vue.defineComponent({
   template: `
       <section class="row p-4 form-section">
       <div>
+      <div><h5>Tracks</h5></div>
         <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" style="cursor: pointer;" @click="handleClick(track)">{{ track.name }}</span>
+        <div><h5>Filter</h5></div>
         <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack" style="cursor: pointer;">Ohne Track</span>
         <span class="badge text-bg-primary m-2" :key="no-vote" @click="handleShowBandsWithoutVote" style="cursor: pointer;">Unbewertete Bands</span>
         <span class="badge text-bg-primary m-2" @click="handleShowStudentBands" style="cursor: pointer;">Schülerbands</span>
