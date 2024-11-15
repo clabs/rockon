@@ -90,14 +90,6 @@ class BandDetailSerializer(serializers.ModelSerializer):
         # FIXME: needs auth + permissions
         fields = "__all__"
 
-    # def update(self, instance, validated_data):
-    #     # print(self, instance, validated_data)
-    #     track_data = validated_data.pop("track")
-    #     print(track_data)
-    #     instance.track = track_data
-    #     instance.save()
-    #     return instance
-
 
 class BandVoteSerializer(serializers.ModelSerializer):
     class Meta:
