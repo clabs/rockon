@@ -19,8 +19,8 @@ app_name = "bands"
 
 urlpatterns = [
     path("vote/", bid_vote, name="bid_vote"),
-    re_path(
-        r"^vote/bid/(?P<bid>[a-zA-Z0-9_-]+)/$",
+    path(
+        "vote/bid/",
         bid_vote,
         name="bid_vote_with_trackid",
     ),
