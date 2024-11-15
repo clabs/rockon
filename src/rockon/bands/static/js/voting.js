@@ -85,7 +85,7 @@ const BandImages = Vue.defineComponent({
         return window.rockon_data.media_offline
       }
       return file
-    },
+    }
   },
   template: `
     <div class="row gallery">
@@ -105,7 +105,7 @@ const BandImages = Vue.defineComponent({
   `,
   mounted () {
     const options = {
-      overlayOpacity: 0.4,
+      overlayOpacity: 0.4
     }
     const lightbox = new SimpleLightbox('.gallery a', options)
     console.debug('BandImages mounted lightbox:', lightbox)
@@ -167,8 +167,19 @@ const TrackDropdown = Vue.defineComponent({
 })
 
 const TrackList = Vue.defineComponent({
-  props: ['tracks', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'showDeclinedBids'],
-  emits: ['select-track', 'filter-no-name', 'filter-incomplete-bids', 'filter-declined-bids'],
+  props: [
+    'tracks',
+    'selectedTrack',
+    'showBandNoName',
+    'showIncompleteBids',
+    'showDeclinedBids'
+  ],
+  emits: [
+    'select-track',
+    'filter-no-name',
+    'filter-incomplete-bids',
+    'filter-declined-bids'
+  ],
   template: `
       <section class="row p-4 form-section">
       <div>
@@ -324,8 +335,16 @@ const BandListTags = Vue.defineComponent({
 })
 
 const BandList = Vue.defineComponent({
-  props: ['bands', 'selectedTrack', 'showBandNoName', 'showIncompleteBids', 'showDeclinedBids', 'federalStates', 'userVotes'],
-  components: {BandListTags},
+  props: [
+    'bands',
+    'selectedTrack',
+    'showBandNoName',
+    'showIncompleteBids',
+    'showDeclinedBids',
+    'federalStates',
+    'userVotes'
+  ],
+  components: { BandListTags },
   emits: ['select-band'],
   computed: {
     filteredBands () {
@@ -354,7 +373,9 @@ const BandList = Vue.defineComponent({
       if (this.selectedTrack === 'no-vote') {
         console.debug('Filtering for bands without a track.')
         _bands = _bands.filter(band => band.bid_status !== 'declined')
-        return _bands.filter(a1 => !this.userVotes.some(a2 => a2.band__id === a1.id))
+        return _bands.filter(
+          a1 => !this.userVotes.some(a2 => a2.band__id === a1.id)
+        )
       }
       if (!this.selectedTrack) {
         console.debug('No selected track id. Returning all.')
@@ -661,7 +682,7 @@ const app = createApp({
     return {
       bandListLoaded: false,
       bandsToFetch: null,
-      eventSlug : window.rockon_data.event_slug,
+      eventSlug: window.rockon_data.event_slug,
       allowChanges: window.rockon_api.allow_changes,
       crsf_token: $('[name=csrfmiddlewaretoken]').val(),
       bandListUrl: window.rockon_api.list_bands,
@@ -839,8 +860,8 @@ const app = createApp({
         autoplay: true
       })
     },
-    toggleIcon() {
-      this.toastIsMaximized = !this.toastIsMaximized;
+    toggleIcon () {
+      this.toastIsMaximized = !this.toastIsMaximized
     },
     handleCloseClick () {
       console.debug('app handleCloseClick')
@@ -894,9 +915,11 @@ const app = createApp({
           alert('Fehler beim Speichern der Bewertung, bitte schrei um Hilfe!')
         })
       if (rating === -1) {
-        this.userVotes = this.userVotes.filter(vote => vote !== this.selectedBand.id)
+        this.userVotes = this.userVotes.filter(
+          vote => vote !== this.selectedBand.id
+        )
       } else {
-        this.userVotes.push({"band__id": this.selectedBand.id, "vote": rating})
+        this.userVotes.push({ band__id: this.selectedBand.id, vote: rating })
       }
     },
     getBandList (url, _event = null) {
@@ -913,7 +936,6 @@ const app = createApp({
           if (data.next) {
             this.getBandList(data.next)
           } else {
-
             this.bandListLoaded = true
             console.debug('app getBandList:', this.bands)
             this.updateComponent()
