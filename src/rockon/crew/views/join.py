@@ -18,7 +18,7 @@ def join(request, slug):
         url += f"?ctx=crew"
         return redirect(url)
     if CrewMember.objects.filter(user=request.user, crew__event__slug=slug).exists():
-        return redirect("crew:join_submitted")
+        return redirect("crew:join_submitted", slug=slug)
     template = loader.get_template("join.html")
     event = Event.objects.get(slug=slug)
     if not request.user.profile.is_profile_complete_crew():
@@ -52,7 +52,7 @@ def join(request, slug):
     return HttpResponse(template.render(extra_context, request))
 
 
-def join_submitted(request):
+def join_submitted(request, slug):
     template = loader.get_template("join_submitted.html")
     extra_context = {"site_title": "Anmeldung abgeschlossen"}
     return HttpResponse(template.render(extra_context, request))
