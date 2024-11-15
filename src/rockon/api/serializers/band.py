@@ -18,6 +18,17 @@ class BandMediaSerializer(serializers.ModelSerializer):
         # fields not listed here can not be changed via the API
         fields = "__all__"
 
+    # only booking team can see contact
+    def get_contact(self, obj):
+        request = self.context.get("request")
+        if (
+            request
+            and request.user
+            and request.user.groups.filter(name="booking").exists()
+        ):
+            return UserSerializer(obj.contact).data
+        return None
+
 
 class BandListMediaSerializer(serializers.ModelSerializer):
     class Meta:
