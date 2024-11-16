@@ -1,34 +1,49 @@
-{% extends 'base.html' %} {% block content %}
-  {% load static %}{% load compress %}
-  <h1>CREW ANMELDUNG - {{ event.name }}</h1>
-  <div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
-
+{% extends "base.html" %}
+{% block content %}
+  {% load static %}
+  {% load compress %}
+  <h1>CREW ANMELDUNG - {{ current_event.name }}</h1>
+  <div class="row"
+       style="height: 33vh;
+              background-image: url({{ current_event.get_image_url }});
+              background-size: cover;
+              background-position: center center;
+              background-repeat: no-repeat"></div>
   <script nonce="{{request.csp_nonce}}">
   window.rockon_data = {
     api_crew_signup: "{% url "api_crew_signup" slug=slug %}",
-    success_redirect: "{% url "crew:join_submitted" %}",
+    success_redirect: "{% url "crew:join_submitted" slug=slug %}",
   }
   </script>
   {% compress js %}
-  <script src="{% static 'js/crewjoin-form.js' %}"></script>
+    <script src="{% static 'js/crewjoin-form.js' %}"></script>
   {% endcompress %}
-  <form id="signup" class="row align-items-center needs-validation" novalidate>
+  <form id="signup"
+        class="row align-items-center needs-validation"
+        novalidate>
     {% csrf_token %}
-
     <section class="row p-4 form-section">
       <div>
         <h3>Themen</h3>
       </div>
-      <label>Für welche Themen interessierst du dich? Du kannst dir Themenbereiche und/oder Teams aussuchen, die für dich interessant klingen. Nicht das richtige dabei? Keine Sorge, wir finden für jeden etwas!</label>
+      <label>
+        Für welche Themen interessierst du dich? Du kannst dir Themenbereiche und/oder Teams aussuchen, die für dich interessant klingen. Nicht das richtige dabei? Keine Sorge, wir finden für jeden etwas!
+      </label>
       <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
         {% for team_category in team_categories %}
           <div class="col">
             <div class="card h-100" data-teamcategory="{{ team_category.id }}">
-              <img class="card-img-top img-fluid" src="{{ team_category.get_image_url }}" />
+              <img class="card-img-top img-fluid"
+                   src="{{ team_category.get_image_url }}" />
               <div class="card-header">
                 <h5 class="card-title">{{ team_category }}</h5>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" data-teamcategory="{{ team_category.id }}" type="checkbox" role="switch" id="teamcategory_{{ team_category.id }}" name="teamcategory_{{ team_category.id }}" />
+                  <input class="form-check-input"
+                         data-teamcategory="{{ team_category.id }}"
+                         type="checkbox"
+                         role="switch"
+                         id="teamcategory_{{ team_category.id }}"
+                         name="teamcategory_{{ team_category.id }}" />
                   <label class="form-check-label" for="teamcategory_{{ team_category.id }}">Interesse</label>
                 </div>
               </div>
@@ -41,7 +56,12 @@
                       {% if team.is_public %}
                         <li class="list-group-item">
                           <div class="form-check form-switch">
-                            <input class="form-check-input" data-team="{{ team.id }}" type="checkbox" role="switch" id="team_{{ team.id }}" name="team_{{ team.id }}" />
+                            <input class="form-check-input"
+                                   data-team="{{ team.id }}"
+                                   type="checkbox"
+                                   role="switch"
+                                   id="team_{{ team.id }}"
+                                   name="team_{{ team.id }}" />
                             <label class="form-check-label" for="team_{{ team.id }}">{{ team }}</label>
                           </div>
                         </li>
@@ -56,7 +76,6 @@
         {% endfor %}
       </div>
     </section>
-
     <section class="row p-4 form-section">
       <div class="col-lg-8">
         <div class="row">
@@ -71,8 +90,14 @@
             <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
             {% for skill in skills %}
               <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="skill_{{ skill.id }}" name="skill_{{ skill.id }}" />
-                <label class="form-check-label" for="skill_{{ skill.id }}">{{ skill.icon|safe }} &nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i></label>
+                <input class="form-check-input"
+                       type="checkbox"
+                       role="switch"
+                       id="skill_{{ skill.id }}"
+                       name="skill_{{ skill.id }}" />
+                <label class="form-check-label" for="skill_{{ skill.id }}">
+                  {{ skill.icon|safe }} &nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i>
+                </label>
               </div>
             {% endfor %}
           </div>
@@ -88,15 +113,15 @@
         <div>
           <h4>Warum erheben wir diese Informationen?</h4>
         </div>
-        <p>Einzelne Tätigkeiten, die du im Rahmen von {{ event.name }} ausführen könntest, erforden eine formale Qualifikation. Für uns ist es in der Planung wichtig zu wissen, ob ihr z.B. entsprechende Führerscheine habt oder Ersthelfer seid.</p>
+        <p>
+          Einzelne Tätigkeiten, die du im Rahmen von {{ current_event.name }} ausführen könntest, erforden eine formale Qualifikation. Für uns ist es in der Planung wichtig zu wissen, ob ihr z.B. entsprechende Führerscheine habt oder Ersthelfer seid.
+        </p>
       </div>
     </section>
-
     <section class="row p-4 form-section">
       <div>
         <h3>Anwesenheit</h3>
       </div>
-
       <div class="row">
         <div class="col-sm-12 g-4">
           <label>An welchen Tagen kannst du vor Ort sein?</label>
@@ -120,8 +145,12 @@
                   <ul class="list-group list-group-flush">
                     {% for day in phase.days %}
                       <li class="list-group-item">
-                        <input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}" name="attendance_{{ day.id }}" />
-                        <label class="form-check-label date-format-huge" for="attendance_{{ day.id }}">{{ day }}</label>
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="attendance_{{ day.id }}"
+                               name="attendance_{{ day.id }}" />
+                        <label class="form-check-label date-format-huge"
+                               for="attendance_{{ day.id }}">{{ day }}</label>
                       </li>
                     {% endfor %}
                   </ul>
@@ -134,11 +163,13 @@
       <div class="row">
         <div class="col-sm-12 g-4">
           <label for="skills_note" class="form-label">Anmerkungen zu deiner Anwesenheit</label>
-          <textarea class="form-control" id="note_attendance" name="note_attendance" rows="2"></textarea>
+          <textarea class="form-control"
+                    id="note_attendance"
+                    name="note_attendance"
+                    rows="2"></textarea>
         </div>
       </div>
     </section>
-
     <section class="row p-4 form-section">
       <div>
         <h3>Übernachtung</h3>
@@ -146,12 +177,16 @@
       <label>Aus verschiedenen Gründen ist eine Übernachtung erst ab 18 Jahren möglich.</label>
       <div class="col-sm-12 g-4">
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="stays_overnight" name="stays_overnight" {%if not allow_overnight %}disabled{% endif %} />
+          <input class="form-check-input"
+                 type="checkbox"
+                 role="switch"
+                 id="stays_overnight"
+                 name="stays_overnight"
+                 {% if not allow_overnight %}disabled{% endif %} />
           <label class="form-check-label" for="stays_overnight">Ich übernachte vor Ort.</label>
         </div>
       </div>
     </section>
-
     <section class="row p-4 form-section">
       <div>
         <h3>Freistellung</h3>
@@ -159,16 +194,25 @@
       <label>Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche Tätigkeit zu bekommen.</label>
       <div class="col-sm-12 g-4">
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="leave_of_absence" name="leave_of_absence" />
-          <label class="form-check-label" for="leave_of_absence">Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.</label>
+          <input class="form-check-input"
+                 type="checkbox"
+                 role="switch"
+                 id="leave_of_absence"
+                 name="leave_of_absence" />
+          <label class="form-check-label" for="leave_of_absence">
+            Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.
+          </label>
         </div>
       </div>
       <div class="col-sm-12 g-4">
         <label for="leave_of_absence_note" class="form-label">Anmerkungen zu meiner Befreiung</label>
-        <textarea class="form-control" id="leave_of_absence_note" name="leave_of_absence_note" rows="2" disabled></textarea>
+        <textarea class="form-control"
+                  id="leave_of_absence_note"
+                  name="leave_of_absence_note"
+                  rows="2"
+                  disabled></textarea>
       </div>
     </section>
-
     <section class="row p-4 form-section">
       <div class="col-lg-8">
         <div class="row">
@@ -202,7 +246,10 @@
             <div class="row">
               <div class="col-sm-12 g-4">
                 <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten, Unverträglichkeiten, etc.</label>
-                <textarea class="form-control" id="nutrition_note" name="nutrition_note" rows="3"></textarea>
+                <textarea class="form-control"
+                          id="nutrition_note"
+                          name="nutrition_note"
+                          rows="3"></textarea>
               </div>
             </div>
           </div>
@@ -212,9 +259,7 @@
                 <label for="crew_shirt" class="form-label">T-Shirt</label>
                 <select id="crew_shirt" name="crew_shirt" class="form-select not-empty">
                   <option value="" selected></option>
-                  {% for shirt in shirts %}
-                    <option value="{{ shirt.id }}">{{ shirt }}</option>
-                  {% endfor %}
+                  {% for shirt in shirts %}<option value="{{ shirt.id }}">{{ shirt }}</option>{% endfor %}
                 </select>
                 <div class="valid-feedback"></div>
                 <div class="invalid-feedback">Bitte wähle T-Shirt Größe und Schnitt aus.</div>
@@ -222,7 +267,8 @@
             </div>
             <div class="row">
               <div class="col-sm-12 g-4">
-                Erklärung Schnitt:<ul>
+                Erklärung Schnitt:
+                <ul>
                   <li>
                     <strong>fitted</strong>: figurbetonter Schnitt
                   </li>
@@ -239,11 +285,12 @@
         <div>
           <h4>Warum erheben wir diese Informationen?</h4>
         </div>
-        <p>Während du mit uns zusammen die Veranstaltung begleitest, wollen wir uns natürlich um dein leibliches Wohl kümmern. Daher ist es für unsere Planung super wichtig, dass wir wissen worauf wir achten müssen!</p>
+        <p>
+          Während du mit uns zusammen die Veranstaltung begleitest, wollen wir uns natürlich um dein leibliches Wohl kümmern. Daher ist es für unsere Planung super wichtig, dass wir wissen worauf wir achten müssen!
+        </p>
         <p>Desweiteren gibt es für die Crew natürlich ein T-Shirt als Dankeschön. Und das sollte dir natürlich auch passen.</p>
       </div>
     </section>
-
     <section class="row p-4 form-section">
       <div>
         <h3>Verschiedenes</h3>
@@ -253,29 +300,39 @@
         <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
       </div>
     </section>
-
     <section class="row p-4 form-section">
       <div>
         <h3>Rechtliches</h3>
       </div>
       <div class="col-md-12">
         <div class="form-check form-switch">
-          <input class="form-check-input not-empty" type="checkbox" role="switch" id="allow_contact" name="allow_contact" />
-          <label class="form-check-label" for="allow_contact">Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das Spielfest kontaktieren darf.</label>
+          <input class="form-check-input not-empty"
+                 type="checkbox"
+                 role="switch"
+                 id="allow_contact"
+                 name="allow_contact" />
+          <label class="form-check-label" for="allow_contact">
+            Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das Spielfest kontaktieren darf.
+          </label>
           <div class="valid-feedback"></div>
           <div class="invalid-feedback">Bitte erlaube uns, dich zu kontaktieren.</div>
         </div>
       </div>
       <div class="col-md-12">
         <div class="form-check form-switch">
-          <input class="form-check-input not-empty" type="checkbox" role="switch" id="read_privacy" name="read_privacy" />
-          <label class="form-check-label" for="read_privacy">Ich habe die <a href="{% url 'rockon_privacy' %}" target="_blank">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der Veranstaltungen Rocktreff und Spielfest einverstanden.</label>
+          <input class="form-check-input not-empty"
+                 type="checkbox"
+                 role="switch"
+                 id="read_privacy"
+                 name="read_privacy" />
+          <label class="form-check-label" for="read_privacy">
+            Ich habe die <a href="{% url 'rockon_privacy' %}" target="_blank">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der Veranstaltungen Rocktreff und Spielfest einverstanden.
+          </label>
           <div class="valid-feedback"></div>
           <div class="invalid-feedback">Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.</div>
         </div>
       </div>
     </section>
-
     <section class="row p-4 form-section">
       <div class="d-grid gap-2 col-12 mx-auto pt-3">
         <div class="row g-2">
@@ -300,5 +357,4 @@
       </div>
     </section>
   </form>
-
-{% endblock %}
+{% endblock content %}
