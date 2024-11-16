@@ -107,6 +107,7 @@ TEMPLATES = [
                 "rockon.library.context_processors.sentry_frontend.get_sentry_data",
                 "rockon.library.context_processors.get_domain.get_domain",
                 "rockon.library.context_processors.current_event.current_event",
+                "rockon.library.context_processors.is_crewmember.is_crewmember",
             ],
         },
     },

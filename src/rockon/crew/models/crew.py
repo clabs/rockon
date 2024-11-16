@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from django.db.models import Q
+
 from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
 
@@ -13,3 +15,8 @@ class Crew(CustomModel):
 
     def __str__(self):
         return self.name
+
+    def is_member(self, user):
+        return self.crew_members.filter(
+            user=user, state__in=["confirmed", "arrived"]
+        ).exists()

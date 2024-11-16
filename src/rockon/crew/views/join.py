@@ -38,7 +38,6 @@ def join(request, slug):
             days=18 * 365
         )
     extra_context = {
-        "event": event,
         "og_title": f"Crewanmeldung {event.name}",
         "og_description": f"Crewanmeldung für die Veranstaltung {event.name}, sei Teil des Teams!",
         "shirts": shirts,
