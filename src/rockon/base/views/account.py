@@ -60,6 +60,9 @@ def login_token(request, token):
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     current_event = Event.get_current_event()
 
+    if not current_event:
+        current_event = Event.objects.order_by("start_date").first()
+
     # Store current_event in user session
     request.session["current_event_id"] = str(current_event.id)
     request.session["current_event_slug"] = current_event.slug
