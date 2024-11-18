@@ -14,6 +14,6 @@ def is_crewmember(request):
                 if current_event.crews.exists():
                     is_member = current_event.crews.is_member(request.user)
                     return {"is_crewmember": is_member}
-            except ObjectDoesNotExist:
+            except (ObjectDoesNotExist, AttributeError):
                 pass
     return {"is_crewmember": False}
