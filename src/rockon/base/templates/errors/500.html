@@ -1,14 +1,47 @@
-{% extends "base.html" %} {% block content %}
-
-<div class="row">
-<div><h1>Fehler 500</h1></div>
-</div>
-<div class="row">
-<h2>Interner Serverfehler</h2>
-</div>
-<div class="row">
-<p>Es tut mir leid, hier ist etwas schrecklich schief gelaufen.</p>
-<p>{{more_info|default:""}}</p>
-</div>
-
-{% endblock content %}
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fehler 500 - Interner Serverfehler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8d7da;
+            color: #721c24;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background-color: #f5c6cb;
+            padding: 20px;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+        }
+        h1 {
+            font-size: 3em;
+            margin: 0;
+        }
+        h2 {
+            font-size: 2em;
+            margin: 10px 0;
+        }
+        p {
+            font-size: 1.2em;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Fehler 500</h1>
+      <h2>Interner Serverfehler</h2>
+      <p>Es tut mir leid, hier ist etwas schrecklich schief gelaufen.</p>
+      <p>{{ more_info|default:"" }}</p>
+    </div>
+  </body>
+</html>
