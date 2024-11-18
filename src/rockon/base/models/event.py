@@ -3,6 +3,7 @@ from __future__ import annotations
 from os import path
 
 from django.templatetags.static import static
+from slugify import slugify
 
 from rockon.library import UploadToPathAndRename
 from rockon.library.custom_model import CustomModel, models
@@ -72,6 +73,13 @@ class Event(CustomModel):
 
     class Meta:
         ordering = ["start"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        if self.slug == "":
+            self.slug = str(self.id)
+        super().save(*args, **kwargs)
 
     def get_image_url(self):
         if self.image:
