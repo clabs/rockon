@@ -12,7 +12,7 @@ on:
 
 jobs:
   docker_build:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
 
     steps:
       - uses: actions/checkout@v4
@@ -25,3 +25,7 @@ jobs:
           image_tag: ${{ github.ref_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dockerfile: docker/Dockerfile
+
+      - name: Notify webhook
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{"text": "Docker image has been pushed successfully."}' ${{ secrets.DEPLOY_PROD_WEBHOOK }}
