@@ -72,7 +72,7 @@ def login_token(request, token):
         return redirect(reverse("base:select_context"))
 
     if user.groups.filter(name="bands").exists():
-        return redirect(reverse("bands:bid_root"))
+        return redirect(reverse("bands:bid_rooter"))
 
     return redirect(reverse("crm_user_home"))
 
