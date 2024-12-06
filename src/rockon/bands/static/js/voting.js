@@ -143,14 +143,15 @@ const TrackDropdown = Vue.defineComponent({
     )
   },
   template: `
-    <div>
-    <select @change="updateSelectedTrack" v-model="selectedBandDetails.track">
-      <option v-if="!selectedBandDetails.track" disabled v-bind:value="null">Track auswählen</option>
-      <option v-if="selectedBandDetails.track" value="">Track entfernen</option>
-      <option v-for="track in tracks" :value="track.id" :key="track.id">
-        {{ track.name || "Kein Track" }}
-      </option>
-    </select>
+    <div class="form-group">
+      <label for="trackSelect" class="form-label">Track</label>
+      <select id="trackSelect" @change="updateSelectedTrack" v-model="selectedBandDetails.track" class="form-control">
+        <option v-if="!selectedBandDetails.track" disabled v-bind:value="null">Track auswählen</option>
+        <option v-if="selectedBandDetails.track" value="">Track entfernen</option>
+        <option v-for="track in tracks" :value="track.id" :key="track.id">
+          {{ track.name || "Kein Track" }}
+        </option>
+      </select>
     </div>
   `,
   methods: {
@@ -164,6 +165,44 @@ const TrackDropdown = Vue.defineComponent({
       console.log('Selected track:', newVal)
     }
   }
+})
+
+const BidStatusDropdown = Vue.defineComponent({
+  props: ['bidStates', 'selectedBandDetails'],
+  emits: ['update:bidStatus'],
+  template: `
+    <div class="form-group">
+      <label for="bidStatusSelect" class="form-label">Status</label>
+      <select id="bidStatusSelect" @change="updateBidStatus" v-model="selectedBandDetails.bid_status" class="form-control">
+        <option v-for="(state, index) in bidStates" :key="index" :value="state[0]">
+          {{ state[1] }}
+        </option>
+      </select>
+    </div>
+  `,
+  methods: {
+    updateBidStatus (event) {
+      console.debug('BidStatusDropdown updateBidStatus:', event.target.value)
+      this.$emit('update:bidStatus', event.target.value)
+    }
+  }
+})
+
+const BackstageLink = Vue.defineComponent({
+  props: ['selectedBandDetails'],
+  computed: {
+    url () {
+      return `/backstage/rockonbands/band/${this.selectedBandDetails.id}/change/`
+    }
+  },
+  template: `
+  <div class="form-group">
+    <label for="backstageBtn" class="form-label">Backstage</label>
+    <a id="backstageBtn" :href="url" class="btn btn-primary form-control" role="button">
+      Band bearbeiten
+    </a>
+  </div>
+  `
 })
 
 const TrackList = Vue.defineComponent({
@@ -519,6 +558,7 @@ const BandRating = Vue.defineComponent({
 const BandDetails = Vue.defineComponent({
   props: [
     'tracks',
+    'bidStates',
     'media',
     'federalStates',
     'selectedBandDetails',
@@ -528,6 +568,8 @@ const BandDetails = Vue.defineComponent({
   emits: ['update:track', 'update:select-song', 'update:rating'],
   components: {
     TrackDropdown,
+    BackstageLink,
+    BidStatusDropdown,
     SongList,
     BandImages,
     BandDocuments,
@@ -557,6 +599,9 @@ const BandDetails = Vue.defineComponent({
         return 'Kein Cover Letter'
       }
       return this.selectedBandDetails.cover_letter.replace(/\r\n/g, '<br>')
+    },
+    isUnknownOrPending() {
+      return this.selectedBandDetails.bid_status === 'unknown' || this.selectedBandDetails.bid_status === 'pending';
     }
   },
   template: `
@@ -565,13 +610,23 @@ const BandDetails = Vue.defineComponent({
       <div class="col">
           <h3>{{ bandName }}</h3>
       </div>
-      <div v-if="selectedBandDetails.bid_status === 'declined'" class="row mt-2">
+      <div v-if="isUnknownOrPending" class="row mt-2">
       <div class="col">
         <div class="alert alert-secondary" role="alert">
+            <h4 class="alert-heading">Unbearbeitet</h4>
+            <hr>
+            <p>Diese Bewerbung wurde vom Band-Gewerk noch nicht gesichtet.</p>
+            <p>Aus Transparenzgründen ist sie hier gelistet und du kannst ihre Tracks anhören, die Band kann aber nicht bewertet werden.</p>
+        </div>
+        </div>
+      </div>
+      <div v-if="selectedBandDetails.bid_status === 'declined'" class="row mt-2">
+      <div class="col">
+        <div class="alert alert-warning" role="alert">
             <h4 class="alert-heading">❌ Bewerbung abgelehnt ❌</h4>
             <hr>
-            <p>Diese Band hat es leider in der Vorauswahl nicht geschafft und die Mindestanforderungen des Bandgewerks erfüllt.</p>
-            <p> Aus Transparenzgründen ist sie hier gelistet und du kannst ihre Tracks anhören, die Band kann aber nicht bewertet werden.</p>
+            <p>Diese Band hat es leider in der Vorauswahl nicht geschafft und die organisatorischen Mindestanforderungen an eine Bewerbung erfüllt.</p>
+            <p>Aus Transparenzgründen ist sie hier gelistet und du kannst ihre Tracks anhören, die Band kann aber nicht bewertet werden.</p>
         </div>
         </div>
       </div>
@@ -579,7 +634,7 @@ const BandDetails = Vue.defineComponent({
       <div class="col-9">
           <BandTags :selectedBandDetails="selectedBandDetails" :federalStates="federalStates" />
       </div>
-      <div v-if="selectedBandDetails.bid_status !== 'declined'" class="col-3">
+      <div v-if="selectedBandDetails.bid_status === 'accepted'" class="col-3">
           <BandRating :selectedBandDetails="selectedBandDetails" @update:rating="emitRating" />
       </div>
       </div>
@@ -619,9 +674,15 @@ const BandDetails = Vue.defineComponent({
           </div>
       </div>
       <div v-if="allowChanges" class="row mb-2">
-          <h3>Track</h3>
+          <h3>Verwaltung</h3>
           <div class="col">
               <TrackDropdown :tracks="tracks" :selectedBandDetails="selectedBandDetails" :currentTrackId="currentTrackId" @update:selectedTrack="updateTrack" />
+          </div>
+          <div class="col">
+              <BidStatusDropdown :bidStates="bidStates" :selectedBandDetails="selectedBandDetails" @update:bidStatus="updateBidStatus" />
+          </div>
+          <div class="col">
+            <BackstageLink :selectedBandDetails="selectedBandDetails" />
           </div>
       </div>
       <div v-if="allowChanges" class="row">
@@ -658,6 +719,10 @@ const BandDetails = Vue.defineComponent({
       console.debug('BandDetails updateTrack:', trackId)
       this.$emit('update:track', trackId)
     },
+    updateBidStatus (bidStatus) {
+      console.debug('BandDetails updateBidStatus:', bidStatus)
+      this.$emit('update:bidStatus', bidStatus)
+    },
     handleSongSelect (song) {
       // Update the data with the selected song
       console.debug('BandDetails handleSongSelect:', song)
@@ -671,7 +736,7 @@ const BandDetails = Vue.defineComponent({
       console.debug('BandDetails emitRating:', rating)
       this.$emit('update:rating', rating)
     }
-  }
+  },
 })
 
 const app = createApp({
@@ -686,6 +751,7 @@ const app = createApp({
       tracks: window.rockon_data.tracks,
       bands: [],
       federalStates: window.rockon_data.federal_states,
+      bidStates: window.rockon_data.bid_states,
       selectedTrack: null,
       selectedBand: null,
       userVotes: window.rockon_data.user_votes,
@@ -709,6 +775,7 @@ const app = createApp({
     BandList,
     BandDetails,
     TrackDropdown,
+    BidStatusDropdown,
     SongList,
     SongInfo,
     BandImages,
@@ -811,6 +878,32 @@ const app = createApp({
       this.selectedBand.track = trackId
       this.selectedBandDetails.track = trackId
       this.selectedTrack = track
+    },
+    updateBidStatus (bidStatus) {
+      api_url = window.rockon_api.update_band.replace(
+        'pk_placeholder',
+        this.selectedBandDetails.id
+      )
+      console.debug(
+        'Selected band:',
+        this.selectedBandDetails.id,
+        bidStatus,
+        api_url
+      )
+      fetch(api_url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.crsf_token
+        },
+        body: JSON.stringify({
+          bid_status: bidStatus
+        })
+      })
+        .then(response => response.json())
+        .then(data => console.log('Success:', data))
+        .catch(error => console.error('Error:', error))
+      this.selectedBandDetails.bid_state = bidStatus
     },
     handleSongSelect (song) {
       console.debug('app handleSongSelect:', song)

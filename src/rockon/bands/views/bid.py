@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from rockon.bands.models import Band, BandMedia, MediaType, Track
+from rockon.bands.models.band import BidStatus
 from rockon.base.models import Event
 from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
@@ -130,6 +131,8 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
     template = loader.get_template("bid_vote.html")
     tracks = Track.objects.filter(events__slug=slug)
     tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
+    bid_states = BidStatus.choices
+    bid_states_json = mark_safe(json.dumps(bid_states))
     federal_states = FederalState.choices
     federal_states_json = mark_safe(json.dumps(federal_states))
     track_slug_json = mark_safe(json.dumps(track, cls=CustomJSONEncoder))
@@ -147,6 +150,7 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
         "site_title": "Band Bewertung",
         "tracks": tracks_json,
         "federal_states": federal_states_json,
+        "bid_states": bid_states_json,
         "trackid": track_slug_json,
         "bandid": band_guid_json,
         "user_votes": user_votes_json,
