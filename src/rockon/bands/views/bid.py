@@ -107,16 +107,19 @@ def bid_form(request, slug, guid):
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crew").exists())
 def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
-    if not request.user.crewmember_set.filter(
-        crew__event__slug=slug, state="confirmed"
-    ).exists():
+    is_booking = request.user.groups.filter(name="booking").exists()
+    if (
+        not (
+            request.user.crewmember_set.filter(
+                crew__event__slug=slug, state="confirmed"
+            ).exists()
+        )
+        and not is_booking
+    ):
         raise PermissionDenied(
             "Du bist nicht berechtigt, Bandbewertungen abzugeben, bitte wende dich an die Crewkoordination und lasse dich für die Crew freischalten."
         )
-    if (
-        not Event.objects.get(slug=slug).bid_vote_allowed
-        and not request.user.groups.filter(name="booking").exists()
-    ):
+    if not (not Event.objects.get(slug=slug).bid_vote_allowed) or not is_booking:
         template = loader.get_template("errors/403.html")
         return HttpResponseForbidden(
             template.render(
