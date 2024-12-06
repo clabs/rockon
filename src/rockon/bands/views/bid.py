@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from rockon.bands.models import Band, BandMedia, MediaType, Track
+from rockon.bands.models.band import BidStatus
 from rockon.base.models import Event
 from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
@@ -107,16 +108,19 @@ def bid_form(request, slug, guid):
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="crew").exists())
 def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
-    if not request.user.crewmember_set.filter(
-        crew__event__slug=slug, state="confirmed"
-    ).exists():
+    is_booking = request.user.groups.filter(name="booking").exists()
+    if (
+        not (
+            request.user.crewmember_set.filter(
+                crew__event__slug=slug, state="confirmed"
+            ).exists()
+        )
+        and not is_booking
+    ):
         raise PermissionDenied(
             "Du bist nicht berechtigt, Bandbewertungen abzugeben, bitte wende dich an die Crewkoordination und lasse dich für die Crew freischalten."
         )
-    if (
-        not Event.objects.get(slug=slug).bid_vote_allowed
-        and not request.user.groups.filter(name="booking").exists()
-    ):
+    if not (not Event.objects.get(slug=slug).bid_vote_allowed) or not is_booking:
         template = loader.get_template("errors/403.html")
         return HttpResponseForbidden(
             template.render(
@@ -127,6 +131,8 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
     template = loader.get_template("bid_vote.html")
     tracks = Track.objects.filter(events__slug=slug)
     tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
+    bid_states = BidStatus.choices
+    bid_states_json = mark_safe(json.dumps(bid_states))
     federal_states = FederalState.choices
     federal_states_json = mark_safe(json.dumps(federal_states))
     track_slug_json = mark_safe(json.dumps(track, cls=CustomJSONEncoder))
@@ -144,6 +150,7 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
         "site_title": "Band Bewertung",
         "tracks": tracks_json,
         "federal_states": federal_states_json,
+        "bid_states": bid_states_json,
         "trackid": track_slug_json,
         "bandid": band_guid_json,
         "user_votes": user_votes_json,

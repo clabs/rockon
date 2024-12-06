@@ -1,26 +1,24 @@
-{% extends 'base.html' %} {% block content %}
-{% load static %}
-{% load compress %}
-
-<div><h1>Band Bewertungen</h1></div>
-
-{% compress css file datatables %}
-<link href="{% static "vendor/datatables.2.1.0.min.css" %}" rel="stylesheet">
-{% endcompress %}
-
-{% compress js file datatables %}
-<script src="{% static "vendor/datatables.2.1.0.min.js" %}"></script>
-<script src="{% static "vendor/dataTables.buttons.js" %}"></script>
-<script src="{% static "vendor/buttons.dataTables.js" %}"></script>
-<script src="{% static "vendor/jszip.min.js" %}"></script>
-<script src="{% static "vendor/buttons.html5.min.js" %}"></script>
-{% endcompress %}
-
-{% compress js file sparklines %}
-<script src="{% static "vendor/jquery.sparkline.2.1.2.min.js" %}"></script>
-{% endcompress %}
-
-<script nonce="{{request.csp_nonce}}">
+{% extends "base.html" %}
+{% block content %}
+  {% load static %}
+  {% load compress %}
+  <div>
+    <h1>Band Bewertungen</h1>
+  </div>
+  {% compress css file datatables %}
+    <link href="{% static "vendor/datatables.2.1.0.min.css" %}" rel="stylesheet">
+  {% endcompress %}
+  {% compress js file datatables %}
+    <script src="{% static "vendor/datatables.2.1.0.min.js" %}"></script>
+    <script src="{% static "vendor/dataTables.buttons.js" %}"></script>
+    <script src="{% static "vendor/buttons.dataTables.js" %}"></script>
+    <script src="{% static "vendor/jszip.min.js" %}"></script>
+    <script src="{% static "vendor/buttons.html5.min.js" %}"></script>
+  {% endcompress %}
+  {% compress js file sparklines %}
+    <script src="{% static "vendor/jquery.sparkline.2.1.2.min.js" %}"></script>
+  {% endcompress %}
+  <script nonce="{{request.csp_nonce}}">
   $(document).ready(function () {
     const tooltipTriggerList = document.querySelectorAll(
       '[data-bs-toggle="tooltip"]'
@@ -49,9 +47,8 @@
       }
     })
   })
-</script>
-
-<style>
+  </script>
+  <style>
   .jqstooltip {
     -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
@@ -60,41 +57,60 @@
   .no-wrap {
     white-space: nowrap;
   }
-</style>
-
-<section class="row p-4 form-section">
-  <div style="background-color: #303030;">
-  <table id="band-table" class="table table-dark table-striped table-bordered table-hover table-fixed-header">
-    <thead class="no-wrap">
-      <tr>
-        <th class="no-wrap" scope="col">Bandname</th>
-        <th class="no-wrap" scope="col">&#216; ⭐</th>
-        <th class="no-wrap" scope="col">Summe</th>
-        <th class="no-wrap" scope="col">Stimmen</th>
-        <th class="no-wrap" scope="col">Verteilung</th>
-        <th class="no-wrap" scope="col">Status</th>
-        <th class="no-wrap" scope="col">Track</th>
-        <th class="no-wrap" scope="col">Kontakt</th>
-        <th class="no-wrap" scope="col">Backstage</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for band in bands %}
-        <tr>
-          <td>{{ band.name|default_if_none:band.guid }}</td>
-          <td>{{ band.votes_avg|default:"0" |floatformat }}</td>
-          <td>{{ band.votes_sum|default:"0" }}</td>
-          <td>{{ band.votes_count|default:"0" }}</td>
-          <td {% if band.counters %} data-n="1" class="inlinesparkline" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true"data-bs-title="{% for k, v in band.counters.items %}{% if v %}{{v}}x {{k}}⭐{% if not forloop.last %}<br />{% endif %}{% endif %}{% endfor %}"{% endif %}>{% for _, v in band.counters.items %}{{v}}{% if not forloop.last %},{% endif %}{% endfor %}</td>
-          <td>{{ band.bid_status }}</td>
-          <td>{{ band.track.name }}</td>
-          <td><a href="mailto:{{ band.contact.email }}">{{ band.contact.email }}</a></td>
-          <td><a href="{% url "admin:rockonbands_band_change" object_id=band.id %}" target="_blank" title="Bearbeiten"><i class="fas fa-cog"></i></a></td>
-        </tr>
+  </style>
+  <section class="row p-4 form-section">
+    <div style="background-color: #303030;">
+      <table id="band-table"
+             class="table table-dark table-striped table-bordered table-hover table-fixed-header">
+        <thead class="no-wrap">
+          <tr>
+            <th class="no-wrap" scope="col">Bandname</th>
+            <th class="no-wrap" scope="col">&#216; ⭐</th>
+            <th class="no-wrap" scope="col">Summe</th>
+            <th class="no-wrap" scope="col">Stimmen</th>
+            <th class="no-wrap" scope="col">Verteilung</th>
+            <th class="no-wrap" scope="col">Status</th>
+            <th class="no-wrap" scope="col">Track</th>
+            <th class="no-wrap" scope="col">Kontakt</th>
+            <th class="no-wrap" scope="col">Backstage</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for band in bands %}
+            <tr>
+              <td>{{ band.name|default_if_none:band.guid }}</td>
+              <td>{{ band.votes_avg|default:"0" |floatformat }}</td>
+              <td>{{ band.votes_sum|default:"0" }}</td>
+              <td>{{ band.votes_count|default:"0" }}</td>
+              <td {% if band.counters %} data-n="1" class="inlinesparkline" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true"data-bs-title="{% for k, v in band.counters.items %}{% if v %}{{ v }}x {{ k }}⭐{% if not forloop.last %}<br />
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        "
+      {% endif %}
+      >
+      {% for _, v in band.counters.items %}
+        {{ v }}
+        {% if not forloop.last %},{% endif %}
       {% endfor %}
-    </tbody>
-  </table>
-  </div>
+    </td>
+    <td>{{ band.bid_status }}</td>
+    <td>{{ band.track.name }}</td>
+    <td>
+      <a href="mailto:{{ band.contact.email }}">{{ band.contact.email }}</a>
+    </td>
+    <td>
+      <span><a href="{% url "admin:rockonbands_band_change" object_id=band.id %}"
+   target="_blank"
+   title="Bearbeiten"><i class="fas fa-cog"></i></a></span>
+      <span><a href="{% url 'bands:bid_vote' slug=current_event.slug %}#/bid/{{ band.guid }}/"
+   target="_blank"
+   title="Voting"><i class="fas fa-eye"></i></a></span>
+    </td>
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
 </section>
-
-{% endblock %}
+{% endblock content %}

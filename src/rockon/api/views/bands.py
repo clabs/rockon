@@ -6,7 +6,7 @@ from rest_framework.decorators import action, parser_classes
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from rockon.api.permissions import IsCrewReadOnly, IsOwner
+from rockon.api.permissions import BookingFieldsPermission, IsCrewReadOnly, IsOwner
 from rockon.api.serializers import (
     BandDetailSerializer,
     BandListSerializer,
@@ -23,7 +23,10 @@ class BandViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Band.objects.all()
-    permission_classes = [IsCrewReadOnly | permissions.IsAdminUser | IsOwner]
+    permission_classes = [
+        IsCrewReadOnly | permissions.IsAdminUser | IsOwner,
+        BookingFieldsPermission,
+    ]
 
     def get_serializer_class(self):
         if self.action == "list":

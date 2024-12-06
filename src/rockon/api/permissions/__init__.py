@@ -1,3 +1,3 @@
 from __future__ import annotations
 
-from .bands import IsCrewReadOnly, IsOwner
+from .bands import BookingFieldsPermission, IsCrewReadOnly, IsOwner
