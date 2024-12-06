@@ -28,4 +28,4 @@ jobs:
 
       - name: Notify webhook
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"text": "Docker image has been pushed successfully."}' ${{ secrets.DEPLOY_PROD_WEBHOOK }}
+          curl -X POST ${{ secrets.DEPLOY_PROD_WEBHOOK }}
