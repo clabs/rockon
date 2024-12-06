@@ -231,12 +231,12 @@ const TrackList = Vue.defineComponent({
         <span class="badge text-bg-primary m-2" @click="handleShowStudentBands" style="cursor: pointer;">Schülerbands</span>
         <span class="badge text-bg-primary m-2" @click="handleDeselectTrack" style="cursor: pointer;">Alle Bands</span>
         <div class="form-check form-switch m-2">
-          <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
-          <label class="form-check-label" >Bands ohne Namen anzeigen</label>
-        </div>
-        <div class="form-check form-switch m-2">
           <input class="form-check-input" type="checkbox" role="switch" :checked="showIncompleteBids" @change="handleFilterIncompleteBids" />
           <label class="form-check-label" >Unvollständige Bewerbungen anzeigen</label>
+        </div>
+        <div class="form-check form-switch m-2">
+          <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
+          <label class="form-check-label" >Bands ohne Namen anzeigen</label>
         </div>
         <div class="form-check form-switch m-2">
         <input class="form-check-input" type="checkbox" role="switch" :checked="showDeclinedBids" @change="handleFilterDeclinedeBids"/>
