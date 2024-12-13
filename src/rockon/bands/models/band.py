@@ -38,10 +38,10 @@ class Band(CustomModel):
         choices=FederalState.choices,
     )
     cover_letter = models.TextField(default=None, blank=True, null=True)
-    contact = models.OneToOneField(
+    contact = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="band",
+        related_name="bands",
         null=True,
         default=None,
         blank=True,

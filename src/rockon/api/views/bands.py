@@ -55,7 +55,7 @@ class BandMediaViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get("band_id", None):
             media = media.filter(band__id=self.request.query_params.get("band_id"))
         if not self.request.user.is_staff:
-            media.filter(band=self.request.user.band)
+            media.filter(band=self.request.user.bands.get(id=media.band.id))
         return media
 
     @action(detail=False, methods=["post"], url_path="upload", url_name="upload")
@@ -69,7 +69,7 @@ class BandMediaViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         band = serializer.validated_data.get("band")
         user = self.request.user
-        if not band.id == user.band.id and not user.is_staff:
+        if not user.bands.filter(id=band.id).exists() and not user.is_staff:
             raise PermissionError("You can only upload media for your own band.")
         serializer.save()
         serializer.instance.encode_file()
