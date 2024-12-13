@@ -39,7 +39,7 @@ class BandMedia(CustomModel):
     )
     url = models.URLField(default=None, blank=True, null=True)
     file = models.FileField(
-        upload_to=band_media_path, default=None, blank=True, null=True
+        upload_to=band_media_path, default=None, blank=True, null=True, max_length=500
     )
     encoded_file = models.FileField(
         upload_to=band_media_path, default=None, blank=True, null=True
