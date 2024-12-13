@@ -224,7 +224,7 @@ const send_form = () => {
 const save_success = data => {
   console.debug('save success', data)
   render_updated_at(data.updated_at)
-  alert("Bandbewerbung gespeichert.")
+  alert("✅ Bandbewerbung gespeichert und abgeschickt.")
 }
 
 const api_add_url = (url, type) => {
