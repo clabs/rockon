@@ -129,7 +129,11 @@ class TeamCategoryAdmin(CustomAdminModel):
 
 class TeamMemberAdmin(CustomAdminModel):
     list_display = ("crewmember", "team", "state", "created_at", "updated_at")
-    search_fields = ("team", "crewmember")
+    search_fields = (
+        "team__name",
+        "crewmember__user__first_name",
+        "crewmember__user__last_name",
+    )
     ordering = ("team", "state")
     list_filter = (
         "team__name",

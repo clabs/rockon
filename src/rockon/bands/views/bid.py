@@ -56,19 +56,12 @@ def bid_router(request, slug):
         url = reverse("base:login_request")
         url += f"?ctx=bands"
         return redirect(url)
-    # Checks if user profile is complete
-    # if not request.user.profile.is_profile_complete_band():
-    #     event = Event.objects.get(slug=slug)
-    #     template = loader.get_template("bid_profile_incomplete.html")
-    #     extra_context = {
-    #         "site_title": "Profil unvollständig - Bandbewerbung",
-    #         "event": event,
-    #         "slug": slug,
-    #     }
-    #     return HttpResponse(template.render(extra_context, request))
-    if hasattr(request.user, "band"):
-        band = request.user.band
+
+    try:
+        band = Band.objects.get(contact=request.user, event__slug=slug)
         return redirect("bands:bid_form", slug=slug, guid=band.guid)
+    except Band.DoesNotExist:
+        pass
 
     new_band = Band.objects.create(
         event=Event.objects.get(slug=slug), contact=request.user
@@ -80,17 +73,21 @@ def bid_router(request, slug):
 
 @login_required
 def bid_form(request, slug, guid):
-    if not request.user.band.guid == guid:
+    try:
+        band = request.user.bands.get(guid=guid, event__slug=slug)
+    except Band.DoesNotExist:
         template = loader.get_template("errors/403.html")
         return HttpResponseForbidden(
             template.render(
-                {"more_info": "Diese Bandbewerbung gehört nicht zu deinem Account."},
+                {
+                    "more_info": "Diese Bandbewerbung gehört nicht zu deinem Account oder existiert nicht."
+                },
                 request,
             )
         )
     template = loader.get_template("bid_form.html")
     event = Event.objects.get(slug=slug)
-    media = BandMedia.objects.filter(band=request.user.band)
+    media = BandMedia.objects.filter(band=band)
     media_by_type = {}
     for media_type in MediaType.choices:
         media_by_type[media_type[0]] = media.filter(media_type=media_type[0])
