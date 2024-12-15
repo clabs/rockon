@@ -55,7 +55,8 @@ class BandMediaViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get("band_id", None):
             media = media.filter(band__id=self.request.query_params.get("band_id"))
         if not self.request.user.is_staff:
-            media.filter(band=self.request.user.bands.get(id=media.band.id))
+            user_bands = self.request.user.bands.values_list("id", flat=True)
+            media.filter(band__id__in=user_bands)
         return media
 
     @action(detail=False, methods=["post"], url_path="upload", url_name="upload")
