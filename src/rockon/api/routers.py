@@ -7,6 +7,7 @@ from rockon.api.views import (
     BandTrackViewSet,
     BandViewSet,
     BandVoteViewSet,
+    CommentViewSet,
 )
 
 router = routers.DefaultRouter()
@@ -14,3 +15,4 @@ router.register(r"bands", BandViewSet, basename="bands")
 router.register(r"band-media", BandMediaViewSet, basename="band-media")
 router.register(r"band-votes", BandVoteViewSet, basename="band-votes")
 router.register(r"tracks", BandTrackViewSet, basename="tracks")
+router.register(r"comments", CommentViewSet, basename="band-comments")

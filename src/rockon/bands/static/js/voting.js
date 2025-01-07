@@ -556,6 +556,169 @@ const BandRating = Vue.defineComponent({
   }
 })
 
+const CommentFeed = Vue.defineComponent({
+  props: ['commentApi', 'selectedBandDetails', 'newComment'],
+  data () {
+    return {
+      comments: [],
+      loading: true
+    }
+  },
+  mounted() {
+    this.fetchComments();
+  },
+  methods: {
+    moodIcon (mood) {
+      return mood === 'thumbs-up' ? 'fa-thumbs-up' : 'fa-thumbs-down'
+    },
+    modReason (reason) {
+      return reason ? ' - ' + reason : ''
+    },
+    async fetchComments() {
+      console.debug('CommentFeed fetchComments:', this.selectedBandDetails.id);
+      try {
+        const response = await fetch(`${this.commentApi}?band=${this.selectedBandDetails.id}`);
+        if (response.ok) {
+          const apiResponse = await response.json();
+          this.comments = apiResponse.results;
+          console.debug('Fetched comments:', this.comments);
+        } else {
+          console.error('Failed to fetch comments:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    formatDate (isoString) {
+      console.debug('BandDetails formatDate:', isoString)
+      return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
+    },
+  },
+  template: `
+    <div v-if="loading">Loading comments...</div>
+    <div v-else v-for="comment in comments" :key="comment.id" class="comment mt-2 text-justify border-top border-primary border-opacity-50">
+        <div><h5>{{ comment.user.first_name }} {{ comment.user.last_name }}</h5></div>
+        <span class="text-muted">Zeit: {{ formatDate(comment.created_at) }}</span><br />
+        <span>Stimmung: <i :class="'fa-solid ' + moodIcon(comment.mood)"></i>{{ modReason(comment.reason) }}</span>
+        <p>Kommentar: {{ comment.text }}</p>
+    </div>
+    `,
+  watch: {
+    newComment(newVal) {
+      if (newVal) {
+        console.debug('CommentFeed reloadComments');
+        this.comments = [];
+        this.loading = true;
+        this.fetchComments();
+      }
+    }
+  }
+})
+
+const CommentField = Vue.defineComponent({
+  props: ['commentApi', 'selectedBandDetails'],
+  emits: ['update:comment'],
+  data() {
+    return {
+      selectedMood: 'thumbs-up',
+      selectedReason: '', // Default selected reason
+      commentText: '', // Default comment text
+      reasons: [
+        { id: 1, text: 'Hatten wir schonmal' },
+        { id: 2, text: 'Solokünstler' },
+        { id: 3, text: 'Zu alt' },
+        { id: 4, text: 'Zu jung' },
+        { id: 5, text: 'Nazis/Schwurbler/Feindliche Gesinnungen' },
+        { id: 6, text: 'Unpassend wie Coverband, DJ, keine handgemachte Musik' },
+        { id: 7, text: 'Professionals' },
+        { id: 8, text: 'Internationals' },
+        { id: 9, text: 'Wollen Gage' },
+      ]
+    }
+  },
+  watch: {
+    selectedMood(newVal) {
+      if (newVal !== 'thumbs-down') {
+        this.selectedReason = ''; // Reset the selected reason if thumbs-down is not selected
+      }
+    }
+  },
+  methods: {
+    emitComment () {
+      console.debug('CommentField emitComment:', this.selectedMood, this.selectedReason, this.commentText)
+      const commentData = {
+        mood: this.selectedMood,
+        reason: this.selectedReason,
+        text: this.commentText,
+        band: this.selectedBandDetails.id,
+      };
+
+      // Post the comment to the API
+      fetch(`${this.commentApi}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+        },
+        body: JSON.stringify(commentData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.debug('Successfully posted comment:', data);
+        this.$emit('update:comment', commentData);
+        this.selectedMood = 'thumbs-up';
+        this.selectedReason = '';
+        this.commentText = '';
+      })
+      .catch(error => {
+        console.error('Error posting comment:', error);
+      });
+    },
+    isButtonDisabled() {
+      if (this.selectedMood === 'thumbs-up' && this.commentText.trim() !== '') {
+        return false;
+      }
+      if (this.selectedMood === 'thumbs-down' && this.selectedReason !== '' && this.commentText.trim() !== '') {
+        return false;
+      }
+      return true;
+    },
+  },
+  template: `
+    <div class="form-group">
+      <div class="row mb-2">
+        <div class="col-auto">
+          <input type="radio" class="btn-check" name="options" id="radio-thumbs-up" autocomplete="off" v-model="selectedMood" value="thumbs-up">
+          <label :class="['btn', selectedMood === 'thumbs-up' ? 'btn-primary' : 'btn-secondary']" for="radio-thumbs-up">
+            <i class="fa-solid fa-thumbs-up"></i>
+          </label>
+        </div>
+        <div class="col-auto">
+          <input type="radio" class="btn-check" name="options" id="radio-thumbs-down" autocomplete="off" v-model="selectedMood" value="thumbs-down">
+          <label :class="['btn', selectedMood === 'thumbs-down' ? 'btn-primary' : 'btn-secondary']" for="radio-thumbs-down">
+            <i class="fa-solid fa-thumbs-down"></i>
+          </label>
+        </div>
+        <div class="col">
+          <select class="form-select" aria-label="Begründung für negativen Kommentar" v-model="selectedReason" :disabled="selectedMood !== 'thumbs-down'">
+            <option value="" selected>Wähle eine Begründung</option>
+            <option v-for="reason in reasons" :key="reason.id" :value="reason.text">{{ reason.text }}</option>
+          </select>
+        </div>
+      </div>
+      <textarea id="comment" class="form-control" rows="4" v-model="commentText"></textarea>
+      <button class="btn btn-primary mt-2" @click="emitComment" :disabled="isButtonDisabled()">Kommentar absenden</button>
+    </div>
+  `,
+})
+
 const BandDetails = Vue.defineComponent({
   props: [
     'tracks',
@@ -564,7 +727,9 @@ const BandDetails = Vue.defineComponent({
     'federalStates',
     'selectedBandDetails',
     'currentTrackId',
-    'allowChanges'
+    'allowChanges',
+    'allowVotes',
+    'commentApi',
   ],
   emits: ['update:track', 'update:select-song', 'update:rating'],
   components: {
@@ -576,10 +741,18 @@ const BandDetails = Vue.defineComponent({
     BandDocuments,
     BandLinks,
     BandTags,
-    BandRating
+    BandRating,
+    CommentFeed,
+    CommentField
+  },
+  data () {
+    return {
+      newComment: null
+    }
   },
   created () {
     console.debug('BandDetails created:', this.selectedBandDetails)
+    console.debug('BandDetails created allowVotes:', this.allowVotes)
   },
   computed: {
     bandName () {
@@ -607,7 +780,6 @@ const BandDetails = Vue.defineComponent({
   },
   template: `
     <section :v-if="selectedBandDetails" class="row p-4 form-section">
-    <div class="row">
       <div class="col">
           <h3>{{ bandName }}</h3>
       </div>
@@ -635,90 +807,93 @@ const BandDetails = Vue.defineComponent({
       <div class="col-9">
           <BandTags :selectedBandDetails="selectedBandDetails" :federalStates="federalStates" />
       </div>
-      <div v-if="selectedBandDetails.bid_status === 'accepted'" class="col-3">
+      <div v-if="selectedBandDetails.bid_status === 'accepted' && allowVotes" class="col-3">
           <BandRating :selectedBandDetails="selectedBandDetails" @update:rating="emitRating" />
       </div>
       </div>
+      <h3>Allgemeines</h3>
+      <div class="col-auto">
+          <div v-html="coverLetter" class="alert alert-secondary" role="alert"></div>
+      </div>
+      <div class="col">
+          <div><h4>Web</h4></div>
+          <BandLinks :links="selectedBandDetails.web_links" />
+      </div>
+      <h3>Media</h3>
+      <div class="col">
+          <div><h4>Songs</h4></div>
+          <SongList :songs="selectedBandDetails.songs" @select-song="handleSongSelect" />
+      </div>
+      <div class="col">
+          <div><h4>Links</h4></div>
+          <BandLinks :links="selectedBandDetails.links" />
+      </div>
+      <h4>Bilder</h4>
+      <div class="col">
+          <BandImages :selectedBandDetails="selectedBandDetails" />
+      </div>
+      <h4>Dokumente</h4>
+      <div class="col">
+          <BandDocuments :documents="selectedBandDetails.documents" />
+      </div>
+      <!-- feed start -->
+      <h3>Kommentare</h3>
+      <CommentFeed :comment-api="commentApi" :selectedBandDetails="selectedBandDetails" :new-comment="newComment" />
+      <!-- feed end -->
+      <!-- comment start -->
+      <h4 class="mt-3">Dein Kommentar</h4>
+      <CommentField :comment-api="commentApi" :selectedBandDetails="selectedBandDetails" @update:comment="handleNewComment" />
+      <!-- comment end -->
+      <!-- administrative section start -->
+      <div v-if="allowChanges" class="mt-5">
+      <h3>Verwaltung</h3>
       <div class="row">
-          <h3>Allgemeines</h3>
-          <div class="col">
-              <div v-html="coverLetter" class="alert alert-secondary" role="alert">
-              </div>
+        <div class="col-auto">
+            <TrackDropdown :tracks="tracks" :selectedBandDetails="selectedBandDetails" :currentTrackId="currentTrackId" @update:selectedTrack="updateTrack" />
+        </div>
+        <div class="col-auto">
+            <BidStatusDropdown :bidStates="bidStates" :selectedBandDetails="selectedBandDetails" @update:bidStatus="updateBidStatus" />
+        </div>
+        <div class="col-auto">
+          <BackstageLink :selectedBandDetails="selectedBandDetails" />
+        </div>
       </div>
-      <div class="row mb-2">
-          <div class="col">
-              <div><h4>Web</h4></div>
-              <BandLinks :links="selectedBandDetails.web_links" />
-          </div>
+      <h4 class="mt-2">Booking</h4>
+      <div class="col-auto">
+      <p>Name: {{ selectedBandDetails.contact.first_name || "Kein Vorname" }} {{ selectedBandDetails.contact.last_name || "Kein Nachname" }}</p>
+      <p>E-Mail: <a :href="'mailto:' + selectedBandDetails.contact.email">{{ selectedBandDetails.contact.email }}</a></p>
       </div>
-      <div class="row">
-          <h3>Media</h3>
-          <div class="col">
-              <div><h4>Songs</h4></div>
-              <SongList :songs="selectedBandDetails.songs" @select-song="handleSongSelect" />
-          </div>
-          <div class="col">
-              <div><h4>Links</h4></div>
-              <BandLinks :links="selectedBandDetails.links" />
-          </div>
+      <div class="col-auto">
       </div>
-      <div class="row">
-          <h4>Bilder</h4>
-          <div class="col">
-              <BandImages :selectedBandDetails="selectedBandDetails" />
-          </div>
+      <div class="col-auto">
       </div>
-      <div class="row">
-          <h4>Dokumente</h4>
-          <div class="col">
-              <BandDocuments :documents="selectedBandDetails.documents" />
-          </div>
-      </div>
-      <div v-if="allowChanges" class="row mb-2">
-          <h3>Verwaltung</h3>
-          <div class="col">
-              <TrackDropdown :tracks="tracks" :selectedBandDetails="selectedBandDetails" :currentTrackId="currentTrackId" @update:selectedTrack="updateTrack" />
-          </div>
-          <div class="col">
-              <BidStatusDropdown :bidStates="bidStates" :selectedBandDetails="selectedBandDetails" @update:bidStatus="updateBidStatus" />
-          </div>
-          <div class="col">
-            <BackstageLink :selectedBandDetails="selectedBandDetails" />
-          </div>
-      </div>
-      <div v-if="allowChanges" class="row">
-          <h4>Booking</h4>
-          <div class="col">
-          <p>Name: {{ selectedBandDetails.contact.first_name || "Kein Vorname" }} {{ selectedBandDetails.contact.last_name || "Kein Nachname" }}</p>
-          <p>E-Mail: <a :href="'mailto:' + selectedBandDetails.contact.email">{{ selectedBandDetails.contact.email }}</a></p>
-          </div>
-          <div class="col">
-          </div>
-          <div class="col">
-          </div>
-      </div>
-      <div v-if="allowChanges" class="row text-muted">
+      <div class="row text-muted">
           <h5>Techniches Zeug</h5>
-          <div class="col">
+          <div class="col-auto">
           <p class="iso-datetime">Ertellt: {{ formatDate(selectedBandDetails.created_at) }}</p>
           <p class="iso-datetime">Aktuallisiert: {{ formatDate(selectedBandDetails.updated_at) }}</p>
           </div>
-          <div class="col">
+          <div class="col-auto">
           <p>Band ID: {{ selectedBandDetails.id }}</p>
           <p>Event ID: {{ selectedBandDetails.event }}</p>
           </div>
-          <div class="col">
+          <div class="col-auto">
           <p>Kontakt ID: {{ selectedBandDetails.contact.id }}</p>
           <p>Track ID: {{ trackId }}</p>
           </div>
       </div>
-    </div>
+      </div>
+    <!-- administrative section end -->
     </section>
   `,
   methods: {
     updateTrack (trackId) {
       console.debug('BandDetails updateTrack:', trackId)
       this.$emit('update:track', trackId)
+    },
+    handleNewComment (commentData) {
+      console.debug('BandDetails emitComment:', commentData)
+      this.newComment = commentData;
     },
     updateBidStatus (bidStatus) {
       console.debug('BandDetails updateBidStatus:', bidStatus)
@@ -747,8 +922,10 @@ const app = createApp({
       bandsToFetch: null,
       eventSlug: window.rockon_data.event_slug,
       allowChanges: window.rockon_api.allow_changes,
+      allowVotes: window.rockon_api.allow_votes,
       crsf_token: $('[name=csrfmiddlewaretoken]').val(),
       bandListUrl: window.rockon_api.list_bands,
+      bandCommentsUrl: window.rockon_api.comments_api,
       tracks: window.rockon_data.tracks,
       bands: [],
       federalStates: window.rockon_data.federal_states,

@@ -7,3 +7,4 @@ from .band import (
     BandTrackSerializer,
     BandVoteSerializer,
 )
+from .comment import CommentSerializer

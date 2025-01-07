@@ -2,7 +2,16 @@ from __future__ import annotations
 
 from rockon.library.custom_admin import CustomAdminModel, admin
 
-from .models import Band, BandMedia, BandMember, BandVote, Stage, TimeSlot, Track
+from .models import (
+    Band,
+    BandMedia,
+    BandMember,
+    BandVote,
+    Comment,
+    Stage,
+    TimeSlot,
+    Track,
+)
 
 
 class TimeslotAdmin(CustomAdminModel):
@@ -122,10 +131,17 @@ class BandVoteAdmin(CustomAdminModel):
         return [field for field in fields if field != "vote"]
 
 
+class CommentAdmin(CustomAdminModel):
+    list_display = ("band", "user", "created_at", "mood")
+    list_filter = ("band__name", "mood")
+    search_fields = ("band__name", "user__username", "mood")
+
+
 admin.site.register(Band, BandAdmin)
 admin.site.register(BandMedia, BandMediaAdmin)
 admin.site.register(BandMember, BandMemberAdmin)
 admin.site.register(BandVote, BandVoteAdmin)
+admin.site.register(Comment, CommentAdmin)
 admin.site.register(Stage, StageAdmin)
 admin.site.register(TimeSlot, TimeslotAdmin)
 admin.site.register(Track, TrackAdmin)

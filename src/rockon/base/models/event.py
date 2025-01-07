@@ -67,6 +67,9 @@ class Event(CustomModel):
     bid_vote_allowed = models.BooleanField(
         default=False, help_text="Bandbewertung aktiv"
     )
+    bid_browsing_allowed = models.BooleanField(
+        default=False, help_text="Bandbewerbungen einsehbar"
+    )
 
     def __str__(self):
         return self.name

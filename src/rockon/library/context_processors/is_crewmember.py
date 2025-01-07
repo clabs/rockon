@@ -11,9 +11,7 @@ def is_crewmember(request):
         if event_id is not None:
             try:
                 current_event = Event.objects.get(id=event_id)
-                if current_event.crews.exists():
-                    is_member = current_event.crews.is_member(request.user)
-                    return {"is_crewmember": is_member}
+                return {"is_crewmember": current_event.crews.is_member(request.user)}
             except (ObjectDoesNotExist, AttributeError):
                 pass
     return {"is_crewmember": False}
