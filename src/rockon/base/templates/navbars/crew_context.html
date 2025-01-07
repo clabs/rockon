@@ -3,7 +3,7 @@
   <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew</a>
   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
     <a class="dropdown-item" href="{% url 'crew:guestlist_entries' slug=current_event.slug %}">Gästeliste</a>
-    {% if current_event.bid_vote_allowed %}
+    {% if current_event.bid_browsing_allowed %}
       <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band Bewertung</a>
     {% endif %}
   </div>

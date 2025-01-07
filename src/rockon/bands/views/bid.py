@@ -109,7 +109,7 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
     if (
         not (
             request.user.crewmember_set.filter(
-                crew__event__slug=slug, state="confirmed"
+                crew__event__slug=slug, state__in=["confirmed", "arrived"]
             ).exists()
         )
         and not is_booking
@@ -117,7 +117,9 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
         raise PermissionDenied(
             "Du bist nicht berechtigt, Bandbewertungen abzugeben, bitte wende dich an die Crewkoordination und lasse dich für die Crew freischalten."
         )
-    if not (not Event.objects.get(slug=slug).bid_vote_allowed) or not is_booking:
+    if (Event.objects.get(slug=slug).bid_browsing_allowed is False) and (
+        is_booking is False
+    ):
         template = loader.get_template("errors/403.html")
         return HttpResponseForbidden(
             template.render(
@@ -137,6 +139,7 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
     allow_changes = mark_safe(
         json.dumps(request.user.groups.filter(name="booking").exists())
     )
+    allow_votes = mark_safe(json.dumps(Event.objects.get(slug=slug).bid_vote_allowed))
     media_url = settings.MEDIA_URL
     user_votes = request.user.band_votes.filter(event__slug=slug).values(
         "band__id", "vote"
@@ -152,5 +155,6 @@ def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
         "bandid": band_guid_json,
         "user_votes": user_votes_json,
         "allow_changes": allow_changes,
+        "allow_votes": allow_votes,
     }
     return HttpResponse(template.render(extra_context, request))
