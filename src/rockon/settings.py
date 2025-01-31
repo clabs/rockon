@@ -76,7 +76,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "csp.middleware.CSPMiddleware",
+    # "csp.middleware.CSPMiddleware",
     "rockon.library.session_current_event.SessionCurrentEventMiddleware",
 ]
 
@@ -101,7 +101,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "csp.context_processors.nonce",
+                # "csp.context_processors.nonce",
                 "rockon.library.context_processors.app_info.get_build_date",
                 "rockon.library.context_processors.app_info.get_build_hash",
                 "rockon.library.context_processors.sentry_frontend.get_sentry_data",
