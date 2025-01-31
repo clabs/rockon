@@ -349,6 +349,7 @@ CONVERT_BIN = env.str("CONVERT_BIN", default="convert")
 CSP_DEFAULT_SRC = ["'self'"]
 CSP_SCRIPT_SRC = ["'self'", "'unsafe-eval'"]
 CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]
+CSP_SCRIPT_SRC_ELEM = ["'self'"]
 CSP_IMG_SRC = ["'self'", "data:"]
 CSP_CONNECT_SRC = ["'self'"]
 CSP_FONT_SRC = ["'self'"]
@@ -363,4 +364,5 @@ CSP_INCLUDE_NONCE_IN = ["script-src"]
 if SENTRY_DSN:
     sentry_target = urlparse(SENTRY_DSN)
     CSP_SCRIPT_SRC.append(f"{sentry_target.scheme}://{sentry_target.hostname}")
+    CSP_SCRIPT_SRC_ELEM.append(f"{sentry_target.scheme}://{sentry_target.hostname}")
     CSP_CONNECT_SRC.append(f"{sentry_target.scheme}://{sentry_target.hostname}")
