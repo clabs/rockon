@@ -359,7 +359,7 @@ CSP_MEDIA_SRC = ["'self'", "blob:"]
 CSP_FRAME_ANCESTORS = ["'none'"]
 CSP_FORM_ACTION = ["'self'"]
 CSP_BASE_URI = ["'self'"]
-CSP_INCLUDE_NONCE_IN = ["script-src"]
+CSP_INCLUDE_NONCE_IN = ["script-src", "script-src-elem"]
 
 if SENTRY_DSN:
     sentry_target = urlparse(SENTRY_DSN)
