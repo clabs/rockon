@@ -36,15 +36,19 @@
       order: [
         [1, 'desc'],
         [2, 'desc']
-      ],
+        ],
       drawCallback: function () {
-        $('.inlinesparkline:not(:has(canvas))').sparkline('html', {
-          type: 'bar',
-          barWidth: '20px',
-          barColor: '#fff300',
-          disableTooltips: true,
-          chartRangeMax: 6
-        })
+        $('.inlinesparkline').each(function() {
+          if (!$(this).find('canvas').length) {
+            $(this).sparkline('html', {
+              type: 'bar',
+              barWidth: '20px',
+              barColor: '#fff300',
+              disableTooltips: true,
+              chartRangeMax: 6
+            });
+          }
+        });
       }
     })
   })
