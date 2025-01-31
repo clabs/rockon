@@ -5,10 +5,11 @@
   <div>
     <h1>Band Bewertungen</h1>
   </div>
-  {% compress css file datatables %}
-    <link href="{% static "vendor/datatables.2.1.0.min.css" %}" rel="stylesheet">
+  {% compress css file datatables_css %}
+    <link href="{% static "vendor/datatables.2.1.0.min.css" %}"
+          rel="stylesheet">
   {% endcompress %}
-  {% compress js file datatables %}
+  {% compress js file datatables_js %}
     <script src="{% static "vendor/datatables.2.1.0.min.js" %}"></script>
     <script src="{% static "vendor/dataTables.buttons.js" %}"></script>
     <script src="{% static "vendor/buttons.dataTables.js" %}"></script>

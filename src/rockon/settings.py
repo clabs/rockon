@@ -362,5 +362,5 @@ CSP_INCLUDE_NONCE_IN = ["script-src"]
 
 if SENTRY_DSN:
     sentry_target = urlparse(SENTRY_DSN)
-    CSP_SCRIPT_SRC.append(sentry_target.hostname)
-    CSP_CONNECT_SRC.append(sentry_target.hostname)
+    CSP_SCRIPT_SRC.append(f"{sentry_target.scheme}://{sentry_target.hostname}")
+    CSP_CONNECT_SRC.append(f"{sentry_target.scheme}://{sentry_target.hostname}")
