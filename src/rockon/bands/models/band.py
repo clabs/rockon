@@ -84,10 +84,12 @@ class Band(CustomModel):
 
         audio_count = self.media.filter(media_type="audio").count() >= 3
         links = self.media.filter(media_type="link").count() >= 1
+        websites = self.media.filter(media_type="web").count() >= 1
+        sites = any([links, websites])
         # logo = self.media.filter(media_type="logo").count() >= 1
         press = self.media.filter(media_type="press_photo").count() >= 1
 
-        conditions = [*fields, links, audio_count, press]
+        conditions = [*fields, audio_count, sites, press]
 
         if all(conditions):
             return True
