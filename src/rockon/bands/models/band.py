@@ -83,11 +83,11 @@ class Band(CustomModel):
         ]
 
         audio_count = self.media.filter(media_type="audio").count() >= 3
-        social_media = self.media.filter(media_type="link").count() >= 1
-        logo = self.media.filter(media_type="logo").count() >= 1
+        links = self.media.filter(media_type="link").count() >= 1
+        # logo = self.media.filter(media_type="logo").count() >= 1
         press = self.media.filter(media_type="press_photo").count() >= 1
 
-        conditions = [*fields, social_media, audio_count, logo, press]
+        conditions = [*fields, links, audio_count, press]
 
         if all(conditions):
             return True
