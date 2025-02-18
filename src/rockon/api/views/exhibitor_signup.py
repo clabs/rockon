@@ -99,27 +99,28 @@ def exhibitor_signup(request, slug):
 
             asset_exhibitor.save()
 
-        template = loader.get_template("mail/exhibitor_signup.html")
-        extra_context = {
-            "event_name": event.name,
-            "organisation": organisation.org_name,
-        }
+    template = loader.get_template("mail/exhibitor_signup.html")
+    extra_context = {
+        "event_name": event.name,
+        "organisation": organisation.org_name,
+    }
 
-        message = f"Hallo Admin-Team,\nes gibt eine neue Anmeldung eines Aussteller bei \
-                    {{event.name}}. Bitte überprüft die Angaben und schaut ob alles stimmt."
+    message = f"Hallo Admin-Team,\nes gibt eine neue Anmeldung eines Aussteller bei \
+                {{event.name}}. Bitte überprüft die Angaben und schaut ob alles stimmt."
 
-        async_task(
-            send_mail,
-            subject=f"{settings.EMAIL_SUBJECT_PREFIX} Neue Ausstelleranmeldung",
-            message=message,
-            from_email=settings.EMAIL_DEFAULT_FROM,
-            recipient_list=[
-                user.email
-                for user in Group.objects.get(name="exhibitor_admins").user_set.all()
-            ],
-            html_message=template.render(extra_context),
-            fail_silently=False,
-        )
+    admins = [
+        user.email for user in Group.objects.get(name="exhibitor_admins").user_set.all()
+    ]
+
+    async_task(
+        send_mail,
+        subject=f"{settings.EMAIL_SUBJECT_PREFIX} Neue Ausstelleranmeldung",
+        message=message,
+        from_email=settings.EMAIL_DEFAULT_FROM,
+        recipient_list=admins,
+        html_message=template.render(extra_context),
+        fail_silently=False,
+    )
 
     if created_user:
         return JsonResponse({"status": "created", "message": "User created"})
