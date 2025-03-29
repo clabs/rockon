@@ -30,5 +30,5 @@ urlpatterns = [
     path("bid/<guid>/", bid_form, name="bid_form"),
     path("booking/bid_overview/", booking_bid_overview, name="booking_bid_overview"),
     # path("techrider/", techrider, name="bands_techrider"),
-    path("<guid>/members/", members, name="bands_members"),
+    path("<slug_guid>/members/", members, name="bands_members"),
 ]
