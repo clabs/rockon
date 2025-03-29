@@ -1,4 +1,4 @@
-FROM python:3.13.1-bookworm as base
+FROM python:3.13.2-bookworm as base
 
 ######################################### [build] ########################
 
