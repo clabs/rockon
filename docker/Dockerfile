@@ -1,8 +1,8 @@
-FROM python:3.13.2-bookworm as base
+FROM python:3.13.3-bookworm AS base
 
 ######################################### [build] ########################
 
-FROM base as build
+FROM base AS build
 
 ENV LC_ALL=C.UTF-8
 ENV DOCKER_UID=1000
@@ -37,10 +37,10 @@ RUN export DJANGO_SECRET_KEY=unused-but-must-be-present && \
 
 ######################################### [app] ########################
 
-FROM base as app
+FROM base AS app
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 ENV LC_ALL=C.UTF-8
 ENV DJANGO_SETTINGS_MODULE=rockon.settings
 ENV DOCKER_UID=1000

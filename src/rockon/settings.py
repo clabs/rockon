@@ -15,6 +15,7 @@ from os import getenv, path
 from urllib.parse import urlparse
 
 import sentry_sdk
+from csp.constants import NONCE, NONE, SELF
 from environs import Env
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -76,7 +77,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "csp.middleware.CSPMiddleware",
+    "csp.middleware.CSPMiddleware",
     "rockon.library.session_current_event.SessionCurrentEventMiddleware",
 ]
 
@@ -346,23 +347,37 @@ FFMPEG_BIN = env.str("FFMPEG_BIN", default="ffmpeg")
 CONVERT_BIN = env.str("CONVERT_BIN", default="convert")
 
 # Content Security Policy
-CSP_DEFAULT_SRC = ["'self'"]
-CSP_SCRIPT_SRC = ["'self'", "'unsafe-eval'"]
-CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]
-CSP_SCRIPT_SRC_ELEM = ["'self'"]
-CSP_IMG_SRC = ["'self'", "data:"]
-CSP_CONNECT_SRC = ["'self'"]
-CSP_FONT_SRC = ["'self'"]
-CSP_OBJECT_SRC = ["'none'"]
-CSP_FRAME_SRC = ["'none'"]
-CSP_MEDIA_SRC = ["'self'", "blob:"]
-CSP_FRAME_ANCESTORS = ["'none'"]
-CSP_FORM_ACTION = ["'self'"]
-CSP_BASE_URI = ["'self'"]
-CSP_INCLUDE_NONCE_IN = ["script-src", "script-src-elem"]
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "base-uri": [SELF],
+        "default-src": [SELF],
+        "font-src": [SELF],
+        "form-action": [SELF],
+        "frame-ancestors": [NONE],
+        "frame-src": [NONE],
+        "img-src": [SELF, "data:"],
+        "media-src": [SELF, "blob:"],
+        "object-src": [NONE],
+        "script-src": [
+            SELF,
+            "'unsafe-eval'",
+            "https://o4504770486337536.ingest.sentry.io",
+            NONCE,
+        ],
+        "script-src-elem": [SELF, "https://o4504770486337536.ingest.sentry.io", NONCE],
+        "connect-src": [SELF],
+        "style-src": [SELF, "'unsafe-inline'"],
+    }
+}
 
 if SENTRY_DSN:
     sentry_target = urlparse(SENTRY_DSN)
-    CSP_SCRIPT_SRC.append(f"{sentry_target.scheme}://{sentry_target.hostname}")
-    CSP_SCRIPT_SRC_ELEM.append(f"{sentry_target.scheme}://{sentry_target.hostname}")
-    CSP_CONNECT_SRC.append(f"{sentry_target.scheme}://{sentry_target.hostname}")
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"].append(
+        f"{sentry_target.scheme}://{sentry_target.hostname}"
+    )
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src-elem"].append(
+        f"{sentry_target.scheme}://{sentry_target.hostname}"
+    )
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["connect-src"].append(
+        f"{sentry_target.scheme}://{sentry_target.hostname}"
+    )
