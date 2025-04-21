@@ -70,13 +70,14 @@ def attendance_table(request, slug):
             amounts["misc"] += exhibitor_attendance.count
 
         amounts["day"] = day
-        amounts["omnivore"] = (
+        amounts["crew"] = {}
+        amounts["crew"]["omnivore"] = (
             crew_members.filter(attendance=day, nutrition="omnivore").count() or 0
         )
-        amounts["vegetarian"] = (
+        amounts["crew"]["vegetarian"] = (
             crew_members.filter(attendance=day, nutrition="vegetarian").count() or 0
         )
-        amounts["vegan"] = (
+        amounts["crew"]["vegan"] = (
             crew_members.filter(attendance=day, nutrition="vegan").count() or 0
         )
         amounts["sum"] = (crew_members.filter(attendance=day).count() or 0) + amounts[
@@ -85,6 +86,12 @@ def attendance_table(request, slug):
 
         # calculate band members and their nutrition, only bands with a slot are taken into account
         # for all timeslots in given day
+        amounts["bands"] = {
+            "omnivore": 0,
+            "vegetarian": 0,
+            "vegan": 0,
+            "sum": 0,
+        }
         for timeslot in day.timeslots.all():
             # catch for empty timeslots
             try:
@@ -97,7 +104,7 @@ def attendance_table(request, slug):
                 )
                 # count all band members and their nutrition
                 for member in timeslot.band.band_members.all():
-                    amounts[member.nutrition] += 1
+                    amounts["bands"][member.nutrition] += 1
                     amounts["sum"] += 1
             # if a day is empty, nothing bad happens
             except AttributeError:
@@ -107,25 +114,25 @@ def attendance_table(request, slug):
             addtion_list.append({"day": day, "additions": additions})
 
         # calculate overnight crew members and their nutrition
-        amounts["omnivore_overnight"] = (
+        amounts["crew"]["omnivore_overnight"] = (
             crew_members.filter(
                 attendance=day, nutrition="omnivore", stays_overnight=True
             ).count()
             or 0  # noqa: W503
         )
-        amounts["vegetarian_overnight"] = (
+        amounts["crew"]["vegetarian_overnight"] = (
             crew_members.filter(
                 attendance=day, nutrition="vegetarian", stays_overnight=True
             ).count()
             or 0  # noqa: W503
         )
-        amounts["vegan_overnight"] = (
+        amounts["crew"]["vegan_overnight"] = (
             crew_members.filter(
                 attendance=day, nutrition="vegan", stays_overnight=True
             ).count()
             or 0  # noqa: W503
         )
-        amounts["sum_overnight"] = (
+        amounts["crew"]["sum_overnight"] = (
             crew_members.filter(attendance=day, stays_overnight=True).count() or 0
         )
 
