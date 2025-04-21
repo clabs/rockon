@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.template import loader
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 
 from rockon.base.models import Event
 from rockon.crew.models import (
@@ -18,6 +20,8 @@ from rockon.exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorSt
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="catering_food").exists())
+@cache_page(60 * 5)
+@vary_on_cookie
 def attendance_table(request, slug):
     template = loader.get_template("catering_attendance.html")
     try:
