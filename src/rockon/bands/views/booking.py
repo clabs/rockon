@@ -6,9 +6,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Avg, Count, Sum
 from django.http import HttpResponse
 from django.template import loader
-
-# from django.core.cache import cache
 from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 
 from rockon.bands.models import Band
 
@@ -16,6 +15,7 @@ from rockon.bands.models import Band
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name="booking").exists())
 @cache_page(60 * 5)
+@vary_on_cookie
 def booking_bid_overview(request, slug):
     bands = (
         Band.objects.filter(event__slug=slug)
