@@ -21,7 +21,7 @@ class ExhibitorAttendanceAdmin(CustomAdminModel):
 
 
 class ExhibitorAdmin(CustomAdminModel):
-    list_display = ("organisation", "event")
+    list_display = ("organisation", "event", "created_at")
     list_filter = ("event",)
     search_fields = ("organisation", "event")
 
