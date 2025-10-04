@@ -1,4 +1,9 @@
 name: Build and publish docker image
+
+permissions:
+  contents: read
+  packages: write
+
 on:
   # publish on releases, e.g. v2.1.13 (image tagged as "2.1.13" - "v" prefix is removed)
   release:
@@ -15,11 +20,11 @@ jobs:
     runs-on: "ubuntu-24.04"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # https://github.com/marketplace/actions/push-to-ghcr
       - name: Build and publish a Docker image for ${{ github.repository }}
-        uses: macbre/push-to-ghcr@master
+        uses: macbre/push-to-ghcr@v16
         with:
           image_name: ${{ github.repository }}
           image_tag: ${{ github.ref_name }}
