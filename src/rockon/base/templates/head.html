@@ -37,7 +37,7 @@
 {% endcompress %}
 <meta name="theme-color" content="#303030">
 {% if SENTRY_FRONTEND_ENABLED %}
-  <script src="{% static "vendor/sentry.8.19.0.bundle.tracing.min.js" %}"></script>
+  <script src="{% static "vendor/sentry.10.17.0.bundle.tracing.min.js" %}"></script>
   <script language="javascript" nonce="{{request.csp_nonce}}">
 Sentry.init({
   dsn: '{{ SENTRY_DSN }}',
