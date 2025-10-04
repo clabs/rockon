@@ -1,4 +1,4 @@
-FROM python:3.13.3-bookworm AS base
+FROM python:3.13.7-bookworm AS base
 
 ######################################### [build] ########################
 
@@ -6,7 +6,7 @@ FROM base AS build
 
 ENV LC_ALL=C.UTF-8
 ENV DOCKER_UID=1000
-ENV PIPENV_VENV_IN_PROJECT=1
+ENV PATH=/app/.venv/bin:/root/.local/bin:$PATH
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
@@ -21,12 +21,12 @@ RUN apt-get update && \
       /usr/sbin/update-locale LANG=C.UTF-8 && \
     useradd -u $DOCKER_UID -ms /bin/bash -d /app appuser
 
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
 WORKDIR /app
-COPY pyproject.toml poetry.lock /app/
-ENV PATH=/app/.venv/bin:/root/.local/bin:$PATH
-RUN pip3 install --user poetry && \
-    poetry config virtualenvs.in-project true && \
-    poetry install --without dev --sync --no-root
+COPY pyproject.toml uv.lock /app/
+
+RUN uv sync --frozen --no-install-project
 COPY src /app/
 
 RUN export DJANGO_SECRET_KEY=unused-but-must-be-present && \
@@ -46,7 +46,6 @@ ENV DJANGO_SETTINGS_MODULE=rockon.settings
 ENV DOCKER_UID=1000
 ENV PATH=/app/.venv/bin:/root/.local/bin:$PATH
 
-# From GitHub Actions
 ARG BUILD_DATE
 ARG GITHUB_SHA
 ENV BUILD_DATE=$BUILD_DATE

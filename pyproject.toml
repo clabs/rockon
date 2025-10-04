@@ -1,47 +1,49 @@
-[tool.poetry]
+[project]
 name = "rockon"
 version = "0.7.5"
 description = "Hyper customized Rocktreff data entry and lists thingamajig"
-authors = ["ethergeist <knuth@ethergeist.de>"]
-license = "GNU General Public License v3.0"
+authors = [{ name = "ethrgeist", email = "knuth@ethergeist.de" }]
+requires-python = ">=3.13.7,<4"
 readme = "README.md"
+license = "GPL-3.0-or-later"
+dependencies = [
+    "blessed",
+    "brotli",
+    "dateparser",
+    "django",
+    "django-autoslug",
+    "django-compressor",
+    "django-cors-headers",
+    "django-extensions",
+    "django-filter",
+    "django-health-check",
+    "django-q2",
+    "django-redis",
+    "djangorestframework",
+    "environs[django]",
+    "gunicorn",
+    "markdown",
+    "pillow",
+    "psycopg[binary, pool]",
+    "psycopg-binary",
+    "python-magic",
+    "redis[hiredis]",
+    "sentry-sdk",
+    "tzdata",
+    "python-slugify[unidecode]",
+    "djlint",
+    "django-csp",
+]
 
-[tool.poetry.dependencies]
-python = "^3.13.3"
-blessed = "*"
-brotli = "*"
-dateparser = "*"
-django = "*"
-django-autoslug = "*"
-django-compressor = "*"
-django-cors-headers = "*"
-django-extensions = "*"
-django-filter = "*"
-django-health-check = "*"
-django-q2 = "*"
-django-redis = "*"
-djangorestframework = "*"
-environs = {extras = ["django"], version = "*"}
-gunicorn = "*"
-markdown = "*"
-pillow = "*"
-psycopg = {extras = ["binary", "pool"], version = "*"}
-psycopg-binary = "*"
-python-magic = "*"
-redis = {extras = ["hiredis"], version = "*"}
-sentry-sdk = "*"
-tzdata = "*"
-python-slugify = {extras = ["unidecode"], version = "*"}
-djlint = "*"
-django-csp = "*"
-
-[tool.poetry.group.dev.dependencies]
-django-debug-toolbar = "*"
-pre-commit = "*"
-black = "*"
-jupyter = "*"
-ipython = "*"
+[dependency-groups]
+dev = [
+    "django-debug-toolbar",
+    "pre-commit",
+    "black",
+    "jupyter",
+    "ipython",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
