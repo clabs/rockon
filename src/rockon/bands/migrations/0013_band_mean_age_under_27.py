@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbands", "0012_bandvote_event"),
+        ('rockonbands', '0012_bandvote_event'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="band",
-            name="mean_age_under_27",
+            model_name='band',
+            name='mean_age_under_27',
             field=models.BooleanField(default=False),
         ),
     ]

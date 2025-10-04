@@ -6,17 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbase", "0008_alter_emailverification_new_email"),
+        ('rockonbase', '0008_alter_emailverification_new_email'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="event",
-            name="bid_browsing_allowed",
+            model_name='event',
+            name='bid_browsing_allowed',
             field=models.BooleanField(
-                default=False, help_text="Bandbewerbungen einsehbar"
+                default=False, help_text='Bandbewerbungen einsehbar'
             ),
         ),
     ]

@@ -6,26 +6,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbands", "0014_band_is_coverband"),
+        ('rockonbands', '0014_band_is_coverband'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="bandmedia",
-            name="media_type",
+            model_name='bandmedia',
+            name='media_type',
             field=models.CharField(
                 choices=[
-                    ("unknown", "Unbekannt"),
-                    ("audio", "Audio"),
-                    ("document", "Dokument"),
-                    ("link", "Link"),
-                    ("logo", "Logo"),
-                    ("press_photo", "Pressefoto"),
-                    ("web", "Webseite"),
+                    ('unknown', 'Unbekannt'),
+                    ('audio', 'Audio'),
+                    ('document', 'Dokument'),
+                    ('link', 'Link'),
+                    ('logo', 'Logo'),
+                    ('press_photo', 'Pressefoto'),
+                    ('web', 'Webseite'),
                 ],
-                default="unknown",
+                default='unknown',
                 max_length=32,
             ),
         ),

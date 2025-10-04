@@ -9,17 +9,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockoncrew", "0003_alter_crewmember_nutrition"),
+        ('rockoncrew', '0003_alter_crewmember_nutrition'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="GuestListEntry",
+            name='GuestListEntry',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -27,30 +26,30 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("voucher", models.CharField(max_length=96, unique=True)),
-                ("send", models.BooleanField(default=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('voucher', models.CharField(max_length=96, unique=True)),
+                ('send', models.BooleanField(default=False)),
                 (
-                    "crew_member",
+                    'crew_member',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="guestlist_entries",
-                        to="rockoncrew.crewmember",
+                        related_name='guestlist_entries',
+                        to='rockoncrew.crewmember',
                     ),
                 ),
                 (
-                    "day",
+                    'day',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="guestlist_entries",
-                        to="rockoncrew.attendance",
+                        related_name='guestlist_entries',
+                        to='rockoncrew.attendance',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
     ]

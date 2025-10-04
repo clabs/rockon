@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbase", "0007_alter_event_signup_type"),
+        ('rockonbase', '0007_alter_event_signup_type'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="emailverification",
-            name="new_email",
+            model_name='emailverification',
+            name='new_email',
             field=models.EmailField(
                 blank=True, default=None, max_length=1024, null=True
             ),

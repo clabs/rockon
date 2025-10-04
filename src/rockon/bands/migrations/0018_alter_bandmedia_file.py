@@ -8,15 +8,14 @@ import rockon.bands.models.band_media
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbands", "0017_alter_band_contact"),
+        ('rockonbands', '0017_alter_band_contact'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="bandmedia",
-            name="file",
+            model_name='bandmedia',
+            name='file',
             field=models.FileField(
                 blank=True,
                 default=None,
