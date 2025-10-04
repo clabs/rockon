@@ -6,22 +6,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbase", "0006_event_bid_vote_allowed"),
+        ('rockonbase', '0006_event_bid_vote_allowed'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="event",
-            name="signup_type",
+            model_name='event',
+            name='signup_type',
             field=models.CharField(
                 choices=[
-                    ("unknown", "Unbekannt"),
-                    ("crew", "Crew"),
-                    ("exhibitor", "Aussteller"),
+                    ('unknown', 'Unbekannt'),
+                    ('crew', 'Crew'),
+                    ('exhibitor', 'Aussteller'),
                 ],
-                default="unknown",
+                default='unknown',
                 max_length=12,
             ),
         ),

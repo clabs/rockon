@@ -10,18 +10,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbands", "0018_alter_bandmedia_file"),
+        ('rockonbands', '0018_alter_bandmedia_file'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Comment",
+            name='Comment',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -29,36 +28,36 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("text", models.TextField()),
-                ("reason", models.TextField(blank=True, default=None, null=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('text', models.TextField()),
+                ('reason', models.TextField(blank=True, default=None, null=True)),
                 (
-                    "mood",
+                    'mood',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
                 (
-                    "band",
+                    'band',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="comments",
-                        to="rockonbands.band",
+                        related_name='comments',
+                        to='rockonbands.band',
                     ),
                 ),
                 (
-                    "user",
+                    'user',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="comments",
+                        related_name='comments',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
     ]

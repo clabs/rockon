@@ -8,22 +8,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbands", "0016_remove_band_facebook_remove_band_homepage"),
+        ('rockonbands', '0016_remove_band_facebook_remove_band_homepage'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="band",
-            name="contact",
+            model_name='band',
+            name='contact',
             field=models.ForeignKey(
                 blank=True,
                 default=None,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="bands",
+                related_name='bands',
                 to=settings.AUTH_USER_MODEL,
             ),
         ),

@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("rockonbands", "0010_alter_bandmember_nutrition"),
+        ('rockonbands', '0010_alter_bandmember_nutrition'),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name="band",
-            options={"ordering": ["name"]},
+            name='band',
+            options={'ordering': ['name']},
         ),
     ]
