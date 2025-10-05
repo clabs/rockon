@@ -193,11 +193,11 @@ $(document).ready(() => {
     <div class="row">
       <div class="col-md-6 g-4">
         <label for="first_name">Vorname</label>
-        <input type="first_name" class="form-control" id="first_name" placeholder="Jane" value="{{ user.first_name|default_if_none:"" }}">
+        <input type="text" class="form-control" id="first_name" placeholder="Jane" value="{{ user.first_name|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
         <label for="last_name">Nachname</label>
-        <input type="last_name" class="form-control" id="last_name" placeholder="Doe" value="{{ user.last_name|default_if_none:"" }}">
+        <input type="text" class="form-control" id="last_name" placeholder="Doe" value="{{ user.last_name|default_if_none:"" }}">
       </div>
     </div>
     <div class="row">
@@ -207,7 +207,7 @@ $(document).ready(() => {
       </div>
       <div class="col-md-6 g-4">
         <label for="phone">Telefonnummer</label>
-        <input type="phone" class="form-control" id="phone" placeholder="05551234" value="{{ user.profile.phone|default_if_none:"" }}">
+        <input type="tel" class="form-control" id="phone" placeholder="05551234" value="{{ user.profile.phone|default_if_none:"" }}">
       </div>
     </div>
     <div class="row">
@@ -229,7 +229,7 @@ $(document).ready(() => {
     <div class="row">
       <div class="col-md-6 g-4">
         <label for="zip_code">Postleitzahl</label>
-        <input type="zip_code" class="form-control" id="zip_code" placeholder="10999" value="{{ user.profile.zip_code|default_if_none:"" }}">
+        <input type="number" class="form-control" id="zip_code" placeholder="10999" value="{{ user.profile.zip_code|default_if_none:"" }}">
       </div>
       <div class="col-md-6 g-4">
         <label for="place">Ort</label>
