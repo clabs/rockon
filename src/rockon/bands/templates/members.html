@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 
-    <script language="javascript" nonce="{{ request.csp_nonce }}">
+    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
         const persons = []
         const slots = {{ slots }}
         const band_id = "{{ band.id }}"
