@@ -36,7 +36,6 @@
           type: 'POST',
           contentType: 'application/json',
           data: JSON.stringify({ id: voucherId }),
-          contentType: 'application/json',
           headers: {
             'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
           },
