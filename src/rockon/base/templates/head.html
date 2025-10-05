@@ -52,8 +52,7 @@ Sentry.init({
     const DateTime = luxon.DateTime
     $('.date-format-huge').each((_, el) => {
       const date_parsed = DateTime.fromFormat(el.innerText, "dd.LL.yyyy", { locale: "de" })
-      const date_formatted = date_parsed.toLocaleString(DateTime.DATE_HUGE)
-      el.innerText = date_formatted
+        el.innerText = date_parsed.toLocaleString(DateTime.DATE_HUGE)
     })
   })
 </script>
