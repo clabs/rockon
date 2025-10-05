@@ -513,6 +513,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e1/a4/736ab90ee527a23e194d1ce7358c6bcced66381ced83c28268b4aea236f7/django_csp-4.0-py3-none-any.whl", hash = "sha256:d5a0a05463a6b75a4f1fc1828c58c89af8db9364d09fc6e12f122b4d7f3d00dc", size = 25689, upload-time = "2025-04-02T16:41:45.689Z" },
 ]
 
+[package.optional-dependencies]
+jinja2 = [
+    { name = "jinja2" },
+]
+
 [[package]]
 name = "django-debug-toolbar"
 version = "6.0.0"
@@ -2027,7 +2032,7 @@ dependencies = [
     { name = "django-autoslug" },
     { name = "django-compressor" },
     { name = "django-cors-headers" },
-    { name = "django-csp" },
+    { name = "django-csp", extra = ["jinja2"] },
     { name = "django-extensions" },
     { name = "django-filter" },
     { name = "django-health-check" },
@@ -2067,11 +2072,11 @@ requires-dist = [
     { name = "django-autoslug" },
     { name = "django-compressor" },
     { name = "django-cors-headers" },
-    { name = "django-csp" },
+    { name = "django-csp", extras = ["jinja2"] },
     { name = "django-extensions" },
     { name = "django-filter" },
     { name = "django-health-check" },
-    { name = "django-ninja", specifier = ">=1.4.3" },
+    { name = "django-ninja" },
     { name = "django-q2" },
     { name = "django-redis" },
     { name = "djangorestframework" },
