@@ -49,7 +49,7 @@ $(document).ready(() => {
       },
       dataType: 'json',
       success: (result) => {
-        window.location.reload(true)
+        window.location.reload()
         submitButton.prop('disabled', true)
       },
       error: (result) => {
