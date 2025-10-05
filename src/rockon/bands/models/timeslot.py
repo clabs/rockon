@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from rockon.crew.models import Attendance
 from rockon.library.custom_model import CustomModel, models
-
 from .stage import Stage
 
 

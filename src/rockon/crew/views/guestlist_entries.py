@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template import loader

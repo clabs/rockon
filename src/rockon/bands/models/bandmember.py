@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 
 from rockon.crew.models import CrewMemberNutrion
 from rockon.library.custom_model import CustomModel, models
-
 from .band import Band
 
 

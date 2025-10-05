@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
 

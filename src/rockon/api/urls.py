@@ -14,7 +14,6 @@ from rockon.api.views import (
     update_user_profile,
     verify_email,
 )
-
 from .routers import router
 
 # Caching:

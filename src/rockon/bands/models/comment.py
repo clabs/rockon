@@ -3,7 +3,6 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 
 from rockon.library.custom_model import CustomModel, models
-
 from .band import Band
 
 
