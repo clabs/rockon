@@ -972,9 +972,7 @@ const app = createApp({
 
       if (hashSegments.includes('track')) {
         const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
-        const track =
-          this.tracks.find(track => track.slug === trackSlug) || null
-        this.selectedTrack = track
+        this.selectedTrack = this.tracks.find(track => track.slug === trackSlug) || null
         this.selectedBand = null
         this.selectedBandDetails = null
       } else if (hashSegments.includes('bid')) {
