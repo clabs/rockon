@@ -175,7 +175,11 @@ Q_CLUSTER = {
     'retry': 60,
     'timeout': 30,
     'django_redis': 'qcluster',
+    'prefix': env.str('DJANGO_Q_PREFIX', default='rockon-q'),
 }
+
+if DEBUG:
+    print(f'Q fingerprint: key={SECRET_KEY[:8]} prefix={Q_CLUSTER["prefix"]}')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
