@@ -8,7 +8,7 @@ cd $HOME
 
 rsync -a --delete /app/dist/. /static_files
 
-if [ "$DJANGO_MIGRATE" == "yes" -o "$STARTMODE" == "init" ]; then
+if [ "$DJANGO_MIGRATE" == "yes" ] || [ "$STARTMODE" == "init" ]; then
     /app/.venv/bin/python /app/manage.py migrate --noinput
 fi
 
@@ -22,7 +22,7 @@ if [ "$1" == "version" ]; then
     exit $?
 fi
 
-if [ "$1" == "app" -o "$STARTMODE" == "app" ]; then
+if [ "$1" == "app" ] || [ "$STARTMODE" == "app" ]; then
     # start gunicorn (might be called indirectly via supervisor when started with 'all')
     /app/.venv/bin/python -m gunicorn rockon.wsgi:application \
         --name rockon \
@@ -38,7 +38,7 @@ if [ "$1" == "app" -o "$STARTMODE" == "app" ]; then
       exit $?
 fi
 
-if [ "$1" == "qcluster" -o "$STARTMODE" == "qcluster" ]; then
+if [ "$1" == "qcluster" ] || [ "$STARTMODE" == "qcluster" ]; then
     /app/.venv/bin/python /app/manage.py qcluster
     exit $?
 fi
