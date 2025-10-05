@@ -25,11 +25,11 @@ def guestlist_entries(request, slug) -> HttpResponse:
                 request,
             )
         )
-    guestlist_entries = crew_member.guestlist_entries.all().order_by('day')
+    vouchers = crew_member.guestlist_entries.all().order_by('day')
 
     extra_context = {
         'event': event,
-        'guestlist_entries': guestlist_entries,
+        'guestlist_entries': vouchers,
         'site_title': 'Gästeliste',
     }
     return HttpResponse(template.render(extra_context, request))
