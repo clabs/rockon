@@ -28,7 +28,7 @@
 
                 const voucherId = $inputField.data('id')
                 $.ajax({
-                    url: '/api/crm/mark-voucher/',
+                    url: '/api/v2/mark-voucher',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({id: voucherId}),
