@@ -14,10 +14,15 @@
           const modifiedValue = 'https://backstage.rocktreff.de/redeem?voucher=' + originalValue
           $inputField.val(modifiedValue)
           $inputField.select()
-          document.execCommand('copy')
-          $inputField.val(originalValue)
-          $inputField.blur()
-          showToast('Voucher-Link kopiert')
+          navigator.clipboard.writeText(modifiedValue)
+            .then(() => {
+              showToast('Voucher-Link kopiert')
+              $inputField.val(originalValue)
+              $inputField.blur()
+            })
+            .catch(() => {
+              showToast('Fehler beim Kopieren')
+            })
         }
       })
 
