@@ -6,20 +6,20 @@ from django.db import migrations, models
 
 
 def set_bid_complete(apps, schema_editor):
-    Band = apps.get_model("rockonbands", "Band")
+    Band = apps.get_model('rockonbands', 'Band')
     for band in Band.objects.all():
         band.save()
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbands", "0007_alter_bandmedia_encoded_file"),
+        ('rockonbands', '0007_alter_bandmedia_encoded_file'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="band",
-            name="bid_complete",
+            model_name='band',
+            name='bid_complete',
             field=models.BooleanField(default=False),
         ),
         migrations.RunPython(set_bid_complete),

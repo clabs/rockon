@@ -1,310 +1,360 @@
 {% extends 'base.html' %} {% block content %}
-  {% load static %}{% load compress %}{% load compress %}
-  <div>
-    <h1><span id="band_title">{{band.name|default:"Bandbewerbung"}}</span></h1>
-  </div>
-  <div>
-    <h3>{{ event.name }}</h3>
-  </div>
-  <div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
-
-  <script nonce="{{request.csp_nonce}}">
-    window.rockon_data = {
-      band_id: "{{band.id}}",
-      api_url_band_details: "{% url "bands-detail" pk=band.id %}",
-      api_url_new_media: "{% url "band-media-list" %}",
-    }
-  </script>
-  {% compress js %}
-  <script src="{% static 'js/bandbewerbung-form.js' %}"></script>
-  {% endcompress %}
-  <form id="application" class="row align-items-center needs-validation" novalidate onsubmit="send_form(); return false;">
-    {% csrf_token %}
-
-    <section class="row p-4 form-section">
-      <div>
-        <h2>Band</h2>
-      </div>
-      <div class="row">
-        <div>
-          <h3>Allgemeines</h3>
-        </div>
-        <div class="col-lg-4">
-          <p>
-            Schön, dass ihr euch bei uns bewerbt! Starten wir einmal mit den
-            wichtigsten Dingen. Wer seid ihr, woher kommt ihr und was spielt
-            ihr so für Musik. Solltet ihr nicht aus Deutschland kommen, haben
-            wir ein spezielles Bundesland.
-          </p>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="are_students" name="are_students" {% if band.are_students %} checked {% endif %}/>
-              <label class="form-check-label" for="are_students">Wir sind eine Schülerband</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="has_management" name="has_management" {% if band.has_management %} checked {% endif %}/>
-              <label class="form-check-label" for="has_management">Wir haben ein Mangement</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="mean_age_under_27" name="mean_age_under_27" {% if band.mean_age_under_27 %} checked {% endif %}/>
-              <label class="form-check-label" for="mean_age_under_27">Altersdurchschnitt unter 27</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="is_coverband" name="is_coverband" {% if band.is_coverband %} checked {% endif %}/>
-              <label class="form-check-label" for="is_coverband">Wir sind eine Coverband</label>
-            </div>
-        </div>
-        <div class="col-lg-8">
-          <label for="name">Bandname</label>
-          <input type="text" class="form-control" id="name" name="name" placeholder="Bandname" value="{{band.name|default:""}}" autocomplete="off" />
-          <label for="federal_state">Bundesland</label>
-          <select class="form-select" aria-label="Bundesland" id="federal_state" name="federal_state">
-            {% if not band.federal_state %}
-            <option value="" selected ></option>
-            {% endif %}
-            {% for federal_state in federal_states %}
-            <option value="{{federal_state.0}}" {% if band.federal_state == federal_state.0%} selected {% endif %}>{{federal_state.1}}</option>
-            {% endfor %}
-          </select>
-          <label for="genre">Genre</label>
-          <input type="text" class="form-control" id="genre" name="genre" placeholder="Genre" value="{{band.genre|default:""}}" />
-        </div>
-      </div>
-      <div class="row gy-4">
-        <div class="gy-0">
-          <h3>Web</h3>
-        </div>
-        <div class="col-lg-4 gy-0">
-          <p>
-            Ihr habt eine Seite im Netz? Wir wollen sie sehen! Genauso wie
-            eure Social-Media Profile. Tragt sie hier ein, damit wir uns ein
-            Bild von euch machen können.
-          </p>
-        </div>
-        <div class="col-lg-8 gy-0">
-          <div>
-            <div class="input-group mb-3">
-              <input id="web_url_input" name="web_url_input" type="url" class="form-control" placeholder="https://example.net" value="">
-              <button id="add_web_url" class="btn btn-primary" type="button" disabled>
-                <i class="fas fa-save"></i> Hinzufügen
-              </button>
-            </div>
-          </div>
-          <ul id="web_url_list" class="list-unstyled links">
-            {% for url in media_by_type.web %}
-              <li id="url-{{url.id}}">
-                <a href="{{url.url}}" target="_blank">{{url.url}}</a>
-                <span class="btn btn-default btn-xs" data-remove-url="{{url.id}}"><i class="fa fa-trash"></i></span>
-              </li>
-            {% endfor %}
-          </ul>
-          <div class="alert alert-warning mt-2">URLs müssen mit <strong>http:// oder https://</strong> beginnen.</strong></div>
-        </div>
-      </div>
-      <div class="row gy-4">
-        <div class="gy-0">
-          <h3>Warum ihr?</h3>
-        </div>
-        <div class="col-lg-4 gy-0">
-          <p>
-            Hier habt ihr direkt die Gelegenheit uns zu erzählen, warum ihr genau die
-            richtige Band für den {{ event.name }} seid.
-          </p>
-        </div>
-        <div class="col-lg-8 gy-0">
-          <div>
-            <textarea class="form-control" id="cover_letter" name="cover_letter" rows="6">{{band.cover_letter|default:""}}</textarea>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="row p-4 form-section">
-      <div>
-        <h2>Dokumente</h2>
-      </div>
-      <div class="row">
-        <div class="col-lg-7">
-          <p>Wir brauchen von Euch eine aussagekräftige Bandinfo. Diese enthält Angaben zur Geschichte der Band. Desweiteren könnt Ihr hier Stage- und auch Techrider hochladen. Letztere sind nicht notwendig für eine vollständige Bewerbung - machen uns aber viel Freude.</p>
-          <div class="row">
-            <div class="col">
-              <div class="form-control">
-                <span id="document_counter">{{media_by_type.document|length}}</span>/1 Dokumente
-                <i class="fa fa-check"></i>
-              </div>
-            </div>
-            <div class="col">
-              <input type="file" id="selectedFileDocument" style="display: none;" />
-              <button type="button" id="selectNewDocument" class="btn btn-primary" />Neues Dokument</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-5">
-          <div class="overflow">
-            <ul id="document_list" class="list-group">
-              {% for document in media_by_type.document %}
-              <li id="document-{{document.id}}" class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{{document.file.url}}" target="_blank">
-                  {{document.file_name_original}}
-                </a>
-                <span class="btn btn-default btn-xs" data-remove-document="{{document.id}}"><i class="fa fa-trash"></i></span>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="row p-4 form-section">
-      <div>
-        <h2>Medien</h2>
-      </div>
-      <div class="row">
-        <div class="col-lg-4">
-          <div>
-            <h4>Bilder</h4>
-          </div>
-          <p>Wir brauchen ein aussagekräftiges Pressefoto von Euch. Dieses wird ggf. später veröffentlicht. Daher sollte das Bild eine Breite oder Höhe von mehr als 1200 Pixeln haben.</p>
-          <p>Ihr könnt auch gerne Euer Bandlogo hochladen. Dies ist aber nicht notwendig für die Bewerbung.</p>
-        </div>
-        <div class="col-lg-4">
-          <div>
-            <h4>Pressefoto</h4>
-          </div>
-          <img id="bandPressPhoto" src="{% static 'assets/4_3_placeholder.webp' as placeholder_image %}{{ media_by_type.press_photo.last.file.url|default:placeholder_image }}" class="img-fluid rounded" style="cursor: pointer;" title="Klick hier, um ein Bild hochzuladen" />
-          <input type="file" id="fileInputBandPressPhoto" class="d-none" />
-        </div>
-        <div class="col-lg-4">
-          <div>
-            <h4>Bandlogo</h4>
-          </div>
-          <img id="bandLogo" src="{% static 'assets/4_3_placeholder.webp' as placeholder_image %}{{ media_by_type.logo.last.file.url|default:placeholder_image }}" class="img-fluid rounded" style="cursor: pointer;" title="Klick hier, um ein Bild hochzuladen" />
-          <input type="file" id="fileInputBandLogo" class="d-none" />
-        </div>
-      </div>
-    </section>
-
-    <section class="row p-4 form-section">
-      <div class="row">
-
-        <div class="col-lg-8">
-          <div class="row">
-            <div>
-              <h2>Musik</h2>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <p>Welche drei Eurer Songs beschreiben Eure Musik am besten? Uns ist es dabei egal ob die Aufnahmen aus Eurem Proberaum, dem Studio, oder von der Bühne sind.</p>
-              <div class="row">
-                <div class="col">
-                  <div class="form-control">
-                    <span id="audio_counter">{{media_by_type.audio|length}}</span>/3 Songs
-                    <i class="fa fa-check"></i>
-                  </div>
-                </div>
-                <div class="col">
-                  <input type="file" id="selectedSong" style="display: none;" />
-                  <button type="button" id="selectNewSong" class="btn btn-primary" />Neuer Song</button>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="overflow">
-                <ul id="song_list" class="list-group">
-                  {% for song in media_by_type.audio %}
-                  <li id="song-{{song.id}}" class="list-group-item d-flex justify-content-between align-items-center">
-                    <a class="play-audio" href="{{song.file.url}}" target="_blank">
-                      {{song.file_name_original}}
-                    </a>
-                    <span class="btn btn-default btn-xs" data-remove-song="{{song.id}}"><i class="fa fa-trash"></i></span>
-                  </li>
-                  {% endfor %}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-4">
-          <div>
-            <h2>Videos</h2>
-          </div>
-          <p>Habt Ihr Videos online, die Ihr uns zeigen wollt? Dann fügt sie hier hinzu.</p>
-          <div>
-            <div class="input-group mb-3">
-              <input id="url_input" name="url_input" type="url" class="form-control" placeholder="https://example.net" value="">
-              <button id="add_url" class="btn btn-primary" type="button" disabled>
-                <i class="fas fa-save"></i> Hinzufügen
-              </button>
-            </div>
-          </div>
-          <ul id="url_list" class="list-unstyled links">
-            {% for url in media_by_type.link %}
-              <li id="url-{{url.id}}">
-                <a href="{{url.url}}" target="_blank">{{url.url}}</a>
-                <span class="btn btn-default btn-xs" data-remove-url="{{url.id}}"><i class="fa fa-trash"></i></span>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="row p-4 form-section">
-      <div class="row">
-        <div class="col-lg-12">
-          <h3>Für Euch</h3>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-6">
-          <p>
-            Auf dem Rocktreff sammeln Bands häufig die ersten Erfahrungen mit
-            einem großen Publikum. Ihr bekommt sämtliche produzierten Medien,
-            wie Fotos, Videos und Tonspuren Eures Auftritts zur Verfügung
-            gestellt.
-          </p>
-        </div>
-        <div class="col-lg-6 px-5">
-          <ul class="list-unstyled">
-            <li><i class="text-primary fa fa-certificate"></i> professionelle Bühne und Organisation</li>
-            <li><i class="text-primary fa fa-cutlery"></i> Verpflegung am Spieltag</li>
-            <li><i class="text-primary fa fa-eur"></i> keine Kostenerstattung (Gagen, Benzingeld)</li>
-            <li><i class="text-primary fa fa-heart"></i> Verkauf von Band-Merchandising</li>
-          </ul>
-        </div>
-      </div>
-      <p>
-        Fragen? Schreib eine Mail an <a href="mailto:booking@rocktreff.de">booking@rocktreff.de</a>.
-      </p>
-    </section>
-
-    <section class="row p-4 form-section">
-        <button type="submit" disabled style="display: none" aria-hidden="true"></button>
-        <div>
-          <button id="save_form" type="button" class="btn btn-primary">
-            <i class="fa fa-save"></i>
-            Speichern
-          </button>
-        </div>
-        <div>
-          <small>zuletzt gespeicht: <span id="updated_at">{{band.updated_at|date:"d.m.Y, H:i"}}</span></small>
-        </div>
-        <div class="alert alert-info mt-2">Meldung mit "✅" bedeutet, dass eure Bewerbung im System ist. Ihr müsst nichts weiter tun. :)</div>
-        <div id="api_message"></div>
-    </section>
-  </form>
-
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="toastAudioPlayer" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-      <div class="toast-header">
-        <h5><strong class="me-auto"><i class="fas fa-music"></i> Rockify</strong></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div id="player-toast-body" class="toast-body">
-        <p id="player-filename">Current playing</p>
-        <div id="player-wrapper"></div>
-      </div>
+    {% load static %}{% load compress %}{% load compress %}
+    <div>
+        <h1><span id="band_title">{{ band.name|default:"Bandbewerbung" }}</span></h1>
     </div>
-  </div>
+    <div>
+        <h3>{{ event.name }}</h3>
+    </div>
+    <div class="row"
+         style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
+
+    <script nonce="{{ request.csp_nonce }}">
+        window.rockon_data = {
+            band_id: "{{band.id}}",
+            api_url_band_details: "{% url "bands-detail" pk=band.id %}",
+            api_url_new_media: "{% url "band-media-list" %}",
+        }
+    </script>
+    {% compress js %}
+        <script src="{% static 'js/bandbewerbung-form.js' %}"></script>
+    {% endcompress %}
+    <form id="application" class="row align-items-center needs-validation" novalidate
+          onsubmit="send_form(); return false;">
+        {% csrf_token %}
+
+        <section class="row p-4 form-section">
+            <div>
+                <h2>Band</h2>
+            </div>
+            <div class="row">
+                <div>
+                    <h3>Allgemeines</h3>
+                </div>
+                <div class="col-lg-4">
+                    <p>
+                        Schön, dass ihr euch bei uns bewerbt! Starten wir einmal mit den
+                        wichtigsten Dingen. Wer seid ihr, woher kommt ihr und was spielt
+                        ihr so für Musik. Solltet ihr nicht aus Deutschland kommen, haben
+                        wir ein spezielles Bundesland.
+                    </p>
+                    <p>
+                        Die Auswahl des Tracks hilft uns, eure Bewerbung besser zu ordnen, wählt
+                        den Track, der am besten zu euch passt.
+                    </p>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="are_students"
+                               name="are_students" {% if band.are_students %} checked {% endif %}/>
+                        <label class="form-check-label" for="are_students">Wir sind eine Schülerband</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="has_management"
+                               name="has_management" {% if band.has_management %} checked {% endif %}/>
+                        <label class="form-check-label" for="has_management">Wir haben ein Mangement</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="mean_age_under_27"
+                               name="mean_age_under_27" {% if band.mean_age_under_27 %} checked {% endif %}/>
+                        <label class="form-check-label" for="mean_age_under_27">Altersdurchschnitt unter 27</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="is_coverband"
+                               name="is_coverband" {% if band.is_coverband %} checked {% endif %}/>
+                        <label class="form-check-label" for="is_coverband">Wir sind eine Coverband</label>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <label for="name">Bandname</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Bandname"
+                           value="{{ band.name|default:"" }}" autocomplete="off"/>
+                    <label for="federal_state">Bundesland</label>
+                    <select class="form-select" aria-label="Bundesland" id="federal_state" name="federal_state">
+                        {% if not band.federal_state %}
+                            <option value="" selected></option>
+                        {% endif %}
+                        {% for federal_state in federal_states %}
+                            <option value="{{ federal_state.0 }}" {% if band.federal_state == federal_state.0 %}
+                                    selected {% endif %}>{{ federal_state.1 }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="genre">Genre</label>
+                    <input type="text" class="form-control" id="genre" name="genre" placeholder="Genre"
+                           value="{{ band.genre|default:"" }}"/>
+                    <label for="track">Track</label>
+                    <select class="form-select" aria-label="Track" id="track" name="track">
+                        {% if not band.track %}
+                            <option value="" selected></option>
+                        {% endif %}
+                        {% for track in tracks %}
+                            <option value="{{ track.id }}" {% if band.track == track.id %}
+                                    selected {% endif %}>{{ track.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row gy-4">
+                <div class="gy-0">
+                    <h3>Web</h3>
+                </div>
+                <div class="col-lg-4 gy-0">
+                    <p>
+                        Ihr habt eine Seite im Netz? Wir wollen sie sehen! Genauso wie
+                        eure Social-Media Profile. Tragt sie hier ein, damit wir uns ein
+                        Bild von euch machen können.
+                    </p>
+                </div>
+                <div class="col-lg-8 gy-0">
+                    <div>
+                        <div class="input-group mb-3">
+                            <input id="web_url_input" name="web_url_input" type="url" class="form-control"
+                                   placeholder="https://example.net" value="">
+                            <button id="add_web_url" class="btn btn-primary" type="button" disabled>
+                                <i class="fas fa-save"></i> Hinzufügen
+                            </button>
+                        </div>
+                    </div>
+                    <ul id="web_url_list" class="list-unstyled links">
+                        {% for url in media_by_type.web %}
+                            <li id="url-{{ url.id }}">
+                                <a href="{{ url.url }}" target="_blank">{{ url.url }}</a>
+                                <span class="btn btn-default btn-xs" data-remove-url="{{ url.id }}"><i
+                                        class="fa fa-trash"></i></span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="alert alert-warning mt-2">URLs müssen mit <strong>http:// oder https://</strong>
+                        beginnen.
+                    </div>
+                </div>
+            </div>
+            <div class="row gy-4">
+                <div class="gy-0">
+                    <h3>Warum ihr?</h3>
+                </div>
+                <div class="col-lg-4 gy-0">
+                    <p>
+                        Hier habt ihr direkt die Gelegenheit uns zu erzählen, warum ihr genau die
+                        richtige Band für den {{ event.name }} seid.
+                    </p>
+                </div>
+                <div class="col-lg-8 gy-0">
+                    <div>
+                        <textarea class="form-control" id="cover_letter" name="cover_letter"
+                                  rows="6">{{ band.cover_letter|default:"" }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="row p-4 form-section">
+            <div>
+                <h2>Dokumente</h2>
+            </div>
+            <div class="row">
+                <div class="col-lg-7">
+                    <p>Wir brauchen von Euch eine aussagekräftige Bandinfo. Diese enthält Angaben zur Geschichte der
+                        Band. Desweiteren könnt Ihr hier Stage- und auch Techrider hochladen. Letztere sind nicht
+                        notwendig für eine vollständige Bewerbung - machen uns aber viel Freude.</p>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-control">
+                                <span id="document_counter">{{ media_by_type.document|length }}</span>/1 Dokumente
+                                <i class="fa fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <input type="file" id="selectedFileDocument" style="display: none;"/>
+                            <button type="button" id="selectNewDocument" class="btn btn-primary">Neues Dokument</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="overflow">
+                        <ul id="document_list" class="list-group">
+                            {% for document in media_by_type.document %}
+                                <li id="document-{{ document.id }}"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="{{ document.file.url }}" target="_blank">
+                                        {{ document.file_name_original }}
+                                    </a>
+                                    <span class="btn btn-default btn-xs" data-remove-document="{{ document.id }}"><i
+                                            class="fa fa-trash"></i></span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="row p-4 form-section">
+            <div>
+                <h2>Medien</h2>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div>
+                        <h4>Bilder</h4>
+                    </div>
+                    <p>Wir brauchen ein aussagekräftiges Pressefoto von Euch. Dieses wird ggf. später veröffentlicht.
+                        Daher sollte das Bild eine Breite oder Höhe von mehr als 1200 Pixeln haben.</p>
+                    <p>Ihr könnt auch gerne Euer Bandlogo hochladen. Dies ist aber nicht notwendig für die
+                        Bewerbung.</p>
+                </div>
+                <div class="col-lg-4">
+                    <div>
+                        <h4>Pressefoto</h4>
+                    </div>
+                    <img id="bandPressPhoto" src="
+
+                            {% static 'assets/4_3_placeholder.webp' as placeholder_image %}{{ media_by_type.press_photo.last.file.url|default:placeholder_image }}"
+                         class="img-fluid rounded" style="cursor: pointer;"
+                         title="Klick hier, um ein Bild hochzuladen"/>
+                    <input type="file" id="fileInputBandPressPhoto" class="d-none"/>
+                </div>
+                <div class="col-lg-4">
+                    <div>
+                        <h4>Bandlogo</h4>
+                    </div>
+                    <img id="bandLogo" src="
+
+                            {% static 'assets/4_3_placeholder.webp' as placeholder_image %}{{ media_by_type.logo.last.file.url|default:placeholder_image }}"
+                         class="img-fluid rounded" style="cursor: pointer;"
+                         title="Klick hier, um ein Bild hochzuladen"/>
+                    <input type="file" id="fileInputBandLogo" class="d-none"/>
+                </div>
+            </div>
+        </section>
+
+        <section class="row p-4 form-section">
+            <div class="row">
+
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div>
+                            <h2>Musik</h2>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p>Welche drei Eurer Songs beschreiben Eure Musik am besten? Uns ist es dabei egal ob die
+                                Aufnahmen aus Eurem Proberaum, dem Studio, oder von der Bühne sind.</p>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-control">
+                                        <span id="audio_counter">{{ media_by_type.audio|length }}</span>/3 Songs
+                                        <i class="fa fa-check"></i>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <input type="file" id="selectedSong" style="display: none;"/>
+                                    <button type="button" id="selectNewSong" class="btn btn-primary">Neuer Song</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="overflow">
+                                <ul id="song_list" class="list-group">
+                                    {% for song in media_by_type.audio %}
+                                        <li id="song-{{ song.id }}"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            <a class="play-audio" href="{{ song.file.url }}" target="_blank">
+                                                {{ song.file_name_original }}
+                                            </a>
+                                            <span class="btn btn-default btn-xs" data-remove-song="{{ song.id }}"><i
+                                                    class="fa fa-trash"></i></span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div>
+                        <h2>Videos</h2>
+                    </div>
+                    <p>Habt Ihr Videos online, die Ihr uns zeigen wollt? Dann fügt sie hier hinzu.</p>
+                    <div>
+                        <div class="input-group mb-3">
+                            <input id="url_input" name="url_input" type="url" class="form-control"
+                                   placeholder="https://example.net" value="">
+                            <button id="add_url" class="btn btn-primary" type="button" disabled>
+                                <i class="fas fa-save"></i> Hinzufügen
+                            </button>
+                        </div>
+                    </div>
+                    <ul id="url_list" class="list-unstyled links">
+                        {% for url in media_by_type.link %}
+                            <li id="url-{{ url.id }}">
+                                <a href="{{ url.url }}" target="_blank">{{ url.url }}</a>
+                                <span class="btn btn-default btn-xs" data-remove-url="{{ url.id }}"><i
+                                        class="fa fa-trash"></i></span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="row p-4 form-section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h3>Für Euch</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <p>
+                        Auf dem Rocktreff sammeln Bands häufig die ersten Erfahrungen mit
+                        einem großen Publikum. Ihr bekommt sämtliche produzierten Medien,
+                        wie Fotos, Videos und Tonspuren Eures Auftritts zur Verfügung
+                        gestellt.
+                    </p>
+                </div>
+                <div class="col-lg-6 px-5">
+                    <ul class="list-unstyled">
+                        <li><i class="text-primary fa fa-certificate"></i> professionelle Bühne und Organisation</li>
+                        <li><i class="text-primary fa fa-cutlery"></i> Verpflegung am Spieltag</li>
+                        <li><i class="text-primary fa fa-eur"></i> keine Kostenerstattung (Gagen, Benzingeld)</li>
+                        <li><i class="text-primary fa fa-heart"></i> Verkauf von Band-Merchandising</li>
+                    </ul>
+                </div>
+            </div>
+            <p>
+                Fragen? Schreib eine Mail an <a href="mailto:booking@rocktreff.de">booking@rocktreff.de</a>.
+            </p>
+        </section>
+
+        <section class="row p-4 form-section">
+            <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+            <div>
+                <button id="save_form" type="button" class="btn btn-primary">
+                    <i class="fa fa-save"></i>
+                    Speichern
+                </button>
+            </div>
+            <div>
+                <small>zuletzt gespeicht: <span id="updated_at">{{ band.updated_at|date:"d.m.Y, H:i" }}</span></small>
+            </div>
+            <div class="alert alert-info mt-2">Meldung mit "✅" bedeutet, dass eure Bewerbung im System ist. Ihr müsst
+                nichts weiter tun. :)
+            </div>
+            <div id="api_message"></div>
+        </section>
+    </form>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toastAudioPlayer" class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+             data-bs-autohide="false">
+            <div class="toast-header">
+                <h5><strong class="me-auto"><i class="fas fa-music"></i> Rockify</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div id="player-toast-body" class="toast-body">
+                <p id="player-filename">Current playing</p>
+                <div id="player-wrapper"></div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

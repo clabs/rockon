@@ -4,4 +4,4 @@ from django.conf import settings
 
 
 def get_domain(request):
-    return {"DOMAIN": settings.DOMAIN}
+    return {'DOMAIN': settings.DOMAIN}

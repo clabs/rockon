@@ -6,7 +6,7 @@ from rockon.library.custom_model import CustomModel, models
 class AttendanceAddition(CustomModel):
     """Attendance additions model."""
 
-    attendance = models.ForeignKey("Attendance", on_delete=models.CASCADE)
+    attendance = models.ForeignKey('Attendance', on_delete=models.CASCADE)
     comment = models.TextField(null=True, blank=True)
     amount = models.IntegerField(default=0)
 

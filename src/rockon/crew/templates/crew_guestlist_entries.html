@@ -1,103 +1,117 @@
 {% extends 'base.html' %}
 {% block content %}
-  <script type="text/javascript" nonce="{{request.csp_nonce}}">
-    $(document).ready(() => {
-      console.log('guestlist_entries.js loaded')
-      $('.voucherfield').click(function () {
-        $(this).select()
-      })
+    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+        $(document).ready(() => {
+            console.log('guestlist_entries.js loaded')
+            $('.voucherfield').click(function () {
+                $(this).select()
+            })
 
-      $('.copybtn').click(function () {
-        const $inputField = $(this).closest('.input-group').find('.voucherfield')
-        if ($inputField.length) {
-          const originalValue = $inputField.val()
-          const modifiedValue = 'https://backstage.rocktreff.de/redeem?voucher=' + originalValue
-          $inputField.val(modifiedValue)
-          $inputField.select()
-          document.execCommand('copy')
-          $inputField.val(originalValue)
-          $inputField.blur()
-          showToast('Voucher-Link kopiert')
-        }
-      })
+            $('.copybtn').click(function () {
+                const $inputField = $(this).closest('.input-group').find('.voucherfield')
+                if ($inputField.length) {
+                    const originalValue = $inputField.val()
+                    const modifiedValue = 'https://backstage.rocktreff.de/redeem?voucher=' + originalValue
+                    $inputField.val(modifiedValue)
+                    $inputField.select()
+                    navigator.clipboard.writeText(modifiedValue)
+                        .then(() => {
+                            showToast('Voucher-Link kopiert')
+                            $inputField.val(originalValue)
+                            $inputField.blur()
+                        })
+                        .catch(() => {
+                            showToast('Fehler beim Kopieren')
+                        })
+                }
+            })
 
-      $('.markused').click(function () {
-        const $inputField = $(this).closest('.input-group').find('.voucherfield')
-        $inputField.toggleClass('strikethrough')
+            $('.markused').click(function () {
+                const $inputField = $(this).closest('.input-group').find('.voucherfield')
+                $inputField.toggleClass('strikethrough')
 
-        const voucherId = $inputField.data('id')
-        $.ajax({
-          url: '/api/crm/mark-voucher/',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify({ id: voucherId }),
-          contentType: 'application/json',
-          headers: {
-            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-          },
-          mode: 'same-origin',
-          dataType: 'json',
-          success: function (response) {
-            showToast('Voucher markiert')
-          },
-          error: function (xhr, status, error) {
-            showToast('Fehler beim Markieren des Voucher')
-          }
+                const voucherId = $inputField.data('id')
+                $.ajax({
+                    url: '/api/crm/mark-voucher/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({id: voucherId}),
+                    headers: {
+                        'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    mode: 'same-origin',
+                    dataType: 'json',
+                    success: function (response) {
+                        showToast('Voucher markiert')
+                    },
+                    error: function (xhr, status, error) {
+                        showToast('Fehler beim Markieren des Voucher')
+                    }
+                })
+            })
+
+            function showToast(message) {
+                $('#action-toast').text(message)
+                const toastLiveExample = $('#liveToast')
+
+                const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+                toastBootstrap.show()
+            }
         })
-      })
-
-      function showToast(message) {
-        $('#action-toast').text(message)
-        const toastLiveExample = $('#liveToast')
-
-        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-        toastBootstrap.show()
-      }
-    })
-  </script>
-  <style>
-    .strikethrough {
-      text-decoration: line-through;
-    }
-  </style>
-  <div>
-    <h2>Gästeliste</h2>
-  </div>
-  <div class="alert alert-secondary" role="alert">
-    <p>
-      Jedes Crew-Mitglied darf pro Tag 2 Personen auf die Gästeliste für den Backstage setzen. Alles was du dafür tun musst: kopiere einen der beiden Voucher für den passenden Tag und lasse ihn der Person zukommen, mit diesem Voucher kann die Person sich auf <a href="https://backstage.rocktreff.de" target="_blank">https://backstage.rocktreff.de</a> sich selbstständig ein Ticket erstellen. Dies wird am Eingang vorgezeigt, fertig.
-    </p>
-    <p>Mit dem Kopier Button kannst du einen Aktivierungslink mit dem Voucher direkt in die Zwischenablagekopieren.</p>
-    <p>Du kannst einen Voucher als "gebraucht" markieren, indem du auf das Häkchen klickst. Dies ist nützlich, um den Überblick zu behalten, welche Voucher bereits verwendet wurden.</p>
-  </div>
-  <section class="row p-4 form-section">
-    <form>
-      {% csrf_token %}
-      {% regroup guestlist_entries by day as entries_by_day %}
-      {% for day in entries_by_day %}
-        <h3>{{ day.grouper.day|date:'l, d.m.Y' }}</h3>
-        {% for entry in day.list %}
-          <div class="row">
-            <div class="col-md-6">
-              <div class="input-group mb-3">
-                <input type="text" class="form-control voucherfield{% if entry.send %} strikethrough{% endif %}" aria-label="Voucher" value="{{ entry.voucher }}" data-id="{{ entry.id }}" readonly />
-                <button type="button" class="btn btn-outline-primary copybtn"><i class="fa-solid fa-copy" title="Voucher kopieren"></i></button>
-                <button type="button" class="btn btn-outline-primary markused" title="Voucher gebraucht"><i class="fa-solid fa-check"></i></button>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-      {% endfor %}
-    </form>
-  </section>
-
-  <div class="toast-container position-fixed top-0 end-0 p-3">
-    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
-        <strong class="me-auto">Rockon</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div id="action-toast" class="toast-body"></div>
+    </script>
+    <style>
+        .strikethrough {
+            text-decoration: line-through;
+        }
+    </style>
+    <div>
+        <h2>Gästeliste</h2>
     </div>
-  </div>
+    <div class="alert alert-secondary" role="alert">
+        <p>
+            Jedes Crew-Mitglied darf pro Tag 2 Personen auf die Gästeliste für den Backstage setzen. Alles was du dafür
+            tun musst: kopiere einen der beiden Voucher für den passenden Tag und lasse ihn der Person zukommen, mit
+            diesem Voucher kann die Person sich auf <a href="https://backstage.rocktreff.de" target="_blank">https://backstage.rocktreff.de</a>
+            sich selbstständig ein Ticket erstellen. Dies wird am Eingang vorgezeigt, fertig.
+        </p>
+        <p>Mit dem Kopier Button kannst du einen Aktivierungslink mit dem Voucher direkt in die
+            Zwischenablagekopieren.</p>
+        <p>Du kannst einen Voucher als "gebraucht" markieren, indem du auf das Häkchen klickst. Dies ist nützlich, um
+            den Überblick zu behalten, welche Voucher bereits verwendet wurden.</p>
+    </div>
+    <section class="row p-4 form-section">
+        <form>
+            {% csrf_token %}
+            {% regroup guestlist_entries by day as entries_by_day %}
+            {% for day in entries_by_day %}
+                <h3>{{ day.grouper.day|date:'l, d.m.Y' }}</h3>
+                {% for entry in day.list %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <input type="text"
+                                       class="form-control voucherfield{% if entry.send %} strikethrough{% endif %}"
+                                       aria-label="Voucher" value="{{ entry.voucher }}" data-id="{{ entry.id }}"
+                                       readonly/>
+                                <button type="button" class="btn btn-outline-primary copybtn"><i
+                                        class="fa-solid fa-copy" title="Voucher kopieren"></i></button>
+                                <button type="button" class="btn btn-outline-primary markused"
+                                        title="Voucher gebraucht"><i class="fa-solid fa-check"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </form>
+    </section>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Rockon</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div id="action-toast" class="toast-body"></div>
+        </div>
+    </div>
 {% endblock %}

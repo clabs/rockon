@@ -7,19 +7,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbase", "0004_remove_userprofile_account_context"),
+        ('rockonbase', '0004_remove_userprofile_account_context'),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name="AccountContext",
+            name='AccountContext',
         ),
         migrations.AlterField(
-            model_name="event",
-            name="signup_is_open",
+            model_name='event',
+            name='signup_is_open',
             field=models.BooleanField(
                 default=True,
-                help_text="Crew Anmeldung und Bandbewerbung werden auf der Website angezeigt",
+                help_text='Crew Anmeldung und Bandbewerbung werden auf der Website angezeigt',
             ),
         ),
     ]

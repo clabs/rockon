@@ -8,3 +8,16 @@ from .comment import Comment
 from .stage import Stage
 from .timeslot import TimeSlot
 from .track import Track
+
+__all__ = [
+    'Band',
+    'BandMedia',
+    'MediaType',
+    'BandVote',
+    'BandMember',
+    'BandMemberPosition',
+    'Comment',
+    'Stage',
+    'TimeSlot',
+    'Track',
+]

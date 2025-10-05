@@ -7,13 +7,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbands", "0005_bandvote"),
+        ('rockonbands', '0005_bandvote'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="bandmedia",
-            name="encoded_file",
-            field=models.FileField(blank=True, default=None, null=True, upload_to=""),
+            model_name='bandmedia',
+            name='encoded_file',
+            field=models.FileField(blank=True, default=None, null=True, upload_to=''),
         ),
     ]

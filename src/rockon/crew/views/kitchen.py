@@ -19,11 +19,11 @@ from rockon.exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorSt
 
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name="catering_food").exists())
+@user_passes_test(lambda u: u.groups.filter(name='catering_food').exists())
 @cache_page(60 * 5)
 @vary_on_cookie
 def attendance_table(request, slug):
-    template = loader.get_template("catering_attendance.html")
+    template = loader.get_template('catering_attendance.html')
     try:
         event = Event.objects.get(slug=slug)
     except Event.DoesNotExist:
@@ -35,7 +35,7 @@ def attendance_table(request, slug):
     )
     kitchen_list = []
     nutrion_notes = [
-        {"crew_member": crew_member, "note": crew_member.nutrition_note}
+        {'crew_member': crew_member, 'note': crew_member.nutrition_note}
         for crew_member in crew_members
         if len(crew_member.nutrition_note) > 0
     ]
@@ -52,9 +52,9 @@ def attendance_table(request, slug):
     for day in attendances:
         amounts = {}
         misc_additions = AttendanceAddition.objects.filter(attendance=day)
-        amounts["misc"] = misc_additions.aggregate(Sum("amount"))["amount__sum"] or 0
+        amounts['misc'] = misc_additions.aggregate(Sum('amount'))['amount__sum'] or 0
         additions = [
-            {"comment": item.comment, "amount": item.amount} for item in misc_additions
+            {'comment': item.comment, 'amount': item.amount} for item in misc_additions
         ]
 
         exhibitor_attendance_for_day = ExhibitorAttendance.objects.filter(
@@ -63,34 +63,34 @@ def attendance_table(request, slug):
         for exhibitor_attendance in exhibitor_attendance_for_day:
             additions.append(
                 {
-                    "comment": exhibitor_attendance.exhibitor,
-                    "amount": exhibitor_attendance.count,
+                    'comment': exhibitor_attendance.exhibitor,
+                    'amount': exhibitor_attendance.count,
                 }
             )
-            amounts["misc"] += exhibitor_attendance.count
+            amounts['misc'] += exhibitor_attendance.count
 
-        amounts["day"] = day
-        amounts["crew"] = {}
-        amounts["crew"]["omnivore"] = (
-            crew_members.filter(attendance=day, nutrition="omnivore").count() or 0
+        amounts['day'] = day
+        amounts['crew'] = {}
+        amounts['crew']['omnivore'] = (
+            crew_members.filter(attendance=day, nutrition='omnivore').count() or 0
         )
-        amounts["crew"]["vegetarian"] = (
-            crew_members.filter(attendance=day, nutrition="vegetarian").count() or 0
+        amounts['crew']['vegetarian'] = (
+            crew_members.filter(attendance=day, nutrition='vegetarian').count() or 0
         )
-        amounts["crew"]["vegan"] = (
-            crew_members.filter(attendance=day, nutrition="vegan").count() or 0
+        amounts['crew']['vegan'] = (
+            crew_members.filter(attendance=day, nutrition='vegan').count() or 0
         )
-        amounts["sum"] = (crew_members.filter(attendance=day).count() or 0) + amounts[
-            "misc"
+        amounts['sum'] = (crew_members.filter(attendance=day).count() or 0) + amounts[
+            'misc'
         ]
 
         # calculate band members and their nutrition, only bands with a slot are taken into account
         # for all timeslots in given day
-        amounts["bands"] = {
-            "omnivore": 0,
-            "vegetarian": 0,
-            "vegan": 0,
-            "sum": 0,
+        amounts['bands'] = {
+            'omnivore': 0,
+            'vegetarian': 0,
+            'vegan': 0,
+            'sum': 0,
         }
         for timeslot in day.timeslots.all():
             # catch for empty timeslots
@@ -98,51 +98,51 @@ def attendance_table(request, slug):
                 # add band members to list for display
                 additions.append(
                     {
-                        "comment": timeslot.band.name,
-                        "amount": timeslot.band.band_members.all().count(),
+                        'comment': timeslot.band.name,
+                        'amount': timeslot.band.band_members.all().count(),
                     }
                 )
                 # count all band members and their nutrition
                 for member in timeslot.band.band_members.all():
-                    amounts["bands"][member.nutrition] += 1
-                    amounts["sum"] += 1
+                    amounts['bands'][member.nutrition] += 1
+                    amounts['sum'] += 1
             # if a day is empty, nothing bad happens
             except AttributeError:
                 pass
 
         if additions:
-            addtion_list.append({"day": day, "additions": additions})
+            addtion_list.append({'day': day, 'additions': additions})
 
         # calculate overnight crew members and their nutrition
-        amounts["crew"]["omnivore_overnight"] = (
+        amounts['crew']['omnivore_overnight'] = (
             crew_members.filter(
-                attendance=day, nutrition="omnivore", stays_overnight=True
+                attendance=day, nutrition='omnivore', stays_overnight=True
             ).count()
-            or 0  # noqa: W503
+            or 0
         )
-        amounts["crew"]["vegetarian_overnight"] = (
+        amounts['crew']['vegetarian_overnight'] = (
             crew_members.filter(
-                attendance=day, nutrition="vegetarian", stays_overnight=True
+                attendance=day, nutrition='vegetarian', stays_overnight=True
             ).count()
-            or 0  # noqa: W503
+            or 0
         )
-        amounts["crew"]["vegan_overnight"] = (
+        amounts['crew']['vegan_overnight'] = (
             crew_members.filter(
-                attendance=day, nutrition="vegan", stays_overnight=True
+                attendance=day, nutrition='vegan', stays_overnight=True
             ).count()
-            or 0  # noqa: W503
+            or 0
         )
-        amounts["crew"]["sum_overnight"] = (
+        amounts['crew']['sum_overnight'] = (
             crew_members.filter(attendance=day, stays_overnight=True).count() or 0
         )
 
         kitchen_list.append(amounts)
 
     extra_context = {
-        "event": event,
-        "kitchen_list": kitchen_list,
-        "nutrion_notes": nutrion_notes,
-        "addtion_list": addtion_list,
-        "site_title": "Mengenliste",
+        'event': event,
+        'kitchen_list': kitchen_list,
+        'nutrion_notes': nutrion_notes,
+        'addtion_list': addtion_list,
+        'site_title': 'Mengenliste',
     }
     return HttpResponse(template.render(extra_context, request))

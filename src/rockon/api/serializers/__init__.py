@@ -8,3 +8,12 @@ from .band import (
     BandVoteSerializer,
 )
 from .comment import CommentSerializer
+
+__all__ = [
+    'BandListSerializer',
+    'BandDetailSerializer',
+    'BandMediaSerializer',
+    'BandTrackSerializer',
+    'BandVoteSerializer',
+    'CommentSerializer',
+]

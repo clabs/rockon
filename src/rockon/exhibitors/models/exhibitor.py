@@ -6,20 +6,20 @@ from rockon.library.custom_model import CustomModel, models
 
 
 class ExhibitorStatus(models.TextChoices):
-    UNKNOWN = "unknown", "Unbekannt"
-    CONTACTED = "contacted", "Kontakt aufgenommen"
-    CONFIRMED = "confirmed", "Bestätigt"
-    REJECTED = "rejected", "Abgelehnt"
+    UNKNOWN = 'unknown', 'Unbekannt'
+    CONTACTED = 'contacted', 'Kontakt aufgenommen'
+    CONFIRMED = 'confirmed', 'Bestätigt'
+    REJECTED = 'rejected', 'Abgelehnt'
 
 
 class Exhibitor(CustomModel):
     """Exhibitor model."""
 
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="exhibitors"
+        Event, on_delete=models.CASCADE, related_name='exhibitors'
     )
     organisation = models.ForeignKey(
-        Organisation, on_delete=models.CASCADE, related_name="exhibitor"
+        Organisation, on_delete=models.CASCADE, related_name='exhibitor'
     )
     state = models.CharField(
         max_length=12, choices=ExhibitorStatus.choices, default=ExhibitorStatus.UNKNOWN

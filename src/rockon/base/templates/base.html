@@ -14,20 +14,20 @@
 ⣿⣿⣶⣤⣤⣤⣄⣀⣀⣀⣀⣀⣈⣛⣉⣉⡙⠋⠋⠁⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿
 -->
 <html class="h-100" lang="de">
-  <head>
+<head>
     {% include "head.html" %}
-  </head>
-  <body class="d-flex flex-column h-100">
-    <header>
-      {% include "navbars/base.html" %}
-    </header>
-    <main class="flex-shrink-0">
-      <div class="container pb-5" style="padding: 85px 15px 0;">
+</head>
+<body class="d-flex flex-column h-100">
+<header>
+    {% include "navbars/base.html" %}
+</header>
+<main class="flex-shrink-0">
+    <div class="container pb-5" style="padding: 85px 15px 0;">
         {% block content %}{% endblock content %}
-      </div>
-    </main>
-    <footer class="footer mt-auto py-3 justify-content-between align-items-center">
-      {% include "footer.html" %}
-    </footer>
-  </body>
+    </div>
+</main>
+<footer class="footer mt-auto py-3 justify-content-between align-items-center">
+    {% include "footer.html" %}
+</footer>
+</body>
 </html>

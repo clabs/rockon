@@ -1,316 +1,334 @@
 {% extends "base.html" %} {% load has_group %} {% block content %}
-<script nonce="{{request.csp_nonce}}">
-const validateEmail = (email) => {
-  return String(email)
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    )
-}
-$(document).ready(() => {
-  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-    return new bootstrap.Popover(popoverTriggerEl)
-  })
-  $('#account_data').on('input', function() {
-    const form = $(this)
-    const submitButton = form.find('button[type="submit"]')
-    const inputs = form.find('input')
-    let valid = true
-    inputs.each(function() {
-      if (!this.checkValidity()) {
-        valid = false
-      }
-    })
-    if (valid) {
-      submitButton.prop('disabled', false)
-    } else {
-      submitButton.prop('disabled', true)
-    }
-  })
+    <script nonce="{{ request.csp_nonce }}">
+        const validateEmail = (email) => {
+            return String(email)
+                .toLowerCase()
+                .match(
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                )
+        }
+        $(document).ready(() => {
+            const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl)
+            });
+            $('#account_data').on('input', function () {
+                const form = $(this)
+                const submitButton = form.find('button[type="submit"]')
+                const inputs = form.find('input')
+                let valid = true
+                inputs.each(function () {
+                    if (!this.checkValidity()) {
+                        valid = false
+                    }
+                })
+                if (valid) {
+                    submitButton.prop('disabled', false)
+                } else {
+                    submitButton.prop('disabled', true)
+                }
+            })
 
-  $('#account_data').on('submit', function(e) {
-    e.preventDefault()
-    var form = $(this)
-    var submitButton = form.find('button[type="submit"]')
-    var inputs = form.find('input')
-    var data = {}
-    inputs.each(function () {
-      data[this.id] = this.value
-    })
-    console.debug("data", data)
-    $.ajax({
-      url: '{% url "api_crm_update_user_profile" %}',
-      type: 'POST',
-      data: JSON.stringify(data),
-      contentType: 'application/json',
-      headers: {
-        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
-      },
-      dataType: 'json',
-      success: (result) => {
-        window.location.reload(true)
-        submitButton.prop('disabled', true)
-      },
-      error: (result) => {
-        submitButton.prop('disabled', true)
-      }
-    })
-  })
+            $('#account_data').on('submit', function (e) {
+                e.preventDefault()
+                const form = $(this);
+                const submitButton = form.find('button[type="submit"]');
+                const inputs = form.find('input');
+                const data = {};
+                inputs.each(function () {
+                    data[this.id] = this.value
+                })
+                console.debug("data", data)
+                $.ajax({
+                    url: '{% url "api_crm_update_user_profile" %}',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    headers: {
+                        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
+                    },
+                    dataType: 'json',
+                    success: (result) => {
+                        window.location.reload()
+                        submitButton.prop('disabled', true)
+                    },
+                    error: (result) => {
+                        submitButton.prop('disabled', true)
+                    }
+                })
+            })
 
-  const changeMailAddressModal = document.getElementById('changeMailAddress')
-  changeMailAddressModal.addEventListener('hidden.bs.modal', event => {
-    console.debug("hidden.bs.modal, reset form")
-    $('#changeEmailSave').prop('disabled', true)
-    document.getElementById("changeMailAddressForm").reset()
-  })
+            const changeMailAddressModal = document.getElementById('changeMailAddress')
+            changeMailAddressModal.addEventListener('hidden.bs.modal', event => {
+                console.debug("hidden.bs.modal, reset form")
+                $('#changeEmailSave').prop('disabled', true)
+                document.getElementById("changeMailAddressForm").reset()
+            })
 
-  $('#changeEmailSave').on('click', function(e) {
-    e.preventDefault()
-    const form = $('#changeMailAddressForm')
-    const submitButton = $(this)
-    const inputs = form.find('input')
-    const data = {}
-    inputs.each(function () {
-      data[this.id] = this.value
-    })
-    console.debug("data", data)
-    $.ajax({
-      url: '{% url "api_crm_update_email" %}',
-      type: 'POST',
-      data: JSON.stringify(data),
-      contentType: 'application/json',
-      headers: {
-        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
-      },
-      dataType: 'json',
-      success: (result) => {
-        $("#changeMailAddress").removeClass("in")
-        $(".modal-backdrop").remove()
-        $('body').removeClass('modal-open')
-        $('body').css('padding-right', '')
-        $("#changeMailAddress").hide()
-        $('#openChangeMailAddressModal').prop('disabled', true)
-        $('#changeEmailMessage').html('<div class="alert alert-success mt-3" role="alert">E-Mail Adresse wurde geändert. Bitte bestätige die neue E-Mail Adresse mit dem Link in deinem Postfach, erst nach der Bestätigung funktioniert deine neue Adresse.</div>')
-      },
-      error: (result) => {
-        $("#changeMailAddress").removeClass("in")
-        $(".modal-backdrop").remove()
-        $('body').removeClass('modal-open')
-        $('body').css('padding-right', '')
-        $("#changeMailAddress").hide()
-        $('#openChangeMailAddressModal').prop('disabled', true)
-        $('#changeEmailMessage').html('<div class="alert alert-warning mt-3" role="alert">Es ist etwas schiefgegangen, bitte versuche es später noch einmal.</div>')
-      }
-    })
-  })
+            $('#changeEmailSave').on('click', function (e) {
+                e.preventDefault()
+                const form = $('#changeMailAddressForm')
+                const submitButton = $(this)
+                const inputs = form.find('input')
+                const data = {}
+                inputs.each(function () {
+                    data[this.id] = this.value
+                })
+                console.debug("data", data)
+                $.ajax({
+                    url: '{% url "api_crm_update_email" %}',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    headers: {
+                        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
+                    },
+                    dataType: 'json',
+                    success: (result) => {
+                        $("#changeMailAddress").removeClass("in")
+                        $(".modal-backdrop").remove()
+                        $('body').removeClass('modal-open')
+                        $('body').css('padding-right', '')
+                        $("#changeMailAddress").hide()
+                        $('#openChangeMailAddressModal').prop('disabled', true)
+                        $('#changeEmailMessage').html('<div class="alert alert-success mt-3" role="alert">E-Mail Adresse wurde geändert. Bitte bestätige die neue E-Mail Adresse mit dem Link in deinem Postfach, erst nach der Bestätigung funktioniert deine neue Adresse.</div>')
+                    },
+                    error: (result) => {
+                        $("#changeMailAddress").removeClass("in")
+                        $(".modal-backdrop").remove()
+                        $('body').removeClass('modal-open')
+                        $('body').css('padding-right', '')
+                        $("#changeMailAddress").hide()
+                        $('#openChangeMailAddressModal').prop('disabled', true)
+                        $('#changeEmailMessage').html('<div class="alert alert-warning mt-3" role="alert">Es ist etwas schiefgegangen, bitte versuche es später noch einmal.</div>')
+                    }
+                })
+            })
 
-  $('#changeEmailNew, #changeEmailRepeat').on('change', function() {
-    const form = $('#changeMailAddressForm')
-    const submitButton = $('#changeEmailSave')
-    const inputs = form.find('input')
-    let valid = true
-    inputs.each(function() {
-      console.debug("input", this.value, this)
-      if (!validateEmail(this.value) || this.value != $('#changeEmailNew').val()) {
-        valid = false
-        console.error("invalid input", this)
-      }
-    })
-    if (valid) {
-      submitButton.prop('disabled', false)
-    } else {
-      submitButton.prop('disabled', true)
-    }
-  })
-})
-</script>
+            $('#changeEmailNew, #changeEmailRepeat').on('change', function () {
+                const form = $('#changeMailAddressForm')
+                const submitButton = $('#changeEmailSave')
+                const inputs = form.find('input')
+                let valid = true
+                inputs.each(function () {
+                    console.debug("input", this.value, this)
+                    if (!validateEmail(this.value) || this.value != $('#changeEmailNew').val()) {
+                        valid = false
+                        console.error("invalid input", this)
+                    }
+                })
+                if (valid) {
+                    submitButton.prop('disabled', false)
+                } else {
+                    submitButton.prop('disabled', true)
+                }
+            })
+        })
+    </script>
 
-<h1>Account</h1>
-<div class="alert alert-secondary mt-3">
-  <p>Hier kannst du deine persönlichen Daten einsehen und ändern.</p>
-  {% if user|has_group:'exhibitors' %}
-  <p>Für eine Anmeldung als Aussteller beim Spielfest benötigen wir mindestens folgende Informationen von dir:</p>
-  <ul>
-    <li>Vorname</li>
-    <li>Nachname</li>
-    <li>E-Mail</li>
-    <li>Telefonnummer</li>
-  </ul>
-  {% endif %}
-  {% if user|has_group:'crew' %}
-  <p>Für eine Anmeldung als Crewmitglied beim Rocktreff und Spielfest benötigen wir mindestens folgende Informationen von dir:</p>
-  <ul>
-    <li>Vorname</li>
-    <li>Nachname</li>
-    <li>E-Mail</li>
-    <li>Telefonnummer</li>
-    <li>Adresse</li>
-    <li>Geburtstag</li>
-  </ul>
-  {% endif %}
-  {% if user|has_group:'bands' %}
-  <p>Für eine Band Bewerbung für den ROCKTREFF benötigen wir mindestens folgende Informationen von dir:</p>
-  <ul>
-    <li>Vorname</li>
-    <li>Nachname</li>
-    <li>E-Mail</li>
-    <li>Telefonnummer</li>
-  </ul>
-  {% endif %}
-</div>
-<form id="account_data" class="row align-items-center needs-validation" novalidate>
-  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-  <section class="row p-4 form-section">
-  <h3>E-Mail</h3>
-  <div class="col-lg-8">
-  <div class="row">
-    <div class="col-md-6 g-4">
-      <label for="email">E-Mail</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="E-Mail" value="{{ user.email }}" readonly disabled>
+    <h1>Account</h1>
+    <div class="alert alert-secondary mt-3">
+        <p>Hier kannst du deine persönlichen Daten einsehen und ändern.</p>
+        {% if user|has_group:'exhibitors' %}
+            <p>Für eine Anmeldung als Aussteller beim Spielfest benötigen wir mindestens folgende Informationen von
+                dir:</p>
+            <ul>
+                <li>Vorname</li>
+                <li>Nachname</li>
+                <li>E-Mail</li>
+                <li>Telefonnummer</li>
+            </ul>
+        {% endif %}
+        {% if user|has_group:'crew' %}
+            <p>Für eine Anmeldung als Crewmitglied beim Rocktreff und Spielfest benötigen wir mindestens folgende
+                Informationen von dir:</p>
+            <ul>
+                <li>Vorname</li>
+                <li>Nachname</li>
+                <li>E-Mail</li>
+                <li>Telefonnummer</li>
+                <li>Adresse</li>
+                <li>Geburtstag</li>
+            </ul>
+        {% endif %}
+        {% if user|has_group:'bands' %}
+            <p>Für eine Band Bewerbung für den ROCKTREFF benötigen wir mindestens folgende Informationen von dir:</p>
+            <ul>
+                <li>Vorname</li>
+                <li>Nachname</li>
+                <li>E-Mail</li>
+                <li>Telefonnummer</li>
+            </ul>
+        {% endif %}
     </div>
-    <div class="col-md-6 g-4">
-      <label></label>
-      <button type="button" id="openChangeMailAddressModal" class="btn btn-primary form-control" data-bs-toggle="modal" data-bs-target="#changeMailAddress">
-        E-Mail ändern
-      </button>
-    </div>
-  </div>
-  </div>
-  <div class="col-lg-4">
-    <div><h4>Warum erheben wir diese Informationen?</h4></div>
-    <p>
-      Deine Email-Adresse ist für uns sehr wichtig. Zum einen kannst du dich
-      mit ihr bei ROCKON immer wieder anmelden. Zum anderen ist Email aber
-      auch der Weg, wie wir dich im Vorfeld von {{ event.name }} informieren.
-    </p>
-  </div>
-  </section>
-  <div id="changeEmailMessage"></div>
-  <section class="row p-4 form-section">
-    <div class="col-lg-8">
-    <h3>Persönliches</h3>
-    <div class="row">
-      <div class="col-md-6 g-4">
-        <label for="first_name">Vorname</label>
-        <input type="first_name" class="form-control" id="first_name" placeholder="Jane" value="{{ user.first_name|default_if_none:"" }}">
-      </div>
-      <div class="col-md-6 g-4">
-        <label for="last_name">Nachname</label>
-        <input type="last_name" class="form-control" id="last_name" placeholder="Doe" value="{{ user.last_name|default_if_none:"" }}">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 g-4">
-        <label for="nick_name">Spitzname</label>
-        <input type="text" class="form-control" id="nick_name" placeholder="Muffischlumpf" value="{{ user.profile.nick_name|default_if_none:"" }}">
-      </div>
-      <div class="col-md-6 g-4">
-        <label for="phone">Telefonnummer</label>
-        <input type="phone" class="form-control" id="phone" placeholder="05551234" value="{{ user.profile.phone|default_if_none:"" }}">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 g-4">
-        <label for="address">Adresse</label>
-        <input type="text" class="form-control" id="address" placeholder="Am Geldspeicher" value="{{ user.profile.address|default_if_none:"" }}">
-      </div>
-      <div class="col-md-6 g-4">
-        <label for="address_housenumber">Hausnummer</label>
-        <input type="text" class="form-control" id="address_housenumber" placeholder="23a" value="{{ user.profile.address_housenumber|default_if_none:"" }}">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12 g-4">
-        <label for="address_extension">Adresse-Zusatz</label>
-        <input type="text" class="form-control" id="address_extension" placeholder="Hinterhof" value="{{ user.profile.address_extension|default_if_none:"" }}">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 g-4">
-        <label for="zip_code">Postleitzahl</label>
-        <input type="zip_code" class="form-control" id="zip_code" placeholder="10999" value="{{ user.profile.zip_code|default_if_none:"" }}">
-      </div>
-      <div class="col-md-6 g-4">
-        <label for="place">Ort</label>
-        <input type="text" class="form-control" id="place" placeholder="Entenhausen" value="{{ user.profile.place|default_if_none:"" }}">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 g-4">
-        <div class="col-sm-6 g-4">
-          <label for="user_birthday">Geburtstag</label>
-          <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday" value="{{user.profile.birthday|date:"Y-m-d"|default:"" }}" autocomplete="bday" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-    <div class="col-lg-4">
-      <div><h4>Warum erheben wir diese Informationen?</h4></div>
-      <p>
-        Da wir jede Person im Rahmen von {{ event.name }} versichern, brauchen
-        wir minimale Stammdaten wie Geburtstag und Adresse, um dich melden zu
-        können. Diese Daten werden bei Teilnahme als Crewmitglied dem Jugendamt Tempelhof-Schöneberg übermittelt,
-        und nur im Bedarfsfall an das Versicherungsunternehmen weitergegeben.
-      </p>
-      <p>
-        Normalerweise werden wir dich nie anrufen. Unter Umständen könnte das
-        aber doch wichtig sein - zum Beispiel wenn Emails aus technischen
-        Gründen nicht mehr bei dir ankommen.
-      </p>
-      <p>
-        Wenn du willst, können wir dich auch in die verdächtigen Messenger-Gruppen
-        aufnehmen. Lass uns dazu einen Kommentar unten!
-      </p>
-      <p>
-        Desweiteren ist die Adresse praktisch, um dir postalisch kleine
-        Aufmerksamkeiten zukommen zu lassen!
-      </p>
-    </div>
-    </section>
-    <div class="row">
-      <div class="col-md-6 g-4">
-        <div>
-          <button type="submit" class="btn btn-primary" disabled>Speichern</button>
-        </div>
-      </div>
-    </div>
-</form>
-
-<!-- Modal changeMailAddress -->
-<div class="modal fade" id="changeMailAddress" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="changeMailAddressLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="changeMailAddressLabel">E-Mail Adresse ändern</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-      </div>
-      <div class="modal-body">
-        <form id="changeMailAddressForm">
-          <div class="row">
-            <div class="col-md-12 g-4">
-              <label for="email">neue E-Mail</label>
-              <input type="email" class="form-control" id="changeEmailNew" name="changeEmailNew" placeholder="" value="">
+    <form id="account_data" class="row align-items-center needs-validation" novalidate>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <section class="row p-4 form-section">
+            <h3>E-Mail</h3>
+            <div class="col-lg-8">
+                <div class="row">
+                    <div class="col-md-6 g-4">
+                        <label for="email">E-Mail</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="E-Mail"
+                               value="{{ user.email }}" readonly disabled>
+                    </div>
+                    <div class="col-md-6 g-4">
+                        <label></label>
+                        <button type="button" id="openChangeMailAddressModal" class="btn btn-primary form-control"
+                                data-bs-toggle="modal" data-bs-target="#changeMailAddress">
+                            E-Mail ändern
+                        </button>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12 g-4">
-              <label for="email">neue E-Mail wiederholen</label>
-              <input type="email" class="form-control" id="changeEmailRepeat" name="changeEmailRepeat" placeholder="" value="">
+            <div class="col-lg-4">
+                <div><h4>Warum erheben wir diese Informationen?</h4></div>
+                <p>
+                    Deine Email-Adresse ist für uns sehr wichtig. Zum einen kannst du dich
+                    mit ihr bei ROCKON immer wieder anmelden. Zum anderen ist Email aber
+                    auch der Weg, wie wir dich im Vorfeld von {{ event.name }} informieren.
+                </p>
             </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-        <button type="button" id="changeEmailSave" class="btn btn-primary" disabled>Ändern</button>
-      </div>
+        </section>
+        <div id="changeEmailMessage"></div>
+        <section class="row p-4 form-section">
+            <div class="col-lg-8">
+                <h3>Persönliches</h3>
+                <div class="row">
+                    <div class="col-md-6 g-4">
+                        <label for="first_name">Vorname</label>
+                        <input type="text" class="form-control" id="first_name" placeholder="Jane"
+                               value="{{ user.first_name|default_if_none:"" }}">
+                    </div>
+                    <div class="col-md-6 g-4">
+                        <label for="last_name">Nachname</label>
+                        <input type="text" class="form-control" id="last_name" placeholder="Doe"
+                               value="{{ user.last_name|default_if_none:"" }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 g-4">
+                        <label for="nick_name">Spitzname</label>
+                        <input type="text" class="form-control" id="nick_name" placeholder="Muffischlumpf"
+                               value="{{ user.profile.nick_name|default_if_none:"" }}">
+                    </div>
+                    <div class="col-md-6 g-4">
+                        <label for="phone">Telefonnummer</label>
+                        <input type="tel" class="form-control" id="phone" placeholder="05551234"
+                               value="{{ user.profile.phone|default_if_none:"" }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 g-4">
+                        <label for="address">Adresse</label>
+                        <input type="text" class="form-control" id="address" placeholder="Am Geldspeicher"
+                               value="{{ user.profile.address|default_if_none:"" }}">
+                    </div>
+                    <div class="col-md-6 g-4">
+                        <label for="address_housenumber">Hausnummer</label>
+                        <input type="text" class="form-control" id="address_housenumber" placeholder="23a"
+                               value="{{ user.profile.address_housenumber|default_if_none:"" }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 g-4">
+                        <label for="address_extension">Adresse-Zusatz</label>
+                        <input type="text" class="form-control" id="address_extension" placeholder="Hinterhof"
+                               value="{{ user.profile.address_extension|default_if_none:"" }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 g-4">
+                        <label for="zip_code">Postleitzahl</label>
+                        <input type="number" class="form-control" id="zip_code" placeholder="10999"
+                               value="{{ user.profile.zip_code|default_if_none:"" }}">
+                    </div>
+                    <div class="col-md-6 g-4">
+                        <label for="place">Ort</label>
+                        <input type="text" class="form-control" id="place" placeholder="Entenhausen"
+                               value="{{ user.profile.place|default_if_none:"" }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 g-4">
+                        <div class="col-sm-6 g-4">
+                            <label for="user_birthday">Geburtstag</label>
+                            <input type="date" name="user_birthday" class="form-control not-empty" id="user_birthday"
+                                   value="{{ user.profile.birthday|date:"Y-m-d"|default:"" }}" autocomplete="bday"/>
+                            <div class="valid-feedback">
+                            </div>
+                            <div class="invalid-feedback">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div><h4>Warum erheben wir diese Informationen?</h4></div>
+                <p>
+                    Da wir jede Person im Rahmen von {{ event.name }} versichern, brauchen
+                    wir minimale Stammdaten wie Geburtstag und Adresse, um dich melden zu
+                    können. Diese Daten werden bei Teilnahme als Crewmitglied dem Jugendamt Tempelhof-Schöneberg
+                    übermittelt,
+                    und nur im Bedarfsfall an das Versicherungsunternehmen weitergegeben.
+                </p>
+                <p>
+                    Normalerweise werden wir dich nie anrufen. Unter Umständen könnte das
+                    aber doch wichtig sein - zum Beispiel wenn Emails aus technischen
+                    Gründen nicht mehr bei dir ankommen.
+                </p>
+                <p>
+                    Wenn du willst, können wir dich auch in die verdächtigen Messenger-Gruppen
+                    aufnehmen. Lass uns dazu einen Kommentar unten!
+                </p>
+                <p>
+                    Desweiteren ist die Adresse praktisch, um dir postalisch kleine
+                    Aufmerksamkeiten zukommen zu lassen!
+                </p>
+            </div>
+        </section>
+        <div class="row">
+            <div class="col-md-6 g-4">
+                <div>
+                    <button type="submit" class="btn btn-primary" disabled>Speichern</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Modal changeMailAddress -->
+    <div class="modal fade" id="changeMailAddress" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="changeMailAddressLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="changeMailAddressLabel">E-Mail Adresse ändern</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="changeMailAddressForm">
+                        <div class="row">
+                            <div class="col-md-12 g-4">
+                                <label for="email">neue E-Mail</label>
+                                <input type="email" class="form-control" id="changeEmailNew" name="changeEmailNew"
+                                       placeholder="" value="">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 g-4">
+                                <label for="email">neue E-Mail wiederholen</label>
+                                <input type="email" class="form-control" id="changeEmailRepeat" name="changeEmailRepeat"
+                                       placeholder="" value="">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" id="changeEmailSave" class="btn btn-primary" disabled>Ändern</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
 {% endblock content %}

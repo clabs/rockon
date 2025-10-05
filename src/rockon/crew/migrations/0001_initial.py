@@ -15,16 +15,16 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("rockonbase", "0001_initial"),
+        ('rockonbase', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Attendance",
+            name='Attendance',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -32,37 +32,37 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("day", models.DateField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('day', models.DateField()),
                 (
-                    "phase",
+                    'phase',
                     models.CharField(
                         choices=[
-                            ("setup", "Aufbau"),
-                            ("show", "Veranstaltung"),
-                            ("teardown", "Abbau"),
+                            ('setup', 'Aufbau'),
+                            ('show', 'Veranstaltung'),
+                            ('teardown', 'Abbau'),
                         ],
                         max_length=10,
                     ),
                 ),
                 (
-                    "event",
+                    'event',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="rockonbase.event",
+                        to='rockonbase.event',
                     ),
                 ),
             ],
             options={
-                "ordering": ["day"],
+                'ordering': ['day'],
             },
         ),
         migrations.CreateModel(
-            name="Crew",
+            name='Crew',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -70,29 +70,29 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
-                ("year", models.IntegerField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
+                ('year', models.IntegerField()),
                 (
-                    "event",
+                    'event',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="crews",
-                        to="rockonbase.event",
+                        related_name='crews',
+                        to='rockonbase.event',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="CrewMember",
+            name='CrewMember',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -100,69 +100,69 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "state",
+                    'state',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("confirmed", "Bestätigt"),
-                            ("rejected", "Abgelehnt"),
-                            ("arrived", "Angekommen"),
+                            ('unknown', 'Unbekannt'),
+                            ('confirmed', 'Bestätigt'),
+                            ('rejected', 'Abgelehnt'),
+                            ('arrived', 'Angekommen'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=12,
                     ),
                 ),
                 (
-                    "nutrition",
+                    'nutrition',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("vegan", "Vegan"),
-                            ("vegetarian", "Vegetarisch"),
-                            ("omnivore", "Omnivor"),
+                            ('unknown', 'Unbekannt'),
+                            ('vegan', 'Vegan'),
+                            ('vegetarian', 'Vegetarisch'),
+                            ('omnivore', 'Omnivor'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=12,
                     ),
                 ),
-                ("nutrition_note", models.TextField(blank=True, null=True)),
-                ("skills_note", models.TextField(blank=True, null=True)),
-                ("attendance_note", models.TextField(blank=True, null=True)),
-                ("stays_overnight", models.BooleanField(default=False)),
-                ("general_note", models.TextField(blank=True, null=True)),
-                ("needs_leave_of_absence", models.BooleanField(default=False)),
-                ("has_leave_of_absence", models.BooleanField(default=False)),
-                ("leave_of_absence_note", models.TextField(blank=True, null=True)),
-                ("internal_note", models.TextField(blank=True, null=True)),
+                ('nutrition_note', models.TextField(blank=True, null=True)),
+                ('skills_note', models.TextField(blank=True, null=True)),
+                ('attendance_note', models.TextField(blank=True, null=True)),
+                ('stays_overnight', models.BooleanField(default=False)),
+                ('general_note', models.TextField(blank=True, null=True)),
+                ('needs_leave_of_absence', models.BooleanField(default=False)),
+                ('has_leave_of_absence', models.BooleanField(default=False)),
+                ('leave_of_absence_note', models.TextField(blank=True, null=True)),
+                ('internal_note', models.TextField(blank=True, null=True)),
                 (
-                    "attendance",
+                    'attendance',
                     models.ManyToManyField(
                         blank=True,
-                        related_name="crew_members",
-                        to="rockoncrew.attendance",
+                        related_name='crew_members',
+                        to='rockoncrew.attendance',
                     ),
                 ),
                 (
-                    "crew",
+                    'crew',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="rockoncrew.crew",
+                        to='rockoncrew.crew',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="Shirt",
+            name='Shirt',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -170,40 +170,40 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "size",
+                    'size',
                     models.CharField(
                         choices=[
-                            ("S", "S"),
-                            ("M", "M"),
-                            ("L", "L"),
-                            ("XL", "XL"),
-                            ("2XL", "2XL"),
-                            ("3XL", "3XL"),
-                            ("4XL", "4XL"),
+                            ('S', 'S'),
+                            ('M', 'M'),
+                            ('L', 'L'),
+                            ('XL', 'XL'),
+                            ('2XL', '2XL'),
+                            ('3XL', '3XL'),
+                            ('4XL', '4XL'),
                         ],
                         max_length=12,
                     ),
                 ),
                 (
-                    "cut",
+                    'cut',
                     models.CharField(
-                        choices=[("straight", "Regulär"), ("fitted", "Figurbetont")],
+                        choices=[('straight', 'Regulär'), ('fitted', 'Figurbetont')],
                         max_length=12,
                     ),
                 ),
             ],
             options={
-                "ordering": ["cut", "size"],
+                'ordering': ['cut', 'size'],
             },
         ),
         migrations.CreateModel(
-            name="Skill",
+            name='Skill',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -211,12 +211,12 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
-                ("explanation", models.CharField(max_length=511)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
+                ('explanation', models.CharField(max_length=511)),
                 (
-                    "icon",
+                    'icon',
                     models.CharField(
                         default='<i class="fa-solid fa-heart"></i>',
                         help_text='<a target="_blank" href="https://fontawesome.com/search?m=free&o=r">Wähle ein Icon aus</a>',
@@ -225,14 +225,14 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "ordering": ["name"],
+                'ordering': ['name'],
             },
         ),
         migrations.CreateModel(
-            name="Team",
+            name='Team',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -240,36 +240,36 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
-                ("description", models.TextField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
+                ('description', models.TextField()),
                 (
-                    "image",
+                    'image',
                     models.ImageField(
                         blank=True,
                         null=True,
                         upload_to=rockon.library.uploadandpathrename.UploadToPathAndRename(
-                            "teams"
+                            'teams'
                         ),
                     ),
                 ),
                 (
-                    "contact_mail",
+                    'contact_mail',
                     models.EmailField(blank=True, max_length=254, null=True),
                 ),
-                ("is_public", models.BooleanField(default=True)),
-                ("show_teamlead", models.BooleanField(default=True)),
+                ('is_public', models.BooleanField(default=True)),
+                ('show_teamlead', models.BooleanField(default=True)),
             ],
             options={
-                "ordering": ["name"],
+                'ordering': ['name'],
             },
         ),
         migrations.CreateModel(
-            name="TeamCategory",
+            name='TeamCategory',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -277,30 +277,30 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=1024)),
-                ("description", models.TextField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=1024)),
+                ('description', models.TextField()),
                 (
-                    "image",
+                    'image',
                     models.ImageField(
                         blank=True,
                         null=True,
                         upload_to=rockon.library.uploadandpathrename.UploadToPathAndRename(
-                            "teams"
+                            'teams'
                         ),
                     ),
                 ),
             ],
             options={
-                "verbose_name_plural": "Team categories",
+                'verbose_name_plural': 'Team categories',
             },
         ),
         migrations.CreateModel(
-            name="TeamMember",
+            name='TeamMember',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -309,107 +309,107 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "state",
+                    'state',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("confirmed", "Bestätigt"),
-                            ("rejected", "Abgelehnt"),
+                            ('unknown', 'Unbekannt'),
+                            ('confirmed', 'Bestätigt'),
+                            ('rejected', 'Abgelehnt'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=12,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "crewmember",
+                    'crewmember',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="teams",
-                        to="rockoncrew.crewmember",
+                        related_name='teams',
+                        to='rockoncrew.crewmember',
                     ),
                 ),
                 (
-                    "team",
+                    'team',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="members",
-                        to="rockoncrew.team",
+                        related_name='members',
+                        to='rockoncrew.team',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.AddField(
-            model_name="team",
-            name="category",
+            model_name='team',
+            name='category',
             field=models.ForeignKey(
                 default=None,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="teams",
-                to="rockoncrew.teamcategory",
+                related_name='teams',
+                to='rockoncrew.teamcategory',
             ),
         ),
         migrations.AddField(
-            model_name="team",
-            name="lead",
+            model_name='team',
+            name='lead',
             field=models.OneToOneField(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="lead",
+                related_name='lead',
                 to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(
-            model_name="team",
-            name="vize_lead",
+            model_name='team',
+            name='vize_lead',
             field=models.OneToOneField(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="vize_lead",
+                related_name='vize_lead',
                 to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(
-            model_name="crewmember",
-            name="interested_in",
-            field=models.ManyToManyField(blank=True, to="rockoncrew.teamcategory"),
+            model_name='crewmember',
+            name='interested_in',
+            field=models.ManyToManyField(blank=True, to='rockoncrew.teamcategory'),
         ),
         migrations.AddField(
-            model_name="crewmember",
-            name="shirt",
+            model_name='crewmember',
+            name='shirt',
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="crewmember_shirt",
-                to="rockoncrew.shirt",
+                related_name='crewmember_shirt',
+                to='rockoncrew.shirt',
             ),
         ),
         migrations.AddField(
-            model_name="crewmember",
-            name="skills",
-            field=models.ManyToManyField(blank=True, to="rockoncrew.skill"),
+            model_name='crewmember',
+            name='skills',
+            field=models.ManyToManyField(blank=True, to='rockoncrew.skill'),
         ),
         migrations.AddField(
-            model_name="crewmember",
-            name="user",
+            model_name='crewmember',
+            name='user',
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
             ),
         ),
         migrations.CreateModel(
-            name="AttendanceAddition",
+            name='AttendanceAddition',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -417,21 +417,21 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("comment", models.TextField(blank=True, null=True)),
-                ("amount", models.IntegerField(default=0)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('comment', models.TextField(blank=True, null=True)),
+                ('amount', models.IntegerField(default=0)),
                 (
-                    "attendance",
+                    'attendance',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="rockoncrew.attendance",
+                        to='rockoncrew.attendance',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
     ]

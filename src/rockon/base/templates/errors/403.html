@@ -1,14 +1,14 @@
 {% extends "base.html" %} {% block content %}
 
-<div class="row">
-<div><h1>Fehler 403</h1></div>
-</div>
-<div class="row">
-<h3>Unberechtigter Zugriff</h3>
-</div>
-<div class="row">
-<p>Es tut mir leid, aber du hast leider keine Berechtigung, diese Seite zu sehen.</p>
-<p>{{more_info|default:""}}</p>
-</div>
+    <div class="row">
+        <div><h1>Fehler 403</h1></div>
+    </div>
+    <div class="row">
+        <h3>Unberechtigter Zugriff</h3>
+    </div>
+    <div class="row">
+        <p>Es tut mir leid, aber du hast leider keine Berechtigung, diese Seite zu sehen.</p>
+        <p>{{ more_info|default:"" }}</p>
+    </div>
 
 {% endblock content %}

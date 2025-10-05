@@ -9,13 +9,13 @@ import rockon.bands.models.band_media
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbands", "0006_bandmedia_encoded_file"),
+        ('rockonbands', '0006_bandmedia_encoded_file'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="bandmedia",
-            name="encoded_file",
+            model_name='bandmedia',
+            name='encoded_file',
             field=models.FileField(
                 blank=True,
                 default=None,

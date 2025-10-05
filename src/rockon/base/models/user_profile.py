@@ -12,7 +12,7 @@ class UserProfile(CustomModel):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        related_name="profile",
+        related_name='profile',
         unique=True,
     )
     nick_name = models.CharField(max_length=255, null=True, default=None, blank=True)
@@ -37,12 +37,12 @@ class UserProfile(CustomModel):
             return self.user.username
         if self.user.email:
             return self.user.email
-        return f"username:{self.user.username}"
+        return f'username:{self.user.username}'
 
     @property
     def full_name(self) -> str:
         """Return the full name of the user."""
-        full_name = f"{self.user.first_name} {self.user.last_name}"
+        full_name = f'{self.user.first_name} {self.user.last_name}'
         if not full_name.strip():
             full_name = self.user.email
         if not full_name.strip():

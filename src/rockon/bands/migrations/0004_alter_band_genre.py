@@ -7,13 +7,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbands", "0003_band_repeated_track_band_track"),
+        ('rockonbands', '0003_band_repeated_track_band_track'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="band",
-            name="genre",
+            model_name='band',
+            name='genre',
             field=models.CharField(blank=True, default=None, max_length=128, null=True),
         ),
     ]

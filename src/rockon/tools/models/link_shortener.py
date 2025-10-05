@@ -4,7 +4,7 @@ from secrets import randbits
 
 from rockon.library.custom_model import CustomModel, models
 
-BASE_ALPH = tuple("023456789ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghikmnopqrstuvwxyz")
+BASE_ALPH = tuple('023456789ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghikmnopqrstuvwxyz')
 BASE_DICT = {c: v for v, c in enumerate(BASE_ALPH)}
 BASE_LEN = len(BASE_ALPH)
 
@@ -32,7 +32,7 @@ class LinkShortener(CustomModel):
         if not num:
             return None
 
-        encoding = ""
+        encoding = ''
         while num:
             num, rem = divmod(num, BASE_LEN)
             encoding = BASE_ALPH[rem] + encoding

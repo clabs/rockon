@@ -1,455 +1,567 @@
 {% extends "base.html" %} {% block content %}
 
-<script language="javascript" nonce="{{request.csp_nonce}}">
-  $(document).ready(() => {
-    $('#techrider').on('change, keyup', _ => {
-      $(window).bind('beforeunload', () => {
-        return "Die Seite hat ungespeicherte Änderungen.";
-      })
-      $("#form_message").html('<div class="alert alert-secondary" role="alert">Ungespeicherte Änderungen.</div>')
-    })
+    <script language="javascript" nonce="{{ request.csp_nonce }}">
+        $(document).ready(() => {
+            $('#techrider').on('change, keyup', _ => {
+                $(window).bind('beforeunload', () => {
+                    return "Die Seite hat ungespeicherte Änderungen.";
+                })
+                $("#form_message").html('<div class="alert alert-secondary" role="alert">Ungespeicherte Änderungen.</div>')
+            })
 
-    $('input[type=checkbox]').on('change', (event) => {
-      const target = event.currentTarget
-      const el = $(`[name="${target.id}_amount"]`)
-      if (target.checked && el) {
-        el.prop('disabled', false).val(1)
-      } else {
-        el.prop('disabled', true).val('')
-      }
-    })
+            $('input[type=checkbox]').on('change', (event) => {
+                const target = event.currentTarget
+                const el = $(`[name="${target.id}_amount"]`)
+                if (target.checked && el) {
+                    el.prop('disabled', false).val(1)
+                } else {
+                    el.prop('disabled', true).val('')
+                }
+            })
 
-    $('#form_submit').on('click', (event) => {
-      event.preventDefault()
-      console.debug("submit")
-      const form = $('#techrider')
-      const form_data_arr = form.serializeArray()
-      const form_data = {}
-      for (const field of form_data_arr) {
-        if (field.name.endsWith('_amount')) {
-          field.value = parseInt(field.value)
+            $('#form_submit').on('click', (event) => {
+                event.preventDefault()
+                console.debug("submit")
+                const form = $('#techrider')
+                const form_data_arr = form.serializeArray()
+                const form_data = {}
+                for (const field of form_data_arr) {
+                    if (field.name.endsWith('_amount')) {
+                        field.value = parseInt(field.value)
+                    }
+                    form_data[field.name] = field.value
+                }
+                console.debug("form data", form_data)
+                send_form(form_data)
+            })
+        })
+
+        ajax_success = (data) => {
+            console.info(data)
+            $(window).unbind('beforeunload')
+            $("#form_message").html('<div class="alert alert-primary" role="alert">Meldung erfolgreich abgeschlossen.</div>')
         }
-        form_data[field.name] = field.value
-      }
-      console.debug("form data", form_data)
-      send_form(form_data)
-    })
-  })
+        ajax_error = (data) => {
+            // FIXME: needs error handling
+            console.error(data)
+        }
+        ajax_complete = (data) => {
+            // hopefully this is never triggered
+            console.info(data)
+        }
 
-  ajax_success = (data) => {
-    console.info(data)
-    $(window).unbind('beforeunload')
-    $("#form_message").html('<div class="alert alert-primary" role="alert">Meldung erfolgreich abgeschlossen.</div>')
-  }
-  ajax_error = (data) => {
-    // FIXME: needs error handling
-    console.error(data)
-  }
-  ajax_complete = (data) => {
-    // hopefully this is never triggered
-    console.info(data)
-  }
+        const send_form = (fields) => {
+            console.debug(fields)
+            $.ajax({
+                type: "POST",
+                url: "{% url "api_band_techrider" slug=slug %}",
+                data: JSON.stringify(fields),
+                contentType: "application/json",
+                headers: {
+                    "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
+                },
+                mode: "same-origin",
+                dataType: "json",
+                success: (data) => ajax_success(data),
+                error: (data) => ajax_error(data),
+                complete: (data) => ajax_complete(data)
+            })
+        }
 
-  const send_form = (fields) => {
-    console.debug(fields)
-    $.ajax({
-      type: "POST",
-      url: "{% url "api_band_techrider" slug=slug %}",
-      data: JSON.stringify(fields),
-      contentType: "application/json",
-      headers: {
-        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
-      },
-      mode: "same-origin",
-      dataType: "json",
-      success: (data) => ajax_success(data),
-      error: (data) => ajax_error(data),
-      complete: (data) => ajax_complete(data)
-    })
-  }
+    </script>
 
-</script>
+    <h1>Techrider >>{{ band.name }}<<</h1>
+    <form id="techrider" class="row g-3">
+        {% csrf_token %}
+        <section class="row p-4 form-section">
+            <h3>🥁 Schlagzeug</h3>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">Trommeln</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_bd"
+                                   name="drumset_bd"{% if band.techrider.drumset_bd %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_bd">Bassdrum</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_sn1"
+                                   name="drumset_sn1"{% if band.techrider.drumset_sn1 %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_sn1">Snare 1</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_sn2"
+                                   name="drumset_sn2"{% if band.techrider.drumset_sn2 %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_sn2">Snare 2</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_hh"
+                                   name="drumset_hh"{% if band.techrider.drumset_hh %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_hh">Hi-Hat</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_t1"
+                                   name="drumset_t1"{% if band.techrider.drumset_t1 %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_t1">Tom 1</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_t2"
+                                   name="drumset_t2"{% if band.techrider.drumset_t2 %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_t2">Tom 2</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_t3"
+                                   name="drumset_t3"{% if band.techrider.drumset_t3 %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_t3">Tom 3</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_ft"
+                                   name="drumset_ft"{% if band.techrider.drumset_ft %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_ft">Floor Tom</label>
+                        </div>
+                    </div>
+                    <div class="card-footer d-none">
+                    </div>
+                </div>
+            </div>
 
-<h1>Techrider >>{{band.name}}<<</h1>
-<form id="techrider" class="row g-3">
-  {% csrf_token %}
-  <section class="row p-4 form-section">
-  <h3>🥁 Schlagzeug</h3>
-  <div class="col">
-    <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title">Trommeln</h5>
-      </div>
-      <div class="card-body">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_bd" name="drumset_bd"{% if band.techrider.drumset_bd %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_bd">Bassdrum</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_sn1" name="drumset_sn1"{% if band.techrider.drumset_sn1 %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_sn1">Snare 1</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_sn2" name="drumset_sn2"{% if band.techrider.drumset_sn2 %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_sn2">Snare 2</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_hh" name="drumset_hh"{% if band.techrider.drumset_hh %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_hh">Hi-Hat</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_t1" name="drumset_t1"{% if band.techrider.drumset_t1 %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_t1">Tom 1</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_t2" name="drumset_t2"{% if band.techrider.drumset_t2 %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_t2">Tom 2</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_t3" name="drumset_t3"{% if band.techrider.drumset_t3 %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_t3">Tom 3</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_ft" name="drumset_ft"{% if band.techrider.drumset_ft %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_ft">Floor Tom</label>
-        </div>
-      </div>
-      <div class="card-footer d-none">
-      </div>
-    </div>
-  </div>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">Becken</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_rb"
+                                   name="drumset_rb"{% if band.techrider.drumset_rb %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_rb">Ride Becken</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_cnb"
+                                   name="drumset_cnb"{% if band.techrider.drumset_cnb %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_cnb">China Becken</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_crb1"
+                                   name="drumset_crb1"{% if band.techrider.drumset_crb1 %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_crb1">Crash Becken 1</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_crb2"
+                                   name="drumset_crb2"{% if band.techrider.drumset_crb2 %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_crb2">Crash Becken 2</label>
+                        </div>
+                    </div>
+                    <div class="card-footer d-none">
+                    </div>
+                </div>
+            </div>
 
-  <div class="col">
-    <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title">Becken</h5>
-      </div>
-      <div class="card-body">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_rb" name="drumset_rb"{% if band.techrider.drumset_rb %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_rb">Ride Becken</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_cnb" name="drumset_cnb"{% if band.techrider.drumset_cnb %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_cnb">China Becken</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_crb1" name="drumset_crb1"{% if band.techrider.drumset_crb1 %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_crb1">Crash Becken 1</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_crb2" name="drumset_crb2"{% if band.techrider.drumset_crb2 %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_crb2">Crash Becken 2</label>
-        </div>
-      </div>
-      <div class="card-footer d-none">
-      </div>
-    </div>
-  </div>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">Technik</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_ed"
+                                   name="drumset_ed"{% if band.techrider.drumset_ed %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_ed">E-Drum</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_sp"
+                                   name="drumset_sp"{% if band.techrider.drumset_sp %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_sp">Sampler</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="drumset_vd"
+                                   name="drumset_vd"{% if band.techrider.drumset_vd %} checked{% endif %}>
+                            <label class="form-check-label" for="drumset_vd">Vocal</label>
+                        </div>
+                    </div>
+                    <div class="card-footer d-none">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 g-4">
+                <label for="drumset_notes">Anmerkungen zum Schlagzeug</label>
+                <textarea class="form-control" id="drumset_notes" name="drumset_notes" rows="3"></textarea>
+            </div>
+        </section>
 
-  <div class="col">
-    <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title">Technik</h5>
-      </div>
-      <div class="card-body">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_ed" name="drumset_ed"{% if band.techrider.drumset_ed %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_ed">E-Drum</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_sp" name="drumset_sp"{% if band.techrider.drumset_sp %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_sp">Sampler</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="drumset_vd" name="drumset_vd"{% if band.techrider.drumset_vd %} checked{% endif %}>
-          <label class="form-check-label" for="drumset_vd">Vocal</label>
-        </div>
-      </div>
-      <div class="card-footer d-none">
-      </div>
-    </div>
-  </div>
-  <div class="col-md-12 g-4">
-    <label for="drumset_notes">Anmerkungen zum Schlagzeug</label>
-    <textarea class="form-control" id="drumset_notes" name="drumset_notes" rows="3"></textarea>
-  </div>
-  </section>
+        <section class="row p-4 form-section">
+            <h3>🎤 Vocals ohne Instrument</h3>
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Was</th>
+                        <th scope="col">Benötigt</th>
+                        <th scope="col">Menge</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Main Vocal</td>
+                        <td><input class="form-check-input" type="checkbox" id="vocals_main" name="vocals_main"
+                                {% if band.techrider.vocals_main %} checked{% endif %}></td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control" id="vocals_main_amount"
+                                   name="vocals_main_amount" placeholder="Anzahl" maxlength="2" autocomplete="off"
+                                {% if band.techrider.vocals_main %}
+                                   value="{{ band.techrider.vocals_main_amount }}"{% else %} disabled{% endif %} /></td>
+                    </tr>
+                    <tr>
+                        <td>Backing Vocal</td>
+                        <td><input class="form-check-input" type="checkbox" id="vocals_back" name="vocals_back"></td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control" id="vocals_back_amount"
+                                   name="vocals_back_amount" placeholder="Anzahl" maxlength="2" autocomplete="off"
+                                {% if band.techrider.vocals_back %}
+                                   value="{{ band.techrider.vocals_back_amount }}"{% else %} disabled{% endif %} /></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-  <section class="row p-4 form-section">
-  <h3>🎤 Vocals ohne Instrument</h3>
-  <div class="col-md-12">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Was</th>
-          <th scope="col">Benötigt</th>
-          <th scope="col">Menge</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Main Vocal</td>
-          <td><input class="form-check-input" type="checkbox" id="vocals_main" name="vocals_main"{% if band.techrider.vocals_main %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" id="vocals_main_amount" name="vocals_main_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.vocals_main %} value="{{ band.techrider.vocals_main_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Backing Vocal</td>
-          <td><input class="form-check-input" type="checkbox" id="vocals_back" name="vocals_back"></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" id="vocals_back_amount" name="vocals_back_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.vocals_back %} value="{{ band.techrider.vocals_back_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  </section>
+        <section class="row p-4 form-section">
+            <h3>🎺 Instrumente</h3>
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Was</th>
+                        <th scope="col">Benötigt</th>
+                        <th scope="col">Menge</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Acoustic Gitarre</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_acg" name="instrument_acg"
+                                {% if band.techrider.instrument_acg %} checked{% endif %}></td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_acg_amount"
+                                   placeholder="Anzahl" maxlength="2" autocomplete="off"
+                                {% if band.techrider.instrument_acg %}
+                                   value="{{ band.techrider.instrument_acg_amount }}"{% else %} disabled{% endif %} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Violine</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_violin"
+                                   name="instrument_violin" {% if band.techrider.instrument_violin %}
+                                   checked{% endif %}></td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_violin_amount"
+                                   placeholder="Anzahl" maxlength="2" autocomplete="off"
+                                {% if band.techrider.instrument_violin %}
+                                   value="{{ band.techrider.instrument_violin_amount }}"{% else %}
+                                   disabled{% endif %} /></td>
+                    </tr>
+                    <tr>
+                        <td>Cello</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_cello"
+                                   name="instrument_cello" {% if band.techrider.instrument_cello %} checked{% endif %}>
+                        </td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_cello_amount"
+                                   placeholder="Anzahl" maxlength="2" autocomplete="off"
+                                {% if band.techrider.instrument_cello %}
+                                   value="{{ band.techrider.instrument_cello_amount }}"{% else %} disabled{% endif %} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Kontrabass</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_kbass"
+                                   name="instrument_kbass" {% if band.techrider.instrument_kbass %} checked{% endif %}>
+                        </td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_kbass_amount"
+                                   placeholder="Anzahl" maxlength="2" autocomplete="off"
+                                {% if band.techrider.instrument_kbass %}
+                                   value="{{ band.techrider.instrument_kbass_amount }}"{% else %} disabled{% endif %} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Trompete</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_trompete"
+                                   name="instrument_trompete" {% if band.techrider.instrument_trompete %}
+                                   checked{% endif %}></td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control"
+                                   name="instrument_trompete_amount" placeholder="Anzahl" maxlength="2"
+                                   autocomplete="off" {% if band.techrider.instrument_trompete %}
+                                   value="{{ band.techrider.instrument_trompete_amount }}"{% else %}
+                                   disabled{% endif %} /></td>
+                    </tr>
+                    <tr>
+                        <td>Saxophone</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_saxophone"
+                                   name="instrument_saxophone" {% if band.techrider.instrument_saxophone %}
+                                   checked{% endif %}></td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control"
+                                   name="instrument_saxophone_amount" placeholder="Anzahl" maxlength="2"
+                                   autocomplete="off" {% if band.techrider.instrument_saxophone %}
+                                   value="{{ band.techrider.instrument_saxophone_amount }}"{% else %}
+                                   disabled{% endif %} /></td>
+                    </tr>
+                    <tr>
+                        <td>Akkordeon</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_akkordeon"
+                                   name="instrument_akkordeon" {% if band.techrider.instrument_akkordeon %}
+                                   checked{% endif %}></td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control"
+                                   name="instrument_akkordeon_amount" placeholder="Anzahl" maxlength="2"
+                                   autocomplete="off" {% if band.techrider.instrument_akkordeon %}
+                                   value="{{ band.techrider.instrument_akkordeon_amount }}"{% else %}
+                                   disabled{% endif %} /></td>
+                    </tr>
+                    <tr>
+                        <td>Cajon</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_cajon"
+                                   name="instrument_cajon" {% if band.techrider.instrument_cajon %} checked{% endif %}>
+                        </td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_cajon_amount"
+                                   placeholder="Anzahl" maxlength="2" autocomplete="off"
+                                {% if band.techrider.instrument_cajon %}
+                                   value="{{ band.techrider.instrument_cajon_amount }}"{% else %} disabled{% endif %} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Marching Snare</td>
+                        <td><input class="form-check-input" type="checkbox" id="instrument_msnarre"
+                                   name="instrument_msnarre" {% if band.techrider.instrument_msnarre %}
+                                   checked{% endif %}></td>
+                        <td><input type="number" pattern="[\d+]{2}" class="form-control"
+                                   name="instrument_msnarre_amount" placeholder="Anzahl" maxlength="2"
+                                   autocomplete="off" {% if band.techrider.instrument_msnarre %}
+                                   value="{{ band.techrider.instrument_msnarre_amount }}"{% else %}
+                                   disabled{% endif %} /></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-12">
+                <label for="instrument_notes">Anmerkungen zu den Instrumenten</label>
+                <textarea class="form-control" id="instrument_notes" name="instrument_notes"
+                          rows="3">{{ band.techrider.instrument_notes }}</textarea>
+            </div>
+        </section>
 
-  <section class="row p-4 form-section">
-  <h3>🎺 Instrumente</h3>
-  <div class="col-md-12">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Was</th>
-          <th scope="col">Benötigt</th>
-          <th scope="col">Menge</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Acoustic Gitarre</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_acg" name="instrument_acg" {% if band.techrider.instrument_acg %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_acg_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_acg %} value="{{ band.techrider.instrument_acg_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Violine</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_violin" name="instrument_violin" {% if band.techrider.instrument_violin %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_violin_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_violin %} value="{{ band.techrider.instrument_violin_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Cello</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_cello" name="instrument_cello" {% if band.techrider.instrument_cello %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_cello_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_cello %} value="{{ band.techrider.instrument_cello_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Kontrabass</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_kbass" name="instrument_kbass" {% if band.techrider.instrument_kbass %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_kbass_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_kbass %} value="{{ band.techrider.instrument_kbass_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Trompete</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_trompete" name="instrument_trompete" {% if band.techrider.instrument_trompete %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_trompete_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_trompete %} value="{{ band.techrider.instrument_trompete_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Saxophone</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_saxophone" name="instrument_saxophone" {% if band.techrider.instrument_saxophone %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_saxophone_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_saxophone %} value="{{ band.techrider.instrument_saxophone_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Akkordeon</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_akkordeon" name="instrument_akkordeon" {% if band.techrider.instrument_akkordeon %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_akkordeon_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_akkordeon %} value="{{ band.techrider.instrument_akkordeon_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Cajon</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_cajon" name="instrument_cajon" {% if band.techrider.instrument_cajon %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_cajon_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_cajon %} value="{{ band.techrider.instrument_cajon_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Marching Snare</td>
-          <td><input class="form-check-input" type="checkbox" id="instrument_msnarre" name="instrument_msnarre" {% if band.techrider.instrument_msnarre %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{2}" class="form-control" name="instrument_msnarre_amount" placeholder="Anzahl" maxlength="2" autocomplete="off" {% if band.techrider.instrument_msnarre %} value="{{ band.techrider.instrument_msnarre_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="col-md-12">
-    <label for="instrument_notes">Anmerkungen zu den Instrumenten</label>
-    <textarea class="form-control" id="instrument_notes" name="instrument_notes" rows="3">{{ band.techrider.instrument_notes }}</textarea>
-  </div>
-  </section>
+        <section class="row p-4 form-section">
+            <h3>🎸 Saitenintrumente</h3>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">Bass</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_bass"
+                                   name="string_bass"{% if band.techrider.string_bass %} checked{% endif %}>
+                            <label class="form-check-label" for="string_bass">Bass Gitarre</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_bass_vocal"
+                                   name="string_bass_vocal"{% if band.techrider.string_bass_vocal %} checked{% endif %}>
+                            <label class="form-check-label" for="string_bass_vocal">Vocal Mic Bass</label>
+                        </div>
+                    </div>
+                    <div class="card-footer d-none">
+                    </div>
+                </div>
+            </div>
 
-  <section class="row p-4 form-section">
-  <h3>🎸 Saitenintrumente</h3>
-  <div class="col">
-    <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title">Bass</h5>
-      </div>
-      <div class="card-body">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_bass" name="string_bass"{% if band.techrider.string_bass %} checked{% endif %}>
-          <label class="form-check-label" for="string_bass">Bass Gitarre</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_bass_vocal" name="string_bass_vocal"{% if band.techrider.string_bass_vocal %} checked{% endif %}>
-          <label class="form-check-label" for="string_bass_vocal">Vocal Mic Bass</label>
-        </div>
-      </div>
-      <div class="card-footer d-none">
-      </div>
-    </div>
-  </div>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">E-Gitarre links</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_git_left_amp"
+                                   name="string_git_left_amp"{% if band.techrider.string_git_left_amp %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="string_git_left_amp">E-Gitarre über Amp (Mic.)</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_git_left_di"
+                                   name="string_git_left_di"{% if band.techrider.string_git_left_di %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="string_git_left_di">E-Gitarre über Camper (DI
+                                Out)</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_git_left_pads"
+                                   name="string_git_left_pads"{% if band.techrider.string_git_left_pads %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="string_git_left_pads">Strom für Fußpads</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_git_left_vocal"
+                                   name="string_git_left_vocal"{% if band.techrider.string_git_left_vocal %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="string_git_left_vocal">Vocal Mic Git-L</label>
+                        </div>
+                    </div>
+                    <div class="card-footer d-none">
+                    </div>
+                </div>
+            </div>
 
-  <div class="col">
-    <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title">E-Gitarre links</h5>
-      </div>
-      <div class="card-body">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_git_left_amp" name="string_git_left_amp"{% if band.techrider.string_git_left_amp %} checked{% endif %}>
-          <label class="form-check-label" for="string_git_left_amp">E-Gitarre über Amp (Mic.)</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_git_left_di" name="string_git_left_di"{% if band.techrider.string_git_left_di %} checked{% endif %}>
-          <label class="form-check-label" for="string_git_left_di">E-Gitarre über Camper (DI Out)</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_git_left_pads" name="string_git_left_pads"{% if band.techrider.string_git_left_pads %} checked{% endif %}>
-          <label class="form-check-label" for="string_git_left_pads">Strom für Fußpads</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_git_left_vocal" name="string_git_left_vocal"{% if band.techrider.string_git_left_vocal %} checked{% endif %}>
-          <label class="form-check-label" for="string_git_left_vocal">Vocal Mic Git-L</label>
-        </div>
-      </div>
-      <div class="card-footer d-none">
-      </div>
-    </div>
-  </div>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">E-Gitarre rechts</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_git_right_amp"
+                                   name="string_git_right_amp"{% if band.techrider.string_git_right_amp %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="string_git_right_amp">E-Gitarre über Amp (Mic.)</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_git_right_di"
+                                   name="string_git_right_di"{% if band.techrider.string_git_right_di %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="string_git_right_di">E-Gitarre über Camper (DI
+                                Out)</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_git_right_pads"
+                                   name="string_git_right_pads"{% if band.techrider.string_git_right_pads %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="string_git_right_pads">Strom für Fußpads</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="string_git_right_vocal"
+                                   name="string_git_right_vocal"{% if band.techrider.string_git_right_vocal %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="string_git_right_vocal">Vocal Mic Git-R</label>
+                        </div>
+                    </div>
+                    <div class="card-footer d-none">
+                    </div>
+                </div>
+            </div>
 
-  <div class="col">
-    <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title">E-Gitarre rechts</h5>
-      </div>
-      <div class="card-body">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_git_right_amp" name="string_git_right_amp"{% if band.techrider.string_git_right_amp %} checked{% endif %}>
-          <label class="form-check-label" for="string_git_right_amp">E-Gitarre über Amp (Mic.)</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_git_right_di" name="string_git_right_di"{% if band.techrider.string_git_right_di %} checked{% endif %}>
-          <label class="form-check-label" for="string_git_right_di">E-Gitarre über Camper (DI Out)</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_git_right_pads" name="string_git_right_pads"{% if band.techrider.string_git_right_pads %} checked{% endif %}>
-          <label class="form-check-label" for="string_git_right_pads">Strom für Fußpads</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="string_git_right_vocal" name="string_git_right_vocal"{% if band.techrider.string_git_right_vocal %} checked{% endif %}>
-          <label class="form-check-label" for="string_git_right_vocal">Vocal Mic Git-R</label>
-        </div>
-      </div>
-      <div class="card-footer d-none">
-      </div>
-    </div>
-  </div>
+            <div class="col-md-12">
+                <label for="string_notes">Anmerkungen zu den Saitenintrumenten</label>
+                <textarea class="form-control" id="string_notes" name="string_notes"
+                          rows="3">{{ band.techrider.string_notes }}</textarea>
+            </div>
+        </section>
 
-  <div class="col-md-12">
-    <label for="string_notes">Anmerkungen zu den Saitenintrumenten</label>
-    <textarea class="form-control" id="string_notes" name="string_notes" rows="3">{{ band.techrider.string_notes }}</textarea>
-  </div>
-  </section>
+        <section class="row p-4 form-section">
+            <h3>🎹 Tasteninstrumente</h3>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">E-Piano / Keys / Synths</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="keys_st_out"
+                                   name="keys_st_out"{% if band.techrider.keys_st_out %} checked{% endif %}>
+                            <label class="form-check-label" for="keys_st_out">Keys / Piano (Stereo Out)</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="keys_synth_laptop"
+                                   name="keys_synth_laptop"{% if band.techrider.keys_synth_laptop %} checked{% endif %}>
+                            <label class="form-check-label" for="keys_synth_laptop">Synths / Laptop</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="keys_backing_tracks"
+                                   name="keys_backing_tracks"{% if band.techrider.keys_backing_tracks %}
+                                   checked{% endif %}>
+                            <label class="form-check-label" for="keys_backing_tracks">Backing Tracks</label>
+                        </div>
+                    </div>
+                    <div class="card-footer d-none">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label for="keys_notes">Anmerkungen zu den Tasteninstrumenten</label>
+                <textarea class="form-control" id="keys_notes" name="keys_notes"
+                          rows="3">{{ band.techrider.keys_notes }}</textarea>
+            </div>
+        </section>
 
-  <section class="row p-4 form-section">
-    <h3>🎹 Tasteninstrumente</h3>
-    <div class="col">
-      <div class="card h-100">
-        <div class="card-header">
-          <h5 class="card-title">E-Piano / Keys / Synths</h5>
-        </div>
-        <div class="card-body">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="keys_st_out" name="keys_st_out"{% if band.techrider.keys_st_out %} checked{% endif %}>
-            <label class="form-check-label" for="keys_st_out">Keys / Piano (Stereo Out)</label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="keys_synth_laptop" name="keys_synth_laptop"{% if band.techrider.keys_synth_laptop %} checked{% endif %}>
-            <label class="form-check-label" for="keys_synth_laptop">Synths / Laptop</label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="keys_backing_tracks" name="keys_backing_tracks"{% if band.techrider.keys_backing_tracks %} checked{% endif %}>
-            <label class="form-check-label" for="keys_backing_tracks">Backing Tracks</label>
-          </div>
-        </div>
-        <div class="card-footer d-none">
-        </div>
-      </div>
-    </div>
-      <div class="col-md-12">
-        <label for="keys_notes">Anmerkungen zu den Tasteninstrumenten</label>
-        <textarea class="form-control" id="keys_notes" name="keys_notes" rows="3">{{ band.techrider.keys_notes }}</textarea>
-      </div>
-  </section>
+        <section class="row p-4 form-section">
+            <h3>🎠 Sonstige Technik</h3>
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Was</th>
+                        <th scope="col">Ja</th>
+                        <th scope="col">ggf. Menge</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Eigenes in ear monitoring</td>
+                        <td><input class="form-check-input" type="checkbox" id="misc_iem" name="misc_iem"
+                                {% if band.techrider.misc_iem %} checked{% endif %}></td>
+                        <td><input type="number" pattern="[\d+]{5}" class="form-control" name="misc_iem_amount"
+                                   placeholder="Anzahl" maxlength="5" autocomplete="off"
+                                {% if band.techrider.misc_iem %} value="{{ band.techrider.misc_iem_amount }}"{% else %}
+                                   disabled{% endif %} /></td>
+                    </tr>
+                    <tr>
+                        <td>Click für in ear monitoring</td>
+                        <td><input class="form-check-input" type="checkbox" id="misc_iem_clicker"
+                                   name="misc_iem_clicker"{% if band.techrider.misc_iem_clicker %} checked{% endif %}>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Intro/Zuspieler vom FOH</td>
+                        <td><input class="form-check-input" type="checkbox" id="misc_intro_playout"
+                                   name="misc_intro_playout"{% if band.techrider.misc_intro_playout %}
+                                   checked{% endif %}></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>eigener FOH Ingenieur / Techniker</td>
+                        <td><input class="form-check-input" type="checkbox" id="misc_technican" name="misc_technican"
+                                {% if band.techrider.misc_technican %} checked{% endif %}></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-  <section class="row p-4 form-section">
-  <h3>🎠 Sonstige Technik</h3>
-  <div class="col-md-12">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Was</th>
-          <th scope="col">Ja</th>
-          <th scope="col">ggf. Menge</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Eigenes in ear monitoring</td>
-          <td><input class="form-check-input" type="checkbox" id="misc_iem" name="misc_iem"{% if band.techrider.misc_iem %} checked{% endif %}></td>
-          <td><input type="number" pattern="[\d+]{5}" class="form-control" name="misc_iem_amount" placeholder="Anzahl" maxlength="5" autocomplete="off" {% if band.techrider.misc_iem %} value="{{ band.techrider.misc_iem_amount }}"{% else %} disabled{% endif %} /></td>
-        </tr>
-        <tr>
-          <td>Click für in ear monitoring</td>
-          <td><input class="form-check-input" type="checkbox" id="misc_iem_clicker" name="misc_iem_clicker"{% if band.techrider.misc_iem_clicker %} checked{% endif %}></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Intro/Zuspieler vom FOH</td>
-          <td><input class="form-check-input" type="checkbox" id="misc_intro_playout" name="misc_intro_playout"{% if band.techrider.misc_intro_playout %} checked{% endif %}></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>eigener FOH Ingenieur / Techniker</td>
-          <td><input class="form-check-input" type="checkbox" id="misc_technican" name="misc_technican"{% if band.techrider.misc_technican %} checked{% endif %}></td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  </section>
+        <section class="row p-4 form-section">
+            <h3>🎶 Informationen für die Technikcrew</h3>
+            <div class="alert alert-secondary">Nur Bühnen-/technik relevante Informationen!</div>
+            <div class="col-md-12">
+                <label for="misc_notes">Anmerkungen</label>
+                <textarea class="form-control" id="misc_notes" name="misc_notes"
+                          rows="5">{{ band.techrider.misc_notes }}</textarea>
+            </div>
+        </section>
 
-  <section class="row p-4 form-section">
-  <h3>🎶 Informationen für die Technikcrew</h3>
-  <div class="alert alert-secondary">Nur Bühnen-/technik relevante Informationen!</div>
-  <div class="col-md-12">
-    <label for="misc_notes">Anmerkungen</label>
-    <textarea class="form-control" id="misc_notes" name="misc_notes" rows="5">{{ band.techrider.misc_notes }}</textarea>
-  </div>
-  </section>
-
-  <section class="row p-4 form-section">
-    <div class="d-grid gap-2 col-12 mx-auto pt-3">
-      <div class="row g-2">
-        <div class="col">
-          <div class="d-grid gap-2 col-12 mx-auto">
-            <button id="form_submit" type="button" class="btn btn-primary">Speichern</button>
-          </div>
-        </div>
-        <div class="col">
-        </div>
-      </div>
-    </div>
-    <div class="d-grid gap-2 col-12 mx-auto pt-3">
-      <div class="row g-2">
-        <div class="col">
-          <div id="form_message"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-</form>
+        <section class="row p-4 form-section">
+            <div class="d-grid gap-2 col-12 mx-auto pt-3">
+                <div class="row g-2">
+                    <div class="col">
+                        <div class="d-grid gap-2 col-12 mx-auto">
+                            <button id="form_submit" type="button" class="btn btn-primary">Speichern</button>
+                        </div>
+                    </div>
+                    <div class="col">
+                    </div>
+                </div>
+            </div>
+            <div class="d-grid gap-2 col-12 mx-auto pt-3">
+                <div class="row g-2">
+                    <div class="col">
+                        <div id="form_message"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </form>
 
 {% endblock %}

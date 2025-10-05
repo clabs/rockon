@@ -1,15 +1,15 @@
-const { createApp, ref } = Vue
+const {createApp, ref} = Vue
 
 const DateTime = luxon.DateTime
 
 const LoadingSpinner = Vue.defineComponent({
-  props: ['bands', 'bandsToFetch'],
-  computed: {
-    progress () {
-      return (this.bands.length / this.bandsToFetch) * 100
-    }
-  },
-  template: `
+    props: ['bands', 'bandsToFetch'],
+    computed: {
+        progress() {
+            return (this.bands.length / this.bandsToFetch) * 100
+        }
+    },
+    template: `
   <div class="text-center mt-5">
     <div class="spinner-border text-primary" style="width: 9rem; height: 9rem;" role="status">
       <span class="visually-hidden">Loading...</span>
@@ -28,8 +28,8 @@ const LoadingSpinner = Vue.defineComponent({
 })
 
 const SongInfo = Vue.defineComponent({
-  props: ['song', 'band'],
-  template: `
+    props: ['song', 'band'],
+    template: `
     <div>
       <p><h5>Band</h5> {{ band.name || band.guid }}</p>
       <p><h5>Song</h5> {{ song.file_name_original }}</p>
@@ -38,8 +38,8 @@ const SongInfo = Vue.defineComponent({
 })
 
 const BandLinks = Vue.defineComponent({
-  props: ['links'],
-  template: `
+    props: ['links'],
+    template: `
     <div>
       <ul>
         <li v-for="link in links" :key="link.id">
@@ -51,8 +51,8 @@ const BandLinks = Vue.defineComponent({
 })
 
 const BandDocuments = Vue.defineComponent({
-  props: ['documents'],
-  template: `
+    props: ['documents'],
+    template: `
     <div>
       <ul>
         <li v-for="document in documents" :key="document.id">
@@ -64,30 +64,30 @@ const BandDocuments = Vue.defineComponent({
 })
 
 const BandImages = Vue.defineComponent({
-  props: ['selectedBandDetails'],
-  methods: {
-    pressPhoto (band) {
-      let file = band?.press_photo?.encoded_file || band?.press_photo?.file
-      if (!file) {
-        return window.rockon_data.placeholder
-      }
-      if (!file.endsWith('.webp')) {
-        return window.rockon_data.media_offline
-      }
-      return file
+    props: ['selectedBandDetails'],
+    methods: {
+        pressPhoto(band) {
+            let file = band?.press_photo?.encoded_file || band?.press_photo?.file
+            if (!file) {
+                return window.rockon_data.placeholder
+            }
+            if (!file.endsWith('.webp')) {
+                return window.rockon_data.media_offline
+            }
+            return file
+        },
+        logo(band) {
+            let file = band?.logo?.encoded_file || band?.logo?.file
+            if (!file) {
+                return window.rockon_data.placeholder
+            }
+            if (!file.endsWith('.webp')) {
+                return window.rockon_data.media_offline
+            }
+            return file
+        }
     },
-    logo (band) {
-      let file = band?.logo?.encoded_file || band?.logo?.file
-      if (!file) {
-        return window.rockon_data.placeholder
-      }
-      if (!file.endsWith('.webp')) {
-        return window.rockon_data.media_offline
-      }
-      return file
-    }
-  },
-  template: `
+    template: `
     <div class="row gallery">
       <div v-if="selectedBandDetails.press_photo" class="col">
         <div><h5>Photo</h5></div>
@@ -103,20 +103,20 @@ const BandImages = Vue.defineComponent({
       </div>
     </div>
   `,
-  mounted () {
-    const options = {
-      overlayOpacity: 0.4,
-      history: false
+    mounted() {
+        const options = {
+            overlayOpacity: 0.4,
+            history: false
+        }
+        const lightbox = new SimpleLightbox('.gallery a', options)
+        console.debug('BandImages mounted lightbox:', lightbox)
     }
-    const lightbox = new SimpleLightbox('.gallery a', options)
-    console.debug('BandImages mounted lightbox:', lightbox)
-  }
 })
 
 const SongList = Vue.defineComponent({
-  props: ['songs'],
-  emits: ['select-song'],
-  template: `
+    props: ['songs'],
+    emits: ['select-song'],
+    template: `
     <div>
       <ol>
         <li v-for="song in songs" :key="song.id" @click="handleSongClick(song)" style="cursor: pointer;">
@@ -125,25 +125,25 @@ const SongList = Vue.defineComponent({
       </ol>
     </div>
   `,
-  methods: {
-    handleSongClick (song) {
-      console.log('Clicked song:', song)
-      this.$emit('select-song', song)
+    methods: {
+        handleSongClick(song) {
+            console.log('Clicked song:', song)
+            this.$emit('select-song', song)
+        }
     }
-  }
 })
 
 const TrackDropdown = Vue.defineComponent({
-  props: ['tracks', 'selectedBandDetails'],
-  emits: ['update:selectedTrack'],
-  mounted () {
-    console.debug(
-      'TrackDropdown mounted:',
-      this.tracks,
-      this.selectedBandDetails.track
-    )
-  },
-  template: `
+    props: ['tracks', 'selectedBandDetails'],
+    emits: ['update:selectedTrack'],
+    mounted() {
+        console.debug(
+            'TrackDropdown mounted:',
+            this.tracks,
+            this.selectedBandDetails.track
+        )
+    },
+    template: `
     <div class="form-group">
       <label for="trackSelect" class="form-label">Track</label>
       <select id="trackSelect" @change="updateSelectedTrack" v-model="selectedBandDetails.track" class="form-control">
@@ -155,23 +155,23 @@ const TrackDropdown = Vue.defineComponent({
       </select>
     </div>
   `,
-  methods: {
-    updateSelectedTrack (event) {
-      console.debug('TrackDropdown updateSelectedTrack:', event.target.value)
-      this.$emit('update:selectedTrack', event.target.value || null)
+    methods: {
+        updateSelectedTrack(event) {
+            console.debug('TrackDropdown updateSelectedTrack:', event.target.value)
+            this.$emit('update:selectedTrack', event.target.value || null)
+        }
+    },
+    watch: {
+        currentTrackId(newVal) {
+            console.log('Selected track:', newVal)
+        }
     }
-  },
-  watch: {
-    currentTrackId (newVal) {
-      console.log('Selected track:', newVal)
-    }
-  }
 })
 
 const BidStatusDropdown = Vue.defineComponent({
-  props: ['bidStates', 'selectedBandDetails'],
-  emits: ['update:bidStatus'],
-  template: `
+    props: ['bidStates', 'selectedBandDetails'],
+    emits: ['update:bidStatus'],
+    template: `
     <div class="form-group">
       <label for="bidStatusSelect" class="form-label">Status</label>
       <select id="bidStatusSelect" @change="updateBidStatus" v-model="selectedBandDetails.bid_status" class="form-control">
@@ -181,22 +181,22 @@ const BidStatusDropdown = Vue.defineComponent({
       </select>
     </div>
   `,
-  methods: {
-    updateBidStatus (event) {
-      console.debug('BidStatusDropdown updateBidStatus:', event.target.value)
-      this.$emit('update:bidStatus', event.target.value)
+    methods: {
+        updateBidStatus(event) {
+            console.debug('BidStatusDropdown updateBidStatus:', event.target.value)
+            this.$emit('update:bidStatus', event.target.value)
+        }
     }
-  }
 })
 
 const BackstageLink = Vue.defineComponent({
-  props: ['selectedBandDetails'],
-  computed: {
-    url () {
-      return `/backstage/rockonbands/band/${this.selectedBandDetails.id}/change/`
-    }
-  },
-  template: `
+    props: ['selectedBandDetails'],
+    computed: {
+        url() {
+            return `/backstage/rockonbands/band/${this.selectedBandDetails.id}/change/`
+        }
+    },
+    template: `
   <div class="form-group">
     <label for="backstageBtn" class="form-label">Backstage</label>
     <a id="backstageBtn" :href="url" class="btn btn-primary form-control" role="button">
@@ -207,20 +207,20 @@ const BackstageLink = Vue.defineComponent({
 })
 
 const TrackList = Vue.defineComponent({
-  props: [
-    'tracks',
-    'selectedTrack',
-    'showBandNoName',
-    'showIncompleteBids',
-    'showDeclinedBids'
-  ],
-  emits: [
-    'select-track',
-    'filter-no-name',
-    'filter-incomplete-bids',
-    'filter-declined-bids'
-  ],
-  template: `
+    props: [
+        'tracks',
+        'selectedTrack',
+        'showBandNoName',
+        'showIncompleteBids',
+        'showDeclinedBids'
+    ],
+    emits: [
+        'select-track',
+        'filter-no-name',
+        'filter-incomplete-bids',
+        'filter-declined-bids'
+    ],
+    template: `
       <section class="row p-4 form-section">
       <div>
       <div><h5>Tracks</h5></div>
@@ -245,79 +245,79 @@ const TrackList = Vue.defineComponent({
       </div>
       </section>
     `,
-  methods: {
-    handleClick (track) {
-      console.debug('TrackList handleClick:', track)
-      this.selectedTrack = track
-      this.$emit('select-track', track)
+    methods: {
+        handleClick(track) {
+            console.debug('TrackList handleClick:', track)
+            this.selectedTrack = track
+            this.$emit('select-track', track)
+        },
+        handleDeselectTrack() {
+            console.debug('TrackList handleDeselectTrack')
+            this.selectedTrack = null
+            this.$emit('select-track', null)
+        },
+        handleShowBandsWithoutTrack() {
+            console.debug('TrackList handleShowBandsWithoutTrack')
+            this.selectedTrack = 'no-track'
+            this.$emit('select-track', 'no-track')
+        },
+        handleShowStudentBands() {
+            console.debug('TrackList handleShowStudentBands')
+            this.selectedTrack = 'student-bands'
+            this.$emit('select-track', 'student-bands')
+        },
+        handleShowBandsWithoutVote() {
+            console.debug('TrackList handleShowBandsWithoutTrack')
+            this.selectedTrack = 'no-vote'
+            this.$emit('select-track', 'no-vote')
+        },
+        handleFilterNoNameChange(event) {
+            console.debug('TrackList handleFilterNoNameChange:', event.target.checked)
+            this.showBandNoName = event.target.checked
+            this.$emit('filter-no-name', event.target.checked)
+        },
+        handleFilterIncompleteBids(event) {
+            console.debug(
+                'TrackList handleFilterIncompleteBids:',
+                event.target.checked
+            )
+            this.showIncompleteBids = event.target.checked
+            this.$emit('filter-incomplete-bids', event.target.checked)
+        },
+        handleFilterDeclinedeBids(event) {
+            console.debug(
+                'TrackList handleFilterDeclinedeBids:',
+                event.target.checked
+            )
+            this.showDeclinedBids = event.target.checked
+            this.$emit('filter-declined-bids', event.target.checked)
+        }
     },
-    handleDeselectTrack () {
-      console.debug('TrackList handleDeselectTrack')
-      this.selectedTrack = null
-      this.$emit('select-track', null)
-    },
-    handleShowBandsWithoutTrack () {
-      console.debug('TrackList handleShowBandsWithoutTrack')
-      this.selectedTrack = 'no-track'
-      this.$emit('select-track', 'no-track')
-    },
-    handleShowStudentBands () {
-      console.debug('TrackList handleShowStudentBands')
-      this.selectedTrack = 'student-bands'
-      this.$emit('select-track', 'student-bands')
-    },
-    handleShowBandsWithoutVote () {
-      console.debug('TrackList handleShowBandsWithoutTrack')
-      this.selectedTrack = 'no-vote'
-      this.$emit('select-track', 'no-vote')
-    },
-    handleFilterNoNameChange (event) {
-      console.debug('TrackList handleFilterNoNameChange:', event.target.checked)
-      this.showBandNoName = event.target.checked
-      this.$emit('filter-no-name', event.target.checked)
-    },
-    handleFilterIncompleteBids (event) {
-      console.debug(
-        'TrackList handleFilterIncompleteBids:',
-        event.target.checked
-      )
-      this.showIncompleteBids = event.target.checked
-      this.$emit('filter-incomplete-bids', event.target.checked)
-    },
-    handleFilterDeclinedeBids (event) {
-      console.debug(
-        'TrackList handleFilterDeclinedeBids:',
-        event.target.checked
-      )
-      this.showDeclinedBids = event.target.checked
-      this.$emit('filter-declined-bids', event.target.checked)
+    created() {
+        console.log(
+            'Component created. Initial value of showBandNoName:',
+            this.showBandNoName
+        )
     }
-  },
-  created () {
-    console.log(
-      'Component created. Initial value of showBandNoName:',
-      this.showBandNoName
-    )
-  }
 })
 
 const BandTags = Vue.defineComponent({
-  props: ['selectedBandDetails', 'federalStates'],
-  computed: {
-    federalStatesTag () {
-      console.debug('BandTags computed federalStatesTag:', this.federalStates)
-      const federalState = this.federalStates.find(
-        federalState =>
-          federalState[0] === this.selectedBandDetails.federal_state
-      )
-      console.debug('BandTags computed federalState:', federalState)
-      return federalState ? federalState[1] : null
-    }
-  },
-  init: function () {
-    console.debug('BandTags init:', this.selectedBandDetails)
-  },
-  template: `
+    props: ['selectedBandDetails', 'federalStates'],
+    computed: {
+        federalStatesTag() {
+            console.debug('BandTags computed federalStatesTag:', this.federalStates)
+            const federalState = this.federalStates.find(
+                federalState =>
+                    federalState[0] === this.selectedBandDetails.federal_state
+            )
+            console.debug('BandTags computed federalState:', federalState)
+            return federalState ? federalState[1] : null
+        }
+    },
+    init: function () {
+        console.debug('BandTags init:', this.selectedBandDetails)
+    },
+    template: `
     <div style="user-select: none;">
       <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1">Bewerbung unvollständig!</span>
       <span class="badge text-bg-primary m-1">{{ federalStatesTag }}</span>
@@ -338,32 +338,32 @@ const BandTags = Vue.defineComponent({
 })
 
 const BandListTags = Vue.defineComponent({
-  props: ['selectedBandDetails', 'federalStates', 'userVotes'],
-  computed: {
-    federalStatesTag () {
-      console.debug('BandTags computed federalStatesTag:', this.federalStates)
-      const federalState = this.federalStates.find(
-        federalState =>
-          federalState[0] === this.selectedBandDetails.federal_state
-      )
-      console.debug('BandTags computed federalState:', federalState)
-      return federalState ? federalState[1] : null
-    }
-  },
-  methods: {
-    hasVote (band) {
-      const userVote = this.userVotes.find(vote => vote.band__id === band.id)
-      console.debug('BandList hasVote:', userVote)
-      return userVote
+    props: ['selectedBandDetails', 'federalStates', 'userVotes'],
+    computed: {
+        federalStatesTag() {
+            console.debug('BandTags computed federalStatesTag:', this.federalStates)
+            const federalState = this.federalStates.find(
+                federalState =>
+                    federalState[0] === this.selectedBandDetails.federal_state
+            )
+            console.debug('BandTags computed federalState:', federalState)
+            return federalState ? federalState[1] : null
+        }
     },
-    voteCount (band) {
-      return this.userVotes.find(vote => vote.band__id === band.id).vote
-    }
-  },
-  init: function () {
-    console.debug('BandTags init:', this.selectedBandDetails)
-  },
-  template: `
+    methods: {
+        hasVote(band) {
+            const userVote = this.userVotes.find(vote => vote.band__id === band.id)
+            console.debug('BandList hasVote:', userVote)
+            return userVote
+        },
+        voteCount(band) {
+            return this.userVotes.find(vote => vote.band__id === band.id).vote
+        }
+    },
+    init: function () {
+        console.debug('BandTags init:', this.selectedBandDetails)
+    },
+    template: `
     <div>
       <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
       <span v-if="hasVote(selectedBandDetails)" class="badge text-bg-success m-1" style="cursor: pointer;">Bewertet: {{ voteCount(selectedBandDetails) }} 💖</span>
@@ -377,99 +377,99 @@ const BandListTags = Vue.defineComponent({
 })
 
 const BandList = Vue.defineComponent({
-  props: [
-    'bands',
-    'selectedTrack',
-    'showBandNoName',
-    'showIncompleteBids',
-    'showDeclinedBids',
-    'federalStates',
-    'userVotes'
-  ],
-  components: { BandListTags },
-  emits: ['select-band'],
-  computed: {
-    filteredBands () {
-      console.debug('selectedTrack:', this.selectedTrack)
-      _bands = this.bands
-      if (!this.showIncompleteBids) {
-        console.debug('Filtering for bands with incomplete bids.')
-        _bands = _bands.filter(band => band.bid_complete === true)
-      }
-      if (!this.showBandNoName) {
-        console.debug('Filtering for bands without a name.')
-        _bands = _bands.filter(band => band.name)
-      }
-      if (!this.showDeclinedBids) {
-        console.debug('Filtering for bands with declined bids.')
-        _bands = _bands.filter(band => band.bid_status !== 'declined')
-      }
-      if (this.selectedTrack === 'no-track') {
-        console.debug('Filtering for bands without a track.')
-        return _bands.filter(band => !band.track)
-      }
-      if (this.selectedTrack === 'student-bands') {
-        console.debug('Filtering for student bands.')
-        return _bands.filter(band => band.are_students)
-      }
-      if (this.selectedTrack === 'no-vote') {
-        console.debug('Filtering for bands without a track.')
-        _bands = _bands.filter(band => band.bid_status !== 'declined')
-        return _bands.filter(
-          a1 => !this.userVotes.some(a2 => a2.band__id === a1.id)
-        )
-      }
-      if (!this.selectedTrack) {
-        console.debug('No selected track id. Returning all.')
-        return _bands
-      }
-      const filtered = _bands.filter(
-        band => band.track && band.track === this.selectedTrack.id
-      )
-      console.debug('Filtered bands:', filtered)
-      return filtered
+    props: [
+        'bands',
+        'selectedTrack',
+        'showBandNoName',
+        'showIncompleteBids',
+        'showDeclinedBids',
+        'federalStates',
+        'userVotes'
+    ],
+    components: {BandListTags},
+    emits: ['select-band'],
+    computed: {
+        filteredBands() {
+            console.debug('selectedTrack:', this.selectedTrack)
+            _bands = this.bands
+            if (!this.showIncompleteBids) {
+                console.debug('Filtering for bands with incomplete bids.')
+                _bands = _bands.filter(band => band.bid_complete === true)
+            }
+            if (!this.showBandNoName) {
+                console.debug('Filtering for bands without a name.')
+                _bands = _bands.filter(band => band.name)
+            }
+            if (!this.showDeclinedBids) {
+                console.debug('Filtering for bands with declined bids.')
+                _bands = _bands.filter(band => band.bid_status !== 'declined')
+            }
+            if (this.selectedTrack === 'no-track') {
+                console.debug('Filtering for bands without a track.')
+                return _bands.filter(band => !band.track)
+            }
+            if (this.selectedTrack === 'student-bands') {
+                console.debug('Filtering for student bands.')
+                return _bands.filter(band => band.are_students)
+            }
+            if (this.selectedTrack === 'no-vote') {
+                console.debug('Filtering for bands without a track.')
+                _bands = _bands.filter(band => band.bid_status !== 'declined')
+                return _bands.filter(
+                    a1 => !this.userVotes.some(a2 => a2.band__id === a1.id)
+                )
+            }
+            if (!this.selectedTrack) {
+                console.debug('No selected track id. Returning all.')
+                return _bands
+            }
+            const filtered = _bands.filter(
+                band => band.track && band.track === this.selectedTrack.id
+            )
+            console.debug('Filtered bands:', filtered)
+            return filtered
+        },
+        groupedBands() {
+            let groups = []
+            for (let i = 0; i < this.filteredBands.length; i += 4) {
+                groups.push(this.filteredBands.slice(i, i + 4))
+            }
+            return groups
+        }
     },
-    groupedBands () {
-      let groups = []
-      for (let i = 0; i < this.filteredBands.length; i += 4) {
-        groups.push(this.filteredBands.slice(i, i + 4))
-      }
-      return groups
-    }
-  },
-  data () {
-    return {
-      selectedBand: null,
-      bgColor: 'var(--rockon-card-bg)'
-    }
-  },
-  methods: {
-    selectBand (band) {
-      console.debug('BandList selectBand:', band)
-      this.$emit('select-band', band)
+    data() {
+        return {
+            selectedBand: null,
+            bgColor: 'var(--rockon-card-bg)'
+        }
     },
-    cardImage (band) {
-      let file = band?.press_photo?.encoded_file || band?.press_photo?.file
-      if (!file) {
-        return window.rockon_data.placeholder
-      }
-      if (!file.endsWith('.webp')) {
-        return window.rockon_data.media_offline
-      }
-      return file
+    methods: {
+        selectBand(band) {
+            console.debug('BandList selectBand:', band)
+            this.$emit('select-band', band)
+        },
+        cardImage(band) {
+            let file = band?.press_photo?.encoded_file || band?.press_photo?.file
+            if (!file) {
+                return window.rockon_data.placeholder
+            }
+            if (!file.endsWith('.webp')) {
+                return window.rockon_data.media_offline
+            }
+            return file
+        },
+        hoverBand(band) {
+            this.selectedBand = band
+            this.bgColor = 'var(--rockon-secondary-text-emphasis)'
+        },
+        leaveBand(band) {
+            if (this.selectedBand === band) {
+                this.selectedBand = null
+                this.bgColor = 'var(--rockon-card-bg)'
+            }
+        }
     },
-    hoverBand (band) {
-      this.selectedBand = band
-      this.bgColor = 'var(--rockon-secondary-text-emphasis)'
-    },
-    leaveBand (band) {
-      if (this.selectedBand === band) {
-        this.selectedBand = null
-        this.bgColor = 'var(--rockon-card-bg)'
-      }
-    }
-  },
-  template: `
+    template: `
     <section class="row p-4 form-section">
     <div class="row">
       <h3>{{ filteredBands.length }} Bands<span v-if="selectedTrack"> in Track {{selectedTrack.name}}</span></h3>
@@ -492,9 +492,9 @@ const BandList = Vue.defineComponent({
 })
 
 const BandRating = Vue.defineComponent({
-  props: ['selectedBandDetails'],
-  emits: ['update:rating'],
-  template: `
+    props: ['selectedBandDetails'],
+    emits: ['update:rating'],
+    template: `
     <i
       title="Daumen runter, 0 Sterne"
       class="fa-solid fa-thumbs-down m-2"
@@ -516,87 +516,87 @@ const BandRating = Vue.defineComponent({
     </i>
     <button class="btn btn-outline-primary" @click="emitRating(-1)">Enthaltung</button>
   `,
-  data () {
-    return {
-      rating: null,
-      hoverIndex: -1,
-      isHovering: false
-    }
-  },
-  methods: {
-    emitRating (rating) {
-      console.debug('BandRating emitRating:', rating)
-      this.rating = rating
-      this.$emit('update:rating', rating)
+    data() {
+        return {
+            rating: null,
+            hoverIndex: -1,
+            isHovering: false
+        }
     },
-    async fetchRating () {
-      const url = window.rockon_api.fetch_rating.replace(
-        'pk_placeholder',
-        this.selectedBandDetails.id
-      )
-      console.debug('BandRating fetchRating:', url, this.selectedBandDetails.id)
-      try {
-        const response = await fetch(url)
-        if (response.status === 204) {
-          console.debug('No rating found for band', this.selectedBandDetails.id)
-          return
+    methods: {
+        emitRating(rating) {
+            console.debug('BandRating emitRating:', rating)
+            this.rating = rating
+            this.$emit('update:rating', rating)
+        },
+        async fetchRating() {
+            const url = window.rockon_api.fetch_rating.replace(
+                'pk_placeholder',
+                this.selectedBandDetails.id
+            )
+            console.debug('BandRating fetchRating:', url, this.selectedBandDetails.id)
+            try {
+                const response = await fetch(url)
+                if (response.status === 204) {
+                    console.debug('No rating found for band', this.selectedBandDetails.id)
+                    return
+                }
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+                const data = await response.json()
+                this.rating = data.vote
+            } catch (error) {
+                console.error('Error fetching rating:', error)
+            }
         }
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data = await response.json()
-        this.rating = data.vote
-      } catch (error) {
-        console.error('Error fetching rating:', error)
-      }
+    },
+    mounted() {
+        this.fetchRating()
     }
-  },
-  mounted () {
-    this.fetchRating()
-  }
 })
 
 const CommentFeed = Vue.defineComponent({
-  props: ['commentApi', 'selectedBandDetails', 'newComment'],
-  data () {
-    return {
-      comments: [],
-      loading: true
-    }
-  },
-  mounted() {
-    this.fetchComments();
-  },
-  methods: {
-    moodIcon (mood) {
-      return mood === 'thumbs-up' ? 'fa-thumbs-up' : 'fa-thumbs-down'
-    },
-    modReason (reason) {
-      return reason ? ' - ' + reason : ''
-    },
-    async fetchComments() {
-      console.debug('CommentFeed fetchComments:', this.selectedBandDetails.id);
-      try {
-        const response = await fetch(`${this.commentApi}?band=${this.selectedBandDetails.id}`);
-        if (response.ok) {
-          const apiResponse = await response.json();
-          this.comments = apiResponse.results;
-          console.debug('Fetched comments:', this.comments);
-        } else {
-          console.error('Failed to fetch comments:', response.statusText);
+    props: ['commentApi', 'selectedBandDetails', 'newComment'],
+    data() {
+        return {
+            comments: [],
+            loading: true
         }
-      } catch (error) {
-        console.error('Error fetching comments:', error);
-      } finally {
-        this.loading = false;
-      }
     },
-    formatDate (isoString) {
-      console.debug('BandDetails formatDate:', isoString)
-      return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
+    mounted() {
+        this.fetchComments();
     },
-  },
-  template: `
+    methods: {
+        moodIcon(mood) {
+            return mood === 'thumbs-up' ? 'fa-thumbs-up' : 'fa-thumbs-down'
+        },
+        modReason(reason) {
+            return reason ? ' - ' + reason : ''
+        },
+        async fetchComments() {
+            console.debug('CommentFeed fetchComments:', this.selectedBandDetails.id);
+            try {
+                const response = await fetch(`${this.commentApi}?band=${this.selectedBandDetails.id}`);
+                if (response.ok) {
+                    const apiResponse = await response.json();
+                    this.comments = apiResponse.results;
+                    console.debug('Fetched comments:', this.comments);
+                } else {
+                    console.error('Failed to fetch comments:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching comments:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+        formatDate(isoString) {
+            console.debug('BandDetails formatDate:', isoString)
+            return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
+        },
+    },
+    template: `
     <div v-if="loading">Loading comments...</div>
     <div v-else v-for="comment in comments" :key="comment.id" class="comment mt-2 text-justify border-top border-primary border-opacity-50">
         <div><h5>{{ comment.user.first_name }} {{ comment.user.last_name }}</h5></div>
@@ -605,93 +605,90 @@ const CommentFeed = Vue.defineComponent({
         <p>Kommentar: {{ comment.text }}</p>
     </div>
     `,
-  watch: {
-    newComment(newVal) {
-      if (newVal) {
-        console.debug('CommentFeed reloadComments');
-        this.comments = [];
-        this.loading = true;
-        this.fetchComments();
-      }
+    watch: {
+        newComment(newVal) {
+            if (newVal) {
+                console.debug('CommentFeed reloadComments');
+                this.comments = [];
+                this.loading = true;
+                this.fetchComments();
+            }
+        }
     }
-  }
 })
 
 const CommentField = Vue.defineComponent({
-  props: ['commentApi', 'selectedBandDetails'],
-  emits: ['update:comment'],
-  data() {
-    return {
-      selectedMood: 'thumbs-up',
-      selectedReason: '', // Default selected reason
-      commentText: '', // Default comment text
-      reasons: [
-        { id: 1, text: 'Hatten wir schonmal' },
-        { id: 2, text: 'Solokünstler' },
-        { id: 3, text: 'Zu alt' },
-        { id: 4, text: 'Zu jung' },
-        { id: 5, text: 'Nazis/Schwurbler/Feindliche Gesinnungen' },
-        { id: 6, text: 'Unpassend wie Coverband, DJ, keine handgemachte Musik' },
-        { id: 7, text: 'Professionals' },
-        { id: 8, text: 'Internationals' },
-        { id: 9, text: 'Wollen Gage' },
-      ]
-    }
-  },
-  watch: {
-    selectedMood(newVal) {
-      if (newVal !== 'thumbs-down') {
-        this.selectedReason = ''; // Reset the selected reason if thumbs-down is not selected
-      }
-    }
-  },
-  methods: {
-    emitComment () {
-      console.debug('CommentField emitComment:', this.selectedMood, this.selectedReason, this.commentText)
-      const commentData = {
-        mood: this.selectedMood,
-        reason: this.selectedReason,
-        text: this.commentText,
-        band: this.selectedBandDetails.id,
-      };
-
-      // Post the comment to the API
-      fetch(`${this.commentApi}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-        },
-        body: JSON.stringify(commentData)
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+    props: ['commentApi', 'selectedBandDetails'],
+    emits: ['update:comment'],
+    data() {
+        return {
+            selectedMood: 'thumbs-up',
+            selectedReason: '', // Default selected reason
+            commentText: '', // Default comment text
+            reasons: [
+                {id: 1, text: 'Hatten wir schonmal'},
+                {id: 2, text: 'Solokünstler'},
+                {id: 3, text: 'Zu alt'},
+                {id: 4, text: 'Zu jung'},
+                {id: 5, text: 'Nazis/Schwurbler/Feindliche Gesinnungen'},
+                {id: 6, text: 'Unpassend wie Coverband, DJ, keine handgemachte Musik'},
+                {id: 7, text: 'Professionals'},
+                {id: 8, text: 'Internationals'},
+                {id: 9, text: 'Wollen Gage'},
+            ]
         }
-        return response.json();
-      })
-      .then(data => {
-        console.debug('Successfully posted comment:', data);
-        this.$emit('update:comment', commentData);
-        this.selectedMood = 'thumbs-up';
-        this.selectedReason = '';
-        this.commentText = '';
-      })
-      .catch(error => {
-        console.error('Error posting comment:', error);
-      });
     },
-    isButtonDisabled() {
-      if (this.selectedMood === 'thumbs-up' && this.commentText.trim() !== '') {
-        return false;
-      }
-      if (this.selectedMood === 'thumbs-down' && this.selectedReason !== '' && this.commentText.trim() !== '') {
-        return false;
-      }
-      return true;
+    watch: {
+        selectedMood(newVal) {
+            if (newVal !== 'thumbs-down') {
+                this.selectedReason = ''; // Reset the selected reason if thumbs-down is not selected
+            }
+        }
     },
-  },
-  template: `
+    methods: {
+        emitComment() {
+            console.debug('CommentField emitComment:', this.selectedMood, this.selectedReason, this.commentText)
+            const commentData = {
+                mood: this.selectedMood,
+                reason: this.selectedReason,
+                text: this.commentText,
+                band: this.selectedBandDetails.id,
+            };
+
+            // Post the comment to the API
+            fetch(`${this.commentApi}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                body: JSON.stringify(commentData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.debug('Successfully posted comment:', data);
+                    this.$emit('update:comment', commentData);
+                    this.selectedMood = 'thumbs-up';
+                    this.selectedReason = '';
+                    this.commentText = '';
+                })
+                .catch(error => {
+                    console.error('Error posting comment:', error);
+                });
+        },
+        isButtonDisabled() {
+            if (this.selectedMood === 'thumbs-up' && this.commentText.trim() !== '') {
+                return false;
+            }
+            return !(this.selectedMood === 'thumbs-down' && this.selectedReason !== '' && this.commentText.trim() !== '');
+        },
+    },
+    template: `
     <div class="form-group">
       <div class="row mb-2">
         <div class="col-auto">
@@ -720,65 +717,65 @@ const CommentField = Vue.defineComponent({
 })
 
 const BandDetails = Vue.defineComponent({
-  props: [
-    'tracks',
-    'bidStates',
-    'media',
-    'federalStates',
-    'selectedBandDetails',
-    'currentTrackId',
-    'allowChanges',
-    'allowVotes',
-    'commentApi',
-  ],
-  emits: ['update:track', 'update:select-song', 'update:rating'],
-  components: {
-    TrackDropdown,
-    BackstageLink,
-    BidStatusDropdown,
-    SongList,
-    BandImages,
-    BandDocuments,
-    BandLinks,
-    BandTags,
-    BandRating,
-    CommentFeed,
-    CommentField
-  },
-  data () {
-    return {
-      newComment: null
-    }
-  },
-  created () {
-    console.debug('BandDetails created:', this.selectedBandDetails)
-    console.debug('BandDetails created allowVotes:', this.allowVotes)
-  },
-  computed: {
-    bandName () {
-      if (!this.selectedBandDetails.name) {
-        return this.selectedBandDetails.guid
-      }
-      return this.selectedBandDetails.name
+    props: [
+        'tracks',
+        'bidStates',
+        'media',
+        'federalStates',
+        'selectedBandDetails',
+        'currentTrackId',
+        'allowChanges',
+        'allowVotes',
+        'commentApi',
+    ],
+    emits: ['update:track', 'update:select-song', 'update:rating'],
+    components: {
+        TrackDropdown,
+        BackstageLink,
+        BidStatusDropdown,
+        SongList,
+        BandImages,
+        BandDocuments,
+        BandLinks,
+        BandTags,
+        BandRating,
+        CommentFeed,
+        CommentField
     },
-    trackId () {
-      console.debug('BandDetails trackId:', this.selectedBandDetails.track)
-      if (this.selectedBandDetails.track === null) {
-        return 'null'
-      }
-      return this.selectedBandDetails.track
+    data() {
+        return {
+            newComment: null
+        }
     },
-    coverLetter () {
-      if (!this.selectedBandDetails.cover_letter) {
-        return 'Kein Cover Letter'
-      }
-      return this.selectedBandDetails.cover_letter.replace(/\r\n/g, '<br>')
+    created() {
+        console.debug('BandDetails created:', this.selectedBandDetails)
+        console.debug('BandDetails created allowVotes:', this.allowVotes)
     },
-    isUnknownOrPending() {
-      return this.selectedBandDetails.bid_status === 'unknown' || this.selectedBandDetails.bid_status === 'pending';
-    }
-  },
-  template: `
+    computed: {
+        bandName() {
+            if (!this.selectedBandDetails.name) {
+                return this.selectedBandDetails.guid
+            }
+            return this.selectedBandDetails.name
+        },
+        trackId() {
+            console.debug('BandDetails trackId:', this.selectedBandDetails.track)
+            if (this.selectedBandDetails.track === null) {
+                return 'null'
+            }
+            return this.selectedBandDetails.track
+        },
+        coverLetter() {
+            if (!this.selectedBandDetails.cover_letter) {
+                return 'Kein Cover Letter'
+            }
+            return this.selectedBandDetails.cover_letter.replace(/\r\n/g, '<br>')
+        },
+        isUnknownOrPending() {
+            return this.selectedBandDetails.bid_status === 'unknown' || this.selectedBandDetails.bid_status === 'pending';
+        }
+    },
+    template: `
     <section :v-if="selectedBandDetails" class="row p-4 form-section">
       <div class="col">
           <h3>{{ bandName }}</h3>
@@ -886,387 +883,385 @@ const BandDetails = Vue.defineComponent({
     <!-- administrative section end -->
     </section>
   `,
-  methods: {
-    updateTrack (trackId) {
-      console.debug('BandDetails updateTrack:', trackId)
-      this.$emit('update:track', trackId)
+    methods: {
+        updateTrack(trackId) {
+            console.debug('BandDetails updateTrack:', trackId)
+            this.$emit('update:track', trackId)
+        },
+        handleNewComment(commentData) {
+            console.debug('BandDetails emitComment:', commentData)
+            this.newComment = commentData;
+        },
+        updateBidStatus(bidStatus) {
+            console.debug('BandDetails updateBidStatus:', bidStatus)
+            this.$emit('update:bidStatus', bidStatus)
+        },
+        handleSongSelect(song) {
+            // Update the data with the selected song
+            console.debug('BandDetails handleSongSelect:', song)
+            this.$emit('update:select-song', song)
+        },
+        formatDate(isoString) {
+            console.debug('BandDetails formatDate:', isoString)
+            return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
+        },
+        emitRating(rating) {
+            console.debug('BandDetails emitRating:', rating)
+            this.$emit('update:rating', rating)
+        }
     },
-    handleNewComment (commentData) {
-      console.debug('BandDetails emitComment:', commentData)
-      this.newComment = commentData;
-    },
-    updateBidStatus (bidStatus) {
-      console.debug('BandDetails updateBidStatus:', bidStatus)
-      this.$emit('update:bidStatus', bidStatus)
-    },
-    handleSongSelect (song) {
-      // Update the data with the selected song
-      console.debug('BandDetails handleSongSelect:', song)
-      this.$emit('update:select-song', song)
-    },
-    formatDate (isoString) {
-      console.debug('BandDetails formatDate:', isoString)
-      return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
-    },
-    emitRating (rating) {
-      console.debug('BandDetails emitRating:', rating)
-      this.$emit('update:rating', rating)
-    }
-  },
 })
 
 const app = createApp({
-  data () {
-    return {
-      bandListLoaded: false,
-      bandsToFetch: null,
-      eventSlug: window.rockon_data.event_slug,
-      allowChanges: window.rockon_api.allow_changes,
-      allowVotes: window.rockon_api.allow_votes,
-      crsf_token: $('[name=csrfmiddlewaretoken]').val(),
-      bandListUrl: window.rockon_api.list_bands,
-      bandCommentsUrl: window.rockon_api.comments_api,
-      tracks: window.rockon_data.tracks,
-      bands: [],
-      federalStates: window.rockon_data.federal_states,
-      bidStates: window.rockon_data.bid_states,
-      selectedTrack: null,
-      selectedBand: null,
-      userVotes: window.rockon_data.user_votes,
-      selectedBandDetails: null,
-      bandDetailLoaded: false,
-      playSong: null,
-      playSongBand: null,
-      toastAudioPlayer: null,
-      toastVisible: false,
-      toastIsMaximized: true,
-      wavesurfer: null,
-      showBandNoName: null,
-      showIncompleteBids: null,
-      showDeclinedBids: null,
-      BandRating: null,
-      lightbox: null
-    }
-  },
-  components: {
-    TrackList,
-    BandList,
-    BandDetails,
-    TrackDropdown,
-    BidStatusDropdown,
-    SongList,
-    SongInfo,
-    BandImages,
-    BandDocuments,
-    BandLinks,
-    BandTags,
-    BandListTags,
-    BandRating,
-    LoadingSpinner
-  },
-  created () {
-    this.getBandList(this.bandListUrl, window.rockon_data.event_slug)
-    window.addEventListener('popstate', this.handlePopState)
-  },
-  methods: {
-    handlePopState (event) {
-      const url = new URL(window.location.href)
-      const hashSegments = url.hash.split('/').filter(segment => segment)
-
-      if (hashSegments.includes('track')) {
-        const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
-        const track =
-          this.tracks.find(track => track.slug === trackSlug) || null
-        this.selectedTrack = track
-        this.selectedBand = null
-        this.selectedBandDetails = null
-      } else if (hashSegments.includes('bid')) {
-        const bandGuid = hashSegments[hashSegments.indexOf('bid') + 1]
-        const band = this.bands.find(band => band.guid === bandGuid) || null
-        this.selectedBand = band
-        this.selectedTrack = null
-        this.selectedBandDetails = null
-        if (band) {
-          this.getBandDetails(band.id)
+    data() {
+        return {
+            bandListLoaded: false,
+            bandsToFetch: null,
+            eventSlug: window.rockon_data.event_slug,
+            allowChanges: window.rockon_api.allow_changes,
+            allowVotes: window.rockon_api.allow_votes,
+            crsf_token: $('[name=csrfmiddlewaretoken]').val(),
+            bandListUrl: window.rockon_api.list_bands,
+            bandCommentsUrl: window.rockon_api.comments_api,
+            tracks: window.rockon_data.tracks,
+            bands: [],
+            federalStates: window.rockon_data.federal_states,
+            bidStates: window.rockon_data.bid_states,
+            selectedTrack: null,
+            selectedBand: null,
+            userVotes: window.rockon_data.user_votes,
+            selectedBandDetails: null,
+            bandDetailLoaded: false,
+            playSong: null,
+            playSongBand: null,
+            toastAudioPlayer: null,
+            toastVisible: false,
+            toastIsMaximized: true,
+            wavesurfer: null,
+            showBandNoName: null,
+            showIncompleteBids: null,
+            showDeclinedBids: null,
+            BandRating: null,
+            lightbox: null
         }
-      } else {
-        this.selectedTrack = null
-        this.selectedBand = null
-        this.selectedBandDetails = null
-      }
     },
-    selectTrack (track) {
-      this.selectedTrack = track
-      console.debug('Selected track:', this.selectedTrack)
-      this.selectedBand = null
-      this.selectedBandDetails = null
-      console.debug('Selected band:', this.selectedBand)
-      const url = new URL(window.location.href)
-      if (track === 'no-vote') {
-        url.hash = '#/track/no-vote/'
-      } else if (track === 'no-track') {
-        url.hash = '#/track/no-track/'
-      } else if (track === 'student-bands') {
-        url.hash = '#/track/student-bands/'
-      } else if (track) {
-        url.hash = `#/track/${track.slug}/`
-      } else {
-        url.hash = ''
-      }
-      window.history.pushState({}, '', url)
+    components: {
+        TrackList,
+        BandList,
+        BandDetails,
+        TrackDropdown,
+        BidStatusDropdown,
+        SongList,
+        SongInfo,
+        BandImages,
+        BandDocuments,
+        BandLinks,
+        BandTags,
+        BandListTags,
+        BandRating,
+        LoadingSpinner
     },
-    selectBand (band) {
-      console.debug('app selectBand:', band)
-      this.selectedBand = band
-      console.debug('Selected band:', this.selectedBand)
-      const url = new URL(window.location.href)
-      url.hash = `#/bid/${band.guid}/`
-      window.history.pushState({}, '', url)
-      this.bandDetailLoaded = false
-      this.getBandDetails(band.id)
+    created() {
+        this.getBandList(this.bandListUrl, window.rockon_data.event_slug)
+        window.addEventListener('popstate', this.handlePopState)
     },
-    updateTrack (trackId) {
-      api_url = window.rockon_api.update_band.replace(
-        'pk_placeholder',
-        this.selectedBandDetails.id
-      )
-      console.debug('app updateTrack:', trackId)
-      const track = this.tracks.find(track => track.id === trackId) || null
+    methods: {
+        handlePopState(event) {
+            const url = new URL(window.location.href)
+            const hashSegments = url.hash.split('/').filter(segment => segment)
 
-      console.debug('app updateTrack find:', track)
-      console.debug(
-        'Selected band:',
-        this.selectedBandDetails.id,
-        trackId,
-        api_url
-      )
-      fetch(api_url, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': this.crsf_token
+            if (hashSegments.includes('track')) {
+                const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
+                this.selectedTrack = this.tracks.find(track => track.slug === trackSlug) || null
+                this.selectedBand = null
+                this.selectedBandDetails = null
+            } else if (hashSegments.includes('bid')) {
+                const bandGuid = hashSegments[hashSegments.indexOf('bid') + 1]
+                const band = this.bands.find(band => band.guid === bandGuid) || null
+                this.selectedBand = band
+                this.selectedTrack = null
+                this.selectedBandDetails = null
+                if (band) {
+                    this.getBandDetails(band.id)
+                }
+            } else {
+                this.selectedTrack = null
+                this.selectedBand = null
+                this.selectedBandDetails = null
+            }
         },
-        body: JSON.stringify({
-          track: trackId
-        })
-      })
-        .then(response => response.json())
-        .then(data => console.log('Success:', data))
-        .catch(error => console.error('Error:', error))
-      this.selectedBand.track = trackId
-      this.selectedBandDetails.track = trackId
-      this.selectedTrack = track
-    },
-    updateBidStatus (bidStatus) {
-      api_url = window.rockon_api.update_band.replace(
-        'pk_placeholder',
-        this.selectedBandDetails.id
-      )
-      console.debug(
-        'Selected band:',
-        this.selectedBandDetails.id,
-        bidStatus,
-        api_url
-      )
-      fetch(api_url, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': this.crsf_token
+        selectTrack(track) {
+            this.selectedTrack = track
+            console.debug('Selected track:', this.selectedTrack)
+            this.selectedBand = null
+            this.selectedBandDetails = null
+            console.debug('Selected band:', this.selectedBand)
+            const url = new URL(window.location.href)
+            if (track === 'no-vote') {
+                url.hash = '#/track/no-vote/'
+            } else if (track === 'no-track') {
+                url.hash = '#/track/no-track/'
+            } else if (track === 'student-bands') {
+                url.hash = '#/track/student-bands/'
+            } else if (track) {
+                url.hash = `#/track/${track.slug}/`
+            } else {
+                url.hash = ''
+            }
+            window.history.pushState({}, '', url)
         },
-        body: JSON.stringify({
-          bid_status: bidStatus
-        })
-      })
-        .then(response => response.json())
-        .then(data => console.log('Success:', data))
-        .catch(error => console.error('Error:', error))
-      this.selectedBandDetails.bid_state = bidStatus
-    },
-    handleSongSelect (song) {
-      console.debug('app handleSongSelect:', song)
-      if (this.playSong === song) {
-        console.debug(
-          'app handleSongSelect: Song already playing. Doing nothing.'
-        )
-        return
-      }
-      this.playSong = song
-      this.playSongBand = this.selectedBandDetails
-      if (!this.toastVisible) {
-        this.toastAudioPlayer.show()
-        this.toastVisible = true
-      }
+        selectBand(band) {
+            console.debug('app selectBand:', band)
+            this.selectedBand = band
+            console.debug('Selected band:', this.selectedBand)
+            const url = new URL(window.location.href)
+            url.hash = `#/bid/${band.guid}/`
+            window.history.pushState({}, '', url)
+            this.bandDetailLoaded = false
+            this.getBandDetails(band.id)
+        },
+        updateTrack(trackId) {
+            api_url = window.rockon_api.update_band.replace(
+                'pk_placeholder',
+                this.selectedBandDetails.id
+            )
+            console.debug('app updateTrack:', trackId)
+            const track = this.tracks.find(track => track.id === trackId) || null
 
-      if (this.wavesurfer) {
-        this.wavesurfer.destroy()
-        this.wavesurfer = null
-      }
-
-      this.wavesurfer = WaveSurfer.create({
-        container: document.getElementById('player-wrapper'),
-        waveColor: '#fff300',
-        progressColor: '#999400',
-        normalize: false,
-        splitChannels: false,
-        dragToSeek: true,
-        cursorWidth: 3,
-        url: song.encoded_file || song.file,
-        mediaControls: true,
-        autoplay: true
-      })
-    },
-    toggleIcon () {
-      this.toastIsMaximized = !this.toastIsMaximized
-    },
-    handleCloseClick () {
-      console.debug('app handleCloseClick')
-      console.log('this.wavesurfer:', this.wavesurfer)
-      if (this.wavesurfer) {
-        this.wavesurfer.destroy()
-        this.wavesurfer = null
-      }
-      this.playSong = null
-      this.playSongBand = null
-      this.toastVisible = false
-      this.toastIsMaximized = true
-    },
-    handleFilterShowBandNoNameChange (checked) {
-      console.debug('app handleFilterShowBandNoNameChange:', checked)
-      sessionStorage.setItem('filterShowBandsNoName', JSON.stringify(checked))
-      this.showBandNoName = checked
-    },
-    handleFilterIncompleteBidsChange (checked) {
-      console.debug('app handleFilterIncompleteBidsChange:', checked)
-      sessionStorage.setItem('filterIncompleteBids', JSON.stringify(checked))
-      this.showIncompleteBids = checked
-    },
-    handleFilterDeclinedBidsChange (checked) {
-      console.debug('app handleFilterDeclinedBidsChange:', checked)
-      sessionStorage.setItem('filterDeclinedBids', JSON.stringify(checked))
-      this.showDeclinedBids = checked
-    },
-    setRating (rating) {
-      console.debug('BandRating setRating:', rating)
-      this.rating = rating
-      api_url = window.rockon_api.band_vote
-      console.debug('BandRating setRating:', this.selectedBand, rating, api_url)
-      fetch(api_url, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': this.crsf_token
+            console.debug('app updateTrack find:', track)
+            console.debug(
+                'Selected band:',
+                this.selectedBandDetails.id,
+                trackId,
+                api_url
+            )
+            fetch(api_url, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.crsf_token
+                },
+                body: JSON.stringify({
+                    track: trackId
+                })
+            })
+                .then(response => response.json())
+                .then(data => console.log('Success:', data))
+                .catch(error => console.error('Error:', error))
+            this.selectedBand.track = trackId
+            this.selectedBandDetails.track = trackId
+            this.selectedTrack = track
         },
-        body: JSON.stringify({
-          band: this.selectedBand.id,
-          vote: rating
-        })
-      })
-        .then(response => response)
-        .then(data => {
-          console.log('Success:', data)
-        })
-        .catch(error => {
-          console.error('Error:', error)
-          alert('Fehler beim Speichern der Bewertung, bitte schrei um Hilfe!')
-        })
-      if (rating === -1) {
-        this.userVotes = this.userVotes.filter(
-          vote => vote !== this.selectedBand.id
-        )
-      } else {
-        this.userVotes.push({ band__id: this.selectedBand.id, vote: rating })
-      }
-    },
-    getBandList (url, _event = null) {
-      console.debug('app getBandList:', url, _event)
-      if (_event) {
-        url = url + `?event=${_event}`
-      }
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          console.debug('app getBandList:', data)
-          this.bands = [...this.bands, ...data.results]
-          this.bandsToFetch = data.count
-          if (data.next) {
-            this.getBandList(data.next)
-          } else {
-            this.bandListLoaded = true
-            console.debug('app getBandList:', this.bands)
-            this.handlePopState()
-          }
-        })
-        .catch(error => console.error('Error:', error))
-    },
-    getBandDetails (selectedBandId) {
-      url = window.rockon_api.update_band.replace(
-        'pk_placeholder',
-        selectedBandId
-      )
-      console.debug('App getBandDetails:', url)
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          console.debug('App getBandDetails:', data)
-          this.selectedBandDetails = data
-          this.bandDetailLoaded = true
-        })
-        .catch(error => {
-          console.error('Error:', error)
-        })
-    }
-  },
-  mounted () {
-    console.debug('Mounted function called')
-    window.addEventListener('popstate', this.handlePopState)
-    const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
-    const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(
-      toastAudioPlayerElement
-    )
-    bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
-    this.toastAudioPlayer = toastAudioPlayer
-    this.handlePopState()
-    const filterNoName = JSON.parse(
-      sessionStorage.getItem('filterShowBandsNoName')
-    )
-    this.showBandNoName = filterNoName ? filterNoName : false
-    const filterIncompleteBids = JSON.parse(
-      sessionStorage.getItem('filterIncompleteBids')
-    )
-    const filterDeclinedBids = JSON.parse(
-      sessionStorage.getItem('filterDeclinedBids')
-    )
-    this.showDeclinedBids = filterDeclinedBids ? filterDeclinedBids : false
-    this.showIncompleteBids = filterIncompleteBids
-      ? filterIncompleteBids
-      : false
-  },
-  beforeDestroy () {
-    window.removeEventListener('popstate', this.handlePopState)
-  },
-  watch: {
-    selectedBand: {
-      immediate: true,
-      handler (newValue, oldValue) {
-        console.log('watch selectedBand changed:', newValue)
-        if (newValue && !this.selectedBandDetails) {
-          this.getBandDetails(newValue.id)
+        updateBidStatus(bidStatus) {
+            api_url = window.rockon_api.update_band.replace(
+                'pk_placeholder',
+                this.selectedBandDetails.id
+            )
+            console.debug(
+                'Selected band:',
+                this.selectedBandDetails.id,
+                bidStatus,
+                api_url
+            )
+            fetch(api_url, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.crsf_token
+                },
+                body: JSON.stringify({
+                    bid_status: bidStatus
+                })
+            })
+                .then(response => response.json())
+                .then(data => console.log('Success:', data))
+                .catch(error => console.error('Error:', error))
+            this.selectedBandDetails.bid_state = bidStatus
+        },
+        handleSongSelect(song) {
+            console.debug('app handleSongSelect:', song)
+            if (this.playSong === song) {
+                console.debug(
+                    'app handleSongSelect: Song already playing. Doing nothing.'
+                )
+                return
+            }
+            this.playSong = song
+            this.playSongBand = this.selectedBandDetails
+            if (!this.toastVisible) {
+                this.toastAudioPlayer.show()
+                this.toastVisible = true
+            }
+
+            if (this.wavesurfer) {
+                this.wavesurfer.destroy()
+                this.wavesurfer = null
+            }
+
+            this.wavesurfer = WaveSurfer.create({
+                container: document.getElementById('player-wrapper'),
+                waveColor: '#fff300',
+                progressColor: '#999400',
+                normalize: false,
+                splitChannels: false,
+                dragToSeek: true,
+                cursorWidth: 3,
+                url: song.encoded_file || song.file,
+                mediaControls: true,
+                autoplay: true
+            })
+        },
+        toggleIcon() {
+            this.toastIsMaximized = !this.toastIsMaximized
+        },
+        handleCloseClick() {
+            console.debug('app handleCloseClick')
+            console.log('this.wavesurfer:', this.wavesurfer)
+            if (this.wavesurfer) {
+                this.wavesurfer.destroy()
+                this.wavesurfer = null
+            }
+            this.playSong = null
+            this.playSongBand = null
+            this.toastVisible = false
+            this.toastIsMaximized = true
+        },
+        handleFilterShowBandNoNameChange(checked) {
+            console.debug('app handleFilterShowBandNoNameChange:', checked)
+            sessionStorage.setItem('filterShowBandsNoName', JSON.stringify(checked))
+            this.showBandNoName = checked
+        },
+        handleFilterIncompleteBidsChange(checked) {
+            console.debug('app handleFilterIncompleteBidsChange:', checked)
+            sessionStorage.setItem('filterIncompleteBids', JSON.stringify(checked))
+            this.showIncompleteBids = checked
+        },
+        handleFilterDeclinedBidsChange(checked) {
+            console.debug('app handleFilterDeclinedBidsChange:', checked)
+            sessionStorage.setItem('filterDeclinedBids', JSON.stringify(checked))
+            this.showDeclinedBids = checked
+        },
+        setRating(rating) {
+            console.debug('BandRating setRating:', rating)
+            this.rating = rating
+            api_url = window.rockon_api.band_vote
+            console.debug('BandRating setRating:', this.selectedBand, rating, api_url)
+            fetch(api_url, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.crsf_token
+                },
+                body: JSON.stringify({
+                    band: this.selectedBand.id,
+                    vote: rating
+                })
+            })
+                .then(response => response)
+                .then(data => {
+                    console.log('Success:', data)
+                })
+                .catch(error => {
+                    console.error('Error:', error)
+                    alert('Fehler beim Speichern der Bewertung, bitte schrei um Hilfe!')
+                })
+            if (rating === -1) {
+                this.userVotes = this.userVotes.filter(
+                    vote => vote !== this.selectedBand.id
+                )
+            } else {
+                this.userVotes.push({band__id: this.selectedBand.id, vote: rating})
+            }
+        },
+        getBandList(url, _event = null) {
+            console.debug('app getBandList:', url, _event)
+            if (_event) {
+                url = url + `?event=${_event}`
+            }
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.debug('app getBandList:', data)
+                    this.bands = [...this.bands, ...data.results]
+                    this.bandsToFetch = data.count
+                    if (data.next) {
+                        this.getBandList(data.next)
+                    } else {
+                        this.bandListLoaded = true
+                        console.debug('app getBandList:', this.bands)
+                        this.handlePopState()
+                    }
+                })
+                .catch(error => console.error('Error:', error))
+        },
+        getBandDetails(selectedBandId) {
+            url = window.rockon_api.update_band.replace(
+                'pk_placeholder',
+                selectedBandId
+            )
+            console.debug('App getBandDetails:', url)
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.debug('App getBandDetails:', data)
+                    this.selectedBandDetails = data
+                    this.bandDetailLoaded = true
+                })
+                .catch(error => {
+                    console.error('Error:', error)
+                })
         }
-      }
     },
-    selectedBandDetails: {
-      immediate: true,
-      handler (newValue, oldValue) {
-        console.log('watch selectedBandDetails changed:', newValue)
-      }
+    mounted() {
+        console.debug('Mounted function called')
+        window.addEventListener('popstate', this.handlePopState)
+        const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
+        const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(
+            toastAudioPlayerElement
+        )
+        bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
+        this.toastAudioPlayer = toastAudioPlayer
+        this.handlePopState()
+        const filterNoName = JSON.parse(
+            sessionStorage.getItem('filterShowBandsNoName')
+        )
+        this.showBandNoName = filterNoName ? filterNoName : false
+        const filterIncompleteBids = JSON.parse(
+            sessionStorage.getItem('filterIncompleteBids')
+        )
+        const filterDeclinedBids = JSON.parse(
+            sessionStorage.getItem('filterDeclinedBids')
+        )
+        this.showDeclinedBids = filterDeclinedBids ? filterDeclinedBids : false
+        this.showIncompleteBids = filterIncompleteBids
+            ? filterIncompleteBids
+            : false
     },
-    showBandNoName: {
-      immediate: true,
-      handler (newValue, oldValue) {
-        console.log('watch showBandNoName changed:', newValue)
-      }
+    beforeDestroy() {
+        window.removeEventListener('popstate', this.handlePopState)
+    },
+    watch: {
+        selectedBand: {
+            immediate: true,
+            handler(newValue, oldValue) {
+                console.log('watch selectedBand changed:', newValue)
+                if (newValue && !this.selectedBandDetails) {
+                    this.getBandDetails(newValue.id)
+                }
+            }
+        },
+        selectedBandDetails: {
+            immediate: true,
+            handler(newValue, oldValue) {
+                console.log('watch selectedBandDetails changed:', newValue)
+            }
+        },
+        showBandNoName: {
+            immediate: true,
+            handler(newValue, oldValue) {
+                console.log('watch showBandNoName changed:', newValue)
+            }
+        }
     }
-  }
 })
 app.mount('#app')

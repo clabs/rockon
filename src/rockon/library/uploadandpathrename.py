@@ -11,6 +11,6 @@ class UploadToPathAndRename:
         self.sub_path = path
 
     def __call__(self, instance, filename):
-        ext = filename.split(".")[-1]
-        filename = f"{instance.id}.{ext}"
+        ext = filename.split('.')[-1]
+        filename = f'{instance.id}.{ext}'
         return path.join(self.sub_path, filename)

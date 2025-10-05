@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from rockon.library.custom_admin import CustomAdminModel, admin
-
 from .models import (
     Band,
     BandMedia,
@@ -15,44 +14,44 @@ from .models import (
 
 
 class TimeslotAdmin(CustomAdminModel):
-    list_display = ("__str__", "start", "end", "band", "get_event_name")
-    list_filter = ("stage__name", "stage__event__name")
-    search_fields = ("stage__name",)
-    ordering = ("day", "start", "end", "stage")
+    list_display = ('__str__', 'start', 'end', 'band', 'get_event_name')
+    list_filter = ('stage__name', 'stage__event__name')
+    search_fields = ('stage__name',)
+    ordering = ('day', 'start', 'end', 'stage')
 
     def get_event_name(self, obj):
         return obj.stage.event
 
-    get_event_name.short_description = "Event"
+    get_event_name.short_description = 'Event'
 
 
 class BandAdmin(CustomAdminModel):
     list_display = (
-        "__str__",
-        "contact",
-        "bid_status",
-        "bid_complete",
-        "_has_techrider",
-        "track",
-        "slot",
-        "event",
+        '__str__',
+        'contact',
+        'bid_status',
+        'bid_complete',
+        '_has_techrider',
+        'track',
+        'slot',
+        'event',
     )
     list_filter = (
-        "event__name",
-        "bid_status",
-        "bid_complete",
+        'event__name',
+        'bid_status',
+        'bid_complete',
     )
-    search_fields = ("name", "contact__username", "event__name")
+    search_fields = ('name', 'contact__username', 'event__name')
     readonly_fields = (
-        "_band_members",
-        "slot",
-        "guid",
+        '_band_members',
+        'slot',
+        'guid',
     )
 
     def _band_members(self, obj):
-        return ", ".join(
+        return ', '.join(
             [
-                f"{member.user.first_name} {member.user.last_name}"
+                f'{member.user.first_name} {member.user.last_name}'
                 for member in obj.band_members.all()
             ]
         )
@@ -69,52 +68,52 @@ class BandAdmin(CustomAdminModel):
 
 
 class BandMemberAdmin(CustomAdminModel):
-    list_display = ("_user", "band", "position", "updated_at")
-    list_filter = ("band__name",)
-    search_fields = ("user__username", "band__name")
+    list_display = ('_user', 'band', 'position', 'updated_at')
+    list_filter = ('band__name',)
+    search_fields = ('user__username', 'band__name')
     readonly_fields = (
-        "user",
-        "band",
+        'user',
+        'band',
     )
 
     def _user(self, obj):
-        return f"{obj.user.first_name} {obj.user.last_name}"
+        return f'{obj.user.first_name} {obj.user.last_name}'
 
 
 class BandMediaAdmin(CustomAdminModel):
     list_display = (
-        "band",
-        "media_type",
-        "url",
-        "file_name_original",
-        "file",
-        "thumbnail",
+        'band',
+        'media_type',
+        'url',
+        'file_name_original',
+        'file',
+        'thumbnail',
     )
-    list_filter = ("band__name", "media_type")
-    search_fields = ("band__name", "media_type", "url", "file", "thumbnail")
+    list_filter = ('band__name', 'media_type')
+    search_fields = ('band__name', 'media_type', 'url', 'file', 'thumbnail')
     readonly_fields = (
-        "band",
-        "media_type",
-        "thumbnail",
+        'band',
+        'media_type',
+        'thumbnail',
     )
 
 
 class StageAdmin(CustomAdminModel):
-    list_display = ("name", "event", "id")
-    list_filter = ("event__name",)
-    search_fields = ("name", "event__name")
+    list_display = ('name', 'event', 'id')
+    list_filter = ('event__name',)
+    search_fields = ('name', 'event__name')
 
 
 class TrackAdmin(CustomAdminModel):
-    list_display = ("name", "id")
-    list_filter = ("events__name",)
-    search_fields = ("name", "events__name")
+    list_display = ('name', 'id')
+    list_filter = ('events__name',)
+    search_fields = ('name', 'events__name')
 
 
 class BandVoteAdmin(CustomAdminModel):
-    list_display = ("band", "user", "created_at", "event")
-    list_filter = ("event",)
-    search_fields = ("band__name", "user__username")
+    list_display = ('band', 'user', 'created_at', 'event')
+    list_filter = ('event',)
+    search_fields = ('band__name', 'user__username')
 
     def has_add_permission(self, request):
         return False
@@ -128,13 +127,13 @@ class BandVoteAdmin(CustomAdminModel):
     def get_fields(self, request, obj=None):
         # Exclude 'vote' from the fields displayed in the detail view
         fields = super().get_fields(request, obj)
-        return [field for field in fields if field != "vote"]
+        return [field for field in fields if field != 'vote']
 
 
 class CommentAdmin(CustomAdminModel):
-    list_display = ("band", "user", "created_at", "mood")
-    list_filter = ("band__name", "mood")
-    search_fields = ("band__name", "user__username", "mood")
+    list_display = ('band', 'user', 'created_at', 'mood')
+    list_filter = ('band__name', 'mood')
+    search_fields = ('band__name', 'user__username', 'mood')
 
 
 admin.site.register(Band, BandAdmin)

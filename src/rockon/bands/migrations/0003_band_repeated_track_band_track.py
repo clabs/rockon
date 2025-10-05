@@ -10,21 +10,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbase", "0005_delete_accountcontext_alter_event_signup_is_open"),
-        ("rockonbands", "0002_alter_band_name"),
+        ('rockonbase', '0005_delete_accountcontext_alter_event_signup_is_open'),
+        ('rockonbands', '0002_alter_band_name'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="band",
-            name="repeated",
+            model_name='band',
+            name='repeated',
             field=models.BooleanField(default=False),
         ),
         migrations.CreateModel(
-            name="Track",
+            name='Track',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -32,38 +32,38 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
                 (
-                    "slug",
+                    'slug',
                     models.SlugField(blank=True, default=None, null=True, unique=True),
                 ),
-                ("active", models.BooleanField(default=True)),
+                ('active', models.BooleanField(default=True)),
                 (
-                    "events",
+                    'events',
                     models.ManyToManyField(
                         blank=True,
                         default=None,
-                        related_name="tracks",
-                        to="rockonbase.event",
+                        related_name='tracks',
+                        to='rockonbase.event',
                     ),
                 ),
             ],
             options={
-                "verbose_name": "Track",
-                "verbose_name_plural": "Tracks",
-                "ordering": ("name",),
+                'verbose_name': 'Track',
+                'verbose_name_plural': 'Tracks',
+                'ordering': ('name',),
             },
         ),
         migrations.AddField(
-            model_name="band",
-            name="track",
+            model_name='band',
+            name='track',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="bands",
-                to="rockonbands.track",
+                related_name='bands',
+                to='rockonbands.track',
             ),
         ),
     ]

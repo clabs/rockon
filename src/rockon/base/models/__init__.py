@@ -8,3 +8,14 @@ from .sponsoring import Sponsoring
 from .task import Task
 from .timeline import Timeline
 from .user_profile import UserProfile
+
+__all__ = [
+    'EmailVerification',
+    'Event',
+    'MagicLink',
+    'Organisation',
+    'Sponsoring',
+    'Task',
+    'Timeline',
+    'UserProfile',
+]

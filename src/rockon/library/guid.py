@@ -33,4 +33,4 @@ def base62_encode(num) -> str:
     while num > 0:
         num, remainder = divmod(num, 62)
         encoded.insert(0, chars[remainder])
-    return "".join(encoded)
+    return ''.join(encoded)

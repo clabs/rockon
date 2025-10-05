@@ -5,3 +5,14 @@ from .booking import booking_bid_overview
 from .members import members
 from .streaming_upload import streaming_upload
 from .techrider import techrider
+
+__all__ = [
+    'bid_closed',
+    'bid_form',
+    'bid_router',
+    'bid_vote',
+    'booking_bid_overview',
+    'members',
+    'streaming_upload',
+    'techrider',
+]

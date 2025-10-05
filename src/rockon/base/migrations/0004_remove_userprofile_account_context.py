@@ -7,12 +7,12 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbase", "0003_event_band_application_end_and_more"),
+        ('rockonbase', '0003_event_band_application_end_and_more'),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name="userprofile",
-            name="account_context",
+            model_name='userprofile',
+            name='account_context',
         ),
     ]

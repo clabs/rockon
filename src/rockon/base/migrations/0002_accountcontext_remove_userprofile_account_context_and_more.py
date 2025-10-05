@@ -9,15 +9,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbase", "0001_initial"),
+        ('rockonbase', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="AccountContext",
+            name='AccountContext',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -25,25 +25,25 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("slug", models.SlugField(max_length=255, unique=True)),
-                ("name", models.CharField(max_length=255)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('slug', models.SlugField(max_length=255, unique=True)),
+                ('name', models.CharField(max_length=255)),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.RemoveField(
-            model_name="userprofile",
-            name="account_context",
+            model_name='userprofile',
+            name='account_context',
         ),
         migrations.AddField(
-            model_name="userprofile",
-            name="account_context",
+            model_name='userprofile',
+            name='account_context',
             field=models.ManyToManyField(
-                blank=True, default=None, to="rockonbase.accountcontext"
+                blank=True, default=None, to='rockonbase.accountcontext'
             ),
         ),
     ]

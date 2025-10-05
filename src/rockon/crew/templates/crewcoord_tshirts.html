@@ -1,110 +1,110 @@
 {% extends "base.html" %} {% load static %}
 {% block content %}
-<script src="{% static "vendor/chart.4.4.3.js" %}"></script>
+    <script src="{% static "vendor/chart.4.5.0.js" %}"></script>
 
-<div class="container-fluid">
+    <div class="container-fluid">
 
-<div><h2>T-Shirts</h2></div>
+        <div><h2>T-Shirts</h2></div>
 
-<h3>Übersicht</h3>
+        <h3>Übersicht</h3>
 
-<div class="container text-center">
-  <div class="row">
-    <div class="col">
-      <table class="table table-dark table-responsive table-striped table-hover">
-        <thead>
-          <tr>
-            <th scope="col">T-Shirt</th>
-            <th scope="col">Menge</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in counts %}
-          <tr>
-            <th scope="row">{{ item.shirt }}</th>
-            <td>{{ item.count }}</td>
-          </tr>
-          {% endfor %}
-          <tr>
-            <td><strong>Summe</strong></td>
-            <td>{{ sum }}</td>
-          </tr>
-        </tbody>
-      </table>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col">
+                    <table class="table table-dark table-responsive table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">T-Shirt</th>
+                            <th scope="col">Menge</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in counts %}
+                            <tr>
+                                <th scope="row">{{ item.shirt }}</th>
+                                <td>{{ item.count }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td><strong>Summe</strong></td>
+                            <td>{{ sum }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col">
+                    <canvas id="tshirt_chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <h3>Details</h3>
+
+        <table class="table table-dark table-responsive table-striped table-hover">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Person</th>
+                <th scope="col">T-Shirt</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in crew_members %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ item }}</td>
+                    <td>{{ item.shirt }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
     </div>
-    <div class="col">
-      <canvas id="tshirt_chart"></canvas>
-    </div>
-  </div>
-</div>
 
-<h3>Details</h3>
+    <script nonce="{{ request.csp_nonce }}">
+        const plugin = {
+            id: 'customCanvasBackgroundColor',
+            beforeDraw: (chart, args, options) => {
+                const {ctx} = chart;
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = options.color || '#99ffff';
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        };
 
-<table class="table table-dark table-responsive table-striped table-hover">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Person</th>
-      <th scope="col">T-Shirt</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in crew_members %}
-    <tr>
-      <th scope="row">{{ forloop.counter }}</th>
-      <td>{{ item }}</td>
-      <td>{{ item.shirt }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+        const ctx = document.getElementById('tshirt_chart');
 
-</div>
-
-<script nonce="{{request.csp_nonce}}">
-  const plugin = {
-    id: 'customCanvasBackgroundColor',
-    beforeDraw: (chart, args, options) => {
-      const {ctx} = chart;
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-over';
-      ctx.fillStyle = options.color || '#99ffff';
-      ctx.fillRect(0, 0, chart.width, chart.height);
-      ctx.restore();
-    }
-  };
-
-  const ctx = document.getElementById('tshirt_chart');
-
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: [{% for item in counts %}'{{ item.shirt }}',{% endfor %}],
-      datasets: [{
-        label: 'T-Shirt Schnite',
-        data: [{% for item in counts %}'{{ item.count }}',{% endfor %}],
-        borderWidth: 1,
-      }]
-    },
-    options: {
-      plugins: {
-        customCanvasBackgroundColor: {
-          color: '#444',
-        },
-        legend: {
-          labels: {
-            color: '#fff',
-          },
-          position: 'right',
-        },
-        colors: {
-          enabled: true
-        }
-      }
-    },
-    plugins: [plugin],
-  });
-</script>
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [{% for item in counts %}'{{ item.shirt }}',{% endfor %}],
+                datasets: [{
+                    label: 'T-Shirt Schnite',
+                    data: [{% for item in counts %}'{{ item.count }}',{% endfor %}],
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                plugins: {
+                    customCanvasBackgroundColor: {
+                        color: '#444',
+                    },
+                    legend: {
+                        labels: {
+                            color: '#fff',
+                        },
+                        position: 'right',
+                    },
+                    colors: {
+                        enabled: true
+                    }
+                }
+            },
+            plugins: [plugin],
+        });
+    </script>
 
 
 {% endblock content %}
