@@ -7,7 +7,7 @@
     <script language="javascript" nonce="{{ request.csp_nonce }}">
         window.rockon_data = {
             api_crm_account_create: "{% url "api_crm_account_create" %}",
-            api_crm_request_magic_link: "{% url "api_crm_request_magic_link" %}",
+            api_crm_request_magic_link: "{% url "apiv2:request_magic_link" %}",
             account_created_redirect: "{% url "base:account_created" %}",
         }
     </script>

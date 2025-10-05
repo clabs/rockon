@@ -33,6 +33,7 @@ dependencies = [
     "python-slugify[unidecode]",
     "djlint",
     "django-csp",
+    "django-ninja",
 ]
 
 [dependency-groups]

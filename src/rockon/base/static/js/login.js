@@ -162,15 +162,45 @@ const form_login_submit = () => {
     $.ajax({
         type: "POST",
         url: window.rockon_data.api_crm_request_magic_link,
-        data: JSON.stringify({user_email: $("input[name=login_user_email]").val()}),
+        data: JSON.stringify({email: $("input[name=login_user_email]").val()}),
         contentType: "application/json",
         headers: {
             "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
         },
         mode: "same-origin",
         dataType: "json",
-        success: (data) => null,
-        error: (data) => ajax_error(data),
+        success: (data) => request_magic_link_success(data),
+        error: (data) => request_magic_link_error(data),
         complete: (data) => ajax_complete_login(data)
     })
+}
+
+const success_message = `
+                <div class="alert alert-primary" role="alert">
+                    <h4 class="alert-heading">🪄 Magic-Link versandt</h4>
+                    <p>
+                        Wir haben dir eine Mail mit einem Magic-Link zugeschickt. Bitte überprüfe
+                        in den nächsten Minuten, ob Du eine entsprechende Mail von uns bekommen hast.
+                    </p>
+                    <hr>
+                    <p>
+                        ⚠️ Wie immer gilt: Im Zweifel solltest du auch den Spamverdacht-Ordner checken.
+                        Sollte das der Fall sein, würden wir uns sehr über Feedback an
+                        <a href="mailto:rockon@cpye.de">rockon@cpye.de</a> freuen.
+                    </p>
+                </div>
+`
+
+const request_magic_link_success = (data) => {
+    console.error(data)
+    $('#login_message').html(success_message).removeClass('d-none')
+    $('#form_login_submit').prop('disabled', true)
+    $('#user_email').prop('disabled', true)
+}
+
+const request_magic_link_error = (data) => {
+    console.error(data)
+    $('#login_message').html('<div class="alert alert-danger" role="alert">Diese E-Mail-Adresse ist unbekannt, falls du Hilfe beim Login benötigst, wende dich an <a href="mailto:crew@rocktreff.de">crew@rocktreff.de</a></div>').removeClass('d-none')
+    $('#form_login_submit').prop('disabled', true)
+    $('#user_email').prop('disabled', true)
 }
