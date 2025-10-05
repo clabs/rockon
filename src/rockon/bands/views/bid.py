@@ -89,6 +89,7 @@ def bid_form(request, slug, guid):
     event = Event.objects.get(slug=slug)
     media = BandMedia.objects.filter(band=band)
     media_by_type = {}
+    tracks = Track.objects.filter(events__slug=slug)
     for media_type in MediaType.choices:
         media_by_type[media_type[0]] = media.filter(media_type=media_type[0])
     extra_context = {
@@ -98,6 +99,7 @@ def bid_form(request, slug, guid):
         'federal_states': FederalState.choices,
         'band': Band.objects.get(guid=guid),
         'media_by_type': media_by_type,
+        'tracks': tracks,
     }
     return HttpResponse(template.render(extra_context, request))
 

@@ -54,4 +54,4 @@ class IsInGroupForFields(permissions.BasePermission):
 
 class BookingFieldsPermission(IsInGroupForFields):
     group_name = 'booking'
-    protected_fields = ['track', 'bid_status']
+    protected_fields = ['bid_status']

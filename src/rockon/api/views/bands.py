@@ -19,7 +19,7 @@ from rockon.bands.models import Band, BandMedia, BandVote, Track
 
 class BandViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows users to be viewed or edited.
+    API endpoint that allows bands to be viewed or edited.
     """
 
     queryset = Band.objects.all()
