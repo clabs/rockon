@@ -1,80 +1,80 @@
 {% extends "base.html" %} {% load static %}
 {% block content %}
-<script src="{% static "vendor/chart.4.5.0.js" %}"></script>
+    <script src="{% static "vendor/chart.4.5.0.js" %}"></script>
 
-<div class="container-fluid">
+    <div class="container-fluid">
 
-<div><h3>Anzahl der Crewmitglieder</h3></div>
+        <div><h3>Anzahl der Crewmitglieder</h3></div>
 
-<div>
-  <canvas id="attendance_chart"></canvas>
-</div>
+        <div>
+            <canvas id="attendance_chart"></canvas>
+        </div>
 
-</div>
+    </div>
 
-<script nonce="{{request.csp_nonce}}">
-  const plugin = {
-    id: 'customCanvasBackgroundColor',
-    beforeDraw: (chart, args, options) => {
-      const {ctx} = chart;
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-over';
-      ctx.fillStyle = options.color || '#99ffff';
-      ctx.fillRect(0, 0, chart.width, chart.height);
-      ctx.restore();
-    }
-  };
+    <script nonce="{{ request.csp_nonce }}">
+        const plugin = {
+            id: 'customCanvasBackgroundColor',
+            beforeDraw: (chart, args, options) => {
+                const {ctx} = chart;
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = options.color || '#99ffff';
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        };
 
-  const ctx = document.getElementById('attendance_chart');
+        const ctx = document.getElementById('attendance_chart');
 
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [{% for item in attendances %}'{{ item.day }}',{% endfor %}],
-      datasets: [{
-          label: 'Bestätigt',
-          data: [{% for item in attendances %}'{{ item.no_of_crew_members }}',{% endfor %}],
-          borderWidth: 1,
-          borderColor: '#fff300',
-          backgroundColor: '#fff300',
-        },
-        {
-          label: 'Blocker',
-          data: [{% for item in attendances_unknown %}'{{ item.no_of_crew_members }}',{% endfor %}],
-          borderWidth: 1,
-          borderColor: 'red',
-          backgroundColor: 'red',
-        }
-      ]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            color: '#fff',
-            stepSize: 1,
-          }
-        },
-        x: {
-          ticks: {
-            color: '#fff',
-          }
-        }
-      },
-      plugins: {
-        customCanvasBackgroundColor: {
-          color: '#444',
-        },
-        legend: {
-          labels: {
-            color: '#fff',
-          }
-        }
-      }
-    },
-    plugins: [plugin],
-  });
-</script>
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [{% for item in attendances %}'{{ item.day }}',{% endfor %}],
+                datasets: [{
+                    label: 'Bestätigt',
+                    data: [{% for item in attendances %}'{{ item.no_of_crew_members }}',{% endfor %}],
+                    borderWidth: 1,
+                    borderColor: '#fff300',
+                    backgroundColor: '#fff300',
+                },
+                    {
+                        label: 'Blocker',
+                        data: [{% for item in attendances_unknown %}'{{ item.no_of_crew_members }}',{% endfor %}],
+                        borderWidth: 1,
+                        borderColor: 'red',
+                        backgroundColor: 'red',
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#fff',
+                            stepSize: 1,
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#fff',
+                        }
+                    }
+                },
+                plugins: {
+                    customCanvasBackgroundColor: {
+                        color: '#444',
+                    },
+                    legend: {
+                        labels: {
+                            color: '#fff',
+                        }
+                    }
+                }
+            },
+            plugins: [plugin],
+        });
+    </script>
 
 {% endblock content %}

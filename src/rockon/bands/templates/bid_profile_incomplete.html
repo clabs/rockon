@@ -1,8 +1,10 @@
 {% extends 'base.html' %} {% block content %}
-  {% load static %}
-  <h1>Band Bewerbung - {{ event.name }}</h1>
-  <div class="row" style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
-  <div class="alert alert-warning mt-3" role="alert">
-    Bitte vervollständige hier <a href="{% url 'base:account' %}">dein Account</a>, bevor du dich mit deiner Band bewirbst.
-  </div>
+    {% load static %}
+    <h1>Band Bewerbung - {{ event.name }}</h1>
+    <div class="row"
+         style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
+    <div class="alert alert-warning mt-3" role="alert">
+        Bitte vervollständige hier <a href="{% url 'base:account' %}">dein Account</a>, bevor du dich mit deiner Band
+        bewirbst.
+    </div>
 {% endblock %}

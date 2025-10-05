@@ -1,238 +1,244 @@
 {% extends "base.html" %}
 {% block content %}
 
-<script language="javascript" nonce="{{request.csp_nonce}}">
-  $(document).ready(() => {
-    $('#form_submit').on('click', (event) => {
-      event.preventDefault()
-      console.debug("submit")
-      const form = $('#signup')
-      let validated = false;
-      const el = form.find('.not-empty')
-      console.debug("not-empty elements", el)
-      for (const input of el) {
-        validate_input({target: input})
-        if (input.classList.contains('is-invalid')) {
-          validated = false
-          render_error_message()
-          break
-        } else {
-          render_error_message()
-          validated = true
+    <script language="javascript" nonce="{{ request.csp_nonce }}">
+        $(document).ready(() => {
+            $('#form_submit').on('click', (event) => {
+                event.preventDefault()
+                console.debug("submit")
+                const form = $('#signup')
+                let validated = false;
+                const el = form.find('.not-empty')
+                console.debug("not-empty elements", el)
+                for (const input of el) {
+                    validate_input({target: input})
+                    if (input.classList.contains('is-invalid')) {
+                        validated = false
+                        render_error_message()
+                        break
+                    } else {
+                        render_error_message()
+                        validated = true
+                    }
+                }
+                console.debug("validated", validated)
+                const form_data = form.serializeArray()
+                console.debug("form data", form_data)
+                if (validated) {
+                    send_form(form_data)
+                }
+            })
+
+            $('.not-empty').on('blur', event => {
+                console.debug("not-empty handler triggered", event)
+                validate_input(event)
+                render_error_message()
+            })
+        })
+
+        validate_input = (input) => {
+            if (input.target.type === "checkbox") {
+                console.debug("form check", input.target.id)
+                if (input.target.checked) {
+                    inputValid(input, true)
+                } else {
+                    inputValid(input, false)
+                }
+            } else if (input.target.type === "email") {
+                if (input.target.id === "user_email") {
+                    if (validateEmail(input.target.value)) {
+                        inputValid(input, true)
+                    } else {
+                        inputValid(input, false)
+                    }
+                    if ($('#user_email_confirmation').val()) {
+                        validate_input({target: $('#user_email_confirmation')[0]})
+                    }
+                } else if (input.target.id === "user_email_confirmation") {
+                    if (validateEmail(input.target.value) && input.target.value === $('#user_email').val()) {
+                        inputValid(input, true)
+                    } else {
+                        inputValid(input, false)
+                    }
+                } else {
+                    inputValid(input, false)
+                }
+            }
         }
-      }
-      console.debug("validated", validated)
-      const form_data = form.serializeArray()
-      console.debug("form data", form_data)
-      if (validated) {
-        send_form(form_data)
-      }
-    })
 
-    $('.not-empty').on('blur', event => {
-      console.debug("not-empty handler triggered", event)
-      validate_input(event)
-      render_error_message()
-    })
-  })
 
-  validate_input = (input) => {
-    if (input.target.type === "checkbox") {
-      console.debug("form check", input.target.id)
-      if (input.target.checked) {
-        inputValid(input, true)
-      } else {
-        inputValid(input, false)
-      }
-    } else if (input.target.type === "email") {
-      if (input.target.id === "user_email") {
-        if (validateEmail(input.target.value)) {
-          inputValid(input, true)
-        } else {
-          inputValid(input, false)
+        const validateEmail = (email) => {
+            return String(email)
+                .toLowerCase()
+                .match(
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                )
         }
-        if ($('#user_email_confirmation').val()) {
-          validate_input({target: $('#user_email_confirmation')[0]})
+
+        const inputValid = (input, is_valid) => {
+            if (is_valid) {
+                input.target.classList.add('is-valid')
+                input.target.classList.remove('is-invalid')
+            } else {
+                input.target.classList.add('is-invalid')
+                input.target.classList.remove('is-valid')
+            }
         }
-      } else if (input.target.id === "user_email_confirmation") {
-          if (validateEmail(input.target.value) && input.target.value === $('#user_email').val()) {
-            inputValid(input, true)
-          } else {
-            inputValid(input, false)
-          }
-      } else {
-        inputValid(input, false)
-      }
-    }
-  }
+
+        const render_error_message = (message) => {
+            el = $('.not-empty')
+            for (const input of el) {
+                if (input.classList.contains('is-invalid')) {
+                    $('#form_message').html('<div class="alert alert-danger" role="alert">Bitte korrigiere die Fehler in den markierten Feldern.</div>')
+                    break
+                } else {
+                    $('#form_message').html("")
+                }
+            }
+        }
+
+        ajax_success = (data) => {
+            console.info(data)
+            $(window).unbind('beforeunload')
+            window.location.href = "{% url "base:account_created" %}"
+        }
+        ajax_error = (data) => {
+            // FIXME: needs error handling
+            console.error(data.responseJSON)
+            console.debug((data.responseJSON.status === "exists"))
+            if (data.responseJSON.status === "exists") {
+                $('#form_message').html('<div class="alert alert-danger" role="alert">Diese E-Mail-Adresse ist bereits registiert, klicke auf Login, um dich anzumelden.</div>')
+                $("#signup :input").prop("disabled", true)
+                $('#form_submit').prop("disabled", true)
+            }
+        }
+        ajax_complete = (data) => {
+            // hopefully this is never triggered
+            console.info(data)
+        }
+
+        const send_form = (fields) => {
+            console.debug(fields)
+            $.ajax({
+                type: "POST",
+                url: "{% url "api_crm_account_create" %}",
+                data: JSON.stringify(fields),
+                contentType: "application/json",
+                headers: {
+                    "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
+                },
+                mode: "same-origin",
+                dataType: "json",
+                success: (data) => ajax_success(data),
+                error: (data) => ajax_error(data),
+                complete: (data) => ajax_complete(data)
+            })
+        }
 
 
-  const validateEmail = (email) => {
-    return String(email)
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      )
-  }
+    </script>
 
-  const inputValid = (input, is_valid) => {
-    if (is_valid) {
-      input.target.classList.add('is-valid')
-      input.target.classList.remove('is-invalid')
-    } else {
-      input.target.classList.add('is-invalid')
-      input.target.classList.remove('is-valid')
-    }
-  }
+    <h1>Rockon Account erstellen</h1>
 
-  const render_error_message = (message) => {
-    el = $('.not-empty')
-    for (const input of el) {
-      if (input.classList.contains('is-invalid')) {
-        $('#form_message').html('<div class="alert alert-danger" role="alert">Bitte korrigiere die Fehler in den markierten Feldern.</div>')
-        break
-      } else {
-        $('#form_message').html("")
-      }
-    }
-  }
-
-  ajax_success = (data) => {
-    console.info(data)
-    $(window).unbind('beforeunload')
-    window.location.href = "{% url "base:account_created" %}"
-  }
-  ajax_error = (data) => {
-    // FIXME: needs error handling
-    console.error(data.responseJSON)
-    console.debug((data.responseJSON.status === "exists"))
-    if (data.responseJSON.status === "exists") {
-      $('#form_message').html('<div class="alert alert-danger" role="alert">Diese E-Mail-Adresse ist bereits registiert, klicke auf Login, um dich anzumelden.</div>')
-      $("#signup :input").prop("disabled", true)
-      $('#form_submit').prop("disabled", true)
-    }
-  }
-  ajax_complete = (data) => {
-    // hopefully this is never triggered
-    console.info(data)
-  }
-
-  const send_form = (fields) => {
-    console.debug(fields)
-    $.ajax({
-      type: "POST",
-      url: "{% url "api_crm_account_create" %}",
-      data: JSON.stringify(fields),
-      contentType: "application/json",
-      headers: {
-        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
-      },
-      mode: "same-origin",
-      dataType: "json",
-      success: (data) => ajax_success(data),
-      error: (data) => ajax_error(data),
-      complete: (data) => ajax_complete(data)
-    })
-  }
+    <form id="signup" class="row align-items-center needs-validation" novalidate>
+        {% csrf_token %}
+        <section class="row p-4 form-section">
+            <div class="col-lg-8">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div><h3>E-Mail-Adresse</h3></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 g-4">
+                        <label for="user_email">E-Mail Adresse</label>
+                        <input type="email" name="user_email" id="user_email" class="form-control not-empty"
+                               placeholder="jane.doe@example.net" autocomplete="email"/>
+                        <div class="valid-feedback">
+                        </div>
+                        <div class="invalid-feedback">
+                            Bitte gibt eine gültige E-Mail Adresse an.
+                        </div>
+                    </div>
+                    <div class="col-sm-6 g-4">
+                        <label for="user_email_confirmation">E-Mail Adresse bestätigen</label>
+                        <input type="email" name="user_email_confirmation" id="user_email_confirmation"
+                               class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="off"/>
+                        <div class="valid-feedback">
+                        </div>
+                        <div class="invalid-feedback">
+                            Bitte wiederhole deine E-Mail Adresse.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div><h4>Warum erheben wir diese Informationen?</h4></div>
+                <p>
+                    Deine Email-Adresse ist für uns sehr wichtig. Mit ihr kannst du dich immer wieder
+                    bei Rockon anmlden.
+                </p>
+            </div>
+        </section>
 
 
-</script>
-
-<h1>Rockon Account erstellen</h1>
-
-<form id="signup" class="row align-items-center needs-validation" novalidate>
-  {% csrf_token %}
-  <section class="row p-4 form-section">
-    <div class="col-lg-8">
-      <div class="row">
-        <div class="col-lg-12">
-          <div><h3>E-Mail-Adresse</h3></div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-6 g-4">
-          <label for="user_email">E-Mail Adresse</label>
-          <input type="email" name="user_email" id="user_email" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="email" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Bitte gibt eine gültige E-Mail Adresse an.
-          </div>
-        </div>
-        <div class="col-sm-6 g-4">
-          <label for="user_email_confirmation">E-Mail Adresse bestätigen</label>
-          <input type="email" name="user_email_confirmation" id="user_email_confirmation" class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="off" />
-          <div class="valid-feedback">
-          </div>
-          <div class="invalid-feedback">
-            Bitte wiederhole deine E-Mail Adresse.
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div><h4>Warum erheben wir diese Informationen?</h4></div>
-      <p>
-        Deine Email-Adresse ist für uns sehr wichtig. Mit ihr kannst du dich immer wieder
-        bei Rockon anmlden.
-      </p>
-    </div>
-  </section>
+        <section class="row p-4 form-section">
+            <div><h3>Rechtliches</h3></div>
+            <div class="col-md-12">
+                <div class="form-check form-switch">
+                    <input class="form-check-input not-empty" type="checkbox" role="switch" id="allow_contact"
+                           name="allow_contact">
+                    <label class="form-check-label" for="allow_contact">
+                        Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das
+                        Spielfest kontaktieren darf.
+                    </label>
+                    <div class="valid-feedback"></div>
+                    <div class="invalid-feedback">
+                        Bitte erlaube uns, dich zu kontaktieren.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-check form-switch">
+                    <input class="form-check-input not-empty" type="checkbox" role="switch" id="read_privacy"
+                           name="read_privacy">
+                    <label class="form-check-label" for="read_privacy">
+                        Ich habe die <a href="{% url "rockon_privacy" %}" target="_blank">Datenschutzbestimmungen</a>
+                        zur Kenntnis genommen
+                        und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der
+                        Veranstaltungen Rocktreff
+                        und Spielfest einverstanden.
+                    </label>
+                    <div class="valid-feedback"></div>
+                    <div class="invalid-feedback">
+                        Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.
+                    </div>
+                </div>
+            </div>
+        </section>
 
 
-  <section class="row p-4 form-section">
-    <div><h3>Rechtliches</h3></div>
-    <div class="col-md-12">
-      <div class="form-check form-switch">
-        <input class="form-check-input not-empty" type="checkbox" role="switch" id="allow_contact" name="allow_contact">
-        <label class="form-check-label" for="allow_contact">
-          Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das Spielfest kontaktieren darf.
-        </label>
-        <div class="valid-feedback"></div>
-        <div class="invalid-feedback">
-          Bitte erlaube uns, dich zu kontaktieren.
-        </div>
-      </div>
-    </div>
-    <div class="col-md-12">
-      <div class="form-check form-switch">
-        <input class="form-check-input not-empty" type="checkbox" role="switch" id="read_privacy" name="read_privacy">
-        <label class="form-check-label" for="read_privacy">
-          Ich habe die <a href="{% url "rockon_privacy" %}" target="_blank">Datenschutzbestimmungen</a> zur Kenntnis genommen
-          und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der Veranstaltungen Rocktreff
-          und Spielfest einverstanden.
-        </label>
-        <div class="valid-feedback"></div>
-        <div class="invalid-feedback">
-          Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.
-        </div>
-      </div>
-    </div>
-  </section>
+        <section class="row p-4 form-section">
+            <div class="d-grid gap-2 col-12 mx-auto pt-3">
+                <div class="row g-2">
+                    <div class="col">
+                        <div class="d-grid gap-2 col-12 mx-auto">
+                            <button id="form_submit" type="button" class="btn btn-primary">Account erstellen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-grid gap-2 col-12 mx-auto pt-3">
+                <div class="row g-2">
+                    <div class="col">
+                        <div id="form_message"></div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="account_context" value="{{ account_context }}"/>
+        </section>
 
-
-
-  <section class="row p-4 form-section">
-    <div class="d-grid gap-2 col-12 mx-auto pt-3">
-      <div class="row g-2">
-        <div class="col">
-          <div class="d-grid gap-2 col-12 mx-auto">
-            <button id="form_submit" type="button" class="btn btn-primary">Account erstellen</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="d-grid gap-2 col-12 mx-auto pt-3">
-      <div class="row g-2">
-        <div class="col">
-          <div id="form_message"></div>
-        </div>
-      </div>
-    </div>
-    <input type="hidden" name="account_context" value="{{ account_context }}"/>
-  </section>
-
-</form>
+    </form>
 
 
 

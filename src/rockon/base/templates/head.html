@@ -1,59 +1,59 @@
 {% load static %}
 {% load compress %}
 {% load compress %}
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>{{ site_title }} | rockon</title>
 {% compress css file theme_rocktreff %}
-  <link rel="stylesheet"
-        type="text/x-scss"
-        href="{% static "rockon/theme.scss" %}">
-  <link rel="stylesheet"
-        type="text/css"
-        href="{% static "css/overrides.css" %}">
+    <link rel="stylesheet"
+          type="text/x-scss"
+          href="{% static "rockon/theme.scss" %}">
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static "css/overrides.css" %}">
 {% endcompress %}
 {% compress js file vendor %}
-  <script src="{% static "vendor/bootstrap.bundle.5.3.8.min.js" %}"></script>
-  <script src="{% static "vendor/jquery-3.7.1.min.js" %}"></script>
-  <script src="{% static "vendor/luxon.3.4.4.min.js" %}"></script>
+    <script src="{% static "vendor/bootstrap.bundle.5.3.8.min.js" %}"></script>
+    <script src="{% static "vendor/jquery-3.7.1.min.js" %}"></script>
+    <script src="{% static "vendor/luxon.3.4.4.min.js" %}"></script>
 {% endcompress %}
 <link rel="apple-touch-icon"
       sizes="180x180"
-      href="{% static "favicon/apple-touch-icon.png" %}" />
+      href="{% static "favicon/apple-touch-icon.png" %}"/>
 <link rel="icon"
       type="image/png"
       sizes="32x32"
-      href="{% static "favicon/favicon-32x32.png" %}" />
+      href="{% static "favicon/favicon-32x32.png" %}"/>
 <link rel="icon"
       type="image/png"
       sizes="16x16"
-      href="{% static "favicon/favicon-16x16.png" %}" />
-<link rel="manifest" href="{% static "favicon/site.webmanifest" %}" />
+      href="{% static "favicon/favicon-16x16.png" %}"/>
+<link rel="manifest" href="{% static "favicon/site.webmanifest" %}"/>
 {% compress css file fontawmesome %}
-  <link href="{% static "fontawesome/css/fontawesome.css" %}"
-        rel="stylesheet">
-  <link href="{% static "fontawesome/css/brands.css" %}" rel="stylesheet">
-  <link href="{% static "fontawesome/css/solid.css" %}" rel="stylesheet">
+    <link href="{% static "fontawesome/css/fontawesome.css" %}"
+          rel="stylesheet">
+    <link href="{% static "fontawesome/css/brands.css" %}" rel="stylesheet">
+    <link href="{% static "fontawesome/css/solid.css" %}" rel="stylesheet">
 {% endcompress %}
 <meta name="theme-color" content="#303030">
 {% if SENTRY_FRONTEND_ENABLED %}
-  <script src="{% static "vendor/sentry.10.17.0.bundle.tracing.min.js" %}"></script>
-  <script language="javascript" nonce="{{request.csp_nonce}}">
-Sentry.init({
-  dsn: '{{ SENTRY_DSN }}',
-  tracesSampleRate: {{SENTRY_TRACES_SAMPLE_RATE|floatformat:2}},
-  environment: '{{ SENTRY_ENVIRONMENT }}',
-  integrations: [Sentry.browserTracingIntegration()]
-});
-  </script>
+    <script src="{% static "vendor/sentry.10.17.0.bundle.tracing.min.js" %}"></script>
+    <script language="javascript" nonce="{{ request.csp_nonce }}">
+        Sentry.init({
+            dsn: '{{ SENTRY_DSN }}',
+            tracesSampleRate: {{SENTRY_TRACES_SAMPLE_RATE|floatformat:2}},
+            environment: '{{ SENTRY_ENVIRONMENT }}',
+            integrations: [Sentry.browserTracingIntegration()]
+        });
+    </script>
 {% endif %}
-<script language="javascript" nonce="{{request.csp_nonce}}">
-  $(document).ready(() => {
-    const DateTime = luxon.DateTime
-    $('.date-format-huge').each((_, el) => {
-      const date_parsed = DateTime.fromFormat(el.innerText, "dd.LL.yyyy", { locale: "de" })
-        el.innerText = date_parsed.toLocaleString(DateTime.DATE_HUGE)
+<script language="javascript" nonce="{{ request.csp_nonce }}">
+    $(document).ready(() => {
+        const DateTime = luxon.DateTime
+        $('.date-format-huge').each((_, el) => {
+            const date_parsed = DateTime.fromFormat(el.innerText, "dd.LL.yyyy", {locale: "de"})
+            el.innerText = date_parsed.toLocaleString(DateTime.DATE_HUGE)
+        })
     })
-  })
 </script>
 {% include "opengraph.html" %}

@@ -1,271 +1,287 @@
 {% extends "base.html" %} {% block content %}
 
-<script language="javascript" nonce="{{request.csp_nonce}}">
-const persons = []
-const slots = {{ slots }}
-const band_id = "{{ band.id }}"
-const currentMembers = JSON.parse('{{ current_members | safe }}')
+    <script language="javascript" nonce="{{ request.csp_nonce }}">
+        const persons = []
+        const slots = {{ slots }}
+        const band_id = "{{ band.id }}"
+        const currentMembers = JSON.parse('{{ current_members | safe }}')
 
-$(document).ready(() => {
-  if (slots === 0) {
-    $("#new_person_model_open").prop('disabled', true)
-    $("#submit_persons").prop('disabled', true)
-    $("#main_content").addClass("d-none")
-    $("#result").html('<div class="alert alert-primary" role="alert">Meldung bereits abgeschlossen, solltet ihr Hilfe brauchen, wendet euch bitte an die Bandbetreuung!</div>')
-  }
-  $('#form_new_person').on('change', _ => {
-    $(window).bind('beforeunload', () => {
-      return "Die Seite hat ungespeicherte Änderungen.";
-    })
-  })
+        $(document).ready(() => {
+            if (slots === 0) {
+                $("#new_person_model_open").prop('disabled', true)
+                $("#submit_persons").prop('disabled', true)
+                $("#main_content").addClass("d-none")
+                $("#result").html('<div class="alert alert-primary" role="alert">Meldung bereits abgeschlossen, solltet ihr Hilfe brauchen, wendet euch bitte an die Bandbetreuung!</div>')
+            }
+            $('#form_new_person').on('change', _ => {
+                $(window).bind('beforeunload', () => {
+                    return "Die Seite hat ungespeicherte Änderungen.";
+                })
+            })
 
-  for (const [index, member] of currentMembers.entries()) {
-    $('#currentMembers').append(`<li>${member.user.last_name}, ${member.user.first_name}</li>`)
-  }
+            for (const [index, member] of currentMembers.entries()) {
+                $('#currentMembers').append(`<li>${member.user.last_name}, ${member.user.first_name}</li>`)
+            }
 
-  $("#new_person_send").click((event) => {
-    event.preventDefault()
-    const form = $("#form_new_person")
-    const data = form.serializeArray()
-    console.debug("form data", data)
-    if (data.some(fieldEmpty)) {
-      return alert("Bitte alle Felder ausfüllen.")
-    }
-    if (!validateEmail(data[6].value)) {
-      return alert("Bitte eine gültige E-Mail Adresse eingeben.")
-    }
-    saveForm(data)
-    $("#form_new_person :input").prop("disabled", true)
-    $("#new_person_send").prop("disabled", true)
-    $("#new_person_send").addClass("d-none")
-    $("#new_person_cancel").addClass("d-none")
-    if (persons.length < slots) {
-      $("#new_person_cycle").removeClass("d-none")
-    }
-    $("#new_person_close").removeClass("d-none")
-  })
+            $("#new_person_send").click((event) => {
+                event.preventDefault()
+                const form = $("#form_new_person")
+                const data = form.serializeArray()
+                console.debug("form data", data)
+                if (data.some(fieldEmpty)) {
+                    return alert("Bitte alle Felder ausfüllen.")
+                }
+                if (!validateEmail(data[6].value)) {
+                    return alert("Bitte eine gültige E-Mail Adresse eingeben.")
+                }
+                saveForm(data)
+                $("#form_new_person :input").prop("disabled", true)
+                $("#new_person_send").prop("disabled", true)
+                $("#new_person_send").addClass("d-none")
+                $("#new_person_cancel").addClass("d-none")
+                if (persons.length < slots) {
+                    $("#new_person_cycle").removeClass("d-none")
+                }
+                $("#new_person_close").removeClass("d-none")
+            })
 
-  $("#new_person_cycle").click((event) => {
-    event.preventDefault()
-    formReset()
-  })
+            $("#new_person_cycle").click((event) => {
+                event.preventDefault()
+                formReset()
+            })
 
-  const formModal = document.getElementById('new_person_modal')
-  formModal.addEventListener('hidden.bs.modal', event => {
-    formReset()
-    console.debug("modal closed")
-  })
+            const formModal = document.getElementById('new_person_modal')
+            formModal.addEventListener('hidden.bs.modal', event => {
+                formReset()
+                console.debug("modal closed")
+            })
 
-  $('#submit_persons').click(event => {
-    event.preventDefault()
-    if (persons.length === 0) {
-      return alert("Bitte mindestens eine Person hinzufügen.")
-    }
-    if (confirm("Bist du dir sicher, dass du das Formular abschicken willst?")) {
-      console.debug("submit persons", persons)
-      $.ajax({
-        url: '{% url "api_bandmember_signup" %}',
-        type: 'POST',
-        data: JSON.stringify({"band": band_id, "persons": persons}),
-        contentType: 'application/json',
-        headers: {
-          "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
-        },
-        success: (data) => {
-          console.debug("success", data)
-          $(window).unbind('beforeunload')
-          $('#submit_persons').prop('disabled', true)
-          $('#new_person_model_open').prop('disabled', true)
-          $("#result").html('<div class="alert alert-primary" role="alert">Meldung erfolgreich abgeschlossen.</div>')
-        },
-        error: (data) => {
-          console.debug("error", data)
-          alert("Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.")
+            $('#submit_persons').click(event => {
+                event.preventDefault()
+                if (persons.length === 0) {
+                    return alert("Bitte mindestens eine Person hinzufügen.")
+                }
+                if (confirm("Bist du dir sicher, dass du das Formular abschicken willst?")) {
+                    console.debug("submit persons", persons)
+                    $.ajax({
+                        url: '{% url "api_bandmember_signup" %}',
+                        type: 'POST',
+                        data: JSON.stringify({"band": band_id, "persons": persons}),
+                        contentType: 'application/json',
+                        headers: {
+                            "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
+                        },
+                        success: (data) => {
+                            console.debug("success", data)
+                            $(window).unbind('beforeunload')
+                            $('#submit_persons').prop('disabled', true)
+                            $('#new_person_model_open').prop('disabled', true)
+                            $("#result").html('<div class="alert alert-primary" role="alert">Meldung erfolgreich abgeschlossen.</div>')
+                        },
+                        error: (data) => {
+                            console.debug("error", data)
+                            alert("Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.")
+                        }
+                    })
+                }
+            })
+        })
+
+        const formReset = () => {
+            $("#form_new_person :input").prop("disabled", false)
+            $("#form_new_person :input").val("")
+            $('#position option:first').prop('selected', true)
+            $('#nutrion option:first').prop('selected', true)
+            $("#new_person_send").prop("disabled", false)
+            $("#new_person_send").removeClass("d-none")
+            $("#new_person_cancel").removeClass("d-none")
+            $("#new_person_cycle").addClass("d-none")
+            $("#new_person_close").addClass("d-none")
         }
-      })
-    }
-  })
-})
 
-const formReset = () => {
-  $("#form_new_person :input").prop("disabled", false)
-  $("#form_new_person :input").val("")
-  $('#position option:first').prop('selected',true)
-  $('#nutrion option:first').prop('selected',true)
-  $("#new_person_send").prop("disabled", false)
-  $("#new_person_send").removeClass("d-none")
-  $("#new_person_cancel").removeClass("d-none")
-  $("#new_person_cycle").addClass("d-none")
-  $("#new_person_close").addClass("d-none")
-}
+        const fieldEmpty = (element, index, array) => {
+            return element.value === ('' || 'unknown')
+        }
 
-const fieldEmpty = (element, index, array) => {
-  return element.value === ('' || 'unknown')
-}
+        const saveForm = (data) => {
+            persons.push(data)
+            appendRow(data)
+            console.debug("persons", persons)
+            if (persons.length >= slots) {
+                $("#new_person_model_open").prop('disabled', true)
+            }
+        }
 
-const saveForm = (data) => {
-  persons.push(data)
-  appendRow(data)
-  console.debug("persons", persons)
-  if (persons.length >= slots) {
-    $("#new_person_model_open").prop('disabled', true)
-  }
-}
+        const appendRow = (data, index) => {
+            if (!index) index = persons.length - 1
+            row = `<tr>`
+            row += `<td>${index + 1}</td>`
+            data.forEach(element => {
+                row += `<td>${element.value}</td>`
+            })
+            row += `<td><button type="button" class="btn btn-danger btn-sm person-delete" data-index="${index}"><i class="fa-solid fa-trash-can"></i></button></td>`
+            row += "</tr>"
+            $('#person_table > tbody:last-child').append(row)
+        }
 
-const appendRow = (data, index) => {
-  if (!index) index = persons.length - 1
-  row = `<tr>`
-  row += `<td>${index + 1}</td>`
-  data.forEach(element => {
-    row += `<td>${element.value}</td>`
-  })
-  row += `<td><button type="button" class="btn btn-danger btn-sm person-delete" data-index="${index}"><i class="fa-solid fa-trash-can"></i></button></td>`
-  row += "</tr>"
-  $('#person_table > tbody:last-child').append(row)
-}
+        const validateEmail = (email) => {
+            return String(email)
+                .toLowerCase()
+                .match(
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                )
+        }
 
-const validateEmail = (email) => {
-  return String(email)
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    )
-}
+        $('body').on('click', '.person-delete', event => {
+            event.preventDefault()
+            const index = Number(event.target.dataset.index)
+            remove = confirm("Möchtest du diesen Eintrag entfernen?")
+            if (remove) {
+                persons.splice(index, 1)
+                console.debug("persons", persons)
+                if (persons.length <= slots) {
+                    $("#new_person_model_open").prop('disabled', false)
+                }
+            }
+            $('#person_table_body').empty()
+            persons.forEach((person, index) => {
+                appendRow(person[0], index)
+            })
+        })
 
-$('body').on('click', '.person-delete', event => {
-  event.preventDefault()
-  const index = Number(event.target.dataset.index)
-  remove = confirm("Möchtest du diesen Eintrag entfernen?")
-  if (remove) {
-    persons.splice(index, 1)
-    console.debug("persons", persons)
-    if (persons.length <= slots) {
-      $("#new_person_model_open").prop('disabled', false)
-    }
-  }
-  $('#person_table_body').empty()
-  persons.forEach((person, index) => {
-    appendRow(person[0], index)
-  })
-})
+    </script>
 
-</script>
-
-<div><h1>>>{{band.name}}<<</h1></div>
-<h3>Personenmeldung</h3>
-<div class="alert alert-info">
-    <p>Ihr könnt bis zu 10 Personen bei uns anmelden, für die Versicherung brauchen wir diese Namen und die Meldeanschrift.</p>
-    <p>Damit sich unser Catering möglichst gut vorbereiten kann, gebt bitte die Ernährungsgewohnheit mit an.</p>
-    <p>Um einen reibungslosen Ablauf gewährleisten zu können, teilt uns bitte auch mit, welche Funktion die Personen haben.</p>
-    <p>Aktuell könnt ihr noch {{ slots }} Personen anmelden.</p>
-    <p>Solltet ihr Personen entfernen wollen, die bereits gemeldet habt, setzt euch bitte mit der Bandbetreuung in Verbindung.</p>
-</div>
-
-<div id="main_content" class="row">
-<h3>Personen</h3>
-<p>Aktuelle Meldungen:</p>
-<ul id="currentMembers"></ul>
-<div class="pb-3">
-<button id="new_person_model_open" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new_person_modal">
-  Person hinzufügen
-</button>
-</div>
-<table id="person_table" class="table table-dark table-responsive table-striped table-hover p-5">
-  {% csrf_token %}
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Vorname</th>
-      <th scope="col">Nachname</th>
-      <th scope="col">Straße</th>
-      <th scope="col">Hausnummer</th>
-      <th scope="col">Postleitzahl</th>
-      <th scope="col">Ort</th>
-      <th scope="col">E-Mail</th>
-      <th scope="col">Ernährung</th>
-      <th scope="col">Funktion</th>
-      <th scope="col"></th>
-    </tr>
-  </thead>
-  <tbody id="person_table_body">
-  </tbody>
-</table>
-
-<div>
-<button id="submit_persons" type="button" class="btn btn-primary">
-  Meldung abschicken
-</button>
-</div>
-</div>
-
-<div id="result" class="pt-5"></div>
-
-<!-- Modal -->
-<div class="modal fade" id="new_person_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="new_person_modalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="new_person_modalLabel">Neue Person</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-      </div>
-      <div class="modal-body">
-        <form class="row g-3" id="form_new_person">
-          <div class="col-md-6">
-            <label for="first_name" class="form-label">Vorname</label>
-            <input type="text" class="form-control" id="first_name" placeholder="Vorname" name="first_name" autocomplete="given-name">
-          </div>
-          <div class="col-md-6">
-            <label for="last_name" class="form-label">Nachname</label>
-            <input type="text" class="form-control" id="last_name" placeholder="Nachname" name="last_name" autocomplete="name">
-          </div>
-          <div class="col-md-6">
-            <label for="address" class="form-label">Straße</label>
-            <input type="text" class="form-control" id="address" placeholder="Straße" name="address" autocomplete="street-address">
-          </div>
-          <div class="col-md-6">
-            <label for="housenumber" class="form-label">Hausnummer</label>
-            <input type="text" class="form-control" id="housenumber" placeholder="Hausnr." name="housenumber">
-          </div>
-          <div class="col-md-6">
-            <label for="zip_code" class="form-label">Postleitzahl</label>
-            <input type="text" class="form-control" id="zip_code" placeholder="Postleitzahl" name="zip_code" autocomplete="postal-code">
-          </div>
-          <div class="col-md-6">
-            <label for="place" class="form-label">Ort</label>
-            <input type="text" class="form-control" id="place" placeholder="Ort" name="place" autocomplete="address-level2">
-          </div>
-          <div class="col-md-6">
-            <label for="email" class="form-label">E-Mail</label>
-            <input type="email" class="form-control" id="email" placeholder="E-Mail" name="email" autocomplete="email">
-          </div>
-          <div class="col-md-6">
-          </div>
-          <div class="col-md-6">
-            <label for="nutrion_choices" class="form-label">Ernährung</label>
-            <select class="form-select" id="nutrion" aria-label="Ernährung" name="nutrition">
-              {% for choice in nutrion_choices %}
-                <option value={{ choice.value }}>{{ choice.label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label for="position" class="form-label">Position</label>
-            <select class="form-select" id="position" aria-label="Position" name="position">
-              {% for choice in positions %}
-                <option value={{ choice.value }}>{{ choice.label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button id="new_person_cancel" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbruch</button>
-        <button id="new_person_close" type="button" class="btn btn-secondary d-none" data-bs-dismiss="modal">Schließen</button>
-        <button id="new_person_send" type="button" class="btn btn-primary">Hinzufügen</button>
-        <button id="new_person_cycle" type="button" class="btn btn-primary d-none">Weitere Person</button>
-      </div>
+    <div><h1>>>{{ band.name }}<<</h1></div>
+    <h3>Personenmeldung</h3>
+    <div class="alert alert-info">
+        <p>Ihr könnt bis zu 10 Personen bei uns anmelden, für die Versicherung brauchen wir diese Namen und die
+            Meldeanschrift.</p>
+        <p>Damit sich unser Catering möglichst gut vorbereiten kann, gebt bitte die Ernährungsgewohnheit mit an.</p>
+        <p>Um einen reibungslosen Ablauf gewährleisten zu können, teilt uns bitte auch mit, welche Funktion die Personen
+            haben.</p>
+        <p>Aktuell könnt ihr noch {{ slots }} Personen anmelden.</p>
+        <p>Solltet ihr Personen entfernen wollen, die bereits gemeldet habt, setzt euch bitte mit der Bandbetreuung in
+            Verbindung.</p>
     </div>
-  </div>
-</div>
+
+    <div id="main_content" class="row">
+        <h3>Personen</h3>
+        <p>Aktuelle Meldungen:</p>
+        <ul id="currentMembers"></ul>
+        <div class="pb-3">
+            <button id="new_person_model_open" type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#new_person_modal">
+                Person hinzufügen
+            </button>
+        </div>
+        <table id="person_table" class="table table-dark table-responsive table-striped table-hover p-5">
+            {% csrf_token %}
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Vorname</th>
+                <th scope="col">Nachname</th>
+                <th scope="col">Straße</th>
+                <th scope="col">Hausnummer</th>
+                <th scope="col">Postleitzahl</th>
+                <th scope="col">Ort</th>
+                <th scope="col">E-Mail</th>
+                <th scope="col">Ernährung</th>
+                <th scope="col">Funktion</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody id="person_table_body">
+            </tbody>
+        </table>
+
+        <div>
+            <button id="submit_persons" type="button" class="btn btn-primary">
+                Meldung abschicken
+            </button>
+        </div>
+    </div>
+
+    <div id="result" class="pt-5"></div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="new_person_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="new_person_modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="new_person_modalLabel">Neue Person</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row g-3" id="form_new_person">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">Vorname</label>
+                            <input type="text" class="form-control" id="first_name" placeholder="Vorname"
+                                   name="first_name" autocomplete="given-name">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">Nachname</label>
+                            <input type="text" class="form-control" id="last_name" placeholder="Nachname"
+                                   name="last_name" autocomplete="name">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="address" class="form-label">Straße</label>
+                            <input type="text" class="form-control" id="address" placeholder="Straße" name="address"
+                                   autocomplete="street-address">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="housenumber" class="form-label">Hausnummer</label>
+                            <input type="text" class="form-control" id="housenumber" placeholder="Hausnr."
+                                   name="housenumber">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="zip_code" class="form-label">Postleitzahl</label>
+                            <input type="text" class="form-control" id="zip_code" placeholder="Postleitzahl"
+                                   name="zip_code" autocomplete="postal-code">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="place" class="form-label">Ort</label>
+                            <input type="text" class="form-control" id="place" placeholder="Ort" name="place"
+                                   autocomplete="address-level2">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">E-Mail</label>
+                            <input type="email" class="form-control" id="email" placeholder="E-Mail" name="email"
+                                   autocomplete="email">
+                        </div>
+                        <div class="col-md-6">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="nutrion_choices" class="form-label">Ernährung</label>
+                            <select class="form-select" id="nutrion" aria-label="Ernährung" name="nutrition">
+                                {% for choice in nutrion_choices %}
+                                    <option value={{ choice.value }}>{{ choice.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="position" class="form-label">Position</label>
+                            <select class="form-select" id="position" aria-label="Position" name="position">
+                                {% for choice in positions %}
+                                    <option value={{ choice.value }}>{{ choice.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="new_person_cancel" type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Abbruch
+                    </button>
+                    <button id="new_person_close" type="button" class="btn btn-secondary d-none"
+                            data-bs-dismiss="modal">Schließen
+                    </button>
+                    <button id="new_person_send" type="button" class="btn btn-primary">Hinzufügen</button>
+                    <button id="new_person_cycle" type="button" class="btn btn-primary d-none">Weitere Person</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

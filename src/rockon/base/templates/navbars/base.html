@@ -1,89 +1,91 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top"
      aria-label=""
      style="color: white">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="{% url 'rockon_landing_index' %}">rockon</a>
-    <button class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbar"
-            aria-controls="navbar"
-            aria-expanded="false"
-            aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbar">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="{% url 'crm_user_home' %}">Home</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle"
-               href="#"
-               data-bs-toggle="dropdown"
-               aria-expanded="false">Mitmachen!</a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              {% for group in user.groups.all %}
-                {% if group.name == 'crew' %}
-                  <a class="dropdown-item"
-                     href="{% url 'crew:join' slug=current_event.slug %}">Rocktreff Crew</a>
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'rockon_landing_index' %}">rockon</a>
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbar"
+                aria-controls="navbar"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="{% url 'crm_user_home' %}">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">Mitmachen!</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            {% for group in user.groups.all %}
+                                {% if group.name == 'crew' %}
+                                    <a class="dropdown-item"
+                                       href="{% url 'crew:join' slug=current_event.slug %}">Rocktreff Crew</a>
+                                {% endif %}
+                                {% if group.name == 'bands' %}
+                                    <a class="dropdown-item"
+                                       href="{% url 'bands:bid_router' slug=current_event.slug %}">Band Bewerbung</a>
+                                {% endif %}
+                                {% if group.name == 'exhibitors' and current_event.sub_events.first.slug %}
+                                    <a class="dropdown-item"
+                                       href="{% url 'exhibitors:join' slug=current_event.sub_events.first.slug %}">Spielfest
+                                        Austeller</a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </li>
+                    {% for group in user.groups.all %}
+                        {% if group.name == "crew" %}
+                            {% include "./crew_context.html" %}
+                        {% endif %}
+                        {% if group.name == "bands" %}
+                            {% include "./band_context.html" %}
+                        {% endif %}
+                        {% if group.name == "exhibitors" %}
+                            {% include "./exhibitors_context.html" %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if not user.groups.all %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'base:select_context' %}">Kontoart wählen</a>
+                        </li>
+                    {% endif %}
                 {% endif %}
-                {% if group.name == 'bands' %}
-                  <a class="dropdown-item"
-                      href="{% url 'bands:bid_router' slug=current_event.slug %}">Band Bewerbung</a>
-                {% endif %}
-                {% if group.name == 'exhibitors' and current_event.sub_events.first.slug %}
-                  <a class="dropdown-item"
-                     href="{% url 'exhibitors:join' slug=current_event.sub_events.first.slug %}">Spielfest Austeller</a>
-                {% endif %}
-              {% endfor %}
-            </div>
-          </li>
-          {% for group in user.groups.all %}
-            {% if group.name == "crew" %}
-              {% include "./crew_context.html" %}
-            {% endif %}
-            {% if group.name == "bands" %}
-              {% include "./band_context.html" %}
-            {% endif %}
-            {% if group.name == "exhibitors" %}
-              {% include "./exhibitors_context.html" %}
-            {% endif %}
-          {% endfor %}
-          {% if not user.groups.all %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'base:select_context' %}">Kontoart wählen</a>
-            </li>
-          {% endif %}
-        {% endif %}
-      </ul>
-      {% if user.is_authenticated %}
-        <div class="navbar-item">
-          <ul class="navbar-nav me-auto mb-2 mb-md-0">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle"
-                 href="#"
-                 data-bs-toggle="dropdown"
-                 aria-expanded="false"><i class="fa-solid fa-user"></i> Hey <strong>{{ user.first_name|default:user.username }}!</strong></a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="{% url 'base:account' %}">Mein Account</a>
-              </div>
-            </li>
-            <li class="nav-item">{% include "./current_event.html" %}</li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url "base:logout" %}">Log out</a>
-            </li>
-          </ul>
-        </div>
-      {% else %}
-        <div class="navbar-item">
-          <a class="btn btn-secondary"
-             style="margin-top: -.375rem;
+            </ul>
+            {% if user.is_authenticated %}
+                <div class="navbar-item">
+                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false"><i class="fa-solid fa-user"></i> Hey
+                                <strong>{{ user.first_name|default:user.username }}!</strong></a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'base:account' %}">Mein Account</a>
+                            </div>
+                        </li>
+                        <li class="nav-item">{% include "./current_event.html" %}</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url "base:logout" %}">Log out</a>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="navbar-item">
+                    <a class="btn btn-secondary"
+                       style="margin-top: -.375rem;
                     margin-bottom: -.375rem"
-             href="{% url "base:login_request" %}">Log in</a>
+                       href="{% url "base:login_request" %}">Log in</a>
+                </div>
+            {% endif %}
         </div>
-      {% endif %}
     </div>
-  </div>
 </nav>

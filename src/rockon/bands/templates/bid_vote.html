@@ -1,146 +1,158 @@
 {% extends "base.html" %}
 {% block content %}
-  {% load static %}
-  {% load compress %}
-  {% csrf_token %}
-  <h1>Bandbewertung</h1>
-  {% compress js file vue %}
-    <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
-  {% endcompress %}
-  {% compress js file wavesurfer %}
-    <script src="{% static "vendor/wavesurfer.7.5.0.min.js" %}"></script>
-  {% endcompress %}
-  {% compress js file simplelightbox %}
-    <script src="{% static "vendor/simple-lightbox.2.13.0.min.js" %}"></script>
-  {% endcompress %}
-  {% compress css file simplelightbox %}
-    <link rel="stylesheet" type="text/css" href="{% static "vendor/simple-lightbox.2.13.0.min.css" %}">
-  {% endcompress %}
-  <script nonce="{{request.csp_nonce}}">
-  window.rockon_data = {
-    event_slug: "{{ current_event.slug }}",
-    tracks: {{ tracks }},
-    federal_states: {{ federal_states }},
-    bid_states: {{ bid_states }},
-    selectedTrackId: {{ trackid }},
-    selectedBand: {{ bandid }},
-    user_votes: {{ user_votes }},
-    placeholder: "{% static 'assets/4_3_placeholder.webp' %}",
-    media_offline: "{% static 'assets/media-offline.webp' %}"
-  }
-  window.rockon_api = {
-    list_bands: "{% url "bands-list" %}",
-    update_band: "{% url "bands-detail" pk="pk_placeholder" %}",
-    fetch_rating: "{% url 'band-votes-detail' pk='pk_placeholder' %}",
-    comments_api: "{% url 'band-comments-list' %}",
-    band_vote: "{% url 'band-votes-perform-create' %}",
-    allow_changes: {{ allow_changes }},
-    allow_votes: {{ allow_votes }},
-  }
-  </script>
-  {% verbatim %}
+    {% load static %}
+    {% load compress %}
+    {% csrf_token %}
+    <h1>Bandbewertung</h1>
+    {% compress js file vue %}
+        <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
+    {% endcompress %}
+    {% compress js file wavesurfer %}
+        <script src="{% static "vendor/wavesurfer.7.5.0.min.js" %}"></script>
+    {% endcompress %}
+    {% compress js file simplelightbox %}
+        <script src="{% static "vendor/simple-lightbox.2.13.0.min.js" %}"></script>
+    {% endcompress %}
+    {% compress css file simplelightbox %}
+        <link rel="stylesheet" type="text/css" href="{% static "vendor/simple-lightbox.2.13.0.min.css" %}">
+    {% endcompress %}
+    <script nonce="{{ request.csp_nonce }}">
+        window.rockon_data = {
+            event_slug: "{{ current_event.slug }}",
+            tracks: {{ tracks }},
+            federal_states: {{ federal_states }},
+            bid_states: {{ bid_states }},
+            selectedTrackId: {{ trackid }},
+            selectedBand: {{ bandid }},
+            user_votes: {{ user_votes }},
+            placeholder: "{% static 'assets/4_3_placeholder.webp' %}",
+            media_offline: "{% static 'assets/media-offline.webp' %}"
+        }
+        window.rockon_api = {
+            list_bands: "{% url "bands-list" %}",
+            update_band: "{% url "bands-detail" pk="pk_placeholder" %}",
+            fetch_rating: "{% url 'band-votes-detail' pk='pk_placeholder' %}",
+            comments_api: "{% url 'band-comments-list' %}",
+            band_vote: "{% url 'band-votes-perform-create' %}",
+            allow_changes: {{ allow_changes }},
+            allow_votes: {{ allow_votes }},
+        }
+    </script>
+    {% verbatim %}
     <div id="app">
-      <track-list :tracks="tracks" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids" @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange" @filter-incomplete-bids="handleFilterIncompleteBidsChange" @filter-declined-bids="handleFilterDeclinedBidsChange">
-    </track-list>
-    <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
-    <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids" @select-band="selectBand" :federal-states="federalStates" :user-votes="userVotes"></band-list>
-    <band-details v-if="bandDetailLoaded && selectedBandDetails" :selected-band-details="selectedBandDetails" :allow-votes="allowVotes" :allow-changes="allowChanges" :tracks="tracks" :federal-states="federalStates" :comment-api="bandCommentsUrl" @update:track="updateTrack" @update:select-song="handleSongSelect" @update:rating="setRating" :bid-states="bidStates" @update:bid-status="updateBidStatus"></band-details>
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-      <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toastAudioPlayer"
-             class="toast"
-             role="alert"
-             aria-live="assertive"
-             aria-atomic="true"
-             data-bs-autohide="false">
-          <div class="toast-header">
-            <strong class="me-auto">
-              <i class="fas fa-music" style="padding-right: 0.5em;"></i>
-              <span v-if="toastIsMaximized">Rockify</span>
-              <div v-else class="scrolling-container">
-                <div class="scrolling-text-wrapper">
-                  <span class="scrolling-text">{{ playSongBand.name || playSongBand.guid || "" }} - {{ playSong.file_name_original }}</span>
+        <track-list :tracks="tracks" :selected-track="selectedTrack" :show-band-no-name="showBandNoName"
+                    :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids"
+                    @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"
+                    @filter-incomplete-bids="handleFilterIncompleteBidsChange"
+                    @filter-declined-bids="handleFilterDeclinedBidsChange">
+        </track-list>
+        <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
+        <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack"
+                   :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
+                   :show-declined-bids="showDeclinedBids" @select-band="selectBand" :federal-states="federalStates"
+                   :user-votes="userVotes"></band-list>
+        <band-details v-if="bandDetailLoaded && selectedBandDetails" :selected-band-details="selectedBandDetails"
+                      :allow-votes="allowVotes" :allow-changes="allowChanges" :tracks="tracks"
+                      :federal-states="federalStates" :comment-api="bandCommentsUrl" @update:track="updateTrack"
+                      @update:select-song="handleSongSelect" @update:rating="setRating" :bid-states="bidStates"
+                      @update:bid-status="updateBidStatus"></band-details>
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                <div id="toastAudioPlayer"
+                     class="toast"
+                     role="alert"
+                     aria-live="assertive"
+                     aria-atomic="true"
+                     data-bs-autohide="false">
+                    <div class="toast-header">
+                        <strong class="me-auto">
+                            <i class="fas fa-music" style="padding-right: 0.5em;"></i>
+                            <span v-if="toastIsMaximized">Rockify</span>
+                            <div v-else class="scrolling-container">
+                                <div class="scrolling-text-wrapper">
+                                    <span class="scrolling-text">{{ playSongBand.name || playSongBand.guid || "" }} - {{ playSong.file_name_original }}</span>
+                                </div>
+                            </div>
+                        </strong>
+                        <button class="btn"
+                                style="color: var(--rockon-btn-close-color)"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#player-toast-body"
+                                :aria-expanded="toastIsMaximized"
+                                aria-controls="player-toast-body"
+                                @click="toggleIcon"
+                                title="Minimieren">
+                            <i :class="toastIsMaximized ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+                        </button>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="toast"
+                                aria-label="Close"
+                                @click="handleCloseClick"
+                                title="Schließen"></button>
+                    </div>
+                    <div id="player-toast-body"
+                         :class="['collapse', { 'show': toastIsMaximized }]">
+                        <div class="toast-body">
+                            <song-info v-if="playSong" :song="playSong" :band="playSongBand"></song-info>
+                            <div id="player-wrapper"></div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </strong>
-            <button class="btn"
-                    style="color: var(--rockon-btn-close-color)"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#player-toast-body"
-                    :aria-expanded="toastIsMaximized"
-                    aria-controls="player-toast-body"
-                    @click="toggleIcon"
-                    title="Minimieren">
-              <i :class="toastIsMaximized ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
-            </button>
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="toast"
-                    aria-label="Close"
-                    @click="handleCloseClick"
-                    title="Schließen"></button>
-          </div>
-          <div id="player-toast-body"
-               :class="['collapse', { 'show': toastIsMaximized }]">
-            <div class="toast-body">
-              <song-info v-if="playSong" :song="playSong" :band="playSongBand"></song-info>
-              <div id="player-wrapper"></div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-{% endverbatim %}
-<style scoped>
-  .highlight {
-    color: #fff300;
-  }
-  .image-container {
-    overflow: hidden;
-  }
+    {% endverbatim %}
+    <style scoped>
+        .highlight {
+            color: #fff300;
+        }
 
-  .zoom-image {
-    transition: transform 0.6s ease-in-out;
-    transform: scale(1);
-  }
+        .image-container {
+            overflow: hidden;
+        }
 
-  .card:hover .zoom-image {
-    transform: scale(1.1);
-  }
+        .zoom-image {
+            transition: transform 0.6s ease-in-out;
+            transform: scale(1);
+        }
 
-  @keyframes scroll {
-    0% {
-      transform: translateX(0);
-    }
-    50% {
-      transform: translateX(calc(-100% + 230px));
-    }
-    100% {
-      transform: translateX(0);
-    }
-  }
+        .card:hover .zoom-image {
+            transform: scale(1.1);
+        }
 
-  .scrolling-text-wrapper {
-    display: flex;
-    width: max-content;
-    animation: scroll 15s linear infinite;
-  }
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(calc(-100% + 230px));
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
 
-  .scrolling-container {
-    width: 230px; /* Adjust the width as needed */
-    overflow: hidden;
-    display: inline-block;
-    vertical-align: middle;
-    position: relative;
-  }
+        .scrolling-text-wrapper {
+            display: flex;
+            width: max-content;
+            animation: scroll 15s linear infinite;
+        }
 
-  .scrolling-text {
-    white-space: nowrap;
-  }
-</style>
-{% compress js file voting %}
-  <script src="{% static 'js/voting.js' %}"></script>
-{% endcompress %}
+        .scrolling-container {
+            width: 230px; /* Adjust the width as needed */
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+        }
+
+        .scrolling-text {
+            white-space: nowrap;
+        }
+    </style>
+    {% compress js file voting %}
+        <script src="{% static 'js/voting.js' %}"></script>
+    {% endcompress %}
 {% endblock content %}

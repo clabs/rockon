@@ -1,65 +1,67 @@
 {% extends "base.html" %} {% block content %}
-<script nonce="{{request.csp_nonce}}">
+    <script nonce="{{ request.csp_nonce }}">
 
-$(document).ready(() => {
-  $('#confirm').click((event) => {
-    event.preventDefault()
-    send_form()
-  })
+        $(document).ready(() => {
+            $('#confirm').click((event) => {
+                event.preventDefault()
+                send_form()
+            })
 
-  ajax_success = (data) => {
-    console.info("success", data)
-    // FIXME: needs success handling
-  }
-  ajax_error = (data) => {
-    // FIXMIE: needs error handling
-    console.error("error", data)
-  }
-  ajax_complete = (data) => {
-    // hopenfully this is never triggered
-    console.debug("complete", data)
-    if (data.status == 200) {
-      $("#result").html('<div class="alert alert-primary" role="alert">E-Mail-Adresse erfolgreich bestätigt, du wirst in 5 Sekunden weitergeleitet.</div>')
-    } else if (data.status == 201) {
-      $("#result").html('<div class="alert alert-secondary" role="alert">E-Mail-Adresse wurde bereits bestätigt.</div>')
-    } else {
-      $("#result").html('<div class="alert alert-danger" role="alert">E-Mail-Adresse konnte nicht bestätigt werden.</div>')
-    }
-    $("#confirm").prop("disabled", true)
-    if (data.responseJSON.next) {
-      setTimeout(() => {window.location.href = data.responseJSON.next}, 5000)
-    }
-  }
+            ajax_success = (data) => {
+                console.info("success", data)
+                // FIXME: needs success handling
+            }
+            ajax_error = (data) => {
+                // FIXMIE: needs error handling
+                console.error("error", data)
+            }
+            ajax_complete = (data) => {
+                // hopenfully this is never triggered
+                console.debug("complete", data)
+                if (data.status == 200) {
+                    $("#result").html('<div class="alert alert-primary" role="alert">E-Mail-Adresse erfolgreich bestätigt, du wirst in 5 Sekunden weitergeleitet.</div>')
+                } else if (data.status == 201) {
+                    $("#result").html('<div class="alert alert-secondary" role="alert">E-Mail-Adresse wurde bereits bestätigt.</div>')
+                } else {
+                    $("#result").html('<div class="alert alert-danger" role="alert">E-Mail-Adresse konnte nicht bestätigt werden.</div>')
+                }
+                $("#confirm").prop("disabled", true)
+                if (data.responseJSON.next) {
+                    setTimeout(() => {
+                        window.location.href = data.responseJSON.next
+                    }, 5000)
+                }
+            }
 
-  const send_form = (fields) => {
-    console.debug(fields)
-    $.ajax({
-      type: "POST",
-      url: "{% url "api_crm_verify_email" %}",
-      data: JSON.stringify({token: $("input[name=token]").val()}),
-      contentType: "application/json",
-      headers: {
-        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
-      },
-      mode: "same-origin",
-      dataType: "json",
-      success: (data) => ajax_success(data),
-      error: (data) => ajax_error(data),
-      complete: (data) => ajax_complete(data)
-    })
-  }
-})
+            const send_form = (fields) => {
+                console.debug(fields)
+                $.ajax({
+                    type: "POST",
+                    url: "{% url "api_crm_verify_email" %}",
+                    data: JSON.stringify({token: $("input[name=token]").val()}),
+                    contentType: "application/json",
+                    headers: {
+                        "X-CSRFToken": $('[name=csrfmiddlewaretoken]').val(),
+                    },
+                    mode: "same-origin",
+                    dataType: "json",
+                    success: (data) => ajax_success(data),
+                    error: (data) => ajax_error(data),
+                    complete: (data) => ajax_complete(data)
+                })
+            }
+        })
 
-</script>
-<h1>E-Mail Adresse bestätigen</h1>
-<p>Bestätige deine E-Mail-Adresse, damit alles seine Ordnung hat.</p>
-<form>
-{% csrf_token %}
-<input type="hidden" name="token" value="{{ token }}">
-<button type="button" id="confirm" class="btn btn-primary">Bestätigen</button>
-</form>
-<div id="result" class="pt-3"></div>
-<p>
-  Du kannst diese jederzeit ändern, so dass wir dich auch in Zukunft noch erreichen können.
-</p>
+    </script>
+    <h1>E-Mail Adresse bestätigen</h1>
+    <p>Bestätige deine E-Mail-Adresse, damit alles seine Ordnung hat.</p>
+    <form>
+        {% csrf_token %}
+        <input type="hidden" name="token" value="{{ token }}">
+        <button type="button" id="confirm" class="btn btn-primary">Bestätigen</button>
+    </form>
+    <div id="result" class="pt-3"></div>
+    <p>
+        Du kannst diese jederzeit ändern, so dass wir dich auch in Zukunft noch erreichen können.
+    </p>
 {% endblock content %}

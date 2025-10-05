@@ -1,56 +1,56 @@
 {% extends "base.html" %} {% block content %} {% load static %}{% load compress %}
-{% compress js file qrcode %}
-<script src="{% static 'vendor/qrcode.min.js' %}"></script>
-{% endcompress %}
+    {% compress js file qrcode %}
+        <script src="{% static 'vendor/qrcode.min.js' %}"></script>
+    {% endcompress %}
 
-<script nonce="{{request.csp_nonce}}">
-  let qrcode
-  let elText
-  const generateQR = () => {
-    url = elText.value
-    if (!qrcode) {
-      qrcode = new QRCode(document.getElementById('qrcode'), url)
-    } else {
-      qrcode.clear()
-      qrcode.makeCode(url)
-    }
-  }
+    <script nonce="{{ request.csp_nonce }}">
+        let qrcode
+        let elText
+        const generateQR = () => {
+            url = elText.value
+            if (!qrcode) {
+                qrcode = new QRCode(document.getElementById('qrcode'), url)
+            } else {
+                qrcode.clear()
+                qrcode.makeCode(url)
+            }
+        }
 
-  $(document).ready(() => {
-    window.addEventListener('hashchange', () => {
-      elText.value = decodeURIComponent(location.hash.substring(1))
-      generateQR()
-    })
-    elText = document.getElementById('content')
-    elText.oninput = () => {
-      window.location.hash = encodeURIComponent(elText.value)
-    }
-    elText.value = decodeURIComponent(location.hash.substring(1))
+        $(document).ready(() => {
+            window.addEventListener('hashchange', () => {
+                elText.value = decodeURIComponent(location.hash.substring(1))
+                generateQR()
+            })
+            elText = document.getElementById('content')
+            elText.oninput = () => {
+                window.location.hash = encodeURIComponent(elText.value)
+            }
+            elText.value = decodeURIComponent(location.hash.substring(1))
 
-    generateQR()
-  })
-</script>
+            generateQR()
+        })
+    </script>
 
-<h1>QR Code Generator</h1>
-<div class="jumbotron">
-  <div class="row pb-3">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
-    <form>
-        <label>QR Code Inhalt</label>
-        <input type="text" id="content" placeholder="Inhalt" />
-    </form>
-  </div>
-    <div class="col-md-4"></div>
-  </div>
-  <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
-      <div id="qrcode">
-      </div>
+    <h1>QR Code Generator</h1>
+    <div class="jumbotron">
+        <div class="row pb-3">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <form>
+                    <label>QR Code Inhalt</label>
+                    <input type="text" id="content" placeholder="Inhalt"/>
+                </form>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <div id="qrcode">
+                </div>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
     </div>
-    <div class="col-md-4"></div>
-  </div>
-</div>
 
 {% endblock content %}

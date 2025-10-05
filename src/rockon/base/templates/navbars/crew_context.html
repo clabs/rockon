@@ -1,48 +1,52 @@
 {% if is_crewmember == True %}
-<li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew</a>
-  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-    <a class="dropdown-item" href="{% url 'crew:guestlist_entries' slug=current_event.slug %}">Gästeliste</a>
-    {% if current_event.bid_browsing_allowed %}
-      <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band Bewertung</a>
-    {% endif %}
-  </div>
-</li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'crew:guestlist_entries' slug=current_event.slug %}">Gästeliste</a>
+            {% if current_event.bid_browsing_allowed %}
+                <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band
+                    Bewertung</a>
+            {% endif %}
+        </div>
+    </li>
 {% endif %}
 {% for group in user.groups.all %}
-  {% if group.name == 'crewcoord' %}
-    <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew Coord.</a>
-      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="{% url 'crew:coord_overview' slug=current_event.slug %}">Übersicht</a>
-          <a class="dropdown-item" href="{% url 'crew:coord_tshirts' slug=current_event.slug %}">T-Shirts</a>
-      </div>
-    </li>
-  {% endif %}
-  {% if group.name == 'catering_food' %}
-    <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Catering</a>
-      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="{% url 'crew:catering_attendance' slug=current_event.slug %}">Mengenliste</a>
-      </div>
-    </li>
-  {% endif %}
-  {% if group.name == 'booking' %}
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Booking</a>
-    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-        <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band Bewertung</a>
-        <a class="dropdown-item" href="{% url 'bands:booking_bid_overview' slug=current_event.slug %}">Übersicht Bewertungen</a>
-    </div>
-  </li>
-{% endif %}
+    {% if group.name == 'crewcoord' %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew Coord.</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="{% url 'crew:coord_overview' slug=current_event.slug %}">Übersicht</a>
+                <a class="dropdown-item" href="{% url 'crew:coord_tshirts' slug=current_event.slug %}">T-Shirts</a>
+            </div>
+        </li>
+    {% endif %}
+    {% if group.name == 'catering_food' %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Catering</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item"
+                   href="{% url 'crew:catering_attendance' slug=current_event.slug %}">Mengenliste</a>
+            </div>
+        </li>
+    {% endif %}
+    {% if group.name == 'booking' %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Booking</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band
+                    Bewertung</a>
+                <a class="dropdown-item" href="{% url 'bands:booking_bid_overview' slug=current_event.slug %}">Übersicht
+                    Bewertungen</a>
+            </div>
+        </li>
+    {% endif %}
 {% endfor %}
 {% if is_crewmember == True %}
-<li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Werkzeuge</a>
-  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-      <a class="dropdown-item" href="{% url 'tools_qrcode_generator' %}">QR Code Generator</a>
-      <a class="dropdown-item disabled" href="#">Link-Shortener</a>
-  </div>
-</li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Werkzeuge</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'tools_qrcode_generator' %}">QR Code Generator</a>
+            <a class="dropdown-item disabled" href="#">Link-Shortener</a>
+        </div>
+    </li>
 {% endif %}

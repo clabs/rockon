@@ -1,8 +1,10 @@
 {% extends "base.html" %} {% block content %}
-  {% load static %}
-  <h1>CREW ANMELDUNG - {{ event.name }}</h1>
-  <div class="row" style="height: 33vh; background-image: url({{ current_event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
-  <div class="alert alert-warning mt-3" role="alert">
-    Bitte vervollständige hier <a href="{% url 'base:account' %}">dein Account</a>, bevor du dich für die Crew anmeldest.
-  </div>
+    {% load static %}
+    <h1>CREW ANMELDUNG - {{ event.name }}</h1>
+    <div class="row"
+         style="height: 33vh; background-image: url({{ current_event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
+    <div class="alert alert-warning mt-3" role="alert">
+        Bitte vervollständige hier <a href="{% url 'base:account' %}">dein Account</a>, bevor du dich für die Crew
+        anmeldest.
+    </div>
 {% endblock content %}
