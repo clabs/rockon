@@ -8,11 +8,11 @@ const validateEmail = (email) => {
     )
 }
 $(document).ready(() => {
-  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-    return new bootstrap.Popover(popoverTriggerEl)
-  })
-  $('#account_data').on('input', function() {
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl)
+    });
+    $('#account_data').on('input', function() {
     const form = $(this)
     const submitButton = form.find('button[type="submit"]')
     const inputs = form.find('input')
@@ -31,10 +31,10 @@ $(document).ready(() => {
 
   $('#account_data').on('submit', function(e) {
     e.preventDefault()
-    var form = $(this)
-    var submitButton = form.find('button[type="submit"]')
-    var inputs = form.find('input')
-    var data = {}
+    const form = $(this);
+    const submitButton = form.find('button[type="submit"]');
+    const inputs = form.find('input');
+    const data = {};
     inputs.each(function () {
       data[this.id] = this.value
     })

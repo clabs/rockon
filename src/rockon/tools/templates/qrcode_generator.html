@@ -4,8 +4,8 @@
 {% endcompress %}
 
 <script nonce="{{request.csp_nonce}}">
-  var qrcode
-  var elText
+  let qrcode
+  let elText
   const generateQR = () => {
     url = elText.value
     if (!qrcode) {

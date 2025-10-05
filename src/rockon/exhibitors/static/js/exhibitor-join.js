@@ -36,8 +36,8 @@ $(document).ready(() => {
     event.preventDefault()
     console.debug("submit")
     const form = $('#signup')
-    var validated = false
-    el = form.find('.not-empty')
+    let validated = false
+    const el = form.find('.not-empty')
     console.debug("not-empty elements", el)
     for (const input of el) {
       if (!input.disabled) {
