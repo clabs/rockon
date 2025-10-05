@@ -31,7 +31,6 @@
                   <p><a href="{% url 'exhibitors:join' slug=event.slug %}">Melde dich als Aussteller an</a><br><small class="text-muted">Anmeldefrist: {{event.exhibitor_application_end|date:"d.m.Y, H:i"}}</small></p>
                   {% endif %}
                 {% endif %}
-              </p>
               <p class="card-text text-end"><small class="text-muted">Letzte Änderung: {{ event.updated_at|date:"d.m.Y, H:i"}}</small></p>
             </div>
           </div>
