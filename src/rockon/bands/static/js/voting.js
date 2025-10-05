@@ -685,10 +685,7 @@ const CommentField = Vue.defineComponent({
       if (this.selectedMood === 'thumbs-up' && this.commentText.trim() !== '') {
         return false;
       }
-      if (this.selectedMood === 'thumbs-down' && this.selectedReason !== '' && this.commentText.trim() !== '') {
-        return false;
-      }
-      return true;
+      return !(this.selectedMood === 'thumbs-down' && this.selectedReason !== '' && this.commentText.trim() !== '');
     },
   },
   template: `
