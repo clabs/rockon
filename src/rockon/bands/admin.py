@@ -121,9 +121,6 @@ class BandVoteAdmin(CustomAdminModel):
     def has_change_permission(self, request, obj=None):
         return False
 
-    def has_delete_permission(self, request, obj=None):
-        return False
-
     def get_fields(self, request, obj=None):
         # Exclude 'vote' from the fields displayed in the detail view
         fields = super().get_fields(request, obj)
