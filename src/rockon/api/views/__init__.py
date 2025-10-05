@@ -12,3 +12,21 @@ from .mark_voucher import mark_voucher
 from .update_user_email import update_user_email
 from .update_user_profile import update_user_profile
 from .verify_email import verify_email
+
+__all__ = [
+    'account_create',
+    'band_techrider',
+    'bandmember_signup',
+    'BandMediaViewSet',
+    'BandTrackViewSet',
+    'BandViewSet',
+    'BandVoteViewSet',
+    'CommentViewSet',
+    'crew_signup',
+    'exhibitor_signup',
+    'request_magic_link',
+    'mark_voucher',
+    'update_user_email',
+    'update_user_profile',
+    'verify_email',
+]

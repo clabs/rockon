@@ -10,3 +10,19 @@ from .skill import Skill
 from .team import Team
 from .team_category import TeamCategory
 from .team_member import TeamMember
+
+__all__ = [
+    'Attendance',
+    'AttendancePhase',
+    'AttendanceAddition',
+    'Crew',
+    'CrewMember',
+    'CrewMemberNutrion',
+    'CrewMemberStatus',
+    'GuestListEntry',
+    'Shirt',
+    'Skill',
+    'Team',
+    'TeamCategory',
+    'TeamMember',
+]
