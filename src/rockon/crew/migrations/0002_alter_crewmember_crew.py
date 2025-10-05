@@ -8,17 +8,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockoncrew", "0001_initial"),
+        ('rockoncrew', '0001_initial'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="crewmember",
-            name="crew",
+            model_name='crewmember',
+            name='crew',
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="crew_members",
-                to="rockoncrew.crew",
+                related_name='crew_members',
+                to='rockoncrew.crew',
             ),
         ),
     ]

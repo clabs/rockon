@@ -4,7 +4,7 @@ from rockon.base.models import Event
 
 
 def current_event(request):
-    event_id = request.session.get("current_event_id")
+    event_id = request.session.get('current_event_id')
     event = None
     if event_id is not None:
         try:
@@ -12,5 +12,5 @@ def current_event(request):
         except Event.DoesNotExist:
             pass
     return {
-        "current_event": event,
+        'current_event': event,
     }

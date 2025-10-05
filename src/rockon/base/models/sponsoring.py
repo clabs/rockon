@@ -13,4 +13,4 @@ class Sponsoring(CustomModel):
         return self.name
 
     class Meta:
-        ordering = ["name"]
+        ordering = ['name']

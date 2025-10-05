@@ -17,28 +17,28 @@ def members(request, slug, slug_guid):
     try:
         band_obj = Band.objects.get(slug=slug_guid)
     except (Band.DoesNotExist, ValidationError):
-        raise Http404("Band nicht gefunden...")
+        raise Http404('Band nicht gefunden...')
 
     members = band_obj.band_members.all()
     count = members.count()
 
     members_values = list(members.values())
     for idx, member in enumerate(members_values):
-        member["position"] = BandMemberPosition(member["position"]).label
-        member["nutrition"] = CrewMemberNutrion(member["nutrition"]).label
-        member["user"] = model_to_dict(User.objects.get(id=member["user_id"]))
-        member["profile"] = model_to_dict(
-            User.objects.get(id=member["user_id"]).profile
+        member['position'] = BandMemberPosition(member['position']).label
+        member['nutrition'] = CrewMemberNutrion(member['nutrition']).label
+        member['user'] = model_to_dict(User.objects.get(id=member['user_id']))
+        member['profile'] = model_to_dict(
+            User.objects.get(id=member['user_id']).profile
         )
         members_values[idx] = member
 
-    template = loader.get_template("members.html")
+    template = loader.get_template('members.html')
     extra_context = {
-        "site_title": "Personenmeldung",
-        "band": band_obj,
-        "current_members": json.dumps(members_values, cls=DjangoJSONEncoder),
-        "slots": 10 - count,
-        "nutrion_choices": CrewMemberNutrion,
-        "positions": BandMemberPosition,
+        'site_title': 'Personenmeldung',
+        'band': band_obj,
+        'current_members': json.dumps(members_values, cls=DjangoJSONEncoder),
+        'slots': 10 - count,
+        'nutrion_choices': CrewMemberNutrion,
+        'positions': BandMemberPosition,
     }
     return HttpResponse(template.render(extra_context, request))

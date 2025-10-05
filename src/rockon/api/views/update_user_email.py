@@ -10,18 +10,18 @@ from rockon.base.models import EmailVerification
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_http_methods(['POST'])
 def update_user_email(request):
     user = request.user
 
     body = json.loads(request.body)
 
-    if not body.get("changeEmailNew", True) == body.get("changeEmailRepeat", False):
-        return JsonResponse({"status": "error", "message": "E-Mail is required"})
+    if not body.get('changeEmailNew', True) == body.get('changeEmailRepeat', False):
+        return JsonResponse({'status': 'error', 'message': 'E-Mail is required'})
 
     EmailVerification.objects.filter(user=user).delete()
     EmailVerification.create_and_send(
-        user=user, new_email=body["changeEmailNew"].lower()
+        user=user, new_email=body['changeEmailNew'].lower()
     )
 
-    return JsonResponse({"status": "ok", "message": "E-Mail updated"})
+    return JsonResponse({'status': 'ok', 'message': 'E-Mail updated'})

@@ -15,17 +15,17 @@ class Team(CustomModel):
     name = models.CharField(max_length=255)
     description = models.TextField()
     lead = models.OneToOneField(
-        User, on_delete=models.CASCADE, null=True, blank=True, related_name="lead"
+        User, on_delete=models.CASCADE, null=True, blank=True, related_name='lead'
     )
     vize_lead = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="vize_lead",
+        related_name='vize_lead',
     )
     image = models.ImageField(
-        upload_to=UploadToPathAndRename("teams"),
+        upload_to=UploadToPathAndRename('teams'),
         blank=True,
         null=True,
     )
@@ -34,7 +34,7 @@ class Team(CustomModel):
         on_delete=models.CASCADE,
         null=True,
         default=None,
-        related_name="teams",
+        related_name='teams',
     )
     contact_mail = models.EmailField(null=True, blank=True)
     is_public = models.BooleanField(default=True)
@@ -44,9 +44,9 @@ class Team(CustomModel):
         return self.name
 
     class Meta:
-        ordering = ["name"]
+        ordering = ['name']
 
     def get_image_url(self):
         if self.image:
             return self.image.url
-        return static("assets/4_3_placeholder.webp")
+        return static('assets/4_3_placeholder.webp')

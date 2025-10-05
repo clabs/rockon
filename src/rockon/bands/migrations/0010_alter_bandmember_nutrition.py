@@ -7,21 +7,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbands", "0009_alter_band_track"),
+        ('rockonbands', '0009_alter_band_track'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="bandmember",
-            name="nutrition",
+            model_name='bandmember',
+            name='nutrition',
             field=models.CharField(
                 choices=[
-                    ("unknown", "Unbekannt"),
-                    ("vegan", "Vegan"),
-                    ("vegetarian", "Vegetarisch"),
-                    ("omnivore", "Omnivore"),
+                    ('unknown', 'Unbekannt'),
+                    ('vegan', 'Vegan'),
+                    ('vegetarian', 'Vegetarisch'),
+                    ('omnivore', 'Omnivore'),
                 ],
-                default="unknown",
+                default='unknown',
                 max_length=12,
             ),
         ),

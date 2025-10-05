@@ -20,10 +20,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Event",
+            name='Event',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -31,66 +31,66 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=511)),
-                ("slug", models.SlugField(unique=True)),
-                ("description", models.TextField()),
-                ("start", models.DateField(help_text="Veranstaltung beginnt")),
-                ("end", models.DateField(help_text="Veranstaltung endet")),
-                ("setup_start", models.DateField(help_text="Aufbau beginnt")),
-                ("setup_end", models.DateField(help_text="Aufbau endet")),
-                ("opening", models.DateField(help_text="Erster Einlass")),
-                ("closing", models.DateField(help_text="Ende der Veranstaltung")),
-                ("teardown_start", models.DateField(help_text="Abbau beginnt")),
-                ("teardown_end", models.DateField(help_text="Abbau endet")),
-                ("location", models.CharField(max_length=255)),
-                ("url", models.URLField(blank=True, null=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=511)),
+                ('slug', models.SlugField(unique=True)),
+                ('description', models.TextField()),
+                ('start', models.DateField(help_text='Veranstaltung beginnt')),
+                ('end', models.DateField(help_text='Veranstaltung endet')),
+                ('setup_start', models.DateField(help_text='Aufbau beginnt')),
+                ('setup_end', models.DateField(help_text='Aufbau endet')),
+                ('opening', models.DateField(help_text='Erster Einlass')),
+                ('closing', models.DateField(help_text='Ende der Veranstaltung')),
+                ('teardown_start', models.DateField(help_text='Abbau beginnt')),
+                ('teardown_end', models.DateField(help_text='Abbau endet')),
+                ('location', models.CharField(max_length=255)),
+                ('url', models.URLField(blank=True, null=True)),
                 (
-                    "image",
+                    'image',
                     models.ImageField(
                         blank=True,
                         null=True,
                         upload_to=rockon.library.uploadandpathrename.UploadToPathAndRename(
-                            "events"
+                            'events'
                         ),
                     ),
                 ),
-                ("show_on_landing_page", models.BooleanField(default=False)),
-                ("signup_is_open", models.BooleanField(default=True)),
+                ('show_on_landing_page', models.BooleanField(default=False)),
+                ('signup_is_open', models.BooleanField(default=True)),
                 (
-                    "signup_type",
+                    'signup_type',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("crew", "Crew"),
-                            ("exhibitor", "Austeller"),
+                            ('unknown', 'Unbekannt'),
+                            ('crew', 'Crew'),
+                            ('exhibitor', 'Austeller'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=12,
                     ),
                 ),
-                ("is_current", models.BooleanField(default=False)),
+                ('is_current', models.BooleanField(default=False)),
                 (
-                    "sub_event_of",
+                    'sub_event_of',
                     models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="sub_events",
-                        to="rockonbase.event",
+                        related_name='sub_events',
+                        to='rockonbase.event',
                     ),
                 ),
             ],
             options={
-                "ordering": ["start"],
+                'ordering': ['start'],
             },
         ),
         migrations.CreateModel(
-            name="Sponsoring",
+            name='Sponsoring',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -98,20 +98,20 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
-                ("comment", models.CharField(max_length=511)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
+                ('comment', models.CharField(max_length=511)),
             ],
             options={
-                "ordering": ["name"],
+                'ordering': ['name'],
             },
         ),
         migrations.CreateModel(
-            name="Task",
+            name='Task',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -119,21 +119,21 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
-                ("comment", models.CharField(max_length=511)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
+                ('comment', models.CharField(max_length=511)),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="Timeline",
+            name='Timeline',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -141,21 +141,21 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
-                ("comment", models.CharField(max_length=511)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
+                ('comment', models.CharField(max_length=511)),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="UserProfile",
+            name='UserProfile',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -163,96 +163,96 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "nick_name",
+                    'nick_name',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
-                ("email_is_verified", models.BooleanField(default=False)),
+                ('email_is_verified', models.BooleanField(default=False)),
                 (
-                    "phone",
-                    models.CharField(
-                        blank=True, default=None, max_length=255, null=True
-                    ),
-                ),
-                (
-                    "address",
+                    'phone',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
                 (
-                    "address_extension",
+                    'address',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
                 (
-                    "address_housenumber",
+                    'address_extension',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
                 (
-                    "zip_code",
+                    'address_housenumber',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
                 (
-                    "place",
+                    'zip_code',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
-                ("comment", models.TextField(blank=True, default=None, null=True)),
-                ("birthday", models.DateField(blank=True, default=None, null=True)),
                 (
-                    "internal_comment",
+                    'place',
+                    models.CharField(
+                        blank=True, default=None, max_length=255, null=True
+                    ),
+                ),
+                ('comment', models.TextField(blank=True, default=None, null=True)),
+                ('birthday', models.DateField(blank=True, default=None, null=True)),
+                (
+                    'internal_comment',
                     models.TextField(blank=True, default=None, null=True),
                 ),
                 (
-                    "account_context",
+                    'account_context',
                     models.CharField(
                         blank=True,
                         choices=[
-                            ("unknown", "Unknown"),
-                            ("band", "Band"),
-                            ("crew", "Crew"),
-                            ("exhibitor", "Exhibitor"),
+                            ('unknown', 'Unknown'),
+                            ('band', 'Band'),
+                            ('crew', 'Crew'),
+                            ('exhibitor', 'Exhibitor'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=255,
                     ),
                 ),
                 (
-                    "events",
+                    'events',
                     models.ManyToManyField(
-                        blank=True, default=None, to="rockonbase.event"
+                        blank=True, default=None, to='rockonbase.event'
                     ),
                 ),
                 (
-                    "user",
+                    'user',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="profile",
+                        related_name='profile',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="Organisation",
+            name='Organisation',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -260,61 +260,61 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("org_name", models.CharField(max_length=255)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('org_name', models.CharField(max_length=255)),
                 (
-                    "org_address",
+                    'org_address',
                     models.CharField(
                         blank=True, default=None, max_length=511, null=True
                     ),
                 ),
                 (
-                    "org_house_number",
+                    'org_house_number',
                     models.CharField(
                         blank=True, default=None, max_length=31, null=True
                     ),
                 ),
                 (
-                    "org_address_extension",
+                    'org_address_extension',
                     models.CharField(
                         blank=True, default=None, max_length=511, null=True
                     ),
                 ),
                 (
-                    "org_zip",
+                    'org_zip',
                     models.CharField(
                         blank=True, default=None, max_length=31, null=True
                     ),
                 ),
                 (
-                    "org_place",
+                    'org_place',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
                 (
-                    "internal_comment",
+                    'internal_comment',
                     models.TextField(blank=True, default=None, null=True),
                 ),
                 (
-                    "members",
+                    'members',
                     models.ManyToManyField(
                         default=None,
-                        related_name="organisations",
+                        related_name='organisations',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "ordering": ["org_name"],
+                'ordering': ['org_name'],
             },
         ),
         migrations.CreateModel(
-            name="MagicLink",
+            name='MagicLink',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -322,28 +322,28 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("token", models.UUIDField(default=uuid.uuid4, editable=False)),
-                ("expires_at", models.DateTimeField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('token', models.UUIDField(default=uuid.uuid4, editable=False)),
+                ('expires_at', models.DateTimeField()),
                 (
-                    "user",
+                    'user',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="magic_links",
+                        related_name='magic_links',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "ordering": ["user", "expires_at"],
+                'ordering': ['user', 'expires_at'],
             },
         ),
         migrations.CreateModel(
-            name="EmailVerification",
+            name='EmailVerification',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -351,25 +351,25 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("token", models.UUIDField(default=uuid.uuid4, editable=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('token', models.UUIDField(default=uuid.uuid4, editable=False)),
                 (
-                    "new_email",
+                    'new_email',
                     models.EmailField(default=None, max_length=1024, null=True),
                 ),
-                ("is_active", models.BooleanField(default=True)),
+                ('is_active', models.BooleanField(default=True)),
                 (
-                    "user",
+                    'user',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="email_verification",
+                        related_name='email_verification',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "ordering": ["user"],
+                'ordering': ['user'],
             },
         ),
     ]

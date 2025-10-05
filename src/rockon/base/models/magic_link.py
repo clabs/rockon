@@ -17,7 +17,7 @@ from rockon.library.custom_model import CustomModel, models
 class MagicLink(CustomModel):
     """MagicLink model."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="magic_links")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='magic_links')
     token = models.UUIDField(default=uuid4, editable=False)
     expires_at = models.DateTimeField()
 
@@ -25,7 +25,7 @@ class MagicLink(CustomModel):
         return str(self.id)
 
     class Meta:
-        ordering = ["user", "expires_at"]
+        ordering = ['user', 'expires_at']
 
     @classmethod
     def create_and_send(cls, user: User, expires_at: datetime) -> None:
@@ -42,16 +42,16 @@ class MagicLink(CustomModel):
         # FIXME: import the scheme, domain and rest of things from Django settings
         # FIXME: use absolute URLs in templates
         # FIXME: create a helper class for mailings with defined textfields to replace.
-        template = loader.get_template("mail/magic_link.html")
+        template = loader.get_template('mail/magic_link.html')
         extra_context = {
-            "name": user.first_name,
-            "magic_link_token": magic_link.token,
-            "expires_at": _expires_at,
-            "expires_at_format": _expires_at.strftime("%d.%m.%Y - %H:%M"),
-            "domain": settings.DOMAIN,
-            "recipient": f"{user.email}",
-            "subject": f"{settings.EMAIL_SUBJECT_PREFIX} Dein Magic Link",
-            "magic_link": f'{settings.DOMAIN}{reverse("base:login_token", kwargs={"token": magic_link.token})}',
+            'name': user.first_name,
+            'magic_link_token': magic_link.token,
+            'expires_at': _expires_at,
+            'expires_at_format': _expires_at.strftime('%d.%m.%Y - %H:%M'),
+            'domain': settings.DOMAIN,
+            'recipient': f'{user.email}',
+            'subject': f'{settings.EMAIL_SUBJECT_PREFIX} Dein Magic Link',
+            'magic_link': f'{settings.DOMAIN}{reverse("base:login_token", kwargs={"token": magic_link.token})}',
         }
 
         message = f'Hallo {extra_context["name"]},\nhier findest du deinen persönlichen Link \
@@ -59,10 +59,10 @@ class MagicLink(CustomModel):
 
         async_task(
             send_mail,
-            subject=extra_context["subject"],
+            subject=extra_context['subject'],
             message=message,
             from_email=settings.EMAIL_DEFAULT_FROM,
-            recipient_list=[extra_context["recipient"]],
+            recipient_list=[extra_context['recipient']],
             html_message=template.render(extra_context),
             fail_silently=False,
         )

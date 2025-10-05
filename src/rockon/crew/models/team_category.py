@@ -10,7 +10,7 @@ class TeamCategory(CustomModel):
     name = models.CharField(max_length=1024)
     description = models.TextField()
     image = models.ImageField(
-        upload_to=UploadToPathAndRename("teams"),
+        upload_to=UploadToPathAndRename('teams'),
         blank=True,
         null=True,
     )
@@ -19,9 +19,9 @@ class TeamCategory(CustomModel):
         return self.name
 
     class Meta:
-        verbose_name_plural = "Team categories"
+        verbose_name_plural = 'Team categories'
 
     def get_image_url(self):
         if self.image:
             return self.image.url
-        return static("assets/4_3_placeholder.webp")
+        return static('assets/4_3_placeholder.webp')

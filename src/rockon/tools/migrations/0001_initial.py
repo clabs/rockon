@@ -14,10 +14,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="LinkShortener",
+            name='LinkShortener',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -25,16 +25,16 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("url", models.URLField()),
-                ("slug", models.SlugField(unique=True)),
-                ("comment", models.TextField()),
-                ("counter", models.IntegerField(default=0)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('url', models.URLField()),
+                ('slug', models.SlugField(unique=True)),
+                ('comment', models.TextField()),
+                ('counter', models.IntegerField(default=0)),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
     ]

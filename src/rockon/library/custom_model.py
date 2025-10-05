@@ -15,7 +15,7 @@ class CustomModel(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ["created_at"]
+        ordering = ['created_at']
 
 
 # from rockon.library.custom_model import CustomModel, models

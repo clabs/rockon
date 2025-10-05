@@ -23,39 +23,39 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from django.views.generic.base import TemplateView
 
-admin.site.site_header = "rockon backstage"
-admin.site.site_title = "backstage | rockon"
+admin.site.site_header = 'rockon backstage'
+admin.site.site_title = 'backstage | rockon'
 
 urlpatterns = [
-    path("", include("rockon.urls_homepage")),
-    path("accounts/", include("django.contrib.auth.urls")),
-    path("backstage/", admin.site.urls),
-    path("api/", include("rockon.api.urls")),
-    path("event/<slug:slug>/bands/", include("rockon.bands.urls", namespace="bands")),
-    path("event/<slug:slug>/crew/", include("rockon.crew.urls", namespace="crew")),
-    path("account/", include("rockon.base.urls", namespace="base")),
+    path('', include('rockon.urls_homepage')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('backstage/', admin.site.urls),
+    path('api/', include('rockon.api.urls')),
+    path('event/<slug:slug>/bands/', include('rockon.bands.urls', namespace='bands')),
+    path('event/<slug:slug>/crew/', include('rockon.crew.urls', namespace='crew')),
+    path('account/', include('rockon.base.urls', namespace='base')),
     path(
-        "event/<slug:slug>/exhibitors/",
-        include("rockon.exhibitors.urls", namespace="exhibitors"),
+        'event/<slug:slug>/exhibitors/',
+        include('rockon.exhibitors.urls', namespace='exhibitors'),
     ),
     path(
-        "robots.txt",
-        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
-        name="robots",
+        'robots.txt',
+        TemplateView.as_view(template_name='robots.txt', content_type='text/plain'),
+        name='robots',
     ),
-    path("to/", include("rockon.tools.urls_shortener")),
-    path("tools/", include("rockon.tools.urls")),
-    path("uploads/bids/", include("rockon.bands.streaming_upload_url")),
+    path('to/', include('rockon.tools.urls_shortener')),
+    path('tools/', include('rockon.tools.urls')),
+    path('uploads/bids/', include('rockon.bands.streaming_upload_url')),
 ]
 
-handler404 = "rockon.views.custom_page_not_found_view"
-handler500 = "rockon.views.custom_error_view"
-handler403 = "rockon.views.custom_permission_denied_view"
-handler400 = "rockon.views.custom_bad_request_view"
+handler404 = 'rockon.views.custom_page_not_found_view'
+handler500 = 'rockon.views.custom_error_view'
+handler403 = 'rockon.views.custom_permission_denied_view'
+handler400 = 'rockon.views.custom_bad_request_view'
 
 # enable debug toolbar if DEBUG is True
 if settings.DEBUG:
-    debug_overlay = path("__debug__/", include("debug_toolbar.urls"))
+    debug_overlay = path('__debug__/', include('debug_toolbar.urls'))
     urlpatterns.append(debug_overlay)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += staticfiles_urlpatterns()

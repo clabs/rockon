@@ -12,10 +12,10 @@ from rockon.library.guid import guid
 class BidStatus(models.TextChoices):
     """Bid status."""
 
-    UNKNOWN = "unknown", "Unbekannt"
-    PENDING = "pending", "Bearbeitung"
-    ACCEPTED = "accepted", "Angenommen"
-    DECLINED = "declined", "Abgelehnt"
+    UNKNOWN = 'unknown', 'Unbekannt'
+    PENDING = 'pending', 'Bearbeitung'
+    ACCEPTED = 'accepted', 'Angenommen'
+    DECLINED = 'declined', 'Abgelehnt'
 
 
 class Band(CustomModel):
@@ -23,7 +23,7 @@ class Band(CustomModel):
 
     guid = models.CharField(max_length=255, default=guid, unique=True)
     slug = models.SlugField(default=None, blank=True, null=True, unique=True)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="bands")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='bands')
     name = models.CharField(max_length=255, default=None, blank=True, null=True)
     has_management = models.BooleanField(default=False)
     are_students = models.BooleanField(default=False)
@@ -41,7 +41,7 @@ class Band(CustomModel):
     contact = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="bands",
+        related_name='bands',
         null=True,
         default=None,
         blank=True,
@@ -52,16 +52,16 @@ class Band(CustomModel):
     repeated = models.BooleanField(default=False)
     techrider = models.JSONField(default=dict, blank=True, null=True)
     track = models.ForeignKey(
-        "Track",
+        'Track',
         on_delete=models.SET_NULL,
         null=True,
         default=None,
-        related_name="bands",
+        related_name='bands',
     )
     bid_complete = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ['name']
 
     def __str__(self):
         if self.name:
@@ -71,7 +71,7 @@ class Band(CustomModel):
     def save(self, *args, **kwargs):
         self.bid_complete = self.check_bid_complete()
         if self.name:
-            self.slug = f"{slugify(self.name)}-{self.guid}"
+            self.slug = f'{slugify(self.name)}-{self.guid}'
         super().save(*args, **kwargs)
 
     def check_bid_complete(self) -> bool:
@@ -82,12 +82,12 @@ class Band(CustomModel):
             self.cover_letter,
         ]
 
-        audio_count = self.media.filter(media_type="audio").count() >= 3
-        links = self.media.filter(media_type="link").count() >= 1
-        websites = self.media.filter(media_type="web").count() >= 1
+        audio_count = self.media.filter(media_type='audio').count() >= 3
+        links = self.media.filter(media_type='link').count() >= 1
+        websites = self.media.filter(media_type='web').count() >= 1
         sites = any([links, websites])
         # logo = self.media.filter(media_type="logo").count() >= 1
-        press = self.media.filter(media_type="press_photo").count() >= 1
+        press = self.media.filter(media_type='press_photo').count() >= 1
 
         conditions = [*fields, audio_count, sites, press]
 
@@ -97,22 +97,22 @@ class Band(CustomModel):
         return False
 
     def get_logo(self):
-        return self.media.filter(media_type="logo").first()
+        return self.media.filter(media_type='logo').first()
 
     def get_press_photo(self):
-        return self.media.filter(media_type="press_photo").first()
+        return self.media.filter(media_type='press_photo').first()
 
     def get_songs(self):
-        query = self.media.filter(media_type="audio")
+        query = self.media.filter(media_type='audio')
         if not query.exists():
             return None
         return query
 
     def get_links(self):
-        return self.media.filter(media_type="link")
+        return self.media.filter(media_type='link')
 
     def get_documents(self):
-        return self.media.filter(media_type="document")
+        return self.media.filter(media_type='document')
 
     def get_web_links(self):
-        return self.media.filter(media_type="web")
+        return self.media.filter(media_type='web')

@@ -11,15 +11,15 @@ def band_techrider(request, slug):
     try:
         band = Band.objects.get(slug=slug)
         body = json.loads(request.body)
-        body.pop("csrfmiddlewaretoken", None)
+        body.pop('csrfmiddlewaretoken', None)
     except Band.DoesNotExist:
         return JsonResponse(
-            {"status": "error", "message": "Band does not exist."}, status=404
+            {'status': 'error', 'message': 'Band does not exist.'}, status=404
         )
     except json.JSONDecodeError:
-        return JsonResponse({"status": "error", "message": "Invalid JSON."}, status=400)
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON.'}, status=400)
 
     band.techrider = body
     band.save()
 
-    return JsonResponse({"status": "ok"})
+    return JsonResponse({'status': 'ok'})

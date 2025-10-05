@@ -11,12 +11,12 @@ def techrider(request, slug):
     try:
         band_obj = Band.objects.get(slug=slug)
     except (Band.DoesNotExist, ValidationError):
-        raise Http404("Band nicht gefunden...")
+        raise Http404('Band nicht gefunden...')
 
-    template = loader.get_template("techrider.html")
+    template = loader.get_template('techrider.html')
     extra_context = {
-        "site_title": "Techrider",
-        "slug": slug,
-        "band": band_obj,
+        'site_title': 'Techrider',
+        'slug': slug,
+        'band': band_obj,
     }
     return HttpResponse(template.render(extra_context, request))

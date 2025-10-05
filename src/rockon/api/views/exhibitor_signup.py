@@ -20,35 +20,35 @@ from rockon.exhibitors.models import (
 )
 
 
-@user_passes_test(lambda u: u.groups.filter(name="exhibitors").exists())
+@user_passes_test(lambda u: u.groups.filter(name='exhibitors').exists())
 def exhibitor_signup(request, slug):
     created_user = False
     # FIXME: refactor to Django forms to validate input and use Django's CSRF protection
     body_list = json.loads(request.body)
     body = {}
     for item in body_list:
-        body[item["name"]] = item["value"]
+        body[item['name']] = item['value']
 
     try:
         event = Event.objects.get(slug=slug)
     except Event.DoesNotExist:
         return JsonResponse(
-            {"status": "error", "message": "Event not found"}, status=404
+            {'status': 'error', 'message': 'Event not found'}, status=404
         )
 
     request.user.profile.events.add(event)
     request.user.save()
 
     try:
-        organisation = Organisation.objects.get(id=body.get("org_id"))
+        organisation = Organisation.objects.get(id=body.get('org_id'))
     except Organisation.DoesNotExist:
         organisation = Organisation.objects.create(
-            org_name=body["organisation_name"],
-            org_address=body["organisation_address"],
-            org_house_number=body["organisation_address_housenumber"],
-            org_address_extension=body["organisation_address_extension"],
-            org_zip=body["organisation_zip"],
-            org_place=body["organisation_place"],
+            org_name=body['organisation_name'],
+            org_address=body['organisation_address'],
+            org_house_number=body['organisation_address_housenumber'],
+            org_address_extension=body['organisation_address_extension'],
+            org_zip=body['organisation_zip'],
+            org_place=body['organisation_place'],
         )
 
     organisation.members.add(request.user)
@@ -56,18 +56,18 @@ def exhibitor_signup(request, slug):
 
     _attendance_list = []
     for key in body.keys():
-        if key.startswith("attendance_"):
-            att_id = key.split("_")[1]
+        if key.startswith('attendance_'):
+            att_id = key.split('_')[1]
             _attendance_list.append(
-                {"id": att_id, "value": int(body.get(f"attendancecount_{att_id}"), 0)}
+                {'id': att_id, 'value': int(body.get(f'attendancecount_{att_id}'), 0)}
             )
 
     _asset_list = []
     for key in body.keys():
-        if key.startswith("assetrequired_"):
-            asset_id = key.split("_")[1]
+        if key.startswith('assetrequired_'):
+            asset_id = key.split('_')[1]
             _asset_list.append(
-                {"id": asset_id, "value": int(body.get(f"assetcount_{asset_id}", 1))}
+                {'id': asset_id, 'value': int(body.get(f'assetcount_{asset_id}', 1))}
             )
 
     try:
@@ -76,16 +76,16 @@ def exhibitor_signup(request, slug):
         exhibitor = Exhibitor.objects.create(
             event=event,
             organisation=organisation,
-            general_note=body.get("general_note"),
-            about_note=body.get("about_note"),
-            offer_note=body.get("offer_note"),
+            general_note=body.get('general_note'),
+            about_note=body.get('about_note'),
+            offer_note=body.get('offer_note'),
         )
 
         for attendance in _attendance_list:
             attendance_exhibitor = ExhibitorAttendance.objects.create(
                 exhibitor=exhibitor,
-                day=Attendance.objects.get(id=attendance["id"]),
-                count=attendance["value"],
+                day=Attendance.objects.get(id=attendance['id']),
+                count=attendance['value'],
             )
 
             attendance_exhibitor.save()
@@ -93,28 +93,28 @@ def exhibitor_signup(request, slug):
         for asset in _asset_list:
             asset_exhibitor = ExhibitorAsset.objects.create(
                 exhibitor=exhibitor,
-                asset=Asset.objects.get(id=asset["id"]),
-                count=asset["value"],
+                asset=Asset.objects.get(id=asset['id']),
+                count=asset['value'],
             )
 
             asset_exhibitor.save()
 
-    template = loader.get_template("mail/exhibitor_signup.html")
+    template = loader.get_template('mail/exhibitor_signup.html')
     extra_context = {
-        "event_name": event.name,
-        "organisation": organisation.org_name,
+        'event_name': event.name,
+        'organisation': organisation.org_name,
     }
 
-    message = f"Hallo Admin-Team,\nes gibt eine neue Anmeldung eines Aussteller bei \
-                {{event.name}}. Bitte überprüft die Angaben und schaut ob alles stimmt."
+    message = 'Hallo Admin-Team,\nes gibt eine neue Anmeldung eines Aussteller bei \
+                {event.name}. Bitte überprüft die Angaben und schaut ob alles stimmt.'
 
     admins = [
-        user.email for user in Group.objects.get(name="exhibitor_admins").user_set.all()
+        user.email for user in Group.objects.get(name='exhibitor_admins').user_set.all()
     ]
 
     async_task(
         send_mail,
-        subject=f"{settings.EMAIL_SUBJECT_PREFIX} Neue Ausstelleranmeldung",
+        subject=f'{settings.EMAIL_SUBJECT_PREFIX} Neue Ausstelleranmeldung',
         message=message,
         from_email=settings.EMAIL_DEFAULT_FROM,
         recipient_list=admins,
@@ -123,10 +123,10 @@ def exhibitor_signup(request, slug):
     )
 
     if created_user:
-        return JsonResponse({"status": "created", "message": "User created"})
+        return JsonResponse({'status': 'created', 'message': 'User created'})
     elif not created_user:
-        return JsonResponse({"status": "exists", "message": "User already exists"})
+        return JsonResponse({'status': 'exists', 'message': 'User already exists'})
     else:
         return JsonResponse(
-            {"status": "error", "message": "Something went horribly wrong"}, status=500
+            {'status': 'error', 'message': 'Something went horribly wrong'}, status=500
         )

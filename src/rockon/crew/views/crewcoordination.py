@@ -10,9 +10,9 @@ from rockon.crew.models import Attendance, Crew, CrewMember, CrewMemberStatus, S
 
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
+@user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
 def crew_chart(request, slug):
-    template = loader.get_template("crew_overview.html")
+    template = loader.get_template('crew_overview.html')
     try:
         event = Event.objects.get(slug=slug)
         attendances = (
@@ -23,8 +23,8 @@ def crew_chart(request, slug):
                     CrewMemberStatus.ARRIVED,
                 ],
             )
-            .order_by("day")
-            .annotate(no_of_crew_members=Count("crew_members"))
+            .order_by('day')
+            .annotate(no_of_crew_members=Count('crew_members'))
         )
         attendances_unknown = (
             Attendance.objects.filter(
@@ -34,26 +34,26 @@ def crew_chart(request, slug):
                     CrewMemberStatus.REJECTED,
                 ],
             )
-            .order_by("day")
-            .annotate(no_of_crew_members=Count("crew_members"))
+            .order_by('day')
+            .annotate(no_of_crew_members=Count('crew_members'))
         )
     except Event.DoesNotExist:
         event = None
         attendances = None
 
     extra_context = {
-        "event": event,
-        "site_title": "Übersicht",
-        "attendances_unknown": attendances_unknown,
-        "attendances": attendances,
+        'event': event,
+        'site_title': 'Übersicht',
+        'attendances_unknown': attendances_unknown,
+        'attendances': attendances,
     }
     return HttpResponse(template.render(extra_context, request))
 
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name="crewcoord").exists())
+@user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
 def crew_shirts(request, slug):
-    template = loader.get_template("crewcoord_tshirts.html")
+    template = loader.get_template('crewcoord_tshirts.html')
     try:
         event = Event.objects.get(slug=slug)
         crews = Crew.objects.filter(event=event)
@@ -63,27 +63,27 @@ def crew_shirts(request, slug):
 
         shirts = Shirt.objects.all()
 
-        shirt_counts = crew_members.values("shirt").annotate(
-            shirt_count=Count("shirt"),
+        shirt_counts = crew_members.values('shirt').annotate(
+            shirt_count=Count('shirt'),
         )
 
         counts = []
         for shirt in shirts:
-            shirt_count = shirt_counts.filter(shirt=shirt.id).values("shirt_count")
+            shirt_count = shirt_counts.filter(shirt=shirt.id).values('shirt_count')
             try:
-                amount = shirt_count[0]["shirt_count"]
+                amount = shirt_count[0]['shirt_count']
             except IndexError:
                 amount = 0
-            counts.append({"shirt": shirt, "count": amount})
+            counts.append({'shirt': shirt, 'count': amount})
     except Event.DoesNotExist:
         counts = None
         crew_members = None
 
     extra_context = {
-        "event": event,
-        "site_title": "T-Shirts",
-        "counts": counts,
-        "sum": sum([count["count"] for count in counts]),
-        "crew_members": crew_members,
+        'event': event,
+        'site_title': 'T-Shirts',
+        'counts': counts,
+        'sum': sum([count['count'] for count in counts]),
+        'crew_members': crew_members,
     }
     return HttpResponse(template.render(extra_context, request))

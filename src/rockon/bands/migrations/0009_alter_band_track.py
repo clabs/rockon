@@ -8,19 +8,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbands", "0008_band_bid_complete"),
+        ('rockonbands', '0008_band_bid_complete'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="band",
-            name="track",
+            model_name='band',
+            name='track',
             field=models.ForeignKey(
                 default=None,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="bands",
-                to="rockonbands.track",
+                related_name='bands',
+                to='rockonbands.track',
             ),
         ),
     ]

@@ -7,13 +7,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbase", "0005_delete_accountcontext_alter_event_signup_is_open"),
+        ('rockonbase', '0005_delete_accountcontext_alter_event_signup_is_open'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="event",
-            name="bid_vote_allowed",
-            field=models.BooleanField(default=False, help_text="Bandbewertung aktiv"),
+            model_name='event',
+            name='bid_vote_allowed',
+            field=models.BooleanField(default=False, help_text='Bandbewertung aktiv'),
         ),
     ]

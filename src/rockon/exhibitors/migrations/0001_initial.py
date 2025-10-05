@@ -12,15 +12,15 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("rockonbase", "0001_initial"),
+        ('rockonbase', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Asset",
+            name='Asset',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -28,30 +28,30 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
-                ("description", models.TextField(blank=True)),
-                ("is_bool", models.BooleanField(default=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
+                ('description', models.TextField(blank=True)),
+                ('is_bool', models.BooleanField(default=False)),
                 (
-                    "icon",
+                    'icon',
                     models.CharField(
                         default='<i class="fa-solid fa-heart"></i>',
                         help_text='<a target="_blank" href="https://fontawesome.com/search?m=free&o=r">Wähle ein Icon aus</a>',
                         max_length=255,
                     ),
                 ),
-                ("internal_comment", models.TextField(blank=True)),
+                ('internal_comment', models.TextField(blank=True)),
             ],
             options={
-                "ordering": ["name"],
+                'ordering': ['name'],
             },
         ),
         migrations.CreateModel(
-            name="Attendance",
+            name='Attendance',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -59,27 +59,27 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("day", models.DateField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('day', models.DateField()),
                 (
-                    "event",
+                    'event',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="exhibitor_attendances",
-                        to="rockonbase.event",
+                        related_name='exhibitor_attendances',
+                        to='rockonbase.event',
                     ),
                 ),
             ],
             options={
-                "ordering": ["day"],
+                'ordering': ['day'],
             },
         ),
         migrations.CreateModel(
-            name="Exhibitor",
+            name='Exhibitor',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -87,59 +87,59 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "state",
+                    'state',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("contacted", "Kontakt aufgenommen"),
-                            ("confirmed", "Bestätigt"),
-                            ("rejected", "Abgelehnt"),
+                            ('unknown', 'Unbekannt'),
+                            ('contacted', 'Kontakt aufgenommen'),
+                            ('confirmed', 'Bestätigt'),
+                            ('rejected', 'Abgelehnt'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=12,
                     ),
                 ),
                 (
-                    "market_id",
+                    'market_id',
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True, unique=True
                     ),
                 ),
-                ("general_note", models.TextField(blank=True, default=None, null=True)),
+                ('general_note', models.TextField(blank=True, default=None, null=True)),
                 (
-                    "internal_comment",
+                    'internal_comment',
                     models.TextField(blank=True, default=None, null=True),
                 ),
                 (
-                    "event",
+                    'event',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="exhibitors",
-                        to="rockonbase.event",
+                        related_name='exhibitors',
+                        to='rockonbase.event',
                     ),
                 ),
                 (
-                    "organisation",
+                    'organisation',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="exhibitor",
-                        to="rockonbase.organisation",
+                        related_name='exhibitor',
+                        to='rockonbase.organisation',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="ExhibitorAttendance",
+            name='ExhibitorAttendance',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -147,36 +147,36 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("count", models.IntegerField(default=0)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('count', models.IntegerField(default=0)),
                 (
-                    "day",
+                    'day',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="exhibitors",
-                        to="rockonexhibitors.attendance",
+                        related_name='exhibitors',
+                        to='rockonexhibitors.attendance',
                     ),
                 ),
                 (
-                    "exhibitor",
+                    'exhibitor',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="attendances",
-                        to="rockonexhibitors.exhibitor",
+                        related_name='attendances',
+                        to='rockonexhibitors.exhibitor',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="ExhibitorAsset",
+            name='ExhibitorAsset',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -184,28 +184,28 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("count", models.IntegerField(default=0)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('count', models.IntegerField(default=0)),
                 (
-                    "asset",
+                    'asset',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="exhibitor",
-                        to="rockonexhibitors.asset",
+                        related_name='exhibitor',
+                        to='rockonexhibitors.asset',
                     ),
                 ),
                 (
-                    "exhibitor",
+                    'exhibitor',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="assets",
-                        to="rockonexhibitors.exhibitor",
+                        related_name='assets',
+                        to='rockonexhibitors.exhibitor',
                     ),
                 ),
             ],
             options={
-                "ordering": ["asset"],
+                'ordering': ['asset'],
             },
         ),
     ]

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, viewsets
 from rest_framework.exceptions import ValidationError
 
 from rockon.api.serializers import CommentSerializer
@@ -20,12 +20,12 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Comment.objects.all()
-        band_id = self.request.query_params.get("band", None)
+        band_id = self.request.query_params.get('band', None)
         if band_id is not None:
             try:
                 uuid.UUID(band_id)
             except ValueError:
-                raise ValidationError("Invalid UUID format for band ID")
+                raise ValidationError('Invalid UUID format for band ID')
             queryset = queryset.filter(band__id=band_id)
         return queryset
 

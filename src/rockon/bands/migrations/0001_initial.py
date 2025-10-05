@@ -16,17 +16,17 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("rockonbase", "0001_initial"),
-        ("rockoncrew", "0001_initial"),
+        ('rockonbase', '0001_initial'),
+        ('rockoncrew', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Band",
+            name='Band',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -34,102 +34,102 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "guid",
+                    'guid',
                     models.CharField(
                         default=rockon.library.guid.guid, max_length=255, unique=True
                     ),
                 ),
                 (
-                    "slug",
+                    'slug',
                     models.SlugField(blank=True, default=None, null=True, unique=True),
                 ),
-                ("name", models.CharField(max_length=255)),
-                ("has_management", models.BooleanField(default=False)),
-                ("are_students", models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255)),
+                ('has_management', models.BooleanField(default=False)),
+                ('are_students', models.BooleanField(default=False)),
                 (
-                    "genre",
+                    'genre',
                     models.CharField(
                         blank=True, default=None, max_length=32, null=True
                     ),
                 ),
                 (
-                    "federal_state",
+                    'federal_state',
                     models.CharField(
                         blank=True,
                         choices=[
-                            ("BW", "Baden-Württemberg"),
-                            ("BY", "Bayern"),
-                            ("BE", "Berlin"),
-                            ("BB", "Brandenburg"),
-                            ("HB", "Bremen"),
-                            ("HH", "Hamburg"),
-                            ("HE", "Hessen"),
-                            ("MV", "Mecklenburg-Vorpommern"),
-                            ("NI", "Niedersachsen"),
-                            ("NW", "Nordrhein-Westfalen"),
-                            ("RP", "Rheinland-Pfalz"),
-                            ("SL", "Saarland"),
-                            ("SN", "Sachsen"),
-                            ("ST", "Sachsen-Anhalt"),
-                            ("SH", "Schleswig-Holstein"),
-                            ("TH", "Thüringen"),
-                            ("XX", "Nicht in Deutschland"),
+                            ('BW', 'Baden-Württemberg'),
+                            ('BY', 'Bayern'),
+                            ('BE', 'Berlin'),
+                            ('BB', 'Brandenburg'),
+                            ('HB', 'Bremen'),
+                            ('HH', 'Hamburg'),
+                            ('HE', 'Hessen'),
+                            ('MV', 'Mecklenburg-Vorpommern'),
+                            ('NI', 'Niedersachsen'),
+                            ('NW', 'Nordrhein-Westfalen'),
+                            ('RP', 'Rheinland-Pfalz'),
+                            ('SL', 'Saarland'),
+                            ('SN', 'Sachsen'),
+                            ('ST', 'Sachsen-Anhalt'),
+                            ('SH', 'Schleswig-Holstein'),
+                            ('TH', 'Thüringen'),
+                            ('XX', 'Nicht in Deutschland'),
                         ],
                         default=None,
                         max_length=255,
                         null=True,
                     ),
                 ),
-                ("homepage", models.URLField(blank=True, default=None, null=True)),
-                ("facebook", models.URLField(blank=True, default=None, null=True)),
-                ("cover_letter", models.TextField(blank=True, default=None, null=True)),
+                ('homepage', models.URLField(blank=True, default=None, null=True)),
+                ('facebook', models.URLField(blank=True, default=None, null=True)),
+                ('cover_letter', models.TextField(blank=True, default=None, null=True)),
                 (
-                    "bid_status",
+                    'bid_status',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("pending", "Bearbeitung"),
-                            ("accepted", "Angenommen"),
-                            ("declined", "Abgelehnt"),
+                            ('unknown', 'Unbekannt'),
+                            ('pending', 'Bearbeitung'),
+                            ('accepted', 'Angenommen'),
+                            ('declined', 'Abgelehnt'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=32,
                     ),
                 ),
-                ("techrider", models.JSONField(blank=True, default=dict, null=True)),
+                ('techrider', models.JSONField(blank=True, default=dict, null=True)),
                 (
-                    "contact",
+                    'contact',
                     models.OneToOneField(
                         blank=True,
                         default=None,
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="band",
+                        related_name='band',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
                 (
-                    "event",
+                    'event',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="bands",
-                        to="rockonbase.event",
+                        related_name='bands',
+                        to='rockonbase.event',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="Stage",
+            name='Stage',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -137,27 +137,27 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("name", models.CharField(max_length=255)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('name', models.CharField(max_length=255)),
                 (
-                    "event",
+                    'event',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="rockonbase.event",
+                        to='rockonbase.event',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="TimeSlot",
+            name='TimeSlot',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -165,48 +165,48 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("start", models.TimeField()),
-                ("end", models.TimeField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('start', models.TimeField()),
+                ('end', models.TimeField()),
                 (
-                    "band",
+                    'band',
                     models.OneToOneField(
                         blank=True,
                         default=None,
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="slot",
-                        to="rockonbands.band",
+                        related_name='slot',
+                        to='rockonbands.band',
                     ),
                 ),
                 (
-                    "day",
+                    'day',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="timeslots",
-                        to="rockoncrew.attendance",
+                        related_name='timeslots',
+                        to='rockoncrew.attendance',
                     ),
                 ),
                 (
-                    "stage",
+                    'stage',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="timeslots",
-                        to="rockonbands.stage",
+                        related_name='timeslots',
+                        to='rockonbands.stage',
                     ),
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="BandMember",
+            name='BandMember',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -214,46 +214,46 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "nutrition",
+                    'nutrition',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("vegan", "Vegan"),
-                            ("vegetarian", "Vegetarisch"),
-                            ("omnivore", "Omnivor"),
+                            ('unknown', 'Unbekannt'),
+                            ('vegan', 'Vegan'),
+                            ('vegetarian', 'Vegetarisch'),
+                            ('omnivore', 'Omnivor'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=12,
                     ),
                 ),
                 (
-                    "position",
+                    'position',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("merch", "Merchandise"),
-                            ("band", "Band"),
-                            ("hand", "Stagehand"),
-                            ("technican", "Techniker"),
-                            ("support", "Support"),
+                            ('unknown', 'Unbekannt'),
+                            ('merch', 'Merchandise'),
+                            ('band', 'Band'),
+                            ('hand', 'Stagehand'),
+                            ('technican', 'Techniker'),
+                            ('support', 'Support'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=12,
                     ),
                 ),
                 (
-                    "band",
+                    'band',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="band_members",
-                        to="rockonbands.band",
+                        related_name='band_members',
+                        to='rockonbands.band',
                     ),
                 ),
                 (
-                    "user",
+                    'user',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to=settings.AUTH_USER_MODEL,
@@ -261,15 +261,15 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "ordering": ["created_at"],
-                "abstract": False,
+                'ordering': ['created_at'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name="BandMedia",
+            name='BandMedia',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -277,26 +277,26 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
                 (
-                    "media_type",
+                    'media_type',
                     models.CharField(
                         choices=[
-                            ("unknown", "Unbekannt"),
-                            ("document", "Dokument"),
-                            ("audio", "Audio"),
-                            ("link", "Link"),
-                            ("press_photo", "Pressefoto"),
-                            ("logo", "Logo"),
+                            ('unknown', 'Unbekannt'),
+                            ('document', 'Dokument'),
+                            ('audio', 'Audio'),
+                            ('link', 'Link'),
+                            ('press_photo', 'Pressefoto'),
+                            ('logo', 'Logo'),
                         ],
-                        default="unknown",
+                        default='unknown',
                         max_length=32,
                     ),
                 ),
-                ("url", models.URLField(blank=True, default=None, null=True)),
+                ('url', models.URLField(blank=True, default=None, null=True)),
                 (
-                    "file",
+                    'file',
                     models.FileField(
                         blank=True,
                         default=None,
@@ -305,28 +305,28 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "thumbnail",
+                    'thumbnail',
                     models.ImageField(
-                        blank=True, default=None, null=True, upload_to=""
+                        blank=True, default=None, null=True, upload_to=''
                     ),
                 ),
                 (
-                    "file_name_original",
+                    'file_name_original',
                     models.CharField(
                         blank=True, default=None, max_length=512, null=True
                     ),
                 ),
                 (
-                    "band",
+                    'band',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="media",
-                        to="rockonbands.band",
+                        related_name='media',
+                        to='rockonbands.band',
                     ),
                 ),
             ],
             options={
-                "ordering": ["band", "media_type", "created_at"],
+                'ordering': ['band', 'media_type', 'created_at'],
             },
         ),
     ]

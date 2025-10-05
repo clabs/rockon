@@ -11,16 +11,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("rockonbands", "0004_alter_band_genre"),
+        ('rockonbands', '0004_alter_band_genre'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="BandVote",
+            name='BandVote',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -28,28 +28,28 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("vote", models.IntegerField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('vote', models.IntegerField()),
                 (
-                    "band",
+                    'band',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="votes",
-                        to="rockonbands.band",
+                        related_name='votes',
+                        to='rockonbands.band',
                     ),
                 ),
                 (
-                    "user",
+                    'user',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="band_votes",
+                        related_name='band_votes',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "ordering": ["band", "user", "created_at"],
+                'ordering': ['band', 'user', 'created_at'],
             },
         ),
     ]

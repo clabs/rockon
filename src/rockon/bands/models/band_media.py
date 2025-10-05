@@ -15,25 +15,25 @@ from .band import Band
 
 def band_media_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f"bids/{instance.band.id}/{filename}"
+    return f'bids/{instance.band.id}/{filename}'
 
 
 class MediaType(models.TextChoices):
     """Media type."""
 
-    UNKNOWN = "unknown", "Unbekannt"
-    AUDIO = "audio", "Audio"
-    DOCUMENT = "document", "Dokument"
-    LINK = "link", "Link"
-    LOGO = "logo", "Logo"
-    PRESS_PHOTO = "press_photo", "Pressefoto"
-    WEB = "web", "Webseite"
+    UNKNOWN = 'unknown', 'Unbekannt'
+    AUDIO = 'audio', 'Audio'
+    DOCUMENT = 'document', 'Dokument'
+    LINK = 'link', 'Link'
+    LOGO = 'logo', 'Logo'
+    PRESS_PHOTO = 'press_photo', 'Pressefoto'
+    WEB = 'web', 'Webseite'
 
 
 class BandMedia(CustomModel):
     """Band media model."""
 
-    band = models.ForeignKey(Band, on_delete=models.CASCADE, related_name="media")
+    band = models.ForeignKey(Band, on_delete=models.CASCADE, related_name='media')
     media_type = models.CharField(
         max_length=32, default=MediaType.UNKNOWN, choices=MediaType.choices
     )
@@ -50,7 +50,7 @@ class BandMedia(CustomModel):
     )
 
     class Meta:
-        ordering = ["band", "media_type", "created_at"]
+        ordering = ['band', 'media_type', 'created_at']
 
     def __str__(self):
         return str(self.id)
@@ -66,9 +66,9 @@ class BandMedia(CustomModel):
             return
         if self.media_type == MediaType.AUDIO:
             _task = AsyncTask(
-                "rockon.bands.models.band_media.BandMedia.encode_audio_file",
+                'rockon.bands.models.band_media.BandMedia.encode_audio_file',
                 self.id,
-                group="encode_audio_file",
+                group='encode_audio_file',
             )
             _task.run()
         elif (
@@ -76,20 +76,20 @@ class BandMedia(CustomModel):
             or self.media_type == MediaType.LOGO
         ):
             _task = AsyncTask(
-                "rockon.bands.models.band_media.BandMedia.encode_image_file",
+                'rockon.bands.models.band_media.BandMedia.encode_image_file',
                 self.id,
-                group="encode_image_file",
+                group='encode_image_file',
             )
             _task.run()
         return
 
     def json_dump(self):
         """JSON dump."""
-        instance_json_str = serialize("json", [self])
+        instance_json_str = serialize('json', [self])
         instance_json = json.loads(instance_json_str)[0]
         _instance = {}
-        _instance["id"] = instance_json["pk"]
-        _instance.update(instance_json["fields"])
+        _instance['id'] = instance_json['pk']
+        _instance.update(instance_json['fields'])
 
         return _instance
 
@@ -100,9 +100,9 @@ class BandMedia(CustomModel):
         if not _file.file:
             return
         file_name = os.path.basename(_file.file.name)
-        file_name_without_extension = "".join(file_name.split(".")[:-1])
+        file_name_without_extension = ''.join(file_name.split('.')[:-1])
 
-        new_file_name = f"{file_name_without_extension}-encoded.mp3"
+        new_file_name = f'{file_name_without_extension}-encoded.mp3'
         new_absolute_path = os.path.abspath(
             os.path.join(os.path.dirname(_file.file.path), new_file_name)
         )
@@ -115,11 +115,11 @@ class BandMedia(CustomModel):
         )
 
         ffmpeg_bin = settings.FFMPEG_BIN
-        ffmpeg_cmd = f"{ffmpeg_bin} -y -hide_banner -i {_file.file.path} -vn -c:a libmp3lame -b:a 128k -ar 44100 {new_absolute_path}"
+        ffmpeg_cmd = f'{ffmpeg_bin} -y -hide_banner -i {_file.file.path} -vn -c:a libmp3lame -b:a 128k -ar 44100 {new_absolute_path}'
         return_code = subprocess.call(ffmpeg_cmd, shell=True)
 
         if return_code != 0:
-            raise RuntimeError("Encoding failed")
+            raise RuntimeError('Encoding failed')
 
         _file.encoded_file = new_relative_path
         _file.save()
@@ -133,9 +133,9 @@ class BandMedia(CustomModel):
         if not _file.file:
             return
         file_name = os.path.basename(_file.file.name)
-        file_name_without_extension = "".join(file_name.split(".")[:-1])
+        file_name_without_extension = ''.join(file_name.split('.')[:-1])
 
-        new_file_name = f"{file_name_without_extension}-thumbnail.webp"
+        new_file_name = f'{file_name_without_extension}-thumbnail.webp'
         new_absolute_path = os.path.abspath(
             os.path.join(os.path.dirname(_file.file.path), new_file_name)
         )
@@ -148,12 +148,12 @@ class BandMedia(CustomModel):
         )
 
         convert_bin = settings.CONVERT_BIN
-        convert_cmd = f"{convert_bin} {_file.file.path} -quality 70% -resize 310x {new_absolute_path}"
+        convert_cmd = f'{convert_bin} {_file.file.path} -quality 70% -resize 310x {new_absolute_path}'
         try:
             return_code = subprocess.call(convert_cmd, shell=True)
 
             if return_code != 0:
-                raise RuntimeError("Encoding failed")
+                raise RuntimeError('Encoding failed')
 
             _file.encoded_file = new_relative_path
             _file.save()
