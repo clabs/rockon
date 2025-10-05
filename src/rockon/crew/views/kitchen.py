@@ -118,19 +118,19 @@ def attendance_table(request, slug):
             crew_members.filter(
                 attendance=day, nutrition='omnivore', stays_overnight=True
             ).count()
-            or 0  # noqa: W503
+            or 0
         )
         amounts['crew']['vegetarian_overnight'] = (
             crew_members.filter(
                 attendance=day, nutrition='vegetarian', stays_overnight=True
             ).count()
-            or 0  # noqa: W503
+            or 0
         )
         amounts['crew']['vegan_overnight'] = (
             crew_members.filter(
                 attendance=day, nutrition='vegan', stays_overnight=True
             ).count()
-            or 0  # noqa: W503
+            or 0
         )
         amounts['crew']['sum_overnight'] = (
             crew_members.filter(attendance=day, stays_overnight=True).count() or 0
