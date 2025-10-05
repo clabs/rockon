@@ -188,9 +188,9 @@ const render_updated_at = (updated_at) => {
 }
 
 const send_form = () => {
-  form = $('#application')
+  const form = $('#application')
   const form_data = form.serializeArray()
-  form_obj = {}
+  const form_obj = {}
   for (const el of form_data) {
     if (el.name === 'csrfmiddlewaretoken') continue // skip csrf token
     if (el.value === '') continue // skip empty values
@@ -229,7 +229,7 @@ const save_success = data => {
 
 const api_add_url = (url, type) => {
   console.debug('add url api')
-  media_obj = {
+  const media_obj = {
     url: url,
     media_type: type,
     band: window.rockon_data.band_id
@@ -252,7 +252,7 @@ const api_add_url = (url, type) => {
 
 const api_add_web_url = (url, type) => {
   console.debug('add web url api')
-  media_obj = {
+  const media_obj = {
     url: url,
     media_type: type,
     band: window.rockon_data.band_id
