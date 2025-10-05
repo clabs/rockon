@@ -50,8 +50,7 @@
                     <div class="accordion-body">
                         <ul>
                             {% for note in nutrion_notes %}
-                            <li><strong>{{ note.crew_member.user.first_name }} {{ note.crew_member.user.last_name
-                                    }}</strong>: {{ note.note }}</li>
+                            <li><strong>{{ note.crew_member.user.first_name }} {{ note.crew_member.user.last_name}}</strong>: {{ note.note }}</li>
                             {% endfor %}
                         </ul>
                     </div>
