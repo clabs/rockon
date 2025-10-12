@@ -12,13 +12,9 @@
                 if ($inputField.length) {
                     const originalValue = $inputField.val()
                     const modifiedValue = 'https://backstage.rocktreff.de/redeem?voucher=' + originalValue
-                    $inputField.val(modifiedValue)
-                    $inputField.select()
                     navigator.clipboard.writeText(modifiedValue)
                         .then(() => {
                             showToast('Voucher-Link kopiert')
-                            $inputField.val(originalValue)
-                            $inputField.blur()
                         })
                         .catch(() => {
                             showToast('Fehler beim Kopieren')
@@ -32,7 +28,7 @@
 
                 const voucherId = $inputField.data('id')
                 $.ajax({
-                    url: '/api/crm/mark-voucher/',
+                    url: '/api/v2/mark-voucher',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({id: voucherId}),

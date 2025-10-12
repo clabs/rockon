@@ -1,8 +1,10 @@
-FROM python:3.13.7-trixie AS base
+FROM python:3.14-trixie AS base
 
 ######################################### [build] ########################
 
 FROM base AS build
+
+COPY --from=docker.io/astral/uv:latest /uv /uvx /bin/
 
 ENV LC_ALL=C.UTF-8
 ENV DOCKER_UID=1000
@@ -20,8 +22,6 @@ RUN apt-get update && \
       locale-gen C.UTF-8 && \
       /usr/sbin/update-locale LANG=C.UTF-8 && \
     useradd -u $DOCKER_UID -ms /bin/bash -d /app appuser
-
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 WORKDIR /app
 COPY pyproject.toml uv.lock /app/

@@ -28,7 +28,7 @@ class MagicLink(CustomModel):
         ordering = ['user', 'expires_at']
 
     @classmethod
-    def create_and_send(cls, user: User, expires_at: datetime) -> None:
+    def create_and_send(cls, user: User) -> None:
         # FIXME: this should be a setting
         # MagicLink.objects.filter(user=user).delete()
 

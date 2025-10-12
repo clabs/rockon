@@ -70,7 +70,7 @@
                     <label for="federal_state">Bundesland</label>
                     <select class="form-select" aria-label="Bundesland" id="federal_state" name="federal_state">
                         {% if not band.federal_state %}
-                            <option value="" selected></option>
+                            <option value="" disabled selected>Wähle einen Bundesland</option>
                         {% endif %}
                         {% for federal_state in federal_states %}
                             <option value="{{ federal_state.0 }}" {% if band.federal_state == federal_state.0 %}
@@ -83,7 +83,7 @@
                     <label for="track">Track</label>
                     <select class="form-select" aria-label="Track" id="track" name="track">
                         {% if not band.track %}
-                            <option value="" selected></option>
+                            <option value="" disabled selected>Wähle einen Track</option>
                         {% endif %}
                         {% for track in tracks %}
                             <option value="{{ track.id }}" {% if band.track == track.id %}

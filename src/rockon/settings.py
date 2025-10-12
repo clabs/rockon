@@ -72,12 +72,12 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'csp.middleware.CSPMiddleware',
     'rockon.library.session_current_event.SessionCurrentEventMiddleware',
 ]
 
@@ -120,7 +120,7 @@ WSGI_APPLICATION = 'rockon.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DEFAULT_SQLITE_PATH = env.path('DJANGO_DEFAULT_SQLITE_PATH', default='db.sqlite3')
+DEFAULT_SQLITE_PATH = env.str('DJANGO_DEFAULT_SQLITE_PATH', default='db.sqlite3')
 
 DATABASES = {
     'default': {

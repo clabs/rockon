@@ -3,7 +3,7 @@ name = "rockon"
 version = "0.7.5"
 description = "Hyper customized Rocktreff data entry and lists thingamajig"
 authors = [{ name = "ethrgeist", email = "knuth@ethergeist.de" }]
-requires-python = ">=3.13.7,<4"
+requires-python = ">=3.14.0,<4"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 dependencies = [
@@ -32,7 +32,8 @@ dependencies = [
     "tzdata",
     "python-slugify[unidecode]",
     "djlint",
-    "django-csp",
+    "django-csp[jinja2]",
+    "django-ninja",
 ]
 
 [dependency-groups]
