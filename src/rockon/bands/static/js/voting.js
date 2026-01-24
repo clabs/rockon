@@ -29,9 +29,10 @@ const LoadingSpinner = Vue.defineComponent({
 
 const SongInfo = Vue.defineComponent({
     props: ['song', 'band'],
+    emits: ['navigate-to-band'],
     template: `
     <div>
-      <p><h5>Band</h5> {{ band.name || band.guid }}</p>
+      <p><h5>Band</h5> <a href="#" @click.prevent="$emit('navigate-to-band', band)" class="band-link">{{ band.name || band.guid }}</a></p>
       <p><h5>Song</h5> {{ song.file_name_original }}</p>
     </div>
   `
@@ -1292,6 +1293,15 @@ const app = createApp({
             this.playSongBand = null
             this.toastVisible = false
             this.toastIsMaximized = true
+        },
+        navigateToPlayingBand() {
+            if (!this.playSongBand) return
+            console.debug('app navigateToPlayingBand:', this.playSongBand)
+            // Find the band in the bands list by id
+            const band = this.bands.find(b => b.id === this.playSongBand.id)
+            if (band) {
+                this.selectBand(band)
+            }
         },
         handleFilterShowBandNoNameChange(checked) {
             console.debug('app handleFilterShowBandNoNameChange:', checked)

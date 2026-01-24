@@ -70,7 +70,7 @@
                             <span v-if="toastIsMaximized">Rockify</span>
                             <div v-else class="scrolling-container">
                                 <div class="scrolling-text-wrapper">
-                                    <span class="scrolling-text">{{ playSongBand.name || playSongBand.guid || "" }} - {{ playSong.file_name_original }}</span>
+                                    <span class="scrolling-text"><a href="#" @click.prevent="navigateToPlayingBand" class="band-link">{{ playSongBand.name || playSongBand.guid || "" }}</a> - {{ playSong.file_name_original }}</span>
                                 </div>
                             </div>
                         </strong>
@@ -95,7 +95,7 @@
                     <div id="player-toast-body"
                          :class="['collapse', { 'show': toastIsMaximized }]">
                         <div class="toast-body">
-                            <song-info v-if="playSong" :song="playSong" :band="playSongBand"></song-info>
+                            <song-info v-if="playSong" :song="playSong" :band="playSongBand" @navigate-to-band="navigateToPlayingBand"></song-info>
                             <div id="player-wrapper"></div>
                             <div class="d-flex justify-content-center gap-2 mt-2">
                                 <button type="button" class="btn btn-sm btn-player-control" @click="playPreviousTrack" :disabled="!canPlayPrevious" title="Vorheriger Track">
@@ -229,6 +229,17 @@
 
         .form-check-label {
             cursor: pointer;
+        }
+
+        /* Band link in player toast */
+        .band-link {
+            color: #fff300 !important;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .band-link:hover {
+            text-decoration: underline;
         }
     </style>
     {% compress js file voting %}
