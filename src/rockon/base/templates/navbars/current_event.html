@@ -1,8 +1,41 @@
-{% load has_group %}
-<span class="nav-link" title="Event"><i class="fa-solid fa-calendar"></i>&nbsp;
-    {% if user|has_group:'exhibitors' %}
-        {{ current_event.sub_events.first.name }}
-    {% else %}
-        {{ current_event.name }}
-    {% endif %}
-</span>
+{% load has_group event_url %}
+{% if can_switch_events and available_events %}
+    <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle"
+           href="#"
+           data-bs-toggle="dropdown"
+           aria-expanded="false"
+           title="Event wechseln">
+            <i class="fa-solid fa-calendar"></i>&nbsp;
+            {% if user|has_group:'exhibitors' and current_event.sub_events.first %}
+                {{ current_event.sub_events.first.name }}
+            {% else %}
+                {{ current_event.name }}
+            {% endif %}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header">Event wechseln</h6></li>
+            {% for event in available_events %}
+                {% replace_event_slug event.slug as next_path %}
+                <li>
+                    <a class="dropdown-item {% if event.id == current_event.id %}active{% endif %}"
+                       href="{% url 'base:switch_event' event_slug=event.slug %}?next={{ next_path|urlencode }}">
+                        {{ event.name }}
+                        {% if event.sub_events.first %}
+                            <small class="text-muted">/ {{ event.sub_events.first.name }}</small>
+                        {% endif %}
+                        {% if event.is_current %}<span class="badge bg-success ms-1">aktuell</span>{% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% else %}
+    <span class="nav-link" title="Event"><i class="fa-solid fa-calendar"></i>&nbsp;
+        {% if user|has_group:'exhibitors' and current_event.sub_events.first %}
+            {{ current_event.sub_events.first.name }}
+        {% else %}
+            {{ current_event.name }}
+        {% endif %}
+    </span>
+{% endif %}
