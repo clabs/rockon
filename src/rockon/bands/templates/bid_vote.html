@@ -119,15 +119,25 @@
 
         .image-container {
             overflow: hidden;
+            /* Optimize for repaints */
+            contain: layout style paint;
         }
 
         .zoom-image {
             transition: transform 0.6s ease-in-out;
             transform: scale(1);
+            /* GPU acceleration for smoother animations */
+            will-change: transform;
+            backface-visibility: hidden;
         }
 
         .card:hover .zoom-image {
             transform: scale(1.1);
+        }
+
+        /* Optimize card rendering for large lists */
+        .card-group {
+            contain: layout style;
         }
 
         @keyframes scroll {

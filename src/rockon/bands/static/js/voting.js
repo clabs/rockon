@@ -535,10 +535,14 @@ const BandList = Vue.defineComponent({
             console.debug('Filtered bands:', filtered)
             return filtered
         },
+        // Flat list with indices for better lazy loading control
+        filteredBandsWithIndex() {
+            return this.filteredBands.map((band, index) => ({ band, index }))
+        },
         groupedBands() {
             let groups = []
-            for (let i = 0; i < this.filteredBands.length; i += 4) {
-                groups.push(this.filteredBands.slice(i, i + 4))
+            for (let i = 0; i < this.filteredBandsWithIndex.length; i += 4) {
+                groups.push(this.filteredBandsWithIndex.slice(i, i + 4))
             }
             return groups
         }
@@ -546,7 +550,8 @@ const BandList = Vue.defineComponent({
     data() {
         return {
             selectedBand: null,
-            bgColor: 'var(--rockon-card-bg)'
+            bgColor: 'var(--rockon-card-bg)',
+            imageCache: new Set()
         }
     },
     methods: {
@@ -573,6 +578,28 @@ const BandList = Vue.defineComponent({
                 this.selectedBand = null
                 this.bgColor = 'var(--rockon-card-bg)'
             }
+        },
+        preloadImages() {
+            // Preload first 12 images (3 rows) immediately
+            const toPreload = this.filteredBands.slice(0, 12)
+            toPreload.forEach(band => {
+                const src = this.cardImage(band)
+                if (src && !this.imageCache.has(src)) {
+                    const img = new Image()
+                    img.src = src
+                    this.imageCache.add(src)
+                }
+            })
+        }
+    },
+    watch: {
+        filteredBands: {
+            immediate: true,
+            handler() {
+                this.$nextTick(() => {
+                    this.preloadImages()
+                })
+            }
         }
     },
     template: `
@@ -580,15 +607,15 @@ const BandList = Vue.defineComponent({
     <div class="row">
       <h3>{{ filteredBands.length }} Bands<span v-if="selectedTrack"> in Track {{selectedTrack.name}}</span></h3>
     </div>
-    <div v-if="groupedBands.length > 0" v-for="(group, index) in groupedBands" :key="index">
+    <div v-if="groupedBands.length > 0" v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
       <div class="card-group">
-        <div class="card" v-for="band in group" @click="selectBand(band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(band)" @mouseleave="leaveBand(band)">
+        <div class="card" v-for="item in group" :key="item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
           <div class="image-container">
-            <img :src="cardImage(band)" class="card-img-top img-fluid zoom-image" style="height: 250px; object-fit: cover; object-position: center;" :alt="band.name || band.guid" :loading="index > 2 ? 'lazy' : 'auto'">
+            <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" style="height: 250px; object-fit: cover; object-position: center;" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto">
           </div>
             <div class="card-body">
-            <h6 class="card-title">{{ band.name || band.guid }}</h6>
-            <BandListTags :selectedBandDetails="band" :federalStates="federalStates" :userVotes="userVotes" />
+            <h6 class="card-title">{{ item.band.name || item.band.guid }}</h6>
+            <BandListTags :selectedBandDetails="item.band" :federalStates="federalStates" :userVotes="userVotes" />
           </div>
         </div>
       </div>
