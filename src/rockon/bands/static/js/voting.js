@@ -209,6 +209,7 @@ const BackstageLink = Vue.defineComponent({
 const TrackList = Vue.defineComponent({
     props: [
         'tracks',
+        'bands',
         'selectedTrack',
         'showBandNoName',
         'showIncompleteBids',
@@ -220,84 +221,188 @@ const TrackList = Vue.defineComponent({
         'filter-incomplete-bids',
         'filter-declined-bids'
     ],
-    template: `
-      <section class="row p-4 form-section">
-      <div>
-      <div><h5>Tracks</h5></div>
-        <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" style="cursor: pointer;" @click="handleClick(track)">{{ track.name }}</span>
-        <div><h5>Filter</h5></div>
-        <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack" style="cursor: pointer;">Ohne Track</span>
-        <span class="badge text-bg-primary m-2" :key="no-vote" @click="handleShowBandsWithoutVote" style="cursor: pointer;">Unbewertete Bands</span>
-        <span class="badge text-bg-primary m-2" @click="handleShowStudentBands" style="cursor: pointer;">Schülerbands</span>
-        <span class="badge text-bg-primary m-2" @click="handleDeselectTrack" style="cursor: pointer;">Alle Bands</span>
-        <div class="form-check form-switch m-2">
-          <input class="form-check-input" type="checkbox" role="switch" :checked="showIncompleteBids" @change="handleFilterIncompleteBids" />
-          <label class="form-check-label" >Unvollständige Bewerbungen anzeigen</label>
-        </div>
-        <div class="form-check form-switch m-2">
-          <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
-          <label class="form-check-label" >Bands ohne Namen anzeigen</label>
-        </div>
-        <div class="form-check form-switch m-2">
-        <input class="form-check-input" type="checkbox" role="switch" :checked="showDeclinedBids" @change="handleFilterDeclinedeBids"/>
-        <label class="form-check-label" >Abgelehnte Bewerbungen anzeigen</label>
-      </div>
-      </div>
-      </section>
-    `,
+    data() {
+        return {
+            isFilterCollapsed: JSON.parse(sessionStorage.getItem('filterOptionsCollapsed')) ?? false
+        }
+    },
+    computed: {
+        isSpecialFilter() {
+            return ['no-track', 'no-vote', 'student-bands'].includes(this.selectedTrack)
+        },
+        hasActiveSelection() {
+            return this.selectedTrack || this.isSpecialFilter
+        }
+    },
     methods: {
+        getTrackCount(track) {
+            if (!this.bands) return 0
+            return this.bands.filter(band => band.track === track.id).length
+        },
         handleClick(track) {
             console.debug('TrackList handleClick:', track)
-            this.selectedTrack = track
+            // If clicking the same track, deselect it
+            if (this.selectedTrack === track) {
+                this.$emit('select-track', null)
+                return
+            }
             this.$emit('select-track', track)
         },
         handleDeselectTrack() {
             console.debug('TrackList handleDeselectTrack')
-            this.selectedTrack = null
             this.$emit('select-track', null)
         },
-        handleShowBandsWithoutTrack() {
-            console.debug('TrackList handleShowBandsWithoutTrack')
-            this.selectedTrack = 'no-track'
-            this.$emit('select-track', 'no-track')
-        },
-        handleShowStudentBands() {
-            console.debug('TrackList handleShowStudentBands')
-            this.selectedTrack = 'student-bands'
-            this.$emit('select-track', 'student-bands')
-        },
-        handleShowBandsWithoutVote() {
-            console.debug('TrackList handleShowBandsWithoutTrack')
-            this.selectedTrack = 'no-vote'
-            this.$emit('select-track', 'no-vote')
+        toggleFilter(filterType) {
+            console.debug('TrackList toggleFilter:', filterType)
+            // Toggle behavior: clicking active filter deselects it
+            if (this.selectedTrack === filterType) {
+                this.$emit('select-track', null)
+            } else {
+                this.$emit('select-track', filterType)
+            }
         },
         handleFilterNoNameChange(event) {
             console.debug('TrackList handleFilterNoNameChange:', event.target.checked)
-            this.showBandNoName = event.target.checked
             this.$emit('filter-no-name', event.target.checked)
         },
         handleFilterIncompleteBids(event) {
-            console.debug(
-                'TrackList handleFilterIncompleteBids:',
-                event.target.checked
-            )
-            this.showIncompleteBids = event.target.checked
+            console.debug('TrackList handleFilterIncompleteBids:', event.target.checked)
             this.$emit('filter-incomplete-bids', event.target.checked)
+            // If incomplete bids is turned off, also turn off show bands without names
+            if (!event.target.checked && this.showBandNoName) {
+                this.$emit('filter-no-name', false)
+            }
         },
-        handleFilterDeclinedeBids(event) {
-            console.debug(
-                'TrackList handleFilterDeclinedeBids:',
-                event.target.checked
-            )
-            this.showDeclinedBids = event.target.checked
+        handleFilterDeclinedBids(event) {
+            console.debug('TrackList handleFilterDeclinedBids:', event.target.checked)
             this.$emit('filter-declined-bids', event.target.checked)
+        },
+        toggleFilterCollapsed() {
+            this.isFilterCollapsed = !this.isFilterCollapsed
+            sessionStorage.setItem('filterOptionsCollapsed', JSON.stringify(this.isFilterCollapsed))
         }
     },
+    template: `
+      <section class="row p-4 form-section">
+        <div>
+          <!-- Tracks Section -->
+          <div class="d-flex align-items-center mb-2">
+            <h5 class="mb-0 me-2"><i class="fas fa-music me-1"></i> Tracks</h5>
+          </div>
+          <div class="d-flex flex-wrap align-items-center mb-3">
+            <span
+              v-for="track in tracks"
+              :key="track.id"
+              class="badge m-1 filter-badge"
+              :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'"
+              style="cursor: pointer; transition: all 0.2s ease;"
+              @click="handleClick(track)">
+              <i v-if="track === selectedTrack" class="fas fa-check me-1"></i>
+              {{ track.name }} <span class="badge bg-dark ms-1">{{ getTrackCount(track) }}</span>
+            </span>
+          </div>
+
+          <!-- Quick Filters Section -->
+          <div class="d-flex align-items-center mb-2">
+            <h5 class="mb-0 me-2"><i class="fas fa-filter me-1"></i> Schnellfilter</h5>
+          </div>
+          <div class="d-flex flex-wrap align-items-center mb-3">
+            <span
+              class="badge m-1 filter-badge"
+              :class="selectedTrack === 'no-track' ? 'text-bg-success' : 'text-bg-outline-primary'"
+              style="cursor: pointer; transition: all 0.2s ease;"
+              @click="toggleFilter('no-track')"
+              title="Zeigt nur Bands ohne zugewiesenen Track">
+              <i :class="selectedTrack === 'no-track' ? 'fas fa-check me-1' : 'fas fa-folder-open me-1'"></i>
+              Ohne Track
+            </span>
+            <span
+              class="badge m-1 filter-badge"
+              :class="selectedTrack === 'no-vote' ? 'text-bg-success' : 'text-bg-outline-primary'"
+              style="cursor: pointer; transition: all 0.2s ease;"
+              @click="toggleFilter('no-vote')"
+              title="Zeigt nur Bands die du noch nicht bewertet hast">
+              <i :class="selectedTrack === 'no-vote' ? 'fas fa-check me-1' : 'fas fa-star-half-alt me-1'"></i>
+              Unbewertete Bands
+            </span>
+            <span
+              class="badge m-1 filter-badge"
+              :class="selectedTrack === 'student-bands' ? 'text-bg-success' : 'text-bg-outline-primary'"
+              style="cursor: pointer; transition: all 0.2s ease;"
+              @click="toggleFilter('student-bands')"
+              title="Zeigt nur Schülerbands">
+              <i :class="selectedTrack === 'student-bands' ? 'fas fa-check me-1' : 'fas fa-graduation-cap me-1'"></i>
+              Schülerbands
+            </span>
+            <span
+              v-if="hasActiveSelection"
+              class="badge m-1 filter-badge text-bg-outline-primary"
+              style="cursor: pointer;"
+              @click="handleDeselectTrack"
+              title="Alle Filter zurücksetzen">
+              <i class="fas fa-times me-1"></i>
+              Reset
+            </span>
+          </div>
+
+          <!-- Toggle Filters Section -->
+          <div class="d-flex align-items-center mb-2">
+            <h5
+              class="mb-0 me-2"
+              style="cursor: pointer;"
+              @click="toggleFilterCollapsed"
+              title="Klicken zum Ein-/Ausklappen">
+              <i :class="isFilterCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-down'" class="me-1"></i>
+              <i class="fas fa-sliders-h me-1"></i> Anzeigeoptionen
+            </h5>
+          </div>
+          <div v-show="!isFilterCollapsed" class="filter-options-container ps-2">
+            <div class="form-check form-switch mb-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="filterIncompleteBids"
+                :checked="showIncompleteBids"
+                @change="handleFilterIncompleteBids" />
+              <label class="form-check-label" for="filterIncompleteBids">
+                <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                Unvollständige Bewerbungen anzeigen
+              </label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="filterNoName"
+                :checked="showBandNoName"
+                :disabled="!showIncompleteBids"
+                @change="handleFilterNoNameChange" />
+              <label class="form-check-label" for="filterNoName" :class="{'text-muted': !showIncompleteBids}">
+                <i class="fas fa-question-circle me-1" :class="showIncompleteBids ? 'text-secondary' : 'text-muted'"></i>
+                Bands ohne Namen anzeigen
+              </label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="filterDeclinedBids"
+                :checked="showDeclinedBids"
+                @change="handleFilterDeclinedBids" />
+              <label class="form-check-label" for="filterDeclinedBids">
+                <i class="fas fa-ban text-danger me-1"></i>
+                Abgelehnte Bewerbungen anzeigen
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+    `,
     created() {
-        console.log(
-            'Component created. Initial value of showBandNoName:',
-            this.showBandNoName
-        )
+        console.debug('TrackList created. Initial showBandNoName:', this.showBandNoName)
     }
 })
 
@@ -1284,20 +1389,17 @@ const app = createApp({
         bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
         this.toastAudioPlayer = toastAudioPlayer
         this.handlePopState()
-        const filterNoName = JSON.parse(
+
+        // Initialize filter states from sessionStorage with consistent defaults
+        this.showBandNoName = JSON.parse(
             sessionStorage.getItem('filterShowBandsNoName')
-        )
-        this.showBandNoName = filterNoName ? filterNoName : false
-        const filterIncompleteBids = JSON.parse(
+        ) ?? false
+        this.showIncompleteBids = JSON.parse(
             sessionStorage.getItem('filterIncompleteBids')
-        )
-        const filterDeclinedBids = JSON.parse(
+        ) ?? false
+        this.showDeclinedBids = JSON.parse(
             sessionStorage.getItem('filterDeclinedBids')
-        )
-        this.showDeclinedBids = filterDeclinedBids ? filterDeclinedBids : false
-        this.showIncompleteBids = filterIncompleteBids
-            ? filterIncompleteBids
-            : false
+        ) ?? false
     },
     beforeDestroy() {
         window.removeEventListener('popstate', this.handlePopState)

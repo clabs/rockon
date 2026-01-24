@@ -40,7 +40,7 @@
     </script>
     {% verbatim %}
     <div id="app">
-        <track-list :tracks="tracks" :selected-track="selectedTrack" :show-band-no-name="showBandNoName"
+        <track-list :tracks="tracks" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName"
                     :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids"
                     @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"
                     @filter-incomplete-bids="handleFilterIncompleteBidsChange"
@@ -177,6 +177,58 @@
             border-color: #444;
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        /* Prevent page jump when scrollbar appears/disappears */
+        html {
+            overflow-y: scroll;
+        }
+
+        /* Filter badge styles */
+        .filter-badge {
+            font-size: 0.9rem;
+            padding: 0.5em 0.75em;
+            border: 2px solid #fff300 !important;
+        }
+
+        /* Inactive badges - outline yellow */
+        .text-bg-outline-primary,
+        .filter-badge.text-bg-primary {
+            background-color: transparent !important;
+            border: 2px solid #fff300 !important;
+            color: #fff300 !important;
+        }
+
+        .text-bg-outline-primary:hover,
+        .filter-badge.text-bg-primary:hover {
+            background-color: rgba(255, 243, 0, 0.2) !important;
+        }
+
+        /* Active filter/track state - filled yellow */
+        .filter-badge.text-bg-success {
+            background-color: #fff300 !important;
+            color: #000 !important;
+            border: 2px solid #fff300 !important;
+        }
+
+        /* Filter options container */
+        .filter-options-container {
+            padding-left: 1rem;
+        }
+
+        /* Form switch styling - ensure checked state is visible */
+        .form-check-input:checked {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+        }
+
+        .form-check-input {
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            cursor: pointer;
         }
     </style>
     {% compress js file voting %}
