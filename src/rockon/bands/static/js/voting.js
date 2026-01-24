@@ -1093,14 +1093,15 @@ const app = createApp({
         },
         handleSongSelect(song) {
             console.debug('app handleSongSelect:', song)
-            if (this.playSong === song) {
+            if (this.playSong && this.playSong.id === song.id) {
                 console.debug(
                     'app handleSongSelect: Song already playing. Doing nothing.'
                 )
                 return
             }
-            this.playSong = song
-            this.playSongBand = this.selectedBandDetails
+            this.playSong = { ...song }
+            // Store a deep copy of the band details to preserve songs array during navigation
+            this.playSongBand = JSON.parse(JSON.stringify(this.selectedBandDetails))
             if (!this.toastVisible) {
                 this.toastAudioPlayer.show()
                 this.toastVisible = true
@@ -1137,12 +1138,43 @@ const app = createApp({
         playPreviousTrack() {
             if (!this.canPlayPrevious) return
             const prevSong = this.playSongBand.songs[this.currentSongIndex - 1]
-            this.handleSongSelect(prevSong)
+            this.playTrackFromCurrentBand(prevSong)
         },
         playNextTrack() {
             if (!this.canPlayNext) return
             const nextSong = this.playSongBand.songs[this.currentSongIndex + 1]
-            this.handleSongSelect(nextSong)
+            this.playTrackFromCurrentBand(nextSong)
+        },
+        playTrackFromCurrentBand(song) {
+            // Play a track from the already stored playSongBand (don't overwrite band info)
+            if (this.playSong && this.playSong.id === song.id) {
+                return
+            }
+            this.playSong = { ...song }
+
+            if (this.wavesurfer) {
+                this.wavesurfer.destroy()
+                this.wavesurfer = null
+            }
+
+            this.wavesurfer = WaveSurfer.create({
+                container: document.getElementById('player-wrapper'),
+                waveColor: '#fff300',
+                progressColor: '#999400',
+                normalize: false,
+                splitChannels: false,
+                dragToSeek: true,
+                cursorWidth: 3,
+                url: song.encoded_file || song.file,
+                mediaControls: true,
+                autoplay: true
+            })
+
+            this.wavesurfer.on('finish', () => {
+                if (this.canPlayNext) {
+                    this.playNextTrack()
+                }
+            })
         },
         handleCloseClick() {
             console.debug('app handleCloseClick')
