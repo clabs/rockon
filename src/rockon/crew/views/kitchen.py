@@ -49,7 +49,8 @@ def attendance_table(request, slug):
         )
 
     # FIXME: this query does not really scale well. :(
-    for day in attendances:
+    attendances_list = list(attendances)
+    for idx, day in enumerate(attendances_list):
         amounts = {}
         misc_additions = AttendanceAddition.objects.filter(attendance=day)
         amounts['misc'] = misc_additions.aggregate(Sum('amount'))['amount__sum'] or 0
@@ -135,6 +136,42 @@ def attendance_table(request, slug):
         amounts['crew']['sum_overnight'] = (
             crew_members.filter(attendance=day, stays_overnight=True).count() or 0
         )
+
+        # calculate breakfast counts from previous day's overnight stays
+        if idx > 0:
+            previous_day = attendances_list[idx - 1]
+            amounts['crew']['omnivore_breakfast'] = (
+                crew_members.filter(
+                    attendance=previous_day, nutrition='omnivore', stays_overnight=True
+                ).count()
+                or 0
+            )
+            amounts['crew']['vegetarian_breakfast'] = (
+                crew_members.filter(
+                    attendance=previous_day,
+                    nutrition='vegetarian',
+                    stays_overnight=True,
+                ).count()
+                or 0
+            )
+            amounts['crew']['vegan_breakfast'] = (
+                crew_members.filter(
+                    attendance=previous_day, nutrition='vegan', stays_overnight=True
+                ).count()
+                or 0
+            )
+            amounts['crew']['sum_breakfast'] = (
+                crew_members.filter(
+                    attendance=previous_day, stays_overnight=True
+                ).count()
+                or 0
+            )
+        else:
+            # First day has no breakfast from overnight stays
+            amounts['crew']['omnivore_breakfast'] = 0
+            amounts['crew']['vegetarian_breakfast'] = 0
+            amounts['crew']['vegan_breakfast'] = 0
+            amounts['crew']['sum_breakfast'] = 0
 
         kitchen_list.append(amounts)
 

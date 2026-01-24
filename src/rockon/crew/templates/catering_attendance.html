@@ -21,19 +21,19 @@
                     <tr>
                         <th scope="row" class="date-format-huge">{{ day.day }}</th>
                         <td>Crew: {{ day.crew.omnivore }}
-                            (*{{ day.crew.omnivore_overnight }})<br/>Bands: {{ day.bands.omnivore }}</td>
+                            (*{{ day.crew.omnivore_breakfast }})<br/>Bands: {{ day.bands.omnivore }}</td>
                         <td>Crew: {{ day.crew.vegetarian }}
-                            (*{{ day.crew.vegetarian_overnight }})<br/>Bands: {{ day.bands.vegetarian }}</td>
+                            (*{{ day.crew.vegetarian_breakfast }})<br/>Bands: {{ day.bands.vegetarian }}</td>
                         <td>Crew: {{ day.crew.vegan }}
-                            (*{{ day.crew.vegan_overnight }})<br/>Bands: {{ day.bands.vegan }}</td>
+                            (*{{ day.crew.vegan_breakfast }})<br/>Bands: {{ day.bands.vegan }}</td>
                         <td>{{ day.misc }}</td>
-                        <td><strong>{{ day.sum }} (*{{ day.crew.sum_overnight }})</strong></td>
+                        <td><strong>{{ day.sum }} (*{{ day.crew.sum_breakfast }})</strong></td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
             <div class="alert alert-secondary" role="alert">
-                Zahl der Übernachtungen (*#) pro Tag in Klammern.
+                Frühstück (*#) pro Tag: Anzahl der Übernachtungen vom Vortag.
             </div>
         </div>
 
