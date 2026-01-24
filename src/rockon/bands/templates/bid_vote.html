@@ -97,6 +97,14 @@
                         <div class="toast-body">
                             <song-info v-if="playSong" :song="playSong" :band="playSongBand"></song-info>
                             <div id="player-wrapper"></div>
+                            <div class="d-flex justify-content-center gap-2 mt-2">
+                                <button type="button" class="btn btn-sm btn-player-control" @click="playPreviousTrack" :disabled="!canPlayPrevious" title="Vorheriger Track">
+                                    <i class="fa-solid fa-backward-step"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-player-control" @click="playNextTrack" :disabled="!canPlayNext" title="Nächster Track">
+                                    <i class="fa-solid fa-forward-step"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -150,6 +158,25 @@
 
         .scrolling-text {
             white-space: nowrap;
+        }
+
+        /* Player control buttons */
+        .btn-player-control {
+            color: #fff300;
+            border-color: #fff300;
+            transition: all 0.2s ease;
+        }
+
+        .btn-player-control:hover:not(:disabled) {
+            background-color: #fff300;
+            color: #000;
+        }
+
+        .btn-player-control:disabled {
+            color: #666;
+            border-color: #444;
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
     {% compress js file voting %}

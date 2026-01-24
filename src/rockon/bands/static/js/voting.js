@@ -945,6 +945,19 @@ const app = createApp({
             lightbox: null
         }
     },
+    computed: {
+        currentSongIndex() {
+            if (!this.playSong || !this.playSongBand || !this.playSongBand.songs) return -1
+            return this.playSongBand.songs.findIndex(s => s.id === this.playSong.id)
+        },
+        canPlayPrevious() {
+            return this.currentSongIndex > 0
+        },
+        canPlayNext() {
+            if (!this.playSongBand || !this.playSongBand.songs) return false
+            return this.currentSongIndex < this.playSongBand.songs.length - 1
+        }
+    },
     components: {
         TrackList,
         BandList,
@@ -1110,9 +1123,26 @@ const app = createApp({
                 mediaControls: true,
                 autoplay: true
             })
+
+            // Auto-play next track when current one ends
+            this.wavesurfer.on('finish', () => {
+                if (this.canPlayNext) {
+                    this.playNextTrack()
+                }
+            })
         },
         toggleIcon() {
             this.toastIsMaximized = !this.toastIsMaximized
+        },
+        playPreviousTrack() {
+            if (!this.canPlayPrevious) return
+            const prevSong = this.playSongBand.songs[this.currentSongIndex - 1]
+            this.handleSongSelect(prevSong)
+        },
+        playNextTrack() {
+            if (!this.canPlayNext) return
+            const nextSong = this.playSongBand.songs[this.currentSongIndex + 1]
+            this.handleSongSelect(nextSong)
         },
         handleCloseClick() {
             console.debug('app handleCloseClick')
