@@ -66,6 +66,12 @@ const BandDocuments = Vue.defineComponent({
 
 const BandImages = Vue.defineComponent({
     props: ['selectedBandDetails'],
+    data() {
+        return {
+            pressPhotoLoaded: false,
+            logoLoaded: false
+        }
+    },
     methods: {
         pressPhoto(band) {
             let file = band?.press_photo?.encoded_file || band?.press_photo?.file
@@ -86,6 +92,19 @@ const BandImages = Vue.defineComponent({
                 return window.rockon_data.media_offline
             }
             return file
+        },
+        onPressPhotoLoad() {
+            this.pressPhotoLoaded = true
+        },
+        onLogoLoad() {
+            this.logoLoaded = true
+        }
+    },
+    watch: {
+        selectedBandDetails() {
+            // Reset loaded states when band changes
+            this.pressPhotoLoaded = false
+            this.logoLoaded = false
         }
     },
     template: `
@@ -93,13 +112,19 @@ const BandImages = Vue.defineComponent({
       <div v-if="selectedBandDetails.press_photo" class="col">
         <div><h5>Photo</h5></div>
         <a :href="selectedBandDetails.press_photo.file">
-        <img :src="pressPhoto(selectedBandDetails)" :alt="selectedBandDetails.press_photo.encoded_file" style="max-height: 250px;">
+          <div class="detail-image-container" :class="{ 'loaded': pressPhotoLoaded }">
+            <div v-if="!pressPhotoLoaded" class="skeleton-loader"></div>
+            <img :src="pressPhoto(selectedBandDetails)" :alt="selectedBandDetails.press_photo.encoded_file" class="detail-image" :class="{ 'loaded': pressPhotoLoaded }" @load="onPressPhotoLoad">
+          </div>
         </a>
       </div>
       <div v-if="selectedBandDetails.logo" class="col">
         <div><h5>Logo</h5></div>
         <a :href="selectedBandDetails.logo.file">
-        <img :src="logo(selectedBandDetails)" :alt="selectedBandDetails.logo.encoded_file" style="max-height: 250px;">
+          <div class="detail-image-container" :class="{ 'loaded': logoLoaded }">
+            <div v-if="!logoLoaded" class="skeleton-loader"></div>
+            <img :src="logo(selectedBandDetails)" :alt="selectedBandDetails.logo.encoded_file" class="detail-image" :class="{ 'loaded': logoLoaded }" @load="onLogoLoad">
+          </div>
         </a>
       </div>
     </div>
@@ -551,7 +576,8 @@ const BandList = Vue.defineComponent({
         return {
             selectedBand: null,
             bgColor: 'var(--rockon-card-bg)',
-            imageCache: new Set()
+            imageCache: new Set(),
+            loadedImages: {}
         }
     },
     methods: {
@@ -578,6 +604,9 @@ const BandList = Vue.defineComponent({
                 this.selectedBand = null
                 this.bgColor = 'var(--rockon-card-bg)'
             }
+        },
+        onImageLoad(bandId) {
+            this.loadedImages[bandId] = true
         },
         preloadImages() {
             // Preload first 12 images (3 rows) immediately
@@ -611,7 +640,8 @@ const BandList = Vue.defineComponent({
       <div class="card-group">
         <div class="card" v-for="item in group" :key="item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
           <div class="image-container">
-            <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" style="height: 250px; object-fit: cover; object-position: center;" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto">
+            <div v-if="!loadedImages[item.band.id]" class="skeleton-loader"></div>
+            <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" :class="{ 'loaded': loadedImages[item.band.id] }" style="height: 250px; object-fit: cover; object-position: center;" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto" @load="onImageLoad(item.band.id)">
           </div>
             <div class="card-body">
             <h6 class="card-title">{{ item.band.name || item.band.guid }}</h6>
