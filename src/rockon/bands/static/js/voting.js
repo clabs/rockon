@@ -2,6 +2,119 @@ const {createApp, ref} = Vue
 
 const DateTime = luxon.DateTime
 
+// =============================================================================
+// Filter Service - Centralized filter logic for band lists
+// =============================================================================
+const FilterService = {
+    STORAGE_KEYS: {
+        showBandNoName: 'filterShowBandsNoName',
+        showIncompleteBids: 'filterIncompleteBids',
+        showDeclinedBids: 'filterDeclinedBids',
+        filterCollapsed: 'filterOptionsCollapsed'
+    },
+
+    /**
+     * Load a filter setting from sessionStorage
+     * @param {string} key - The filter key
+     * @param {*} defaultValue - Default value if not found
+     * @returns {*} The stored value or default
+     */
+    loadFromStorage(key, defaultValue = false) {
+        const storageKey = this.STORAGE_KEYS[key] || key
+        const stored = sessionStorage.getItem(storageKey)
+        return stored !== null ? JSON.parse(stored) : defaultValue
+    },
+
+    /**
+     * Save a filter setting to sessionStorage
+     * @param {string} key - The filter key
+     * @param {*} value - The value to store
+     */
+    saveToStorage(key, value) {
+        const storageKey = this.STORAGE_KEYS[key] || key
+        sessionStorage.setItem(storageKey, JSON.stringify(value))
+    },
+
+    /**
+     * Apply base visibility filters (incomplete, no-name, declined)
+     * @param {Array} bands - The bands to filter
+     * @param {Object} filters - Filter settings {showIncompleteBids, showBandNoName, showDeclinedBids}
+     * @returns {Array} Filtered bands
+     */
+    applyVisibilityFilters(bands, filters) {
+        let result = bands
+
+        if (!filters.showIncompleteBids) {
+            result = result.filter(band => band.bid_complete === true)
+        }
+        if (!filters.showBandNoName) {
+            result = result.filter(band => band.name)
+        }
+        if (!filters.showDeclinedBids) {
+            result = result.filter(band => band.bid_status !== 'declined')
+        }
+
+        return result
+    },
+
+    /**
+     * Apply selection filter (track, status, or special filter)
+     * @param {Array} bands - The bands to filter (already visibility-filtered)
+     * @param {*} selectedTrack - The selected track/filter
+     * @param {Array} userVotes - User's votes for no-vote filter
+     * @returns {Array} Filtered bands
+     */
+    applySelectionFilter(bands, selectedTrack, userVotes = []) {
+        // No selection - return all
+        if (!selectedTrack) {
+            return bands
+        }
+
+        // String-based filters
+        if (typeof selectedTrack === 'string') {
+            switch (selectedTrack) {
+                case 'no-track':
+                    return bands.filter(band => !band.track)
+
+                case 'student-bands':
+                    return bands.filter(band => band.are_students)
+
+                case 'no-vote':
+                    // Exclude declined bands, then filter for unvoted
+                    return bands
+                        .filter(band => band.bid_status !== 'declined')
+                        .filter(band => !userVotes.some(vote => vote.band__id === band.id))
+
+                default:
+                    // Status filter (status-unknown, status-pending, etc.)
+                    if (selectedTrack.startsWith('status-')) {
+                        const statusValue = selectedTrack.replace('status-', '')
+                        return bands.filter(band => band.bid_status === statusValue)
+                    }
+                    return bands
+            }
+        }
+
+        // Track object filter
+        if (selectedTrack?.id) {
+            return bands.filter(band => band.track && band.track === selectedTrack.id)
+        }
+
+        return bands
+    },
+
+    /**
+     * Apply all filters to a band list
+     * @param {Array} bands - All bands
+     * @param {Object} options - {filters, selectedTrack, userVotes}
+     * @returns {Array} Filtered bands
+     */
+    filterBands(bands, { filters, selectedTrack, userVotes = [] }) {
+        const visibilityFiltered = this.applyVisibilityFilters(bands, filters)
+        return this.applySelectionFilter(visibilityFiltered, selectedTrack, userVotes)
+    }
+}
+
 const LoadingSpinner = Vue.defineComponent({
     props: ['bands', 'bandsToFetch'],
     computed: {
@@ -250,7 +363,7 @@ const TrackList = Vue.defineComponent({
     ],
     data() {
         return {
-            isFilterCollapsed: JSON.parse(sessionStorage.getItem('filterOptionsCollapsed')) ?? false
+            isFilterCollapsed: FilterService.loadFromStorage('filterCollapsed', false)
         }
     },
     computed: {
@@ -323,7 +436,7 @@ const TrackList = Vue.defineComponent({
         },
         toggleFilterCollapsed() {
             this.isFilterCollapsed = !this.isFilterCollapsed
-            sessionStorage.setItem('filterOptionsCollapsed', JSON.stringify(this.isFilterCollapsed))
+            FilterService.saveToStorage('filterCollapsed', this.isFilterCollapsed)
         }
     },
     template: `
@@ -551,50 +664,15 @@ const BandList = Vue.defineComponent({
     emits: ['select-band'],
     computed: {
         filteredBands() {
-            console.debug('selectedTrack:', this.selectedTrack)
-            _bands = this.bands
-            if (!this.showIncompleteBids) {
-                console.debug('Filtering for bands with incomplete bids.')
-                _bands = _bands.filter(band => band.bid_complete === true)
-            }
-            if (!this.showBandNoName) {
-                console.debug('Filtering for bands without a name.')
-                _bands = _bands.filter(band => band.name)
-            }
-            if (!this.showDeclinedBids) {
-                console.debug('Filtering for bands with declined bids.')
-                _bands = _bands.filter(band => band.bid_status !== 'declined')
-            }
-            if (this.selectedTrack === 'no-track') {
-                console.debug('Filtering for bands without a track.')
-                return _bands.filter(band => !band.track)
-            }
-            if (this.selectedTrack === 'student-bands') {
-                console.debug('Filtering for student bands.')
-                return _bands.filter(band => band.are_students)
-            }
-            if (this.selectedTrack === 'no-vote') {
-                console.debug('Filtering for bands without a vote.')
-                _bands = _bands.filter(band => band.bid_status !== 'declined')
-                return _bands.filter(
-                    a1 => !this.userVotes.some(a2 => a2.band__id === a1.id)
-                )
-            }
-            // Check for status filter (status-unknown, status-pending, etc.)
-            if (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-')) {
-                const statusValue = this.selectedTrack.replace('status-', '')
-                console.debug('Filtering for bands with status:', statusValue)
-                return _bands.filter(band => band.bid_status === statusValue)
-            }
-            if (!this.selectedTrack) {
-                console.debug('No selected track id. Returning all.')
-                return _bands
-            }
-            const filtered = _bands.filter(
-                band => band.track && band.track === this.selectedTrack.id
-            )
-            console.debug('Filtered bands:', filtered)
-            return filtered
+            return FilterService.filterBands(this.bands, {
+                filters: {
+                    showIncompleteBids: this.showIncompleteBids,
+                    showBandNoName: this.showBandNoName,
+                    showDeclinedBids: this.showDeclinedBids
+                },
+                selectedTrack: this.selectedTrack,
+                userVotes: this.userVotes
+            })
         },
         // Flat list with indices for better lazy loading control
         filteredBandsWithIndex() {
@@ -1417,18 +1495,15 @@ const app = createApp({
             }
         },
         handleFilterShowBandNoNameChange(checked) {
-            console.debug('app handleFilterShowBandNoNameChange:', checked)
-            sessionStorage.setItem('filterShowBandsNoName', JSON.stringify(checked))
+            FilterService.saveToStorage('showBandNoName', checked)
             this.showBandNoName = checked
         },
         handleFilterIncompleteBidsChange(checked) {
-            console.debug('app handleFilterIncompleteBidsChange:', checked)
-            sessionStorage.setItem('filterIncompleteBids', JSON.stringify(checked))
+            FilterService.saveToStorage('showIncompleteBids', checked)
             this.showIncompleteBids = checked
         },
         handleFilterDeclinedBidsChange(checked) {
-            console.debug('app handleFilterDeclinedBidsChange:', checked)
-            sessionStorage.setItem('filterDeclinedBids', JSON.stringify(checked))
+            FilterService.saveToStorage('showDeclinedBids', checked)
             this.showDeclinedBids = checked
         },
         setRating(rating) {
@@ -1513,16 +1588,10 @@ const app = createApp({
         this.toastAudioPlayer = toastAudioPlayer
         this.handlePopState()
 
-        // Initialize filter states from sessionStorage with consistent defaults
-        this.showBandNoName = JSON.parse(
-            sessionStorage.getItem('filterShowBandsNoName')
-        ) ?? false
-        this.showIncompleteBids = JSON.parse(
-            sessionStorage.getItem('filterIncompleteBids')
-        ) ?? false
-        this.showDeclinedBids = JSON.parse(
-            sessionStorage.getItem('filterDeclinedBids')
-        ) ?? false
+        // Initialize filter states from sessionStorage
+        this.showBandNoName = FilterService.loadFromStorage('showBandNoName', false)
+        this.showIncompleteBids = FilterService.loadFromStorage('showIncompleteBids', false)
+        this.showDeclinedBids = FilterService.loadFromStorage('showDeclinedBids', false)
     },
     beforeDestroy() {
         window.removeEventListener('popstate', this.handlePopState)
