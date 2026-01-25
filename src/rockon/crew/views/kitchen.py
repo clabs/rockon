@@ -101,7 +101,7 @@ def attendance_table(request, slug):
     }
 
     kitchen_list = []
-    addtion_list = []
+    addition_list = []
     previous_overnight = {}
 
     for day in attendances:
@@ -147,7 +147,7 @@ def attendance_table(request, slug):
                 amounts['sum'] += member_count
 
         if additions:
-            addtion_list.append({'day': day, 'additions': additions})
+            addition_list.append({'day': day, 'additions': additions})
 
         previous_overnight = stats
         kitchen_list.append(amounts)
@@ -156,7 +156,7 @@ def attendance_table(request, slug):
         'event': event,
         'kitchen_list': kitchen_list,
         'nutrition_notes': nutrition_notes,
-        'addtion_list': addtion_list,
+        'addition_list': addition_list,
         'site_title': 'Mengenliste',
     }
     return HttpResponse(template.render(extra_context, request))
