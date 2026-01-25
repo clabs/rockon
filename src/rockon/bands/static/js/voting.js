@@ -403,7 +403,13 @@ const TrackList = Vue.defineComponent({
     methods: {
         getTrackCount(track) {
             if (!this.bands) return 0
-            return this.bands.filter(band => band.track === track.id).length
+            // Apply the same visibility filters as the band list
+            const visibleBands = FilterService.applyVisibilityFilters(this.bands, {
+                showIncompleteBids: this.showIncompleteBids,
+                showBandNoName: this.showBandNoName,
+                showDeclinedBids: this.showDeclinedBids
+            })
+            return visibleBands.filter(band => band.track === track.id).length
         },
         handleClick(track) {
             console.debug('TrackList handleClick:', track)
@@ -692,6 +698,35 @@ const BandList = Vue.defineComponent({
                 userVotes: this.userVotes
             })
         },
+        isTrackFilter() {
+            // Check if selectedTrack is an actual track object (has .id and .name)
+            return this.selectedTrack && typeof this.selectedTrack === 'object' && this.selectedTrack.name
+        },
+        filterLabel() {
+            if (!this.selectedTrack) return ''
+            const count = this.filteredBands.length
+            const singular = count === 1
+            // Actual track
+            if (this.isTrackFilter) return `in Track ${this.selectedTrack.name}`
+            // Special filters
+            const filterLabels = {
+                'no-track': 'ohne Track',
+                'no-vote': 'ohne Bewertung',
+                'student-bands': singular ? 'ist Schülerband' : 'sind Schülerbands'
+            }
+            if (filterLabels[this.selectedTrack]) return filterLabels[this.selectedTrack]
+            // Status filters
+            if (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-')) {
+                const statusLabels = {
+                    'status-unknown': 'mit Status Unbekannt',
+                    'status-pending': 'mit Status Bearbeitung',
+                    'status-accepted': 'mit Status Angenommen',
+                    'status-declined': 'mit Status Abgelehnt'
+                }
+                return statusLabels[this.selectedTrack] || ''
+            }
+            return ''
+        },
         // Flat list with indices for better lazy loading control
         filteredBandsWithIndex() {
             return this.filteredBands.map((band, index) => ({ band, index }))
@@ -766,7 +801,7 @@ const BandList = Vue.defineComponent({
     template: `
     <section class="row p-4 form-section">
     <div class="row">
-      <h3>{{ filteredBands.length }} Bands<span v-if="selectedTrack"> in Track {{selectedTrack.name}}</span></h3>
+      <h3>{{ filteredBands.length }} {{ filteredBands.length === 1 ? 'Band' : 'Bands' }} {{ filterLabel }}</h3>
     </div>
     <div v-if="groupedBands.length > 0" v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
       <div class="card-group">
