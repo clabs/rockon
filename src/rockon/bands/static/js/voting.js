@@ -239,7 +239,8 @@ const TrackList = Vue.defineComponent({
         'selectedTrack',
         'showBandNoName',
         'showIncompleteBids',
-        'showDeclinedBids'
+        'showDeclinedBids',
+        'bidStates'
     ],
     emits: [
         'select-track',
@@ -254,10 +255,18 @@ const TrackList = Vue.defineComponent({
     },
     computed: {
         isSpecialFilter() {
-            return ['no-track', 'no-vote', 'student-bands'].includes(this.selectedTrack)
+            return ['no-track', 'no-vote', 'student-bands'].includes(this.selectedTrack) ||
+                   (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-'))
         },
         hasActiveSelection() {
             return this.selectedTrack || this.isSpecialFilter
+        },
+        selectedStatus() {
+            // Extract the status value if a status filter is selected
+            if (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-')) {
+                return this.selectedTrack.replace('status-', '')
+            }
+            return ''
         }
     },
     methods: {
@@ -302,6 +311,15 @@ const TrackList = Vue.defineComponent({
         handleFilterDeclinedBids(event) {
             console.debug('TrackList handleFilterDeclinedBids:', event.target.checked)
             this.$emit('filter-declined-bids', event.target.checked)
+        },
+        handleStatusChange(event) {
+            const status = event.target.value
+            console.debug('TrackList handleStatusChange:', status)
+            if (status) {
+                this.$emit('select-track', `status-${status}`)
+            } else {
+                this.$emit('select-track', null)
+            }
         },
         toggleFilterCollapsed() {
             this.isFilterCollapsed = !this.isFilterCollapsed
@@ -360,6 +378,18 @@ const TrackList = Vue.defineComponent({
               <i :class="selectedTrack === 'student-bands' ? 'fas fa-check me-1' : 'fas fa-graduation-cap me-1'"></i>
               Schülerbands
             </span>
+            <select
+              class="form-select form-select-sm d-inline-block m-1 status-filter-dropdown"
+              :class="selectedStatus ? 'bg-success text-white border-success' : ''"
+              style="width: auto; min-width: 150px;"
+              :value="selectedStatus"
+              @change="handleStatusChange"
+              title="Filtere nach Bewerbungsstatus">
+              <option value="">Status</option>
+              <option v-for="state in bidStates" :key="state[0]" :value="state[0]">
+                {{ state[1] }}
+              </option>
+            </select>
             <span
               v-if="hasActiveSelection"
               class="badge m-1 filter-badge text-bg-outline-primary"
@@ -544,11 +574,17 @@ const BandList = Vue.defineComponent({
                 return _bands.filter(band => band.are_students)
             }
             if (this.selectedTrack === 'no-vote') {
-                console.debug('Filtering for bands without a track.')
+                console.debug('Filtering for bands without a vote.')
                 _bands = _bands.filter(band => band.bid_status !== 'declined')
                 return _bands.filter(
                     a1 => !this.userVotes.some(a2 => a2.band__id === a1.id)
                 )
+            }
+            // Check for status filter (status-unknown, status-pending, etc.)
+            if (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-')) {
+                const statusValue = this.selectedTrack.replace('status-', '')
+                console.debug('Filtering for bands with status:', statusValue)
+                return _bands.filter(band => band.bid_status === statusValue)
             }
             if (!this.selectedTrack) {
                 console.debug('No selected track id. Returning all.')
@@ -1146,9 +1182,25 @@ const app = createApp({
             const url = new URL(window.location.href)
             const hashSegments = url.hash.split('/').filter(segment => segment)
 
-            if (hashSegments.includes('track')) {
+            if (hashSegments.includes('status')) {
+                const statusFilter = hashSegments[hashSegments.indexOf('status') + 1]
+                // Map URL value back to internal filter name (status-unknown, status-pending, etc.)
+                this.selectedTrack = `status-${statusFilter}`
+                this.selectedBand = null
+                this.selectedBandDetails = null
+            } else if (hashSegments.includes('filter')) {
+                const filterName = hashSegments[hashSegments.indexOf('filter') + 1]
+                this.selectedTrack = filterName
+                this.selectedBand = null
+                this.selectedBandDetails = null
+            } else if (hashSegments.includes('track')) {
                 const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
-                this.selectedTrack = this.tracks.find(track => track.slug === trackSlug) || null
+                // Check if it's an old-style special filter URL or actual track
+                if (['no-vote', 'no-track', 'student-bands'].includes(trackSlug)) {
+                    this.selectedTrack = trackSlug
+                } else {
+                    this.selectedTrack = this.tracks.find(track => track.slug === trackSlug) || null
+                }
                 this.selectedBand = null
                 this.selectedBandDetails = null
             } else if (hashSegments.includes('bid')) {
@@ -1173,12 +1225,16 @@ const app = createApp({
             this.selectedBandDetails = null
             console.debug('Selected band:', this.selectedBand)
             const url = new URL(window.location.href)
-            if (track === 'no-vote') {
-                url.hash = '#/track/no-vote/'
+            // Check for status filter (status-unknown, status-pending, etc.)
+            if (typeof track === 'string' && track.startsWith('status-')) {
+                const statusValue = track.replace('status-', '')
+                url.hash = `#/status/${statusValue}/`
+            } else if (track === 'no-vote') {
+                url.hash = '#/filter/no-vote/'
             } else if (track === 'no-track') {
-                url.hash = '#/track/no-track/'
+                url.hash = '#/filter/no-track/'
             } else if (track === 'student-bands') {
-                url.hash = '#/track/student-bands/'
+                url.hash = '#/filter/student-bands/'
             } else if (track) {
                 url.hash = `#/track/${track.slug}/`
             } else {
