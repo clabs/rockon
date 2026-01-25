@@ -52,6 +52,7 @@
                    :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
                    :show-declined-bids="showDeclinedBids" @select-band="selectBand" :federal-states="federalStates"
                    :user-votes="userVotes"></band-list>
+        <band-details-skeleton v-if="selectedBand && !bandDetailLoaded" :selected-band="selectedBand"></band-details-skeleton>
         <band-details v-if="bandDetailLoaded && selectedBandDetails" :selected-band-details="selectedBandDetails"
                       :allow-votes="allowVotes" :allow-changes="allowChanges" :tracks="tracks"
                       :federal-states="federalStates" :comment-api="bandCommentsUrl" @update:track="updateTrack"
@@ -142,6 +143,21 @@
             );
             background-size: 200% 100%;
             animation: skeleton-pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Skeleton text placeholder */
+        .skeleton-text {
+            display: inline-block;
+            background: linear-gradient(
+                90deg,
+                #2a2a2a 0%,
+                #3a3a3a 50%,
+                #2a2a2a 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+            border-radius: 4px;
+            vertical-align: middle;
         }
 
         @keyframes skeleton-pulse {

@@ -158,6 +158,114 @@ const LoadingSpinner = Vue.defineComponent({
   `
 })
 
+// Skeleton component for band details loading state
+const BandDetailsSkeleton = Vue.defineComponent({
+    props: ['selectedBand'],
+    computed: {
+        bandName() {
+            return this.selectedBand?.name || this.selectedBand?.guid || 'Lädt...'
+        }
+    },
+    template: `
+    <section class="row p-4 form-section">
+      <!-- Band name - show actual name from list data -->
+      <div class="col">
+          <h3>{{ bandName }}</h3>
+      </div>
+
+      <!-- Tags skeleton -->
+      <div class="row mt-3">
+        <div class="col-9">
+          <div class="d-flex flex-wrap gap-2">
+            <span class="skeleton-text" style="width: 80px; height: 24px;"></span>
+            <span class="skeleton-text" style="width: 100px; height: 24px;"></span>
+            <span class="skeleton-text" style="width: 60px; height: 24px;"></span>
+            <span class="skeleton-text" style="width: 90px; height: 24px;"></span>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="skeleton-text" style="width: 150px; height: 32px;"></div>
+        </div>
+      </div>
+
+      <!-- Allgemeines section -->
+      <h3 class="mt-4">Allgemeines</h3>
+      <div class="col-12">
+          <div class="alert alert-secondary" role="alert" style="min-height: 120px;">
+            <div class="skeleton-text" style="width: 100%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-text" style="width: 90%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-text" style="width: 95%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-text" style="width: 80%; height: 16px;"></div>
+          </div>
+      </div>
+      <div class="col">
+          <div><h4>Web</h4></div>
+          <ul>
+            <li><span class="skeleton-text" style="width: 200px; height: 16px;"></span></li>
+            <li><span class="skeleton-text" style="width: 180px; height: 16px;"></span></li>
+          </ul>
+      </div>
+
+      <!-- Media section -->
+      <h3>Media</h3>
+      <div class="col">
+          <div><h4>Songs</h4></div>
+          <ol>
+            <li><span class="skeleton-text" style="width: 200px; height: 16px;"></span></li>
+            <li><span class="skeleton-text" style="width: 180px; height: 16px;"></span></li>
+            <li><span class="skeleton-text" style="width: 220px; height: 16px;"></span></li>
+          </ol>
+      </div>
+      <div class="col">
+          <div><h4>Links</h4></div>
+          <ul>
+            <li><span class="skeleton-text" style="width: 200px; height: 16px;"></span></li>
+          </ul>
+      </div>
+
+      <!-- Images section -->
+      <h4>Bilder</h4>
+      <div class="col">
+        <div class="row gallery">
+          <div class="col">
+            <div><h5>Photo</h5></div>
+            <div class="detail-image-container">
+              <div class="skeleton-loader"></div>
+            </div>
+          </div>
+          <div class="col">
+            <div><h5>Logo</h5></div>
+            <div class="detail-image-container">
+              <div class="skeleton-loader"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents section -->
+      <h4>Dokumente</h4>
+      <div class="col">
+          <ul>
+            <li><span class="skeleton-text" style="width: 180px; height: 16px;"></span></li>
+          </ul>
+      </div>
+
+      <!-- Comments section -->
+      <h3>Kommentare</h3>
+      <div class="mt-2">
+        <div class="skeleton-text" style="width: 100%; height: 60px; margin-bottom: 12px;"></div>
+        <div class="skeleton-text" style="width: 100%; height: 60px;"></div>
+      </div>
+
+      <!-- Comment field -->
+      <h4 class="mt-3">Dein Kommentar</h4>
+      <div class="form-group">
+        <div class="skeleton-text" style="width: 100%; height: 100px;"></div>
+      </div>
+    </section>
+  `
+})
+
 const SongInfo = Vue.defineComponent({
     props: ['song', 'band'],
     emits: ['navigate-to-band'],
@@ -1286,6 +1394,7 @@ const app = createApp({
         TrackList,
         BandList,
         BandDetails,
+        BandDetailsSkeleton,
         TrackDropdown,
         BidStatusDropdown,
         SongList,
