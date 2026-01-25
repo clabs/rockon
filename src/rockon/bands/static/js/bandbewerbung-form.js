@@ -1,7 +1,5 @@
 console.debug('bandbewerbung-form.js loaded')
 
-const DateTime = luxon.DateTime
-
 $(document).ready(() => {
     console.debug('document ready')
     const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
@@ -180,8 +178,14 @@ const li_remove_song = id => {
 }
 
 const render_updated_at = (updated_at) => {
-    const date = DateTime.fromISO(updated_at)
-    const formattedDate = date.toFormat('d.M.yyyy, H:mm')
+    const date = new Date(updated_at)
+    const formattedDate = new Intl.DateTimeFormat('de-DE', {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+    }).format(date)
     $('#updated_at').text(formattedDate)
 }
 

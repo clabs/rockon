@@ -1,7 +1,5 @@
 const {createApp, ref} = Vue
 
-const DateTime = luxon.DateTime
-
 // =============================================================================
 // Filter Service - Centralized filter logic for band lists
 // =============================================================================
@@ -112,6 +110,26 @@ const FilterService = {
     filterBands(bands, { filters, selectedTrack, userVotes = [] }) {
         const visibilityFiltered = this.applyVisibilityFilters(bands, filters)
         return this.applySelectionFilter(visibilityFiltered, selectedTrack, userVotes)
+    }
+}
+
+// =============================================================================
+// Utils - Shared utility functions
+// =============================================================================
+const Utils = {
+    /**
+     * Format an ISO date string to German locale format
+     * @param {string} isoString - ISO 8601 date string
+     * @returns {string} Formatted date (dd.MM.yyyy, HH:mm)
+     */
+    formatDate(isoString) {
+        return new Intl.DateTimeFormat('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(new Date(isoString))
     }
 }
 
@@ -868,10 +886,7 @@ const CommentFeed = Vue.defineComponent({
                 this.loading = false;
             }
         },
-        formatDate(isoString) {
-            console.debug('BandDetails formatDate:', isoString)
-            return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
-        },
+        formatDate: Utils.formatDate,
     },
     template: `
     <div v-if="loading">Loading comments...</div>
@@ -1178,10 +1193,7 @@ const BandDetails = Vue.defineComponent({
             console.debug('BandDetails handleSongSelect:', song)
             this.$emit('update:select-song', song)
         },
-        formatDate(isoString) {
-            console.debug('BandDetails formatDate:', isoString)
-            return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
-        },
+        formatDate: Utils.formatDate,
         emitRating(rating) {
             console.debug('BandDetails emitRating:', rating)
             this.$emit('update:rating', rating)

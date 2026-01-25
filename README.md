@@ -148,10 +148,6 @@ To export the default groups use the following command:
 
 <https://www.chartjs.org/docs/latest/>
 
-### Luxon
-
-<https://moment.github.io/luxon/>
-
 ### Wavesurfer
 
 <https://wavesurfer.xyz/>
