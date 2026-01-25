@@ -44,7 +44,7 @@ def attendance_table(request, slug):
     )
 
     # nutrition notes with only required fields
-    nutrion_notes = [
+    nutrition_notes = [
         {'crew_member': cm, 'note': cm.nutrition_note}
         for cm in crew_members.exclude(nutrition_note='')
         .exclude(nutrition_note__isnull=True)
@@ -155,7 +155,7 @@ def attendance_table(request, slug):
     extra_context = {
         'event': event,
         'kitchen_list': kitchen_list,
-        'nutrion_notes': nutrion_notes,
+        'nutrition_notes': nutrition_notes,
         'addtion_list': addtion_list,
         'site_title': 'Mengenliste',
     }

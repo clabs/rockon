@@ -39,7 +39,7 @@
 
         <div class="row pb-3">
             <h4>Anmerkungen zu Ernährung</h4>
-            <div class="accordion" id="nutrion_notes">
+            <div class="accordion" id="nutrition_notes">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="heading_{{ forloop.counter0 }}">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -52,7 +52,7 @@
                          aria-labelledby="heading_{{ forloop.counter0 }}">
                         <div class="accordion-body">
                             <ul>
-                                {% for note in nutrion_notes %}
+                                {% for note in nutrition_notes %}
                                     <li>
                                         <strong>{{ note.crew_member.user.first_name }} {{ note.crew_member.user.last_name }}</strong>: {{ note.note }}
                                     </li>
