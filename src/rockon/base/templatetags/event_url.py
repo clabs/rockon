@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from urllib.parse import quote
 
 from django import template
 
@@ -24,14 +25,20 @@ def replace_event_slug(context, new_slug):
     old_slug = current_event.slug
 
     if old_slug and new_slug and old_slug != new_slug:
+        slug_re = re.compile(r'^[A-Za-z0-9_-]+$')
+        if slug_re.fullmatch(new_slug):
+            new_slug_safe = new_slug
+        else:
+            new_slug_safe = quote(new_slug, safe='-_')
+
         path = re.sub(
             rf'/event/{re.escape(old_slug)}/',
-            f'/event/{new_slug}/',
+            lambda m: f'/event/{new_slug_safe}/',
             path,
         )
         path = re.sub(
             rf'/events/{re.escape(old_slug)}/',
-            f'/events/{new_slug}/',
+            lambda m: f'/events/{new_slug_safe}/',
             path,
         )
 
