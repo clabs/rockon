@@ -338,6 +338,21 @@ const BandImages = Vue.defineComponent({
         onLogoLoad() {
             this.logoLoaded = true
         }
+        ,
+        _checkImageComplete() {
+            try {
+                const p = this.$refs.pressPhotoImg
+                if (p && p.complete && p.naturalWidth > 0) {
+                    this.pressPhotoLoaded = true
+                }
+                const l = this.$refs.logoImg
+                if (l && l.complete && l.naturalWidth > 0) {
+                    this.logoLoaded = true
+                }
+            } catch (e) {
+                console.debug('checkImageComplete error', e)
+            }
+        }
     },
     watch: {
         selectedBandDetails() {
@@ -351,19 +366,19 @@ const BandImages = Vue.defineComponent({
       <div v-if="selectedBandDetails.press_photo" class="col">
         <div><h5>Photo</h5></div>
         <a :href="selectedBandDetails.press_photo.file">
-          <div class="detail-image-container" :class="{ 'loaded': pressPhotoLoaded }">
-            <div v-if="!pressPhotoLoaded" class="skeleton-loader"></div>
-            <img :src="pressPhoto(selectedBandDetails)" :alt="selectedBandDetails.press_photo.encoded_file" class="detail-image" :class="{ 'loaded': pressPhotoLoaded }" @load="onPressPhotoLoad">
-          </div>
+                        <div class="detail-image-container" :class="{ 'loaded': pressPhotoLoaded }">
+                        <div v-if="!pressPhotoLoaded" class="skeleton-loader"></div>
+                        <img ref="pressPhotoImg" :src="pressPhoto(selectedBandDetails)" :alt="selectedBandDetails.press_photo.encoded_file" class="detail-image" :class="{ 'loaded': pressPhotoLoaded }" @load="onPressPhotoLoad">
+                    </div>
         </a>
       </div>
       <div v-if="selectedBandDetails.logo" class="col">
         <div><h5>Logo</h5></div>
         <a :href="selectedBandDetails.logo.file">
-          <div class="detail-image-container" :class="{ 'loaded': logoLoaded }">
-            <div v-if="!logoLoaded" class="skeleton-loader"></div>
-            <img :src="logo(selectedBandDetails)" :alt="selectedBandDetails.logo.encoded_file" class="detail-image" :class="{ 'loaded': logoLoaded }" @load="onLogoLoad">
-          </div>
+                        <div class="detail-image-container" :class="{ 'loaded': logoLoaded }">
+                        <div v-if="!logoLoaded" class="skeleton-loader"></div>
+                        <img ref="logoImg" :src="logo(selectedBandDetails)" :alt="selectedBandDetails.logo.encoded_file" class="detail-image" :class="{ 'loaded': logoLoaded }" @load="onLogoLoad">
+                    </div>
         </a>
       </div>
     </div>
@@ -375,6 +390,13 @@ const BandImages = Vue.defineComponent({
         }
         const lightbox = new SimpleLightbox('.gallery a', options)
         console.debug('BandImages mounted lightbox:', lightbox)
+        this.$nextTick(() => this._checkImageComplete())
+    }
+
+    ,
+    updated() {
+        // If the image was already loaded (from cache), ensure we update the flags
+        this.$nextTick(() => this._checkImageComplete())
     }
 })
 
