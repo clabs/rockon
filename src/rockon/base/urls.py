@@ -9,6 +9,7 @@ from .views import (
     login_token,
     logout,
     select_context,
+    switch_event,
     verify_email,
 )
 
@@ -22,4 +23,5 @@ urlpatterns = [
     path('login/<token>/', login_token, name='login_token'),
     path('logout/', logout, name='logout'),
     path('verify/<str:token>/', verify_email, name='verify_email'),
+    path('switch-event/<slug:event_slug>/', switch_event, name='switch_event'),
 ]

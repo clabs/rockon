@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections import defaultdict
+
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Sum
+from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.cache import cache_page
@@ -24,125 +26,137 @@ from rockon.exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorSt
 @vary_on_cookie
 def attendance_table(request, slug):
     template = loader.get_template('catering_attendance.html')
-    try:
-        event = Event.objects.get(slug=slug)
-    except Event.DoesNotExist:
-        event = None
-    attendances = Attendance.objects.filter(event=event)
-    crew = Crew.objects.filter(event=event)
-    crew_members = CrewMember.objects.filter(crew__in=crew).exclude(
+    event = Event.objects.filter(slug=slug).first()
+    if not event:
+        return HttpResponse(
+            template.render({'event': None, 'kitchen_list': []}, request)
+        )
+
+    # timeslots with bands and their members
+    attendances = Attendance.objects.filter(event=event).prefetch_related(
+        'timeslots__band__band_members'
+    )
+
+    # crew members in a flat only id list
+    crew_ids = Crew.objects.filter(event=event).values_list('id', flat=True)
+    crew_members = CrewMember.objects.filter(crew_id__in=crew_ids).exclude(
         state__in=[CrewMemberStatus.UNKNOWN, CrewMemberStatus.REJECTED]
     )
-    kitchen_list = []
-    nutrion_notes = [
-        {'crew_member': crew_member, 'note': crew_member.nutrition_note}
-        for crew_member in crew_members
-        if len(crew_member.nutrition_note) > 0
+
+    # nutrition notes with only required fields
+    nutrition_notes = [
+        {'crew_member': cm, 'note': cm.nutrition_note}
+        for cm in crew_members.exclude(nutrition_note='')
+        .exclude(nutrition_note__isnull=True)
+        .select_related('user')
+        .only('nutrition_note', 'user__first_name', 'user__last_name')
     ]
-    addtion_list = []
 
-    exhibitors = []
+    # filter exhibitor attendance
+    confirmed_exhibitor_ids = Exhibitor.objects.filter(
+        event__in=event.sub_events.all(), state=ExhibitorStatus.CONFIRMED
+    ).values_list('id', flat=True)
 
-    for sub_event in event.sub_events.all():
-        exhibitors += Exhibitor.objects.filter(
-            event=sub_event, state=ExhibitorStatus.CONFIRMED
+    # all attendance additions per day
+    additions_by_day = defaultdict(lambda: {'sum': 0, 'items': []})
+    for addition in AttendanceAddition.objects.filter(attendance__event=event).only(
+        'attendance_id', 'amount', 'comment'
+    ):
+        additions_by_day[addition.attendance_id]['sum'] += addition.amount
+        additions_by_day[addition.attendance_id]['items'].append(
+            {'comment': addition.comment, 'amount': addition.amount}
         )
 
-    # FIXME: this query does not really scale well. :(
+    # exhibitor attendance per day
+    exhibitor_attendance_by_day = defaultdict(lambda: {'sum': 0, 'items': []})
+    for ea in ExhibitorAttendance.objects.filter(
+        exhibitor_id__in=confirmed_exhibitor_ids
+    ).select_related('exhibitor__organisation', 'day'):
+        exhibitor_attendance_by_day[ea.day.day]['sum'] += ea.count
+        exhibitor_attendance_by_day[ea.day.day]['items'].append(
+            {'comment': str(ea.exhibitor), 'amount': ea.count}
+        )
+
+    # aggregated query for all crew stats by attendance day
+    crew_stats_by_day = {
+        stat['attendance']: stat
+        for stat in crew_members.filter(attendance__event=event)
+        .values('attendance')
+        .annotate(
+            omnivore=Count('id', filter=Q(nutrition='omnivore')),
+            vegetarian=Count('id', filter=Q(nutrition='vegetarian')),
+            vegan=Count('id', filter=Q(nutrition='vegan')),
+            total=Count('id'),
+            omnivore_overnight=Count(
+                'id', filter=Q(nutrition='omnivore', stays_overnight=True)
+            ),
+            vegetarian_overnight=Count(
+                'id', filter=Q(nutrition='vegetarian', stays_overnight=True)
+            ),
+            vegan_overnight=Count(
+                'id', filter=Q(nutrition='vegan', stays_overnight=True)
+            ),
+            total_overnight=Count('id', filter=Q(stays_overnight=True)),
+        )
+    }
+
+    kitchen_list = []
+    addition_list = []
+    previous_overnight = {}
+
     for day in attendances:
-        amounts = {}
-        misc_additions = AttendanceAddition.objects.filter(attendance=day)
-        amounts['misc'] = misc_additions.aggregate(Sum('amount'))['amount__sum'] or 0
-        additions = [
-            {'comment': item.comment, 'amount': item.amount} for item in misc_additions
-        ]
+        stats = crew_stats_by_day.get(day.id, {})
+        additions_data = additions_by_day[day.id]
+        exhibitor_data = exhibitor_attendance_by_day[day.day]
 
-        exhibitor_attendance_for_day = ExhibitorAttendance.objects.filter(
-            exhibitor__in=exhibitors, day__day=day.day
-        )
-        for exhibitor_attendance in exhibitor_attendance_for_day:
-            additions.append(
-                {
-                    'comment': exhibitor_attendance.exhibitor,
-                    'amount': exhibitor_attendance.count,
-                }
-            )
-            amounts['misc'] += exhibitor_attendance.count
+        additions = additions_data['items'] + exhibitor_data['items']
+        misc_total = additions_data['sum'] + exhibitor_data['sum']
 
-        amounts['day'] = day
-        amounts['crew'] = {}
-        amounts['crew']['omnivore'] = (
-            crew_members.filter(attendance=day, nutrition='omnivore').count() or 0
-        )
-        amounts['crew']['vegetarian'] = (
-            crew_members.filter(attendance=day, nutrition='vegetarian').count() or 0
-        )
-        amounts['crew']['vegan'] = (
-            crew_members.filter(attendance=day, nutrition='vegan').count() or 0
-        )
-        amounts['sum'] = (crew_members.filter(attendance=day).count() or 0) + amounts[
-            'misc'
-        ]
-
-        # calculate band members and their nutrition, only bands with a slot are taken into account
-        # for all timeslots in given day
-        amounts['bands'] = {
-            'omnivore': 0,
-            'vegetarian': 0,
-            'vegan': 0,
-            'sum': 0,
+        amounts = {
+            'day': day,
+            'misc': misc_total,
+            'crew': {
+                'omnivore': stats.get('omnivore', 0),
+                'vegetarian': stats.get('vegetarian', 0),
+                'vegan': stats.get('vegan', 0),
+                'omnivore_overnight': stats.get('omnivore_overnight', 0),
+                'vegetarian_overnight': stats.get('vegetarian_overnight', 0),
+                'vegan_overnight': stats.get('vegan_overnight', 0),
+                'sum_overnight': stats.get('total_overnight', 0),
+                'omnivore_breakfast': previous_overnight.get('omnivore_overnight', 0),
+                'vegetarian_breakfast': previous_overnight.get(
+                    'vegetarian_overnight', 0
+                ),
+                'vegan_breakfast': previous_overnight.get('vegan_overnight', 0),
+                'sum_breakfast': previous_overnight.get('total_overnight', 0),
+            },
+            'sum': stats.get('total', 0) + misc_total,
+            'bands': {'omnivore': 0, 'vegetarian': 0, 'vegan': 0, 'sum': 0},
         }
+
+        # band members need to eat too
         for timeslot in day.timeslots.all():
-            # catch for empty timeslots
-            try:
-                # add band members to list for display
+            if timeslot.band:
+                band_members = timeslot.band.band_members.all()
+                member_count = len(band_members)
                 additions.append(
-                    {
-                        'comment': timeslot.band.name,
-                        'amount': timeslot.band.band_members.all().count(),
-                    }
+                    {'comment': timeslot.band.name, 'amount': member_count}
                 )
-                # count all band members and their nutrition
-                for member in timeslot.band.band_members.all():
+                for member in band_members:
                     amounts['bands'][member.nutrition] += 1
-                    amounts['sum'] += 1
-            # if a day is empty, nothing bad happens
-            except AttributeError:
-                pass
+                amounts['sum'] += member_count
 
         if additions:
-            addtion_list.append({'day': day, 'additions': additions})
+            addition_list.append({'day': day, 'additions': additions})
 
-        # calculate overnight crew members and their nutrition
-        amounts['crew']['omnivore_overnight'] = (
-            crew_members.filter(
-                attendance=day, nutrition='omnivore', stays_overnight=True
-            ).count()
-            or 0
-        )
-        amounts['crew']['vegetarian_overnight'] = (
-            crew_members.filter(
-                attendance=day, nutrition='vegetarian', stays_overnight=True
-            ).count()
-            or 0
-        )
-        amounts['crew']['vegan_overnight'] = (
-            crew_members.filter(
-                attendance=day, nutrition='vegan', stays_overnight=True
-            ).count()
-            or 0
-        )
-        amounts['crew']['sum_overnight'] = (
-            crew_members.filter(attendance=day, stays_overnight=True).count() or 0
-        )
-
+        previous_overnight = stats
         kitchen_list.append(amounts)
 
     extra_context = {
         'event': event,
         'kitchen_list': kitchen_list,
-        'nutrion_notes': nutrion_notes,
-        'addtion_list': addtion_list,
+        'nutrition_notes': nutrition_notes,
+        'addition_list': addition_list,
         'site_title': 'Mengenliste',
     }
     return HttpResponse(template.render(extra_context, request))

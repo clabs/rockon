@@ -10,6 +10,7 @@ from .account import (
     verify_email,
 )
 from .home import home
+from .switch_event import switch_event
 
 __all__ = [
     'home',
@@ -20,4 +21,5 @@ __all__ = [
     'logout',
     'select_context',
     'verify_email',
+    'switch_event',
 ]

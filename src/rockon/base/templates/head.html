@@ -15,7 +15,6 @@
 {% compress js file vendor %}
     <script src="{% static "vendor/bootstrap.bundle.5.3.8.min.js" %}"></script>
     <script src="{% static "vendor/jquery-3.7.1.min.js" %}"></script>
-    <script src="{% static "vendor/luxon.3.4.4.min.js" %}"></script>
 {% endcompress %}
 <link rel="apple-touch-icon"
       sizes="180x180"
@@ -49,10 +48,17 @@
 {% endif %}
 <script type="text/javascript" nonce="{{ request.csp_nonce }}">
     $(document).ready(() => {
-        const DateTime = luxon.DateTime
+        const dateHugeFormatter = new Intl.DateTimeFormat('de-DE', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        })
         $('.date-format-huge').each((_, el) => {
-            const date_parsed = DateTime.fromFormat(el.innerText, "dd.LL.yyyy", {locale: "de"})
-            el.innerText = date_parsed.toLocaleString(DateTime.DATE_HUGE)
+            // Parse dd.MM.yyyy format
+            const [day, month, year] = el.innerText.split('.')
+            const date = new Date(year, month - 1, day)
+            el.innerText = dateHugeFormatter.format(date)
         })
     })
 </script>

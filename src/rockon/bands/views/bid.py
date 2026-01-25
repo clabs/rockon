@@ -1,15 +1,11 @@
 from __future__ import annotations
 
 import json
-from uuid import UUID
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import redirect
-from django.template import loader
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -20,42 +16,47 @@ from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
 
 
-class CustomJSONEncoder(DjangoJSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, UUID):
-            return str(obj)
-        if isinstance(obj, Event):
-            return obj.id
-        # we need @property fields in the JSON
-        if hasattr(obj, '__dict__'):
-            data = obj.__dict__
-            # Add properties here
-            data.update(
-                {
-                    prop: getattr(obj, prop)
-                    for prop in dir(obj)
-                    if isinstance(getattr(obj, prop), property)
-                    and not prop.startswith('__')
-                }
+def _can_vote_on_bands(user, event: Event) -> tuple[bool, str | None]:
+    """Check if user can vote on bands for an event.
+
+    Returns:
+        Tuple of (is_allowed, error_message). error_message is None if allowed.
+    """
+    is_booking = user.groups.filter(name='booking').exists()
+
+    if not is_booking:
+        is_confirmed_crew = user.crewmember_set.filter(
+            crew__event=event, state__in=['confirmed', 'arrived']
+        ).exists()
+        if not is_confirmed_crew:
+            return False, (
+                'Du bist nicht berechtigt, Bandbewertungen abzugeben, '
+                'bitte wende dich an die Crewkoordination und lasse dich für die Crew freischalten.'
             )
-            return data
-        return super().default(obj)
+
+    if not event.bid_browsing_allowed and not is_booking:
+        return False, 'Die Bandbewertung ist für dieses Event nicht aktiv.'
+
+    return True, None
 
 
 @login_required
 def bid_closed(request, slug):
-    template = loader.get_template('bid_closed.html')
-    event = Event.objects.get(slug=slug)
-    extra_context = {'site_title': 'Bewerbungsphase geschlossen', 'event': event}
-    return HttpResponse(template.render(extra_context, request))
+    event = get_object_or_404(Event, slug=slug)
+    return render(
+        request,
+        'bid_closed.html',
+        {
+            'site_title': 'Bewerbungsphase geschlossen',
+            'event': event,
+        },
+    )
 
 
 @check_band_application_open
 def bid_router(request, slug):
     if not request.user.is_authenticated:
-        url = reverse('base:login_request')
-        url += '?ctx=bands'
-        return redirect(url)
+        return redirect(f'{reverse("base:login_request")}?ctx=bands')
 
     try:
         band = Band.objects.get(contact=request.user, event__slug=slug)
@@ -63,100 +64,89 @@ def bid_router(request, slug):
     except Band.DoesNotExist:
         pass
 
-    new_band = Band.objects.create(
-        event=Event.objects.get(slug=slug), contact=request.user
-    )
-    new_band.save()
-
+    event = get_object_or_404(Event, slug=slug)
+    new_band = Band.objects.create(event=event, contact=request.user)
     return redirect('bands:bid_form', slug=slug, guid=new_band.guid)
 
 
 @login_required
 def bid_form(request, slug, guid):
+    """Display band application form for editing."""
     try:
-        band = request.user.bands.get(guid=guid, event__slug=slug)
-    except Band.DoesNotExist:
-        template = loader.get_template('errors/403.html')
-        return HttpResponseForbidden(
-            template.render(
-                {
-                    'more_info': 'Diese Bandbewerbung gehört nicht zu deinem Account oder existiert nicht.'
-                },
-                request,
-            )
+        band = request.user.bands.select_related('event').get(
+            guid=guid, event__slug=slug
         )
-    template = loader.get_template('bid_form.html')
-    event = Event.objects.get(slug=slug)
+    except Band.DoesNotExist:
+        return render(
+            request,
+            'errors/403.html',
+            {
+                'more_info': 'Diese Bandbewerbung gehört nicht zu deinem Account oder existiert nicht.'
+            },
+            status=403,
+        )
+
     media = BandMedia.objects.filter(band=band)
-    media_by_type = {}
-    tracks = Track.objects.filter(events__slug=slug)
-    for media_type in MediaType.choices:
-        media_by_type[media_type[0]] = media.filter(media_type=media_type[0])
-    extra_context = {
-        'site_title': 'Band Bewerbung',
-        'event': event,
-        'slug': slug,
-        'federal_states': FederalState.choices,
-        'band': Band.objects.get(guid=guid),
-        'media_by_type': media_by_type,
-        'tracks': tracks,
+    media_by_type = {
+        media_type[0]: media.filter(media_type=media_type[0])
+        for media_type in MediaType.choices
     }
-    return HttpResponse(template.render(extra_context, request))
+
+    return render(
+        request,
+        'bid_form.html',
+        {
+            'site_title': 'Band Bewerbung',
+            'event': band.event,
+            'slug': slug,
+            'federal_states': FederalState.choices,
+            'band': band,
+            'media_by_type': media_by_type,
+            'tracks': Track.objects.filter(events=band.event),
+        },
+    )
 
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='crew').exists())
-def bid_vote(request, bid: str = None, track: str = None, slug: str = None):
+def bid_vote(
+    request, bid: str | None = None, track: str | None = None, slug: str | None = None
+):
+    """Display band voting interface for crew members."""
+    event = get_object_or_404(Event, slug=slug)
     is_booking = request.user.groups.filter(name='booking').exists()
-    if (
-        not (
-            request.user.crewmember_set.filter(
-                crew__event__slug=slug, state__in=['confirmed', 'arrived']
-            ).exists()
+
+    # Check permissions
+    can_vote, error_message = _can_vote_on_bands(request.user, event)
+    if not can_vote:
+        if error_message and 'nicht berechtigt' in error_message:
+            raise PermissionDenied(error_message)
+        return render(
+            request, 'errors/403.html', {'more_info': error_message}, status=403
         )
-        and not is_booking
-    ):
-        raise PermissionDenied(
-            'Du bist nicht berechtigt, Bandbewertungen abzugeben, bitte wende dich an die Crewkoordination und lasse dich für die Crew freischalten.'
-        )
-    if (Event.objects.get(slug=slug).bid_browsing_allowed is False) and (
-        is_booking is False
-    ):
-        template = loader.get_template('errors/403.html')
-        return HttpResponseForbidden(
-            template.render(
-                {'more_info': 'Die Bandbewertung ist für dieses Event nicht aktiv.'},
-                request,
-            )
-        )
-    template = loader.get_template('bid_vote.html')
-    tracks = Track.objects.filter(events__slug=slug)
-    tracks_json = mark_safe(json.dumps(list(tracks.values()), cls=CustomJSONEncoder))
-    bid_states = BidStatus.choices
-    bid_states_json = mark_safe(json.dumps(bid_states))
-    federal_states = FederalState.choices
-    federal_states_json = mark_safe(json.dumps(federal_states))
-    track_slug_json = mark_safe(json.dumps(track, cls=CustomJSONEncoder))
-    band_guid_json = mark_safe(json.dumps(bid, cls=CustomJSONEncoder))
-    allow_changes = mark_safe(
-        json.dumps(request.user.groups.filter(name='booking').exists())
+
+    # Prepare data for JavaScript - convert UUIDs to strings for JSON serialization
+    tracks = [
+        {'id': str(t['id']), 'name': t['name'], 'slug': t['slug']}
+        for t in Track.objects.filter(events=event).values('id', 'name', 'slug')
+    ]
+    user_votes = list(
+        request.user.band_votes.filter(event=event).values('band__id', 'vote')
     )
-    allow_votes = mark_safe(json.dumps(Event.objects.get(slug=slug).bid_vote_allowed))
-    media_url = settings.MEDIA_URL
-    user_votes = request.user.band_votes.filter(event__slug=slug).values(
-        'band__id', 'vote'
+
+    return render(
+        request,
+        'bid_vote.html',
+        {
+            'media_url': settings.MEDIA_URL,
+            'site_title': 'Band Bewertung',
+            'tracks': mark_safe(json.dumps(tracks)),
+            'federal_states': mark_safe(json.dumps(list(FederalState.choices))),
+            'bid_states': mark_safe(json.dumps(list(BidStatus.choices))),
+            'trackid': mark_safe(json.dumps(track)),
+            'bandid': mark_safe(json.dumps(bid)),
+            'user_votes': mark_safe(json.dumps(user_votes)),
+            'allow_changes': mark_safe(json.dumps(is_booking)),
+            'allow_votes': mark_safe(json.dumps(event.bid_vote_allowed)),
+        },
     )
-    user_votes_json = mark_safe(json.dumps(list(user_votes), cls=CustomJSONEncoder))
-    extra_context = {
-        'media_url': media_url,
-        'site_title': 'Band Bewertung',
-        'tracks': tracks_json,
-        'federal_states': federal_states_json,
-        'bid_states': bid_states_json,
-        'trackid': track_slug_json,
-        'bandid': band_guid_json,
-        'user_votes': user_votes_json,
-        'allow_changes': allow_changes,
-        'allow_votes': allow_votes,
-    }
-    return HttpResponse(template.render(extra_context, request))

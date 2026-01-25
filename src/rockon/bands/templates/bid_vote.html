@@ -40,8 +40,9 @@
     </script>
     {% verbatim %}
     <div id="app">
-        <track-list :tracks="tracks" :selected-track="selectedTrack" :show-band-no-name="showBandNoName"
+        <track-list :tracks="tracks" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName"
                     :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids"
+                    :bid-states="bidStates"
                     @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"
                     @filter-incomplete-bids="handleFilterIncompleteBidsChange"
                     @filter-declined-bids="handleFilterDeclinedBidsChange">
@@ -51,6 +52,7 @@
                    :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
                    :show-declined-bids="showDeclinedBids" @select-band="selectBand" :federal-states="federalStates"
                    :user-votes="userVotes"></band-list>
+        <band-details-skeleton v-if="selectedBand && !bandDetailLoaded" :selected-band="selectedBand"></band-details-skeleton>
         <band-details v-if="bandDetailLoaded && selectedBandDetails" :selected-band-details="selectedBandDetails"
                       :allow-votes="allowVotes" :allow-changes="allowChanges" :tracks="tracks"
                       :federal-states="federalStates" :comment-api="bandCommentsUrl" @update:track="updateTrack"
@@ -70,7 +72,7 @@
                             <span v-if="toastIsMaximized">Rockify</span>
                             <div v-else class="scrolling-container">
                                 <div class="scrolling-text-wrapper">
-                                    <span class="scrolling-text">{{ playSongBand.name || playSongBand.guid || "" }} - {{ playSong.file_name_original }}</span>
+                                    <span class="scrolling-text"><a href="#" @click.prevent="navigateToPlayingBand" class="band-link">{{ playSongBand.name || playSongBand.guid || "" }}</a> - {{ playSong.file_name_original }}</span>
                                 </div>
                             </div>
                         </strong>
@@ -95,8 +97,16 @@
                     <div id="player-toast-body"
                          :class="['collapse', { 'show': toastIsMaximized }]">
                         <div class="toast-body">
-                            <song-info v-if="playSong" :song="playSong" :band="playSongBand"></song-info>
+                            <song-info v-if="playSong" :song="playSong" :band="playSongBand" @navigate-to-band="navigateToPlayingBand"></song-info>
                             <div id="player-wrapper"></div>
+                            <div class="d-flex justify-content-center gap-2 mt-2">
+                                <button type="button" class="btn btn-sm btn-player-control" @click="playPreviousTrack" :disabled="!canPlayPrevious" title="Vorheriger Track">
+                                    <i class="fa-solid fa-backward-step"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-player-control" @click="playNextTrack" :disabled="!canPlayNext" title="Nächster Track">
+                                    <i class="fa-solid fa-forward-step"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -111,15 +121,101 @@
 
         .image-container {
             overflow: hidden;
+            /* Optimize for repaints */
+            contain: layout style paint;
+            position: relative;
+            height: 250px;
+            background-color: #2a2a2a;
+        }
+
+        /* Skeleton loading placeholder */
+        .skeleton-loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                #2a2a2a 0%,
+                #3a3a3a 50%,
+                #2a2a2a 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Skeleton text placeholder */
+        .skeleton-text {
+            display: inline-block;
+            background: linear-gradient(
+                90deg,
+                #2a2a2a 0%,
+                #3a3a3a 50%,
+                #2a2a2a 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+
+        @keyframes skeleton-pulse {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Detail page image skeleton */
+        .detail-image-container {
+            position: relative;
+            min-height: 200px;
+            min-width: 200px;
+            max-height: 250px;
+            display: inline-block;
+            background-color: #2a2a2a;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .detail-image-container.loaded {
+            background-color: transparent;
+        }
+
+        .detail-image {
+            max-height: 250px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .detail-image.loaded {
+            opacity: 1;
         }
 
         .zoom-image {
-            transition: transform 0.6s ease-in-out;
+            transition: transform 0.6s ease-in-out, opacity 0.3s ease-in-out;
             transform: scale(1);
+            /* GPU acceleration for smoother animations */
+            will-change: transform;
+            backface-visibility: hidden;
+            opacity: 0;
         }
 
-        .card:hover .zoom-image {
+        .zoom-image.loaded {
+            opacity: 1;
+        }
+
+        .card:hover .zoom-image.loaded {
             transform: scale(1.1);
+        }
+
+        /* Optimize card rendering for large lists */
+        .card-group {
+            contain: layout style;
         }
 
         @keyframes scroll {
@@ -150,6 +246,113 @@
 
         .scrolling-text {
             white-space: nowrap;
+        }
+
+        /* Player control buttons */
+        .btn-player-control {
+            color: #fff300;
+            border-color: #fff300;
+            transition: all 0.2s ease;
+        }
+
+        .btn-player-control:hover:not(:disabled) {
+            background-color: #fff300;
+            color: #000;
+        }
+
+        .btn-player-control:disabled {
+            color: #666;
+            border-color: #444;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Prevent page jump when scrollbar appears/disappears */
+        html {
+            overflow-y: scroll;
+        }
+
+        /* Filter badge styles */
+        .filter-badge {
+            font-size: 0.9rem;
+            padding: 0.5em 0.75em;
+            border: 2px solid #fff300 !important;
+        }
+
+        /* Status filter dropdown */
+        .status-filter-dropdown {
+            font-size: 0.9rem;
+            border: 2px solid #fff300 !important;
+            border-radius: 0.375rem;
+            vertical-align: middle;
+            transition: all 0.2s ease;
+        }
+
+        .status-filter-dropdown:focus {
+            border-color: #fff300 !important;
+            box-shadow: 0 0 0 0.25rem rgba(255, 243, 0, 0.25) !important;
+        }
+
+        .status-filter-dropdown.bg-success {
+            background-color: #fff300 !important;
+            color: #000 !important;
+            border-color: #fff300 !important;
+        }
+
+        .status-filter-dropdown.bg-success option {
+            background-color: #fff;
+            color: #000;
+        }
+
+        /* Inactive badges - outline yellow */
+        .text-bg-outline-primary,
+        .filter-badge.text-bg-primary {
+            background-color: transparent !important;
+            border: 2px solid #fff300 !important;
+            color: #fff300 !important;
+        }
+
+        .text-bg-outline-primary:hover,
+        .filter-badge.text-bg-primary:hover {
+            background-color: rgba(255, 243, 0, 0.2) !important;
+        }
+
+        /* Active filter/track state - filled yellow */
+        .filter-badge.text-bg-success {
+            background-color: #fff300 !important;
+            color: #000 !important;
+            border: 2px solid #fff300 !important;
+        }
+
+        /* Filter options container */
+        .filter-options-container {
+            padding-left: 1rem;
+        }
+
+        /* Form switch styling - ensure checked state is visible */
+        .form-check-input:checked {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+        }
+
+        .form-check-input {
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+        }
+
+        /* Band link in player toast */
+        .band-link {
+            color: #fff300 !important;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .band-link:hover {
+            text-decoration: underline;
         }
     </style>
     {% compress js file voting %}

@@ -1,6 +1,137 @@
 const {createApp, ref} = Vue
 
-const DateTime = luxon.DateTime
+// =============================================================================
+// Filter Service - Centralized filter logic for band lists
+// =============================================================================
+const FilterService = {
+    STORAGE_KEYS: {
+        showBandNoName: 'filterShowBandsNoName',
+        showIncompleteBids: 'filterIncompleteBids',
+        showDeclinedBids: 'filterDeclinedBids',
+        filterCollapsed: 'filterOptionsCollapsed'
+    },
+
+    /**
+     * Load a filter setting from sessionStorage
+     * @param {string} key - The filter key
+     * @param {*} defaultValue - Default value if not found
+     * @returns {*} The stored value or default
+     */
+    loadFromStorage(key, defaultValue = false) {
+        const storageKey = this.STORAGE_KEYS[key] || key
+        const stored = sessionStorage.getItem(storageKey)
+        return stored !== null ? JSON.parse(stored) : defaultValue
+    },
+
+    /**
+     * Save a filter setting to sessionStorage
+     * @param {string} key - The filter key
+     * @param {*} value - The value to store
+     */
+    saveToStorage(key, value) {
+        const storageKey = this.STORAGE_KEYS[key] || key
+        sessionStorage.setItem(storageKey, JSON.stringify(value))
+    },
+
+    /**
+     * Apply base visibility filters (incomplete, no-name, declined)
+     * @param {Array} bands - The bands to filter
+     * @param {Object} filters - Filter settings {showIncompleteBids, showBandNoName, showDeclinedBids}
+     * @returns {Array} Filtered bands
+     */
+    applyVisibilityFilters(bands, filters) {
+        let result = bands
+
+        if (!filters.showIncompleteBids) {
+            result = result.filter(band => band.bid_complete === true)
+        }
+        if (!filters.showBandNoName) {
+            result = result.filter(band => band.name)
+        }
+        if (!filters.showDeclinedBids) {
+            result = result.filter(band => band.bid_status !== 'declined')
+        }
+
+        return result
+    },
+
+    /**
+     * Apply selection filter (track, status, or special filter)
+     * @param {Array} bands - The bands to filter (already visibility-filtered)
+     * @param {*} selectedTrack - The selected track/filter
+     * @param {Array} userVotes - User's votes for no-vote filter
+     * @returns {Array} Filtered bands
+     */
+    applySelectionFilter(bands, selectedTrack, userVotes = []) {
+        // No selection - return all
+        if (!selectedTrack) {
+            return bands
+        }
+
+        // String-based filters
+        if (typeof selectedTrack === 'string') {
+            switch (selectedTrack) {
+                case 'no-track':
+                    return bands.filter(band => !band.track)
+
+                case 'student-bands':
+                    return bands.filter(band => band.are_students)
+
+                case 'no-vote':
+                    // Exclude declined bands, then filter for unvoted
+                    return bands
+                        .filter(band => band.bid_status !== 'declined')
+                        .filter(band => !userVotes.some(vote => vote.band__id === band.id))
+
+                default:
+                    // Status filter (status-unknown, status-pending, etc.)
+                    if (selectedTrack.startsWith('status-')) {
+                        const statusValue = selectedTrack.replace('status-', '')
+                        return bands.filter(band => band.bid_status === statusValue)
+                    }
+                    return bands
+            }
+        }
+
+        // Track object filter
+        if (selectedTrack?.id) {
+            return bands.filter(band => band.track && band.track === selectedTrack.id)
+        }
+
+        return bands
+    },
+
+    /**
+     * Apply all filters to a band list
+     * @param {Array} bands - All bands
+     * @param {Object} options - {filters, selectedTrack, userVotes}
+     * @returns {Array} Filtered bands
+     */
+    filterBands(bands, { filters, selectedTrack, userVotes = [] }) {
+        const visibilityFiltered = this.applyVisibilityFilters(bands, filters)
+        return this.applySelectionFilter(visibilityFiltered, selectedTrack, userVotes)
+    }
+}
+
+// =============================================================================
+// Utils - Shared utility functions
+// =============================================================================
+const Utils = {
+    /**
+     * Format an ISO date string to German locale format
+     * @param {string} isoString - ISO 8601 date string
+     * @returns {string} Formatted date (dd.MM.yyyy, HH:mm)
+     */
+    formatDate(isoString) {
+        return new Intl.DateTimeFormat('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(new Date(isoString))
+    }
+}
 
 const LoadingSpinner = Vue.defineComponent({
     props: ['bands', 'bandsToFetch'],
@@ -27,11 +158,120 @@ const LoadingSpinner = Vue.defineComponent({
   `
 })
 
+// Skeleton component for band details loading state
+const BandDetailsSkeleton = Vue.defineComponent({
+    props: ['selectedBand'],
+    computed: {
+        bandName() {
+            return this.selectedBand?.name || this.selectedBand?.guid || 'Lädt...'
+        }
+    },
+    template: `
+    <section class="row p-4 form-section">
+      <!-- Band name - show actual name from list data -->
+      <div class="col">
+          <h3>{{ bandName }}</h3>
+      </div>
+
+      <!-- Tags skeleton -->
+      <div class="row mt-3">
+        <div class="col-9">
+          <div class="d-flex flex-wrap gap-2">
+            <span class="skeleton-text" style="width: 80px; height: 24px;"></span>
+            <span class="skeleton-text" style="width: 100px; height: 24px;"></span>
+            <span class="skeleton-text" style="width: 60px; height: 24px;"></span>
+            <span class="skeleton-text" style="width: 90px; height: 24px;"></span>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="skeleton-text" style="width: 150px; height: 32px;"></div>
+        </div>
+      </div>
+
+      <!-- Allgemeines section -->
+      <h3 class="mt-4">Allgemeines</h3>
+      <div class="col-12">
+          <div class="alert alert-secondary" role="alert" style="min-height: 120px;">
+            <div class="skeleton-text" style="width: 100%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-text" style="width: 90%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-text" style="width: 95%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-text" style="width: 80%; height: 16px;"></div>
+          </div>
+      </div>
+      <div class="col">
+          <div><h4>Web</h4></div>
+          <ul>
+            <li><span class="skeleton-text" style="width: 200px; height: 16px;"></span></li>
+            <li><span class="skeleton-text" style="width: 180px; height: 16px;"></span></li>
+          </ul>
+      </div>
+
+      <!-- Media section -->
+      <h3>Media</h3>
+      <div class="col">
+          <div><h4>Songs</h4></div>
+          <ol>
+            <li><span class="skeleton-text" style="width: 200px; height: 16px;"></span></li>
+            <li><span class="skeleton-text" style="width: 180px; height: 16px;"></span></li>
+            <li><span class="skeleton-text" style="width: 220px; height: 16px;"></span></li>
+          </ol>
+      </div>
+      <div class="col">
+          <div><h4>Links</h4></div>
+          <ul>
+            <li><span class="skeleton-text" style="width: 200px; height: 16px;"></span></li>
+          </ul>
+      </div>
+
+      <!-- Images section -->
+      <h4>Bilder</h4>
+      <div class="col">
+        <div class="row gallery">
+          <div class="col">
+            <div><h5>Photo</h5></div>
+            <div class="detail-image-container">
+              <div class="skeleton-loader"></div>
+            </div>
+          </div>
+          <div class="col">
+            <div><h5>Logo</h5></div>
+            <div class="detail-image-container">
+              <div class="skeleton-loader"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents section -->
+      <h4>Dokumente</h4>
+      <div class="col">
+          <ul>
+            <li><span class="skeleton-text" style="width: 180px; height: 16px;"></span></li>
+          </ul>
+      </div>
+
+      <!-- Comments section -->
+      <h3>Kommentare</h3>
+      <div class="mt-2">
+        <div class="skeleton-text" style="width: 100%; height: 60px; margin-bottom: 12px;"></div>
+        <div class="skeleton-text" style="width: 100%; height: 60px;"></div>
+      </div>
+
+      <!-- Comment field -->
+      <h4 class="mt-3">Dein Kommentar</h4>
+      <div class="form-group">
+        <div class="skeleton-text" style="width: 100%; height: 100px;"></div>
+      </div>
+    </section>
+  `
+})
+
 const SongInfo = Vue.defineComponent({
     props: ['song', 'band'],
+    emits: ['navigate-to-band'],
     template: `
     <div>
-      <p><h5>Band</h5> {{ band.name || band.guid }}</p>
+      <p><h5>Band</h5> <a href="#" @click.prevent="$emit('navigate-to-band', band)" class="band-link">{{ band.name || band.guid }}</a></p>
       <p><h5>Song</h5> {{ song.file_name_original }}</p>
     </div>
   `
@@ -65,6 +305,12 @@ const BandDocuments = Vue.defineComponent({
 
 const BandImages = Vue.defineComponent({
     props: ['selectedBandDetails'],
+    data() {
+        return {
+            pressPhotoLoaded: false,
+            logoLoaded: false
+        }
+    },
     methods: {
         pressPhoto(band) {
             let file = band?.press_photo?.encoded_file || band?.press_photo?.file
@@ -85,6 +331,19 @@ const BandImages = Vue.defineComponent({
                 return window.rockon_data.media_offline
             }
             return file
+        },
+        onPressPhotoLoad() {
+            this.pressPhotoLoaded = true
+        },
+        onLogoLoad() {
+            this.logoLoaded = true
+        }
+    },
+    watch: {
+        selectedBandDetails() {
+            // Reset loaded states when band changes
+            this.pressPhotoLoaded = false
+            this.logoLoaded = false
         }
     },
     template: `
@@ -92,13 +351,19 @@ const BandImages = Vue.defineComponent({
       <div v-if="selectedBandDetails.press_photo" class="col">
         <div><h5>Photo</h5></div>
         <a :href="selectedBandDetails.press_photo.file">
-        <img :src="pressPhoto(selectedBandDetails)" :alt="selectedBandDetails.press_photo.encoded_file" style="max-height: 250px;">
+          <div class="detail-image-container" :class="{ 'loaded': pressPhotoLoaded }">
+            <div v-if="!pressPhotoLoaded" class="skeleton-loader"></div>
+            <img :src="pressPhoto(selectedBandDetails)" :alt="selectedBandDetails.press_photo.encoded_file" class="detail-image" :class="{ 'loaded': pressPhotoLoaded }" @load="onPressPhotoLoad">
+          </div>
         </a>
       </div>
       <div v-if="selectedBandDetails.logo" class="col">
         <div><h5>Logo</h5></div>
         <a :href="selectedBandDetails.logo.file">
-        <img :src="logo(selectedBandDetails)" :alt="selectedBandDetails.logo.encoded_file" style="max-height: 250px;">
+          <div class="detail-image-container" :class="{ 'loaded': logoLoaded }">
+            <div v-if="!logoLoaded" class="skeleton-loader"></div>
+            <img :src="logo(selectedBandDetails)" :alt="selectedBandDetails.logo.encoded_file" class="detail-image" :class="{ 'loaded': logoLoaded }" @load="onLogoLoad">
+          </div>
         </a>
       </div>
     </div>
@@ -209,10 +474,12 @@ const BackstageLink = Vue.defineComponent({
 const TrackList = Vue.defineComponent({
     props: [
         'tracks',
+        'bands',
         'selectedTrack',
         'showBandNoName',
         'showIncompleteBids',
-        'showDeclinedBids'
+        'showDeclinedBids',
+        'bidStates'
     ],
     emits: [
         'select-track',
@@ -220,84 +487,223 @@ const TrackList = Vue.defineComponent({
         'filter-incomplete-bids',
         'filter-declined-bids'
     ],
-    template: `
-      <section class="row p-4 form-section">
-      <div>
-      <div><h5>Tracks</h5></div>
-        <span v-for="track in tracks" :key="track" class="badge m-2" :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'" style="cursor: pointer;" @click="handleClick(track)">{{ track.name }}</span>
-        <div><h5>Filter</h5></div>
-        <span class="badge text-bg-primary m-2" :key="no-track" @click="handleShowBandsWithoutTrack" style="cursor: pointer;">Ohne Track</span>
-        <span class="badge text-bg-primary m-2" :key="no-vote" @click="handleShowBandsWithoutVote" style="cursor: pointer;">Unbewertete Bands</span>
-        <span class="badge text-bg-primary m-2" @click="handleShowStudentBands" style="cursor: pointer;">Schülerbands</span>
-        <span class="badge text-bg-primary m-2" @click="handleDeselectTrack" style="cursor: pointer;">Alle Bands</span>
-        <div class="form-check form-switch m-2">
-          <input class="form-check-input" type="checkbox" role="switch" :checked="showIncompleteBids" @change="handleFilterIncompleteBids" />
-          <label class="form-check-label" >Unvollständige Bewerbungen anzeigen</label>
-        </div>
-        <div class="form-check form-switch m-2">
-          <input class="form-check-input" type="checkbox" role="switch" :checked="showBandNoName" @change="handleFilterNoNameChange" />
-          <label class="form-check-label" >Bands ohne Namen anzeigen</label>
-        </div>
-        <div class="form-check form-switch m-2">
-        <input class="form-check-input" type="checkbox" role="switch" :checked="showDeclinedBids" @change="handleFilterDeclinedeBids"/>
-        <label class="form-check-label" >Abgelehnte Bewerbungen anzeigen</label>
-      </div>
-      </div>
-      </section>
-    `,
+    data() {
+        return {
+            isFilterCollapsed: FilterService.loadFromStorage('filterCollapsed', false)
+        }
+    },
+    computed: {
+        isSpecialFilter() {
+            return ['no-track', 'no-vote', 'student-bands'].includes(this.selectedTrack) ||
+                   (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-'))
+        },
+        hasActiveSelection() {
+            return this.selectedTrack || this.isSpecialFilter
+        },
+        selectedStatus() {
+            // Extract the status value if a status filter is selected
+            if (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-')) {
+                return this.selectedTrack.replace('status-', '')
+            }
+            return ''
+        }
+    },
     methods: {
+        getTrackCount(track) {
+            if (!this.bands) return 0
+            // Apply the same visibility filters as the band list
+            const visibleBands = FilterService.applyVisibilityFilters(this.bands, {
+                showIncompleteBids: this.showIncompleteBids,
+                showBandNoName: this.showBandNoName,
+                showDeclinedBids: this.showDeclinedBids
+            })
+            return visibleBands.filter(band => band.track === track.id).length
+        },
         handleClick(track) {
             console.debug('TrackList handleClick:', track)
-            this.selectedTrack = track
+            // If clicking the same track, deselect it
+            if (this.selectedTrack === track) {
+                this.$emit('select-track', null)
+                return
+            }
             this.$emit('select-track', track)
         },
         handleDeselectTrack() {
             console.debug('TrackList handleDeselectTrack')
-            this.selectedTrack = null
             this.$emit('select-track', null)
         },
-        handleShowBandsWithoutTrack() {
-            console.debug('TrackList handleShowBandsWithoutTrack')
-            this.selectedTrack = 'no-track'
-            this.$emit('select-track', 'no-track')
-        },
-        handleShowStudentBands() {
-            console.debug('TrackList handleShowStudentBands')
-            this.selectedTrack = 'student-bands'
-            this.$emit('select-track', 'student-bands')
-        },
-        handleShowBandsWithoutVote() {
-            console.debug('TrackList handleShowBandsWithoutTrack')
-            this.selectedTrack = 'no-vote'
-            this.$emit('select-track', 'no-vote')
+        toggleFilter(filterType) {
+            console.debug('TrackList toggleFilter:', filterType)
+            // Toggle behavior: clicking active filter deselects it
+            if (this.selectedTrack === filterType) {
+                this.$emit('select-track', null)
+            } else {
+                this.$emit('select-track', filterType)
+            }
         },
         handleFilterNoNameChange(event) {
             console.debug('TrackList handleFilterNoNameChange:', event.target.checked)
-            this.showBandNoName = event.target.checked
             this.$emit('filter-no-name', event.target.checked)
         },
         handleFilterIncompleteBids(event) {
-            console.debug(
-                'TrackList handleFilterIncompleteBids:',
-                event.target.checked
-            )
-            this.showIncompleteBids = event.target.checked
+            console.debug('TrackList handleFilterIncompleteBids:', event.target.checked)
             this.$emit('filter-incomplete-bids', event.target.checked)
+            // If incomplete bids is turned off, also turn off show bands without names
+            if (!event.target.checked && this.showBandNoName) {
+                this.$emit('filter-no-name', false)
+            }
         },
-        handleFilterDeclinedeBids(event) {
-            console.debug(
-                'TrackList handleFilterDeclinedeBids:',
-                event.target.checked
-            )
-            this.showDeclinedBids = event.target.checked
+        handleFilterDeclinedBids(event) {
+            console.debug('TrackList handleFilterDeclinedBids:', event.target.checked)
             this.$emit('filter-declined-bids', event.target.checked)
+        },
+        handleStatusChange(event) {
+            const status = event.target.value
+            console.debug('TrackList handleStatusChange:', status)
+            if (status) {
+                this.$emit('select-track', `status-${status}`)
+            } else {
+                this.$emit('select-track', null)
+            }
+        },
+        toggleFilterCollapsed() {
+            this.isFilterCollapsed = !this.isFilterCollapsed
+            FilterService.saveToStorage('filterCollapsed', this.isFilterCollapsed)
         }
     },
+    template: `
+      <section class="row p-4 form-section">
+        <div>
+          <!-- Tracks Section -->
+          <div class="d-flex align-items-center mb-2">
+            <h5 class="mb-0 me-2"><i class="fas fa-music me-1"></i> Tracks</h5>
+          </div>
+          <div class="d-flex flex-wrap align-items-center mb-3">
+            <span
+              v-for="track in tracks"
+              :key="track.id"
+              class="badge m-1 filter-badge"
+              :class="track === selectedTrack ? 'text-bg-success' : 'text-bg-primary'"
+              style="cursor: pointer; transition: all 0.2s ease;"
+              @click="handleClick(track)">
+              <i v-if="track === selectedTrack" class="fas fa-check me-1"></i>
+              {{ track.name }} <span class="badge bg-dark ms-1">{{ getTrackCount(track) }}</span>
+            </span>
+          </div>
+
+          <!-- Quick Filters Section -->
+          <div class="d-flex align-items-center mb-2">
+            <h5 class="mb-0 me-2"><i class="fas fa-filter me-1"></i> Schnellfilter</h5>
+          </div>
+          <div class="d-flex flex-wrap align-items-center mb-3">
+            <span
+              class="badge m-1 filter-badge"
+              :class="selectedTrack === 'no-track' ? 'text-bg-success' : 'text-bg-outline-primary'"
+              style="cursor: pointer; transition: all 0.2s ease;"
+              @click="toggleFilter('no-track')"
+              title="Zeigt nur Bands ohne zugewiesenen Track">
+              <i :class="selectedTrack === 'no-track' ? 'fas fa-check me-1' : 'fas fa-folder-open me-1'"></i>
+              Ohne Track
+            </span>
+            <span
+              class="badge m-1 filter-badge"
+              :class="selectedTrack === 'no-vote' ? 'text-bg-success' : 'text-bg-outline-primary'"
+              style="cursor: pointer; transition: all 0.2s ease;"
+              @click="toggleFilter('no-vote')"
+              title="Zeigt nur Bands die du noch nicht bewertet hast">
+              <i :class="selectedTrack === 'no-vote' ? 'fas fa-check me-1' : 'fas fa-star-half-alt me-1'"></i>
+              Unbewertete Bands
+            </span>
+            <span
+              class="badge m-1 filter-badge"
+              :class="selectedTrack === 'student-bands' ? 'text-bg-success' : 'text-bg-outline-primary'"
+              style="cursor: pointer; transition: all 0.2s ease;"
+              @click="toggleFilter('student-bands')"
+              title="Zeigt nur Schülerbands">
+              <i :class="selectedTrack === 'student-bands' ? 'fas fa-check me-1' : 'fas fa-graduation-cap me-1'"></i>
+              Schülerbands
+            </span>
+            <select
+              class="form-select form-select-sm d-inline-block m-1 status-filter-dropdown"
+              :class="selectedStatus ? 'bg-success text-white border-success' : ''"
+              style="width: auto; min-width: 150px;"
+              :value="selectedStatus"
+              @change="handleStatusChange"
+              title="Filtere nach Bewerbungsstatus">
+              <option value="">Status</option>
+              <option v-for="state in bidStates" :key="state[0]" :value="state[0]">
+                {{ state[1] }}
+              </option>
+            </select>
+            <span
+              v-if="hasActiveSelection"
+              class="badge m-1 filter-badge text-bg-outline-primary"
+              style="cursor: pointer;"
+              @click="handleDeselectTrack"
+              title="Alle Filter zurücksetzen">
+              <i class="fas fa-times me-1"></i>
+              Reset
+            </span>
+          </div>
+
+          <!-- Toggle Filters Section -->
+          <div class="d-flex align-items-center mb-2">
+            <h5
+              class="mb-0 me-2"
+              style="cursor: pointer;"
+              @click="toggleFilterCollapsed"
+              title="Klicken zum Ein-/Ausklappen">
+              <i :class="isFilterCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-down'" class="me-1"></i>
+              <i class="fas fa-sliders-h me-1"></i> Anzeigeoptionen
+            </h5>
+          </div>
+          <div v-show="!isFilterCollapsed" class="filter-options-container ps-2">
+            <div class="form-check form-switch mb-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="filterIncompleteBids"
+                :checked="showIncompleteBids"
+                @change="handleFilterIncompleteBids" />
+              <label class="form-check-label" for="filterIncompleteBids">
+                <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                Unvollständige Bewerbungen anzeigen
+              </label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="filterNoName"
+                :checked="showBandNoName"
+                :disabled="!showIncompleteBids"
+                @change="handleFilterNoNameChange" />
+              <label class="form-check-label" for="filterNoName" :class="{'text-muted': !showIncompleteBids}">
+                <i class="fas fa-question-circle me-1" :class="showIncompleteBids ? 'text-secondary' : 'text-muted'"></i>
+                Bands ohne Namen anzeigen
+              </label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="filterDeclinedBids"
+                :checked="showDeclinedBids"
+                @change="handleFilterDeclinedBids" />
+              <label class="form-check-label" for="filterDeclinedBids">
+                <i class="fas fa-ban text-danger me-1"></i>
+                Abgelehnte Bewerbungen anzeigen
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+    `,
     created() {
-        console.log(
-            'Component created. Initial value of showBandNoName:',
-            this.showBandNoName
-        )
+        console.debug('TrackList created. Initial showBandNoName:', this.showBandNoName)
     }
 })
 
@@ -390,49 +796,53 @@ const BandList = Vue.defineComponent({
     emits: ['select-band'],
     computed: {
         filteredBands() {
-            console.debug('selectedTrack:', this.selectedTrack)
-            _bands = this.bands
-            if (!this.showIncompleteBids) {
-                console.debug('Filtering for bands with incomplete bids.')
-                _bands = _bands.filter(band => band.bid_complete === true)
+            return FilterService.filterBands(this.bands, {
+                filters: {
+                    showIncompleteBids: this.showIncompleteBids,
+                    showBandNoName: this.showBandNoName,
+                    showDeclinedBids: this.showDeclinedBids
+                },
+                selectedTrack: this.selectedTrack,
+                userVotes: this.userVotes
+            })
+        },
+        isTrackFilter() {
+            // Check if selectedTrack is an actual track object (has .id and .name)
+            return this.selectedTrack && typeof this.selectedTrack === 'object' && this.selectedTrack.name
+        },
+        filterLabel() {
+            if (!this.selectedTrack) return ''
+            const count = this.filteredBands.length
+            const singular = count === 1
+            // Actual track
+            if (this.isTrackFilter) return `in Track ${this.selectedTrack.name}`
+            // Special filters
+            const filterLabels = {
+                'no-track': 'ohne Track',
+                'no-vote': 'ohne Bewertung',
+                'student-bands': singular ? 'ist Schülerband' : 'sind Schülerbands'
             }
-            if (!this.showBandNoName) {
-                console.debug('Filtering for bands without a name.')
-                _bands = _bands.filter(band => band.name)
+            if (filterLabels[this.selectedTrack]) return filterLabels[this.selectedTrack]
+            // Status filters
+            if (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-')) {
+                const statusLabels = {
+                    'status-unknown': 'mit Status Unbekannt',
+                    'status-pending': 'mit Status Bearbeitung',
+                    'status-accepted': 'mit Status Angenommen',
+                    'status-declined': 'mit Status Abgelehnt'
+                }
+                return statusLabels[this.selectedTrack] || ''
             }
-            if (!this.showDeclinedBids) {
-                console.debug('Filtering for bands with declined bids.')
-                _bands = _bands.filter(band => band.bid_status !== 'declined')
-            }
-            if (this.selectedTrack === 'no-track') {
-                console.debug('Filtering for bands without a track.')
-                return _bands.filter(band => !band.track)
-            }
-            if (this.selectedTrack === 'student-bands') {
-                console.debug('Filtering for student bands.')
-                return _bands.filter(band => band.are_students)
-            }
-            if (this.selectedTrack === 'no-vote') {
-                console.debug('Filtering for bands without a track.')
-                _bands = _bands.filter(band => band.bid_status !== 'declined')
-                return _bands.filter(
-                    a1 => !this.userVotes.some(a2 => a2.band__id === a1.id)
-                )
-            }
-            if (!this.selectedTrack) {
-                console.debug('No selected track id. Returning all.')
-                return _bands
-            }
-            const filtered = _bands.filter(
-                band => band.track && band.track === this.selectedTrack.id
-            )
-            console.debug('Filtered bands:', filtered)
-            return filtered
+            return ''
+        },
+        // Flat list with indices for better lazy loading control
+        filteredBandsWithIndex() {
+            return this.filteredBands.map((band, index) => ({ band, index }))
         },
         groupedBands() {
             let groups = []
-            for (let i = 0; i < this.filteredBands.length; i += 4) {
-                groups.push(this.filteredBands.slice(i, i + 4))
+            for (let i = 0; i < this.filteredBandsWithIndex.length; i += 4) {
+                groups.push(this.filteredBandsWithIndex.slice(i, i + 4))
             }
             return groups
         }
@@ -440,7 +850,9 @@ const BandList = Vue.defineComponent({
     data() {
         return {
             selectedBand: null,
-            bgColor: 'var(--rockon-card-bg)'
+            bgColor: 'var(--rockon-card-bg)',
+            imageCache: new Set(),
+            loadedImages: {}
         }
     },
     methods: {
@@ -467,22 +879,48 @@ const BandList = Vue.defineComponent({
                 this.selectedBand = null
                 this.bgColor = 'var(--rockon-card-bg)'
             }
+        },
+        onImageLoad(bandId) {
+            this.loadedImages[bandId] = true
+        },
+        preloadImages() {
+            // Preload first 12 images (3 rows) immediately
+            const toPreload = this.filteredBands.slice(0, 12)
+            toPreload.forEach(band => {
+                const src = this.cardImage(band)
+                if (src && !this.imageCache.has(src)) {
+                    const img = new Image()
+                    img.src = src
+                    this.imageCache.add(src)
+                }
+            })
+        }
+    },
+    watch: {
+        filteredBands: {
+            immediate: true,
+            handler() {
+                this.$nextTick(() => {
+                    this.preloadImages()
+                })
+            }
         }
     },
     template: `
     <section class="row p-4 form-section">
     <div class="row">
-      <h3>{{ filteredBands.length }} Bands<span v-if="selectedTrack"> in Track {{selectedTrack.name}}</span></h3>
+      <h3>{{ filteredBands.length }} {{ filteredBands.length === 1 ? 'Band' : 'Bands' }} {{ filterLabel }}</h3>
     </div>
-    <div v-if="groupedBands.length > 0" v-for="(group, index) in groupedBands" :key="index">
+    <div v-if="groupedBands.length > 0" v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
       <div class="card-group">
-        <div class="card" v-for="band in group" @click="selectBand(band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(band)" @mouseleave="leaveBand(band)">
+        <div class="card" v-for="item in group" :key="item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
           <div class="image-container">
-            <img :src="cardImage(band)" class="card-img-top img-fluid zoom-image" style="height: 250px; object-fit: cover; object-position: center;" :alt="band.name || band.guid" :loading="index > 2 ? 'lazy' : 'auto'">
+            <div v-if="!loadedImages[item.band.id]" class="skeleton-loader"></div>
+            <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" :class="{ 'loaded': loadedImages[item.band.id] }" style="height: 250px; object-fit: cover; object-position: center;" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto" @load="onImageLoad(item.band.id)">
           </div>
             <div class="card-body">
-            <h6 class="card-title">{{ band.name || band.guid }}</h6>
-            <BandListTags :selectedBandDetails="band" :federalStates="federalStates" :userVotes="userVotes" />
+            <h6 class="card-title">{{ item.band.name || item.band.guid }}</h6>
+            <BandListTags :selectedBandDetails="item.band" :federalStates="federalStates" :userVotes="userVotes" />
           </div>
         </div>
       </div>
@@ -591,10 +1029,7 @@ const CommentFeed = Vue.defineComponent({
                 this.loading = false;
             }
         },
-        formatDate(isoString) {
-            console.debug('BandDetails formatDate:', isoString)
-            return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
-        },
+        formatDate: Utils.formatDate,
     },
     template: `
     <div v-if="loading">Loading comments...</div>
@@ -901,10 +1336,7 @@ const BandDetails = Vue.defineComponent({
             console.debug('BandDetails handleSongSelect:', song)
             this.$emit('update:select-song', song)
         },
-        formatDate(isoString) {
-            console.debug('BandDetails formatDate:', isoString)
-            return DateTime.fromISO(isoString).toFormat('dd.MM.yyyy, HH:mm')
-        },
+        formatDate: Utils.formatDate,
         emitRating(rating) {
             console.debug('BandDetails emitRating:', rating)
             this.$emit('update:rating', rating)
@@ -945,10 +1377,24 @@ const app = createApp({
             lightbox: null
         }
     },
+    computed: {
+        currentSongIndex() {
+            if (!this.playSong || !this.playSongBand || !this.playSongBand.songs) return -1
+            return this.playSongBand.songs.findIndex(s => s.id === this.playSong.id)
+        },
+        canPlayPrevious() {
+            return this.currentSongIndex > 0
+        },
+        canPlayNext() {
+            if (!this.playSongBand || !this.playSongBand.songs) return false
+            return this.currentSongIndex < this.playSongBand.songs.length - 1
+        }
+    },
     components: {
         TrackList,
         BandList,
         BandDetails,
+        BandDetailsSkeleton,
         TrackDropdown,
         BidStatusDropdown,
         SongList,
@@ -970,9 +1416,25 @@ const app = createApp({
             const url = new URL(window.location.href)
             const hashSegments = url.hash.split('/').filter(segment => segment)
 
-            if (hashSegments.includes('track')) {
+            if (hashSegments.includes('status')) {
+                const statusFilter = hashSegments[hashSegments.indexOf('status') + 1]
+                // Map URL value back to internal filter name (status-unknown, status-pending, etc.)
+                this.selectedTrack = `status-${statusFilter}`
+                this.selectedBand = null
+                this.selectedBandDetails = null
+            } else if (hashSegments.includes('filter')) {
+                const filterName = hashSegments[hashSegments.indexOf('filter') + 1]
+                this.selectedTrack = filterName
+                this.selectedBand = null
+                this.selectedBandDetails = null
+            } else if (hashSegments.includes('track')) {
                 const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
-                this.selectedTrack = this.tracks.find(track => track.slug === trackSlug) || null
+                // Check if it's an old-style special filter URL or actual track
+                if (['no-vote', 'no-track', 'student-bands'].includes(trackSlug)) {
+                    this.selectedTrack = trackSlug
+                } else {
+                    this.selectedTrack = this.tracks.find(track => track.slug === trackSlug) || null
+                }
                 this.selectedBand = null
                 this.selectedBandDetails = null
             } else if (hashSegments.includes('bid')) {
@@ -997,12 +1459,16 @@ const app = createApp({
             this.selectedBandDetails = null
             console.debug('Selected band:', this.selectedBand)
             const url = new URL(window.location.href)
-            if (track === 'no-vote') {
-                url.hash = '#/track/no-vote/'
+            // Check for status filter (status-unknown, status-pending, etc.)
+            if (typeof track === 'string' && track.startsWith('status-')) {
+                const statusValue = track.replace('status-', '')
+                url.hash = `#/status/${statusValue}/`
+            } else if (track === 'no-vote') {
+                url.hash = '#/filter/no-vote/'
             } else if (track === 'no-track') {
-                url.hash = '#/track/no-track/'
+                url.hash = '#/filter/no-track/'
             } else if (track === 'student-bands') {
-                url.hash = '#/track/student-bands/'
+                url.hash = '#/filter/student-bands/'
             } else if (track) {
                 url.hash = `#/track/${track.slug}/`
             } else {
@@ -1080,14 +1546,15 @@ const app = createApp({
         },
         handleSongSelect(song) {
             console.debug('app handleSongSelect:', song)
-            if (this.playSong === song) {
+            if (this.playSong && this.playSong.id === song.id) {
                 console.debug(
                     'app handleSongSelect: Song already playing. Doing nothing.'
                 )
                 return
             }
-            this.playSong = song
-            this.playSongBand = this.selectedBandDetails
+            this.playSong = { ...song }
+            // Store a deep copy of the band details to preserve songs array during navigation
+            this.playSongBand = JSON.parse(JSON.stringify(this.selectedBandDetails))
             if (!this.toastVisible) {
                 this.toastAudioPlayer.show()
                 this.toastVisible = true
@@ -1110,9 +1577,57 @@ const app = createApp({
                 mediaControls: true,
                 autoplay: true
             })
+
+            // Auto-play next track when current one ends
+            this.wavesurfer.on('finish', () => {
+                if (this.canPlayNext) {
+                    this.playNextTrack()
+                }
+            })
         },
         toggleIcon() {
             this.toastIsMaximized = !this.toastIsMaximized
+        },
+        playPreviousTrack() {
+            if (!this.canPlayPrevious) return
+            const prevSong = this.playSongBand.songs[this.currentSongIndex - 1]
+            this.playTrackFromCurrentBand(prevSong)
+        },
+        playNextTrack() {
+            if (!this.canPlayNext) return
+            const nextSong = this.playSongBand.songs[this.currentSongIndex + 1]
+            this.playTrackFromCurrentBand(nextSong)
+        },
+        playTrackFromCurrentBand(song) {
+            // Play a track from the already stored playSongBand (don't overwrite band info)
+            if (this.playSong && this.playSong.id === song.id) {
+                return
+            }
+            this.playSong = { ...song }
+
+            if (this.wavesurfer) {
+                this.wavesurfer.destroy()
+                this.wavesurfer = null
+            }
+
+            this.wavesurfer = WaveSurfer.create({
+                container: document.getElementById('player-wrapper'),
+                waveColor: '#fff300',
+                progressColor: '#999400',
+                normalize: false,
+                splitChannels: false,
+                dragToSeek: true,
+                cursorWidth: 3,
+                url: song.encoded_file || song.file,
+                mediaControls: true,
+                autoplay: true
+            })
+
+            this.wavesurfer.on('finish', () => {
+                if (this.canPlayNext) {
+                    this.playNextTrack()
+                }
+            })
         },
         handleCloseClick() {
             console.debug('app handleCloseClick')
@@ -1126,19 +1641,25 @@ const app = createApp({
             this.toastVisible = false
             this.toastIsMaximized = true
         },
+        navigateToPlayingBand() {
+            if (!this.playSongBand) return
+            console.debug('app navigateToPlayingBand:', this.playSongBand)
+            // Find the band in the bands list by id
+            const band = this.bands.find(b => b.id === this.playSongBand.id)
+            if (band) {
+                this.selectBand(band)
+            }
+        },
         handleFilterShowBandNoNameChange(checked) {
-            console.debug('app handleFilterShowBandNoNameChange:', checked)
-            sessionStorage.setItem('filterShowBandsNoName', JSON.stringify(checked))
+            FilterService.saveToStorage('showBandNoName', checked)
             this.showBandNoName = checked
         },
         handleFilterIncompleteBidsChange(checked) {
-            console.debug('app handleFilterIncompleteBidsChange:', checked)
-            sessionStorage.setItem('filterIncompleteBids', JSON.stringify(checked))
+            FilterService.saveToStorage('showIncompleteBids', checked)
             this.showIncompleteBids = checked
         },
         handleFilterDeclinedBidsChange(checked) {
-            console.debug('app handleFilterDeclinedBidsChange:', checked)
-            sessionStorage.setItem('filterDeclinedBids', JSON.stringify(checked))
+            FilterService.saveToStorage('showDeclinedBids', checked)
             this.showDeclinedBids = checked
         },
         setRating(rating) {
@@ -1222,20 +1743,11 @@ const app = createApp({
         bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
         this.toastAudioPlayer = toastAudioPlayer
         this.handlePopState()
-        const filterNoName = JSON.parse(
-            sessionStorage.getItem('filterShowBandsNoName')
-        )
-        this.showBandNoName = filterNoName ? filterNoName : false
-        const filterIncompleteBids = JSON.parse(
-            sessionStorage.getItem('filterIncompleteBids')
-        )
-        const filterDeclinedBids = JSON.parse(
-            sessionStorage.getItem('filterDeclinedBids')
-        )
-        this.showDeclinedBids = filterDeclinedBids ? filterDeclinedBids : false
-        this.showIncompleteBids = filterIncompleteBids
-            ? filterIncompleteBids
-            : false
+
+        // Initialize filter states from sessionStorage
+        this.showBandNoName = FilterService.loadFromStorage('showBandNoName', false)
+        this.showIncompleteBids = FilterService.loadFromStorage('showIncompleteBids', false)
+        this.showDeclinedBids = FilterService.loadFromStorage('showDeclinedBids', false)
     },
     beforeDestroy() {
         window.removeEventListener('popstate', this.handlePopState)
