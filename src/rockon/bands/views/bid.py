@@ -5,7 +5,6 @@ import json
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -78,14 +77,13 @@ def bid_form(request, slug, guid):
             guid=guid, event__slug=slug
         )
     except Band.DoesNotExist:
-        return HttpResponseForbidden(
-            render(
-                request,
-                'errors/403.html',
-                {
-                    'more_info': 'Diese Bandbewerbung gehört nicht zu deinem Account oder existiert nicht.'
-                },
-            ).content
+        return render(
+            request,
+            'errors/403.html',
+            {
+                'more_info': 'Diese Bandbewerbung gehört nicht zu deinem Account oder existiert nicht.'
+            },
+            status=403,
         )
 
     media = BandMedia.objects.filter(band=band)
@@ -123,8 +121,8 @@ def bid_vote(
     if not can_vote:
         if error_message and 'nicht berechtigt' in error_message:
             raise PermissionDenied(error_message)
-        return HttpResponseForbidden(
-            render(request, 'errors/403.html', {'more_info': error_message}).content
+        return render(
+            request, 'errors/403.html', {'more_info': error_message}, status=403
         )
 
     # Prepare data for JavaScript - convert UUIDs to strings for JSON serialization
