@@ -97,13 +97,35 @@
                          :class="['collapse', { 'show': toastIsMaximized }]">
                         <div class="toast-body">
                             <song-info v-if="playSong" :song="playSong" :band="playSongBand" @navigate-to-band="navigateToPlayingBand"></song-info>
-                            <div id="player-wrapper"></div>
+                            <div class="player-mode-container d-flex mb-2">
+                                <div class="player-mode d-flex align-items-center">
+                                    <span class="player-mode-label me-2">Mode</span>
+                                    <button type="button" class="btn btn-sm btn-player-control" @click="togglePlayerEndBehavior" :title="playerEndTitle" aria-label="Playback mode">
+                                        <template v-if="playerEndBehavior === 'loop-one'">
+                                            <i class="fa-solid fa-repeat"></i>
+                                            <span class="repeat-one-badge">1</span>
+                                        </template>
+                                        <template v-else>
+                                            <i :class="playerEndIcon"></i>
+                                        </template>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="player-wrapper" class="player-wrapper"></div>
                             <div class="d-flex justify-content-center gap-2 mt-2">
                                 <button type="button" class="btn btn-sm btn-player-control" @click="playPreviousTrack" :disabled="!canPlayPrevious" title="Vorheriger Track">
-                                    <i class="fa-solid fa-backward-step"></i>
+                                    <i class="fa-solid fa-step-backward"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-player-control" @click="skipBack15" :disabled="!isPlaying" title="Zurück 10s">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                    <span class="small ms-1">-10s</span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-player-control" @click="skipForward15" :disabled="!isPlaying" title="Vor 10s">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                    <span class="small ms-1">+10s</span>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-player-control" @click="playNextTrack" :disabled="!canPlayNext" title="Nächster Track">
-                                    <i class="fa-solid fa-forward-step"></i>
+                                    <i class="fa-solid fa-step-forward"></i>
                                 </button>
                             </div>
                         </div>
@@ -166,6 +188,55 @@
             100% {
                 background-position: -200% 0;
             }
+        }
+
+        /* Player wrapper and behavior button */
+        #player-wrapper.player-wrapper {
+            position: relative;
+        }
+
+        .btn-player-behavior {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            z-index: 10;
+            opacity: 0.95;
+        }
+
+        /* Player mode moved above waveform */
+        .player-mode-container {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .player-mode {
+            margin-right: 0.75rem;
+        }
+
+        .player-mode .btn-player-control {
+            width: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .player-mode-label {
+            font-size: 0.825rem;
+            color: var(--bs-body-color);
+            opacity: 0.9;
+            user-select: none;
+        }
+
+        .repeat-one-badge {
+            display: inline-block;
+            font-size: 0.65em;
+            line-height: 1;
+            background: rgba(0,0,0,0.15);
+            border-radius: 999px;
+            padding: 0.08rem 0.25rem;
+            margin-left: 0.25rem;
+            vertical-align: super;
         }
 
         /* Detail page image skeleton */

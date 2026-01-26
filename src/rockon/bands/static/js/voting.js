@@ -1404,6 +1404,8 @@ const app = createApp({
             bandDetailLoaded: false,
             playSong: null,
             playSongBand: null,
+            _wavePlaying: false,
+            playerEndBehavior: 'next',
             toastAudioPlayer: null,
             toastVisible: false,
             toastIsMaximized: true,
@@ -1426,7 +1428,45 @@ const app = createApp({
         canPlayNext() {
             if (!this.playSongBand || !this.playSongBand.songs) return false
             return this.currentSongIndex < this.playSongBand.songs.length - 1
-        }
+        },
+        isPlaying() {
+            try {
+                if (this._wavePlaying) return true
+                if (!this.wavesurfer) return false
+                if (typeof this.wavesurfer.isPlaying === 'function') return this.wavesurfer.isPlaying()
+                // fallback: check currentTime vs duration
+                const cur = typeof this.wavesurfer.getCurrentTime === 'function' ? this.wavesurfer.getCurrentTime() : 0
+                const dur = typeof this.wavesurfer.getDuration === 'function' ? this.wavesurfer.getDuration() : 0
+                return dur > 0 && cur < dur && !this.wavesurfer.paused
+            } catch (e) {
+                console.error('isPlaying check failed', e)
+                return false
+            }
+        },
+        playerEndIcon() {
+            switch (this.playerEndBehavior) {
+                case 'stop':
+                    return 'fa-solid fa-stop'
+                case 'loop-all':
+                    return 'fa-solid fa-repeat'
+                case 'loop-one':
+                    return 'fa-solid fa-repeat'
+                default:
+                    return 'fa-solid fa-forward'
+            }
+        },
+        playerEndTitle() {
+            switch (this.playerEndBehavior) {
+                case 'stop':
+                    return 'Am Ende stoppen'
+                case 'loop-all':
+                    return 'Alle Titel wiederholen (Loop)'
+                case 'loop-one':
+                    return 'Aktuellen Titel wiederholen'
+                default:
+                    return 'Nächsten Titel starten'
+            }
+        },
     },
     components: {
         TrackList,
@@ -1447,6 +1487,13 @@ const app = createApp({
     },
     created() {
         this.getBandList(this.bandListUrl, window.rockon_data.event_slug)
+        // restore saved player behavior (stop | next | loop)
+        try {
+            const saved = sessionStorage.getItem('playerEndBehavior')
+            if (saved) this.playerEndBehavior = saved
+        } catch (e) {
+            console.error('Could not read playerEndBehavior from sessionStorage', e)
+        }
         window.addEventListener('popstate', this.handlePopState)
     },
     methods: {
@@ -1539,6 +1586,18 @@ const app = createApp({
             } else {
                 const top = el.getBoundingClientRect().top + window.scrollY - navHeight - extra
                 window.scrollTo({top: Math.max(0, top), behavior: 'auto'})
+            }
+        },
+        togglePlayerEndBehavior() {
+            // cycle: stop -> next -> loop-all -> loop-one -> stop
+            try {
+                if (this.playerEndBehavior === 'stop') this.playerEndBehavior = 'next'
+                else if (this.playerEndBehavior === 'next') this.playerEndBehavior = 'loop-all'
+                else if (this.playerEndBehavior === 'loop-all') this.playerEndBehavior = 'loop-one'
+                else this.playerEndBehavior = 'stop'
+                sessionStorage.setItem('playerEndBehavior', this.playerEndBehavior)
+            } catch (e) {
+                console.error('Failed to persist playerEndBehavior', e)
             }
         },
         selectTrack(track) {
@@ -1677,8 +1736,12 @@ const app = createApp({
             if (this.wavesurfer) {
                 this.wavesurfer.destroy()
                 this.wavesurfer = null
+                this._wavePlaying = false
             }
 
+            this.initWavesurferForSong(song)
+        },
+        initWavesurferForSong(song) {
             this.wavesurfer = WaveSurfer.create({
                 container: document.getElementById('player-wrapper'),
                 waveColor: '#fff300',
@@ -1692,12 +1755,56 @@ const app = createApp({
                 autoplay: true
             })
 
-            // Auto-play next track when current one ends
             this.wavesurfer.on('finish', () => {
-                if (this.canPlayNext) {
-                    this.playNextTrack()
+                try {
+                    if (this.playerEndBehavior === 'stop') {
+                        this._wavePlaying = false
+                    } else if (this.playerEndBehavior === 'next') {
+                        if (this.canPlayNext) {
+                            this.playNextTrack()
+                        } else {
+                            this._wavePlaying = false
+                        }
+                    } else if (this.playerEndBehavior === 'loop-all') {
+                        if (this.canPlayNext) {
+                            this.playNextTrack()
+                        } else {
+                            // loop back to first song
+                            const first = this.playSongBand && this.playSongBand.songs ? this.playSongBand.songs[0] : null
+                            if (first) this.playTrackFromCurrentBand(first)
+                            else this._wavePlaying = false
+                        }
+                    } else if (this.playerEndBehavior === 'loop-one') {
+                        // restart same song
+                        if (this.playSong) {
+                            if (this.wavesurfer) {
+                                if (typeof this.wavesurfer.setTime === 'function') {
+                                    this.wavesurfer.setTime(0)
+                                    this.wavesurfer.play && this.wavesurfer.play()
+                                } else if (typeof this.wavesurfer.setCurrentTime === 'function') {
+                                    this.wavesurfer.setCurrentTime(0)
+                                    this.wavesurfer.play && this.wavesurfer.play()
+                                } else {
+                                    // fallback: reload the same track
+                                    const first = this.playSongBand && this.playSongBand.songs ? this.playSongBand.songs.find(s => s.id === this.playSong.id) : null
+                                    if (first) this.playTrackFromCurrentBand(first)
+                                }
+                            } else {
+                                const first = this.playSongBand && this.playSongBand.songs ? this.playSongBand.songs.find(s => s.id === this.playSong.id) : null
+                                if (first) this.playTrackFromCurrentBand(first)
+                                else this._wavePlaying = false
+                            }
+                        } else {
+                            this._wavePlaying = false
+                        }
+                    }
+                } catch (e) {
+                    console.error('finish handler error', e)
+                    this._wavePlaying = false
                 }
             })
+            this.wavesurfer.on('play', () => { this._wavePlaying = true })
+            this.wavesurfer.on('pause', () => { this._wavePlaying = false })
         },
         toggleIcon() {
             this.toastIsMaximized = !this.toastIsMaximized
@@ -1706,6 +1813,43 @@ const app = createApp({
             if (!this.canPlayPrevious) return
             const prevSong = this.playSongBand.songs[this.currentSongIndex - 1]
             this.playTrackFromCurrentBand(prevSong)
+        },
+        skipBack15() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.skip === 'function') {
+                    this.wavesurfer.skip(-10)
+                } else {
+                    const cur = this.wavesurfer.getCurrentTime ? this.wavesurfer.getCurrentTime() : 0
+                    const target = Math.max(0, cur - 10)
+                    if (typeof this.wavesurfer.setTime === 'function') {
+                        this.wavesurfer.setTime(target)
+                    } else if (typeof this.wavesurfer.setCurrentTime === 'function') {
+                        this.wavesurfer.setCurrentTime(target)
+                    }
+                }
+            } catch (e) {
+                console.error('skipBack15 error', e)
+            }
+        },
+        skipForward15() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.skip === 'function') {
+                    this.wavesurfer.skip(10)
+                } else {
+                    const cur = this.wavesurfer.getCurrentTime ? this.wavesurfer.getCurrentTime() : 0
+                    const dur = this.wavesurfer.getDuration ? this.wavesurfer.getDuration() : Infinity
+                    const target = Math.min(dur, cur + 10)
+                    if (typeof this.wavesurfer.setTime === 'function') {
+                        this.wavesurfer.setTime(target)
+                    } else if (typeof this.wavesurfer.setCurrentTime === 'function') {
+                        this.wavesurfer.setCurrentTime(target)
+                    }
+                }
+            } catch (e) {
+                console.error('skipForward15 error', e)
+            }
         },
         playNextTrack() {
             if (!this.canPlayNext) return
@@ -1724,24 +1868,7 @@ const app = createApp({
                 this.wavesurfer = null
             }
 
-            this.wavesurfer = WaveSurfer.create({
-                container: document.getElementById('player-wrapper'),
-                waveColor: '#fff300',
-                progressColor: '#999400',
-                normalize: false,
-                splitChannels: false,
-                dragToSeek: true,
-                cursorWidth: 3,
-                url: song.encoded_file || song.file,
-                mediaControls: true,
-                autoplay: true
-            })
-
-            this.wavesurfer.on('finish', () => {
-                if (this.canPlayNext) {
-                    this.playNextTrack()
-                }
-            })
+            this.initWavesurferForSong(song)
         },
         handleCloseClick() {
             console.debug('app handleCloseClick')
@@ -1749,6 +1876,7 @@ const app = createApp({
             if (this.wavesurfer) {
                 this.wavesurfer.destroy()
                 this.wavesurfer = null
+                this._wavePlaying = false
             }
             this.playSong = null
             this.playSongBand = null
