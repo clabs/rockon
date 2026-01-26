@@ -40,9 +40,9 @@
     </script>
     {% verbatim %}
     <div id="app">
-        <track-list :tracks="tracks" :bands="bands" :selected-track="selectedTrack" :show-band-no-name="showBandNoName"
-                    :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids"
-                    :bid-states="bidStates"
+        <track-list :tracks="tracks" :bands="bands" :selected-track="selectedTrack" :selected-band="selectedBand" :show-band-no-name="showBandNoName"
+                :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids"
+                :bid-states="bidStates"
                     @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"
                     @filter-incomplete-bids="handleFilterIncompleteBidsChange"
                     @filter-declined-bids="handleFilterDeclinedBidsChange">

@@ -501,6 +501,7 @@ const TrackList = Vue.defineComponent({
         'tracks',
         'bands',
         'selectedTrack',
+        'selectedBand',
         'showBandNoName',
         'showIncompleteBids',
         'showDeclinedBids',
@@ -547,7 +548,11 @@ const TrackList = Vue.defineComponent({
         },
         handleClick(track) {
             console.debug('TrackList handleClick:', track)
-            // If clicking the same track, deselect it
+            if (this.selectedBand) {
+                this.$emit('select-track', track)
+                return
+            }
+
             if (this.selectedTrack === track) {
                 this.$emit('select-track', null)
                 return
@@ -560,6 +565,11 @@ const TrackList = Vue.defineComponent({
         },
         toggleFilter(filterType) {
             console.debug('TrackList toggleFilter:', filterType)
+            if (this.selectedBand) {
+                this.$emit('select-track', filterType)
+                return
+            }
+
             // Toggle behavior: clicking active filter deselects it
             if (this.selectedTrack === filterType) {
                 this.$emit('select-track', null)
