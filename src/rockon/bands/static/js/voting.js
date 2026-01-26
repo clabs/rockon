@@ -77,6 +77,9 @@ const FilterService = {
                 case 'student-bands':
                     return bands.filter(band => band.are_students)
 
+                case 'under-27':
+                    return bands.filter(band => band.mean_age_under_27 === true)
+
                 case 'no-vote':
                     // Exclude declined bands, then filter for unvoted
                     return bands
@@ -511,12 +514,12 @@ const TrackList = Vue.defineComponent({
     ],
     data() {
         return {
-            isFilterCollapsed: FilterService.loadFromStorage('filterCollapsed', false)
+            isFilterCollapsed: FilterService.loadFromStorage('filterCollapsed', true)
         }
     },
     computed: {
         isSpecialFilter() {
-            return ['no-track', 'no-vote', 'student-bands'].includes(this.selectedTrack) ||
+            return ['no-track', 'no-vote', 'student-bands', 'under-27'].includes(this.selectedTrack) ||
                    (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-'))
         },
         hasActiveSelection() {
@@ -645,6 +648,15 @@ const TrackList = Vue.defineComponent({
               <i :class="selectedTrack === 'student-bands' ? 'fas fa-check me-1' : 'fas fa-graduation-cap me-1'"></i>
               Schülerbands
             </span>
+                        <span
+                            class="badge m-1 filter-badge"
+                            :class="selectedTrack === 'under-27' ? 'text-bg-success' : 'text-bg-outline-primary'"
+                            style="cursor: pointer; transition: all 0.2s ease;"
+                            @click="toggleFilter('under-27')"
+                            title="Zeigt nur Bands mit Durchschnittsalter unter 27">
+                            <i :class="selectedTrack === 'under-27' ? 'fas fa-check me-1' : 'fas fa-calendar me-1'"></i>
+                            Unter 27
+                        </span>
             <select
               class="form-select form-select-sm d-inline-block m-1 status-filter-dropdown"
               :class="selectedStatus ? 'bg-success text-white border-success' : ''"
@@ -935,7 +947,7 @@ const BandList = Vue.defineComponent({
     </div>
     <div v-if="groupedBands.length > 0" v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
       <div class="card-group">
-        <div class="card" v-for="item in group" :key="item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
+        <div class="card" v-for="item in group" :key="item.band.id" :id="'band-' + item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
           <div class="image-container">
             <div v-if="!loadedImages[item.band.id]" class="skeleton-loader"></div>
             <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" :class="{ 'loaded': loadedImages[item.band.id] }" style="height: 250px; object-fit: cover; object-position: center;" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto" @load="onImageLoad(item.band.id)">
@@ -1233,7 +1245,7 @@ const BandDetails = Vue.defineComponent({
         }
     },
     template: `
-    <section :v-if="selectedBandDetails" class="row p-4 form-section">
+    <section :v-if="selectedBandDetails" id="band-detail" class="row p-4 form-section">
       <div class="col">
           <h3>{{ bandName }}</h3>
       </div>
@@ -1266,12 +1278,16 @@ const BandDetails = Vue.defineComponent({
       </div>
       </div>
       <h3>Allgemeines</h3>
-      <div class="col-auto">
-          <div v-html="coverLetter" class="alert alert-secondary" role="alert"></div>
+      <div class="row">
+          <div class="col-12">
+              <div v-html="coverLetter" class="alert alert-secondary" role="alert"></div>
+          </div>
       </div>
-      <div class="col">
-          <div><h4>Web</h4></div>
-          <BandLinks :links="selectedBandDetails.web_links" />
+      <div class="row">
+          <div class="col">
+              <div><h4>Web</h4></div>
+              <BandLinks :links="selectedBandDetails.web_links" />
+          </div>
       </div>
       <h3>Media</h3>
       <div class="col">
@@ -1437,6 +1453,8 @@ const app = createApp({
         handlePopState(event) {
             const url = new URL(window.location.href)
             const hashSegments = url.hash.split('/').filter(segment => segment)
+            const previousBandId = this.selectedBand?.id
+            const shouldScrollToDetail = hashSegments.includes('bid') || window.location.hash.includes('/bid/')
 
             if (hashSegments.includes('status')) {
                 const statusFilter = hashSegments[hashSegments.indexOf('status') + 1]
@@ -1452,7 +1470,7 @@ const app = createApp({
             } else if (hashSegments.includes('track')) {
                 const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
                 // Check if it's an old-style special filter URL or actual track
-                if (['no-vote', 'no-track', 'student-bands'].includes(trackSlug)) {
+                if (['no-vote', 'no-track', 'student-bands', 'under-27'].includes(trackSlug)) {
                     this.selectedTrack = trackSlug
                 } else {
                     this.selectedTrack = this.tracks.find(track => track.slug === trackSlug) || null
@@ -1463,15 +1481,64 @@ const app = createApp({
                 const bandGuid = hashSegments[hashSegments.indexOf('bid') + 1]
                 const band = this.bands.find(band => band.guid === bandGuid) || null
                 this.selectedBand = band
-                this.selectedTrack = null
+                // Don't clear selectedTrack when viewing band details - keep the filter active
                 this.selectedBandDetails = null
                 if (band) {
                     this.getBandDetails(band.id)
+                    // Scroll to band-detail anchor after DOM update
+                    this.$nextTick(() => {
+                        const detailElement = document.getElementById('band-detail')
+                        if (detailElement && shouldScrollToDetail) {
+                            this.scrollToElementById('band-detail', 'start')
+                        }
+                    })
                 }
             } else {
-                this.selectedTrack = null
+                const savedTrackData = sessionStorage.getItem('selectedTrack')
+                if (savedTrackData) {
+                    try {
+                        const trackData = JSON.parse(savedTrackData)
+                        if (trackData.type === 'status') {
+                            this.selectedTrack = `status-${trackData.value}`
+                        } else if (trackData.type === 'filter') {
+                            this.selectedTrack = trackData.value
+                        } else if (trackData.type === 'track') {
+                            const track = this.tracks.find(t => t.id === trackData.id)
+                            this.selectedTrack = track || null
+                        }
+                    } catch (e) {
+                        console.error('Error parsing savedTrackData in popstate:', e)
+                        sessionStorage.removeItem('selectedTrack')
+                        this.selectedTrack = null
+                    }
+                } else {
+                    this.selectedTrack = null
+                }
+
                 this.selectedBand = null
                 this.selectedBandDetails = null
+                // Going back to list view - scroll to the previously selected band tile
+                if (previousBandId) {
+                    this.$nextTick(() => {
+                        this.scrollToElementById(`band-${previousBandId}`, 'center')
+                    })
+                }
+            }
+        },
+        // Scroll helper that accounts for a fixed navbar height so anchors aren't hidden.
+        scrollToElementById(id, block = 'start') {
+            const el = document.getElementById(id)
+            if (!el) return
+            const nav = document.querySelector('.navbar') || document.querySelector('nav') || document.getElementById('navbar')
+            const navHeight = nav ? nav.getBoundingClientRect().height : 0
+            const extra = 8
+            if (block === 'center') {
+                const rect = el.getBoundingClientRect()
+                const top = rect.top + window.scrollY - (window.innerHeight / 2) + (rect.height / 2) - Math.round(navHeight / 2)
+                window.scrollTo({top: Math.max(0, top - extra), behavior: 'auto'})
+            } else {
+                const top = el.getBoundingClientRect().top + window.scrollY - navHeight - extra
+                window.scrollTo({top: Math.max(0, top), behavior: 'auto'})
             }
         },
         selectTrack(track) {
@@ -1485,29 +1552,54 @@ const app = createApp({
             if (typeof track === 'string' && track.startsWith('status-')) {
                 const statusValue = track.replace('status-', '')
                 url.hash = `#/status/${statusValue}/`
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'status', value: statusValue}))
             } else if (track === 'no-vote') {
                 url.hash = '#/filter/no-vote/'
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'filter', value: 'no-vote'}))
             } else if (track === 'no-track') {
                 url.hash = '#/filter/no-track/'
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'filter', value: 'no-track'}))
             } else if (track === 'student-bands') {
                 url.hash = '#/filter/student-bands/'
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'filter', value: 'student-bands'}))
+            } else if (track === 'under-27') {
+                url.hash = '#/filter/under-27/'
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'filter', value: 'under-27'}))
             } else if (track) {
                 url.hash = `#/track/${track.slug}/`
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'track', id: track.id}))
             } else {
                 url.hash = ''
+                sessionStorage.removeItem('selectedTrack')
             }
             window.history.pushState({}, '', url)
         },
         selectBand(band) {
             console.debug('app selectBand:', band)
             this.selectedBand = band
+            sessionStorage.setItem('selectedBandId', band.id)
             console.debug('Selected band:', this.selectedBand)
             const url = new URL(window.location.href)
             url.hash = `#/bid/${band.guid}/`
             window.history.pushState({}, '', url)
+            document.title = `${band.name || band.guid} - Band Bewertung`
             this.bandDetailLoaded = false
             this.getBandDetails(band.id)
+            // Scroll to band-detail anchor after DOM update (do not change hash)
+            this.$nextTick(() => {
+                const detailElement = document.getElementById('band-detail')
+                if (detailElement) {
+                    this.scrollToElementById('band-detail', 'start')
+                }
+            })
+            // On mount, ensure detail is visible when selected
+            this.$nextTick(() => {
+                if (document.getElementById('band-detail')) {
+                    this.scrollToElementById('band-detail', 'start')
+                }
+            })
         },
+
         updateTrack(trackId) {
             api_url = window.rockon_api.update_band.replace(
                 'pk_placeholder',
@@ -1764,12 +1856,41 @@ const app = createApp({
         )
         bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
         this.toastAudioPlayer = toastAudioPlayer
-        this.handlePopState()
 
-        // Initialize filter states from sessionStorage
         this.showBandNoName = FilterService.loadFromStorage('showBandNoName', false)
         this.showIncompleteBids = FilterService.loadFromStorage('showIncompleteBids', false)
         this.showDeclinedBids = FilterService.loadFromStorage('showDeclinedBids', false)
+
+        const savedTrackData = sessionStorage.getItem('selectedTrack')
+        if (savedTrackData) {
+            try {
+                const trackData = JSON.parse(savedTrackData)
+                if (trackData.type === 'status') {
+                    this.selectedTrack = `status-${trackData.value}`
+                } else if (trackData.type === 'filter') {
+                    this.selectedTrack = trackData.value
+                } else if (trackData.type === 'track') {
+                    const track = this.tracks.find(t => t.id === trackData.id)
+                    this.selectedTrack = track || null
+                }
+            } catch (e) {
+                console.error('Error parsing savedTrackData:', e)
+                sessionStorage.removeItem('selectedTrack')
+            }
+        }
+
+        this.handlePopState()
+
+        // Restore selected band from sessionStorage if it exists
+        const savedBandId = sessionStorage.getItem('selectedBandId')
+        if (savedBandId && this.bands.length > 0) {
+            const band = this.bands.find(b => b.id === parseInt(savedBandId))
+            if (band) {
+                this.selectedBand = band
+                document.title = `${band.name || band.guid} - Band Bewertung`
+                this.getBandDetails(band.id)
+            }
+        }
     },
     beforeDestroy() {
         window.removeEventListener('popstate', this.handlePopState)
@@ -1788,6 +1909,12 @@ const app = createApp({
             immediate: true,
             handler(newValue, oldValue) {
                 console.log('watch selectedBandDetails changed:', newValue)
+                this.$nextTick(() => {
+                    const detailElement = document.getElementById('band-detail')
+                    if (detailElement && (window.location.hash.includes('/bid/') || this.selectedBand)) {
+                        this.scrollToElementById('band-detail', 'start')
+                    }
+                })
             }
         },
         showBandNoName: {

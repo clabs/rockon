@@ -52,8 +52,7 @@
                    :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
                    :show-declined-bids="showDeclinedBids" @select-band="selectBand" :federal-states="federalStates"
                    :user-votes="userVotes"></band-list>
-        <band-details-skeleton v-if="selectedBand && !bandDetailLoaded" :selected-band="selectedBand"></band-details-skeleton>
-        <band-details v-if="bandDetailLoaded && selectedBandDetails" :selected-band-details="selectedBandDetails"
+        <band-details v-if="selectedBand && selectedBandDetails" :selected-band-details="selectedBandDetails"
                       :allow-votes="allowVotes" :allow-changes="allowChanges" :tracks="tracks"
                       :federal-states="federalStates" :comment-api="bandCommentsUrl" @update:track="updateTrack"
                       @update:select-song="handleSongSelect" @update:rating="setRating" :bid-states="bidStates"
