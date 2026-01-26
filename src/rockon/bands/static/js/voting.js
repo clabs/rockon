@@ -533,6 +533,7 @@ const TrackList = Vue.defineComponent({
             return ''
         }
     },
+
     methods: {
         getTrackCount(track) {
             if (!this.bands) return 0
@@ -1415,6 +1416,18 @@ const app = createApp({
             showDeclinedBids: null,
             BandRating: null,
             lightbox: null
+            ,
+            currentTime: 0,
+            duration: 0,
+            volume: 1
+            ,
+            volumePopupOpen: false,
+            volumeDragging: false,
+            // Numeric tooltip for the volume thumb and inactivity timer
+            volumeTooltip: 100,
+            volumeTooltipVisible: false,
+            _volumePopupTimerId: null,
+            _volumePopupTimeoutMs: 2500
         }
     },
     computed: {
@@ -1600,6 +1613,169 @@ const app = createApp({
                 console.error('Failed to persist playerEndBehavior', e)
             }
         },
+        togglePlayPause() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.isPlaying === 'function' ? this.wavesurfer.isPlaying() : this._wavePlaying) {
+                    this.wavesurfer.pause()
+                } else {
+                    this.wavesurfer.play()
+                }
+            } catch (e) {
+                console.error('togglePlayPause error', e)
+            }
+        },
+        stopPlayback() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.stop === 'function') {
+                    this.wavesurfer.stop()
+                } else if (typeof this.wavesurfer.setTime === 'function') {
+                    this.wavesurfer.setTime(0)
+                    this.wavesurfer.pause && this.wavesurfer.pause()
+                }
+                this.currentTime = 0
+                this._wavePlaying = false
+            } catch (e) {
+                console.error('stopPlayback error', e)
+            }
+        },
+        toggleVolumePopup() {
+            this.volumePopupOpen = !this.volumePopupOpen
+            // show numeric tooltip when opening
+            if (this.volumePopupOpen) {
+                this.showVolumeTooltip(true)
+                this.resetVolumePopupInactivityTimer()
+            } else {
+                this.clearVolumePopupInactivityTimer()
+                this.volumeTooltipVisible = false
+            }
+        },
+        startVolumeDrag(event) {
+            if (!this.wavesurfer) return
+            this.volumeDragging = true
+            // capture pointer
+            event.target.setPointerCapture && event.target.setPointerCapture(event.pointerId)
+            this.handleVolumePointer(event)
+            // attach global listeners
+            document.addEventListener('pointermove', this.handleVolumePointer)
+            document.addEventListener('pointerup', this.endVolumeDrag)
+        },
+        handleVolumePointer(event) {
+            try {
+                const track = event.currentTarget || document.elementFromPoint(event.clientX, event.clientY)
+                // find the .volume-track element
+                const trackEl = track.closest && track.closest('.volume-track') ? track.closest('.volume-track') : (track.querySelector ? track.querySelector('.volume-track') : null)
+                if (!trackEl) return
+                const rect = trackEl.getBoundingClientRect()
+                // vertical from bottom
+                const offset = rect.bottom - event.clientY
+                const pct = Math.max(0, Math.min(1, offset / rect.height))
+                this.volume = pct
+                if (this.wavesurfer && typeof this.wavesurfer.setVolume === 'function') this.wavesurfer.setVolume(this.volume)
+                try { sessionStorage.setItem('playerVolume', String(this.volume)) } catch (e) {}
+                // update and show numeric tooltip, and reset inactivity timer
+                this.volumeTooltip = Math.round(this.volume * 100)
+                this.showVolumeTooltip()
+                this.resetVolumePopupInactivityTimer()
+            } catch (e) {
+                console.error('handleVolumePointer error', e)
+            }
+        },
+        endVolumeDrag(event) {
+            this.volumeDragging = false
+            try {
+                document.removeEventListener('pointermove', this.handleVolumePointer)
+                document.removeEventListener('pointerup', this.endVolumeDrag)
+                // after finishing drag, hide tooltip shortly
+                setTimeout(() => { try { this.volumeTooltipVisible = false } catch (e) {} }, 900)
+            } catch (e) {}
+        },
+        onVolumeKeyDown(event) {
+            if (event.key === 'ArrowUp' || event.key === 'ArrowRight') {
+                this.volume = Math.min(1, this.volume + 0.05)
+                this.setVolume()
+                this.volumeTooltip = Math.round(this.volume * 100)
+                this.showVolumeTooltip()
+                this.resetVolumePopupInactivityTimer()
+                event.preventDefault()
+            } else if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') {
+                this.volume = Math.max(0, this.volume - 0.05)
+                this.setVolume()
+                this.volumeTooltip = Math.round(this.volume * 100)
+                this.showVolumeTooltip()
+                this.resetVolumePopupInactivityTimer()
+                event.preventDefault()
+            }
+        },
+        setVolume() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.setVolume === 'function') {
+                    this.wavesurfer.setVolume(this.volume)
+                }
+                try { sessionStorage.setItem('playerVolume', String(this.volume)) } catch (e) {}
+                // reflect in tooltip when programmatically setting volume
+                this.volumeTooltip = Math.round(this.volume * 100)
+                this.showVolumeTooltip()
+                this.resetVolumePopupInactivityTimer()
+            } catch (e) {
+                console.error('setVolume error', e)
+            }
+        },
+
+        // Show numeric tooltip next to the thumb. If immediate is true keep visible.
+        showVolumeTooltip(immediate = false) {
+            try {
+                this.volumeTooltipVisible = true
+                // keep value synced
+                this.volumeTooltip = Math.round(this.volume * 100)
+                if (!immediate) {
+                    // hide after short delay unless user is actively dragging
+                    clearTimeout(this._hideTooltipTimer)
+                    this._hideTooltipTimer = setTimeout(() => {
+                        try { if (!this.volumeDragging) this.volumeTooltipVisible = false } catch (e) {}
+                    }, 900)
+                }
+            } catch (e) {
+                console.error('showVolumeTooltip error', e)
+            }
+        },
+
+        // Inactivity timer for the popup: close popup when no interaction
+        resetVolumePopupInactivityTimer() {
+            try {
+                this.clearVolumePopupInactivityTimer()
+                this._volumePopupTimerId = setTimeout(() => {
+                    try {
+                        this.volumePopupOpen = false
+                        this.volumeTooltipVisible = false
+                        this._volumePopupTimerId = null
+                    } catch (e) { console.error('volume popup auto-close error', e) }
+                }, this._volumePopupTimeoutMs)
+            } catch (e) {
+                console.error('resetVolumePopupInactivityTimer error', e)
+            }
+        },
+
+        clearVolumePopupInactivityTimer() {
+            try {
+                if (this._volumePopupTimerId) {
+                    clearTimeout(this._volumePopupTimerId)
+                    this._volumePopupTimerId = null
+                }
+            } catch (e) {}
+        },
+        formatTime(sec) {
+            try {
+                sec = Number(sec) || 0
+                const m = Math.floor(sec / 60)
+                const s = Math.floor(sec % 60)
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+            } catch (e) {
+                return '0:00'
+            }
+        },
         selectTrack(track) {
             this.selectedTrack = track
             console.debug('Selected track:', this.selectedTrack)
@@ -1751,8 +1927,30 @@ const app = createApp({
                 dragToSeek: true,
                 cursorWidth: 3,
                 url: song.encoded_file || song.file,
-                mediaControls: true,
+                mediaControls: false,
                 autoplay: true
+            })
+
+            // WaveSurfer ready: set duration and volume
+            this.wavesurfer.on('ready', () => {
+                try {
+                    this.duration = typeof this.wavesurfer.getDuration === 'function' ? this.wavesurfer.getDuration() : 0
+                    // restore previously selected volume
+                    try {
+                        const savedVol = sessionStorage.getItem('playerVolume')
+                        if (savedVol !== null) this.volume = parseFloat(savedVol)
+                    } catch (e) {}
+                    if (typeof this.wavesurfer.setVolume === 'function') {
+                        this.wavesurfer.setVolume(this.volume)
+                    }
+                } catch (e) {
+                    console.error('ready handler error', e)
+                }
+            })
+
+            // Update current time during playback
+            this.wavesurfer.on('audioprocess', (time) => {
+                try { this.currentTime = time } catch (e) {}
             })
 
             this.wavesurfer.on('finish', () => {

@@ -97,7 +97,7 @@
                          :class="['collapse', { 'show': toastIsMaximized }]">
                         <div class="toast-body">
                             <song-info v-if="playSong" :song="playSong" :band="playSongBand" @navigate-to-band="navigateToPlayingBand"></song-info>
-                            <div class="player-mode-container d-flex mb-2">
+                            <div class="player-mode-container d-flex align-items-center mb-2">
                                 <div class="player-mode d-flex align-items-center">
                                     <span class="player-mode-label me-2">Mode</span>
                                     <button type="button" class="btn btn-sm btn-player-control" @click="togglePlayerEndBehavior" :title="playerEndTitle" aria-label="Playback mode">
@@ -110,23 +110,50 @@
                                         </template>
                                     </button>
                                 </div>
+                                <div class="player-time ms-3">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</div>
                             </div>
                             <div id="player-wrapper" class="player-wrapper"></div>
-                            <div class="d-flex justify-content-center gap-2 mt-2">
+                            <div class="d-flex justify-content-center gap-2 mt-2 align-items-center">
                                 <button type="button" class="btn btn-sm btn-player-control" @click="playPreviousTrack" :disabled="!canPlayPrevious" title="Vorheriger Track">
                                     <i class="fa-solid fa-step-backward"></i>
                                 </button>
+
+                                <button type="button" class="btn btn-sm btn-player-control" @click="togglePlayPause" :disabled="!playSong" title="Play / Pause">
+                                    <i :class="isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-player-control" @click="stopPlayback" :disabled="!isPlaying && currentTime === 0" title="Stopp">
+                                    <i class="fa-solid fa-stop"></i>
+                                </button>
+
                                 <button type="button" class="btn btn-sm btn-player-control" @click="skipBack15" :disabled="!isPlaying" title="Zurück 10s">
                                     <i class="fa-solid fa-rotate-left"></i>
                                     <span class="small ms-1">-10s</span>
                                 </button>
+
                                 <button type="button" class="btn btn-sm btn-player-control" @click="skipForward15" :disabled="!isPlaying" title="Vor 10s">
                                     <i class="fa-solid fa-rotate-right"></i>
                                     <span class="small ms-1">+10s</span>
                                 </button>
+
                                 <button type="button" class="btn btn-sm btn-player-control" @click="playNextTrack" :disabled="!canPlayNext" title="Nächster Track">
                                     <i class="fa-solid fa-step-forward"></i>
                                 </button>
+
+                                <div class="speaker-container ms-3" :class="{ 'open': volumePopupOpen }">
+                                    <button type="button" class="btn btn-sm btn-player-control speaker-icon" :title="'Volume: ' + Math.round(volume*100) + '%'" aria-label="Volume" @click.prevent="toggleVolumePopup">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                    <div class="volume-popup" :aria-hidden="!volumePopupOpen" @pointerdown.stop>
+                                        <div class="volume-track" role="slider" tabindex="0"
+                                             :aria-valuemin="0" :aria-valuemax="100" :aria-valuenow="Math.round(volume*100)"
+                                             @pointerdown="startVolumeDrag($event)" @keydown="onVolumeKeyDown($event)" style="position: relative;">
+                                            <div class="volume-fill" :style="{ height: (volume*100) + '%' }"></div>
+                                            <div class="volume-thumb" :style="{ bottom: (volume*100) + '%' }" ></div>
+                                            <div class="volume-tooltip" v-show="volumeTooltipVisible" :style="{ bottom: (volume*100) + '%' }">{{ volumeTooltip }}%</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -153,7 +180,7 @@
         .skeleton-loader {
             position: absolute;
             top: 0;
-            left: 0;
+                overflow: visible;
             width: 100%;
             height: 100%;
             background: linear-gradient(
@@ -171,6 +198,19 @@
             display: inline-block;
             background: linear-gradient(
                 90deg,
+            .volume-tooltip {
+                position: absolute;
+                right: calc(100% + 8px);
+                transform: translateY(-50%);
+                background: rgba(0,0,0,0.92);
+                color: #fff;
+                padding: 4px 6px;
+                border-radius: 4px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+                pointer-events: none;
+                z-index: 50;
+            }
                 #2a2a2a 0%,
                 #3a3a3a 50%,
                 #2a2a2a 100%
@@ -183,6 +223,7 @@
 
         @keyframes skeleton-pulse {
             0% {
+                z-index: 40;
                 background-position: 200% 0;
             }
             100% {
@@ -335,6 +376,134 @@
             border-color: #444;
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        /* Volume slider styling */
+        .player-volume input[type="range"] {
+            width: 120px;
+        }
+
+        .player-time {
+            font-size: 0.9rem;
+            color: var(--bs-body-color);
+        }
+
+        /* Speaker hover popup for volume */
+        .speaker-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .speaker-container .volume-popup {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px) scaleY(0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+            background: rgba(0,0,0,0.6);
+            padding: 6px;
+            border-radius: 6px;
+            z-index: 30;
+            width: 40px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+
+        .volume-track {
+            position: relative;
+            width: 18px;
+            height: 100%;
+        }
+
+        .volume-fill {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 8px;
+            background: #fff300;
+            border-radius: 8px;
+            box-shadow: inset 0 -6px 8px rgba(0,0,0,0.15);
+        }
+
+        .volume-thumb {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            width: 14px;
+            height: 14px;
+            background: #f1f1f1;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        .volume-tooltip {
+            position: absolute;
+            right: calc(100% + 8px);
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.92);
+            color: #fff;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .speaker-container.open .volume-popup,
+        .speaker-container:hover .volume-popup,
+        .speaker-container:focus-within .volume-popup {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0) scaleY(1);
+        }
+
+        .speaker-container .volume-popup input[type="range"] {
+            width: 160px;
+            /* rotate into vertical orientation but keep the input centered inside the popup */
+            transform: rotate(-90deg);
+            transform-origin: center;
+            accent-color: #fff300;
+            -webkit-appearance: none;
+        }
+
+        /* webkit track/thumb styling for better visibility */
+        .speaker-container .volume-popup input[type="range"]::-webkit-slider-runnable-track {
+            height: 6px;
+            background: rgba(255,243,0,0.95);
+            border-radius: 4px;
+        }
+        .speaker-container .volume-popup input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #888; /* grey thumb */
+            border-radius: 50%;
+            margin-top: -4px;
+            border: 2px solid rgba(0,0,0,0.2);
+        }
+        .speaker-container .volume-popup input[type="range"]::-moz-range-thumb {
+            background: #888;
+            border: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        /* Toast width: smaller but keep responsive */
+        #toastAudioPlayer {
+            min-width: 420px;
+            max-width: calc(100vw - 2rem);
+            /* slightly smaller padding inside toast body for compactness */
         }
 
         /* Prevent page jump when scrollbar appears/disappears */
