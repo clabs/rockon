@@ -346,6 +346,8 @@ if SENTRY_ENABLED and SENTRY_DSN:
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=SENTRY_SEND_DEFAULT_PII,
         profiles_sample_rate=1.0,
+        # Enable logs to be sent to Sentry
+        enable_logs=True,
     )
 
 FFMPEG_BIN = env.str('FFMPEG_BIN', default='ffmpeg')

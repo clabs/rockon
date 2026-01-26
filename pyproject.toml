@@ -28,7 +28,7 @@ dependencies = [
     "psycopg-binary",
     "python-magic",
     "redis[hiredis]",
-    "sentry-sdk",
+    "sentry-sdk[django]",
     "tzdata",
     "python-slugify[unidecode]",
     "djlint",
