@@ -38,7 +38,8 @@ class BandViewSet(viewsets.ModelViewSet):
         event_slug = self.request.query_params.get('event', None)
         if event_slug is not None:
             queryset = queryset.filter(event__slug=event_slug)
-        return queryset
+        # Prefetch related media (songs, photos, etc.) to avoid N+1 queries
+        return queryset.prefetch_related('media')
 
 
 class BandMediaViewSet(viewsets.ModelViewSet):
