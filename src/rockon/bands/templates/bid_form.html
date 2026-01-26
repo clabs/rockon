@@ -14,6 +14,7 @@
             band_id: "{{band.id}}",
             api_url_band_details: "{% url "bands-detail" pk=band.id %}",
             api_url_new_media: "{% url "band-media-list" %}",
+            bid_complete: {{ band.bid_complete|lower }},
         }
     </script>
     {% compress js %}
@@ -337,8 +338,12 @@
             <div>
                 <small>zuletzt gespeicht: <span id="updated_at">{{ band.updated_at|date:"d.m.Y, H:i" }}</span></small>
             </div>
-            <div class="alert alert-info mt-2">Meldung mit "✅" bedeutet, dass eure Bewerbung im System ist. Ihr müsst
-                nichts weiter tun. :)
+            <div id="bid-status-alert" class="alert {% if band.bid_complete %}alert-success{% else %}alert-warning{% endif %} mt-2">
+                {% if band.bid_complete %}
+                    <strong>✅ Bewerbung vollständig!</strong> Deine Bewerbung wird in der Auswahl berücksichtigt.
+                {% else %}
+                    <strong>⚠️ Bewerbung unvollständig!</strong> Deine Bewerbung wird erst in der Auswahl berücksichtigt, wenn alle erforderlichen Felder ausgefüllt sind. Du kannst deine Bewerbung jederzeit speichern.
+                {% endif %}
             </div>
             <div id="api_message"></div>
         </section>
