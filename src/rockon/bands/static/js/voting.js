@@ -1554,7 +1554,6 @@ const app = createApp({
                 // Don't clear selectedTrack when viewing band details - keep the filter active
                 this.selectedBandDetails = null
                 if (band) {
-                    this.getBandDetails(band.id)
                     // Scroll to band-detail anchor after DOM update
                     this.$nextTick(() => {
                         const detailElement = document.getElementById('band-detail')
@@ -1829,7 +1828,6 @@ const app = createApp({
             window.history.pushState({}, '', url)
             document.title = `${band.name || band.guid} - Band Bewertung`
             this.bandDetailLoaded = false
-            this.getBandDetails(band.id)
             // Scroll to band-detail anchor after DOM update (do not change hash)
             this.$nextTick(() => {
                 const detailElement = document.getElementById('band-detail')
@@ -2224,7 +2222,6 @@ const app = createApp({
             if (band) {
                 this.selectedBand = band
                 document.title = `${band.name || band.guid} - Band Bewertung`
-                this.getBandDetails(band.id)
             }
         }
     },
