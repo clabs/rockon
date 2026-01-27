@@ -272,12 +272,12 @@ const BandDetailsSkeleton = Vue.defineComponent({
 const SongInfo = Vue.defineComponent({
     props: ['song', 'band'],
     emits: ['navigate-to-band'],
-    template: `
-    <div>
-      <p><h5>Band</h5> <a href="#" @click.prevent="$emit('navigate-to-band', band)" class="band-link">{{ band.name || band.guid }}</a></p>
-      <p><h5>Song</h5> {{ song.file_name_original }}</p>
-    </div>
-  `
+        template: `
+        <div>
+            <p><h5>Band</h5> <a :href="'#/bid/' + band.guid + '/'" @click.prevent="$emit('navigate-to-band', band)" class="band-link">{{ band.name || band.guid }}</a></p>
+            <p><h5>Song</h5> {{ song.file_name_original }}</p>
+        </div>
+    `
 })
 
 const BandLinks = Vue.defineComponent({
@@ -906,14 +906,17 @@ const BandList = Vue.defineComponent({
             this.$emit('select-band', band)
         },
         cardImage(band) {
-            let file = band?.press_photo?.encoded_file || band?.press_photo?.file
-            if (!file) {
-                return window.rockon_data.placeholder
+            // Always return a valid src string for <img>
+            let file = band?.press_photo?.encoded_file || band?.press_photo?.file;
+            if (file && typeof file === 'string') {
+                if (file.endsWith('.webp')) {
+                    return file;
+                } else {
+                    return (window.rockon_data && window.rockon_data.media_offline) ? window.rockon_data.media_offline : '';
+                }
             }
-            if (!file.endsWith('.webp')) {
-                return window.rockon_data.media_offline
-            }
-            return file
+            // Fallback to placeholder if available, else empty string
+            return (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : '';
         },
         hoverBand(band) {
             this.selectedBand = band
@@ -1420,6 +1423,9 @@ const app = createApp({
             toastAudioPlayer: null,
             toastVisible: false,
             toastIsMaximized: true,
+            raccoonRadioPlaylist: [],
+            playQueue: [],
+            playQueueIndex: -1,
             wavesurfer: null,
             showBandNoName: null,
             showIncompleteBids: null,
@@ -1442,13 +1448,17 @@ const app = createApp({
     },
     computed: {
         currentSongIndex() {
+            // If a play queue is active, return its index
+            if (this.playQueue && this.playQueue.length) return this.playQueueIndex
             if (!this.playSong || !this.playSongBand || !this.playSongBand.songs) return -1
             return this.playSongBand.songs.findIndex(s => s.id === this.playSong.id)
         },
         canPlayPrevious() {
+            if (this.playQueue && this.playQueue.length) return this.playQueueIndex > 0
             return this.currentSongIndex > 0
         },
         canPlayNext() {
+            if (this.playQueue && this.playQueue.length) return this.playQueueIndex < this.playQueue.length - 1
             if (!this.playSongBand || !this.playSongBand.songs) return false
             return this.currentSongIndex < this.playSongBand.songs.length - 1
         },
@@ -2017,6 +2027,12 @@ const app = createApp({
         },
         playPreviousTrack() {
             if (!this.canPlayPrevious) return
+            // If a queue is active, play previous from queue
+            if (this.playQueue && this.playQueue.length) {
+                this.playQueueIndex = Math.max(0, this.playQueueIndex - 1)
+                this.playQueueTrack(this.playQueueIndex)
+                return
+            }
             const prevSong = this.playSongBand.songs[this.currentSongIndex - 1]
             this.playTrackFromCurrentBand(prevSong)
         },
@@ -2059,8 +2075,72 @@ const app = createApp({
         },
         playNextTrack() {
             if (!this.canPlayNext) return
+            // If a queue is active, play next from queue
+            if (this.playQueue && this.playQueue.length) {
+                this.playQueueIndex = Math.min(this.playQueue.length - 1, this.playQueueIndex + 1)
+                this.playQueueTrack(this.playQueueIndex)
+                return
+            }
             const nextSong = this.playSongBand.songs[this.currentSongIndex + 1]
             this.playTrackFromCurrentBand(nextSong)
+        },
+        raccoonRadioMode() {
+            try {
+                const allSongs = []
+                this.bands.forEach(band => {
+                    if (band && band.songs && Array.isArray(band.songs)) {
+                        band.songs.forEach(song => {
+                            allSongs.push({
+                                bandId: band.id,
+                                bandName: band.name || band.guid || 'Unknown',
+                                songName: song.file_name_original || song.file || 'Track',
+                                id: song.id,
+                                songObj: song,
+                            })
+                        })
+                    }
+                })
+
+                if (allSongs.length === 0) {
+                    // clear playlist if nothing available
+                    this.raccoonRadioPlaylist = []
+                    return
+                }
+
+                // Shuffle using Fisher-Yates
+                for (let i = allSongs.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1))
+                    const tmp = allSongs[i]
+                    allSongs[i] = allSongs[j]
+                    allSongs[j] = tmp
+                }
+
+                const selected = allSongs.slice(0, Math.min(10, allSongs.length))
+                // Display-friendly playlist with band photo/logo for artwork
+                this.raccoonRadioPlaylist = selected.map(s => {
+                    // Try to get band object from bands list for artwork
+                    let band = this.bands.find(b => b.id === s.bandId) || {};
+                    let pressPhoto = band.press_photo?.encoded_file || band.press_photo?.file || null;
+                    let logo = band.logo?.encoded_file || band.logo?.file || null;
+                    // Fallbacks for artwork
+                    if (!pressPhoto || typeof pressPhoto !== 'string') pressPhoto = (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : '';
+                    if (!logo || typeof logo !== 'string') logo = (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : '';
+                    return {
+                        bandName: s.bandName,
+                        songName: s.songName,
+                        id: s.id,
+                        bandPressPhoto: pressPhoto,
+                        bandLogo: logo
+                    };
+                })
+                // Build playQueue with full song objects and band info, replacing any current queue
+                this.playQueue = selected.map(s => ({ song: s.songObj, bandId: s.bandId, bandName: s.bandName }))
+                this.playQueueIndex = 0
+                // Start playback from the first queued track
+                this.playQueueTrack(0)
+            } catch (e) {
+                console.error('raccoonRadioMode error', e)
+            }
         },
         playTrackFromCurrentBand(song) {
             // Play a track from the already stored playSongBand (don't overwrite band info)
@@ -2075,6 +2155,90 @@ const app = createApp({
             }
 
             this.initWavesurferForSong(song)
+        },
+        playQueueTrack(index) {
+            try {
+                if (!this.playQueue || !this.playQueue.length || index < 0 || index >= this.playQueue.length) return
+                const entry = this.playQueue[index]
+                const song = entry.song
+                // Set the playSong and playSongBand for UI consistency
+                this.playSong = { ...song }
+                this.playSongBand = { id: entry.bandId || null, name: entry.bandName || null, songs: [song] }
+
+                // show toast if hidden
+                if (!this.toastVisible && this.toastAudioPlayer) {
+                    this.toastAudioPlayer.show()
+                    this.toastVisible = true
+                }
+
+                if (this.wavesurfer) {
+                    this.wavesurfer.destroy()
+                    this.wavesurfer = null
+                    this._wavePlaying = false
+                }
+
+                this.initWavesurferForSong(song)
+            } catch (e) {
+                console.error('playQueueTrack error', e)
+            }
+        },
+        playQueueStartAt(index) {
+            try {
+                if (!this.playQueue || !this.playQueue.length) return
+                this.playQueueIndex = index
+                this.playQueueTrack(index)
+                // If few tracks remain, append more
+                const remaining = this.playQueue.length - (this.playQueueIndex + 1)
+                if (remaining <= 3) {
+                    this.appendRandomToQueue(10)
+                }
+            } catch (e) {
+                console.error('playQueueStartAt error', e)
+            }
+        },
+
+        getAllSongEntries() {
+            const entries = []
+            this.bands.forEach(band => {
+                if (band && band.songs && Array.isArray(band.songs)) {
+                    band.songs.forEach(song => {
+                        entries.push({
+                            bandId: band.id,
+                            bandName: band.name || band.guid || 'Unknown',
+                            songName: song.file_name_original || song.file || 'Track',
+                            id: song.id,
+                            songObj: song,
+                        })
+                    })
+                }
+            })
+            return entries
+        },
+
+        appendRandomToQueue(count = 10) {
+            try {
+                const candidates = this.getAllSongEntries()
+                if (!candidates.length) return
+                // Exclude already queued ids
+                const existingIds = new Set((this.playQueue || []).map(e => e.song && e.song.id))
+                const pool = candidates.filter(e => !existingIds.has(e.id))
+                if (!pool.length) return
+                // Shuffle pool
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1))
+                    const tmp = pool[i]
+                    pool[i] = pool[j]
+                    pool[j] = tmp
+                }
+                const picked = pool.slice(0, Math.min(count, pool.length))
+                // Append to playQueue and display playlist
+                picked.forEach(p => {
+                    this.playQueue.push({ song: p.songObj, bandId: p.bandId, bandName: p.bandName })
+                    this.raccoonRadioPlaylist.push({ bandName: p.bandName, songName: p.songName, id: p.id })
+                })
+            } catch (e) {
+                console.error('appendRandomToQueue error', e)
+            }
         },
         handleCloseClick() {
             console.debug('app handleCloseClick')

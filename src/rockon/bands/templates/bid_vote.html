@@ -8,13 +8,13 @@
         <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
     {% endcompress %}
     {% compress js file wavesurfer %}
-        <script src="{% static "vendor/wavesurfer.7.5.0.min.js" %}"></script>
+        <script src="{% static 'vendor/wavesurfer.7.5.0.min.js' %}"></script>
     {% endcompress %}
     {% compress js file simplelightbox %}
-        <script src="{% static "vendor/simple-lightbox.2.13.0.min.js" %}"></script>
+        <script src="{% static 'vendor/simple-lightbox.2.13.0.min.js' %}"></script>
     {% endcompress %}
     {% compress css file simplelightbox %}
-        <link rel="stylesheet" type="text/css" href="{% static "vendor/simple-lightbox.2.13.0.min.css" %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'vendor/simple-lightbox.2.13.0.min.css' %}">
     {% endcompress %}
     <script nonce="{{ request.csp_nonce }}">
         window.rockon_data = {
@@ -29,8 +29,8 @@
             media_offline: "{% static 'assets/media-offline.webp' %}"
         }
         window.rockon_api = {
-            list_bands: "{% url "bands-list" %}",
-            update_band: "{% url "bands-detail" pk="pk_placeholder" %}",
+            list_bands: "{% url 'bands-list' %}",
+            update_band: "{% url 'bands-detail' pk='pk_placeholder' %}",
             fetch_rating: "{% url 'band-votes-detail' pk='pk_placeholder' %}",
             comments_api: "{% url 'band-comments-list' %}",
             band_vote: "{% url 'band-votes-perform-create' %}",
@@ -44,37 +44,35 @@
                 :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids"
                 :bid-states="bidStates"
                     @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"
-                    @filter-incomplete-bids="handleFilterIncompleteBidsChange"
-                    @filter-declined-bids="handleFilterDeclinedBidsChange">
+                    @filter-incomplete-bids="handleFilterIncompleteBidsChange">
         </track-list>
         <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
         <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack"
                    :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
-                   :show-declined-bids="showDeclinedBids" @select-band="selectBand" :federal-states="federalStates"
-                   :user-votes="userVotes"></band-list>
+                   :show-declined-bids="showDeclinedBids" :user-votes="userVotes"></band-list>
         <band-details v-if="selectedBand && selectedBandDetails" :selected-band-details="selectedBandDetails"
                       :allow-votes="allowVotes" :allow-changes="allowChanges" :tracks="tracks"
                       :federal-states="federalStates" :comment-api="bandCommentsUrl" @update:track="updateTrack"
                       @update:select-song="handleSongSelect" @update:rating="setRating" :bid-states="bidStates"
                       @update:bid-status="updateBidStatus"></band-details>
         <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div class="toast-container position-fixed bottom-0 end-0 p-3">
                 <div id="toastAudioPlayer"
                      class="toast"
                      role="alert"
                      aria-live="assertive"
                      aria-atomic="true"
                      data-bs-autohide="false">
-                    <div class="toast-header">
+                        <div class="toast-header">
                         <strong class="me-auto">
                             <i class="fas fa-music" style="padding-right: 0.5em;"></i>
                             <span v-if="toastIsMaximized">Rockify</span>
                             <div v-else class="scrolling-container">
                                 <div class="scrolling-text-wrapper">
-                                    <span class="scrolling-text"><a href="#" @click.prevent="navigateToPlayingBand" class="band-link">{{ playSongBand.name || playSongBand.guid || "" }}</a> - {{ playSong.file_name_original }}</span>
+                                    <span class="scrolling-text"><a :href="'#/bid/' + playSongBand.guid + '/'" @click.prevent="navigateToPlayingBand" class="band-link">{{ playSongBand.name || playSongBand.guid || "" }}</a> - {{ playSong.file_name_original }}</span>
                                 </div>
                             </div>
                         </strong>
+                        <button type="button" :class="['btn btn-sm btn-player-control me-2', { 'raccoon-active': raccoonRadioPlaylist && raccoonRadioPlaylist.length }]" @click="raccoonRadioMode" title="Raccoon Radio" aria-label="Raccoon Radio">🦝📻</button>
                         <button class="btn"
                                 style="color: var(--rockon-btn-close-color)"
                                 type="button"
@@ -96,6 +94,33 @@
                     <div id="player-toast-body"
                          :class="['collapse', { 'show': toastIsMaximized }]">
                         <div class="toast-body">
+                            <template v-if="raccoonRadioPlaylist && raccoonRadioPlaylist.length">
+                                <h5 class="playlist-title" style="margin-bottom: 0.5rem;">🦝📻 Raccoon Radio</h5>
+                                <div class="raccoon-radio-playlist mb-2">
+                                    <ul class="raccoon-radio-list mb-2">
+                                        <li v-for="(item, idx) in raccoonRadioPlaylist" :key="item.id" @click="playQueueStartAt(idx)" :class="{ 'active-play': (playQueue && playQueue.length) ? playQueueIndex === idx : (playSong && playSong.id === item.id) }" aria-current="(playQueue && playQueue.length) ? playQueueIndex === idx : (playSong && playSong.id === item.id)">
+                                            <div class="playlist-track-flex">
+                                                <div class="playlist-artwork">
+                                                    <img
+                                                        :src="item.bandPressPhoto || item.bandLogo || placeholder"
+                                                        :alt="item.bandName + ' photo'"
+                                                        class="playlist-art-img"
+                                                        loading="lazy"
+                                                        @error="event => event.target.src = placeholder"
+                                                    />
+                                                </div>
+                                                <div class="playlist-track-meta">
+                                                    <div class="playlist-track-title">{{ item.bandName }} – {{ item.songName }}</div>
+                                                </div>
+                                                <div class="playlist-play-indicator">
+                                                    <i v-if="isPlaying && ((playQueue && playQueue.length) ? playQueueIndex === idx : (playSong && playSong.id === item.id))" class="fa-solid fa-volume-high"></i>
+                                                    <i v-else-if="(playQueue && playQueue.length) ? playQueueIndex === idx : (playSong && playSong.id === item.id)" class="fa-solid fa-play"></i>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </template>
                             <song-info v-if="playSong" :song="playSong" :band="playSongBand" @navigate-to-band="navigateToPlayingBand"></song-info>
                             <div class="player-mode-container d-flex align-items-center mb-2">
                                 <div class="player-mode d-flex align-items-center">
@@ -163,6 +188,15 @@
     </div>
     {% endverbatim %}
     <style scoped>
+            .playlist-art-img {
+                width: 32px;
+                height: 32px;
+                object-fit: cover;
+                object-position: center;
+                border-radius: 6px;
+                background: #222;
+                display: block;
+            }
         .highlight {
             color: #fff300;
         }
@@ -592,6 +626,101 @@
 
         .band-link:hover {
             text-decoration: underline;
+        }
+
+        /* Raccoon Radio playlist styling */
+        .raccoon-radio-playlist {
+            background: linear-gradient(180deg, rgba(30,30,30,0.98), rgba(20,20,20,0.98));
+            border-radius: 12px;
+            padding: 10px 14px 8px 14px;
+            color: #e6e6e6;
+            max-height: 180px;
+            overflow-y: auto;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .raccoon-radio-playlist .playlist-title {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            color: #fff300;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .raccoon-radio-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .raccoon-radio-list li {
+            padding: 0;
+            margin-bottom: 2px;
+        }
+
+        .playlist-track-flex {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 7px 8px 7px 6px;
+            border-radius: 7px;
+            transition: background 0.13s;
+        }
+
+        .raccoon-radio-list li.active-play .playlist-track-flex {
+            background: linear-gradient(90deg, #fff30022 0%, #fff3000a 100%);
+            border-left: 3px solid #ffd700;
+            box-shadow: 0 2px 8px 0 rgba(255,215,0,0.08);
+        }
+
+        .playlist-track-flex:hover {
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+        }
+
+        .playlist-artwork {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #fff30033 0%, #fff30011 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff300;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .playlist-track-meta {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .playlist-track-title {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.01em;
+            letter-spacing: 0.01em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .playlist-play-indicator {
+            width: 28px;
+            text-align: right;
+            color: #fff300;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        /* Highlighted raccoon button */
+        .raccoon-active {
+            background: var(--rockon-primary);
+            color: #000 !important;
+            border-color: #ffd700 !important;
+            box-shadow: 0 4px 12px rgba(255,215,0,0.25);
         }
     </style>
     {% compress js file voting %}
