@@ -1480,8 +1480,6 @@ const app = createApp({
             switch (this.playerEndBehavior) {
                 case 'stop':
                     return 'fa-solid fa-stop'
-                case 'loop-all':
-                    return 'fa-solid fa-repeat'
                 case 'loop-one':
                     return 'fa-solid fa-repeat'
                 default:
@@ -1492,8 +1490,6 @@ const app = createApp({
             switch (this.playerEndBehavior) {
                 case 'stop':
                     return 'Am Ende stoppen'
-                case 'loop-all':
-                    return 'Alle Titel wiederholen (Loop)'
                 case 'loop-one':
                     return 'Aktuellen Titel wiederholen'
                 default:
@@ -1621,11 +1617,10 @@ const app = createApp({
             }
         },
         togglePlayerEndBehavior() {
-            // cycle: stop -> next -> loop-all -> loop-one -> stop
+            // cycle: stop -> next -> loop-one -> stop
             try {
                 if (this.playerEndBehavior === 'stop') this.playerEndBehavior = 'next'
-                else if (this.playerEndBehavior === 'next') this.playerEndBehavior = 'loop-all'
-                else if (this.playerEndBehavior === 'loop-all') this.playerEndBehavior = 'loop-one'
+                else if (this.playerEndBehavior === 'next') this.playerEndBehavior = 'loop-one'
                 else this.playerEndBehavior = 'stop'
                 sessionStorage.setItem('playerEndBehavior', this.playerEndBehavior)
             } catch (e) {
@@ -1980,15 +1975,6 @@ const app = createApp({
                             this.playNextTrack()
                         } else {
                             this._wavePlaying = false
-                        }
-                    } else if (this.playerEndBehavior === 'loop-all') {
-                        if (this.canPlayNext) {
-                            this.playNextTrack()
-                        } else {
-                            // loop back to first song
-                            const first = this.playSongBand && this.playSongBand.songs ? this.playSongBand.songs[0] : null
-                            if (first) this.playTrackFromCurrentBand(first)
-                            else this._wavePlaying = false
                         }
                     } else if (this.playerEndBehavior === 'loop-one') {
                         // restart same song
