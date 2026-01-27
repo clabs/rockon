@@ -41,10 +41,11 @@
     {% verbatim %}
     <div id="app">
         <track-list :tracks="tracks" :bands="bands" :selected-track="selectedTrack" :selected-band="selectedBand" :show-band-no-name="showBandNoName"
-                :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids"
-                :bid-states="bidStates"
-                    @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"
-                    @filter-incomplete-bids="handleFilterIncompleteBidsChange">
+            :show-incomplete-bids="showIncompleteBids" :show-declined-bids="showDeclinedBids"
+            :bid-states="bidStates"
+                @select-track="selectTrack" @filter-no-name="handleFilterShowBandNoNameChange"
+                @filter-incomplete-bids="handleFilterIncompleteBidsChange"
+                @filter-declined-bids="handleFilterDeclinedBidsChange">
         </track-list>
         <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
          <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack"
