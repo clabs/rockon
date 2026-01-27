@@ -2256,10 +2256,40 @@ const app = createApp({
         navigateToPlayingBand() {
             if (!this.playSongBand) return
             console.debug('app navigateToPlayingBand:', this.playSongBand)
-            // Find the band in the bands list by id
-            const band = this.bands.find(b => b.id === this.playSongBand.id)
+            let band = null
+            if (this.playSongBand.id != null) {
+                band = this.bands.find(b => b.id === this.playSongBand.id)
+            }
+            if (!band && this.playSongBand.guid) {
+                band = this.bands.find(b => b.guid === this.playSongBand.guid)
+            }
             if (band) {
                 this.selectBand(band)
+                return
+            }
+
+            if (this.playSongBand.guid) {
+                const url = new URL(window.location.href)
+                url.hash = `#/bid/${this.playSongBand.guid}/`
+                window.history.pushState({}, '', url)
+                document.title = `${this.playSongBand.name || this.playSongBand.guid} - Band Bewertung`
+                try {
+                    this.handlePopState()
+                } catch (e) {
+                    console.error('navigateToPlayingBand handlePopState error', e)
+                }
+                if (!this.selectedBand && this.playSongBand) {
+                    try {
+                        this.selectedBandDetails = JSON.parse(JSON.stringify(this.playSongBand))
+                        this.bandDetailLoaded = true
+                        this.$nextTick(() => {
+                            const detailElement = document.getElementById('band-detail')
+                            if (detailElement) this.scrollToElementById('band-detail', 'start')
+                        })
+                    } catch (e) {
+                        console.error('navigateToPlayingBand fallback error', e)
+                    }
+                }
             }
         },
         handleFilterShowBandNoNameChange(checked) {
@@ -2397,8 +2427,15 @@ const app = createApp({
             immediate: true,
             handler(newValue, oldValue) {
                 console.log('watch selectedBand changed:', newValue)
-                if (newValue && !this.selectedBandDetails) {
-                    this.getBandDetails(newValue.id)
+                // Fetch details if we don't have any, or if the currently
+                // loaded details don't match the newly selected band.
+                if (newValue) {
+                    const needFetch = !this.selectedBandDetails || (this.selectedBandDetails.id !== newValue.id)
+                    if (needFetch) {
+                        this.selectedBandDetails = null
+                        this.bandDetailLoaded = false
+                        this.getBandDetails(newValue.id)
+                    }
                 }
             }
         },
