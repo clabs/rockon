@@ -2072,6 +2072,15 @@ const app = createApp({
         },
         raccoonRadioMode() {
             try {
+                if (this.raccoonRadioPlaylist && this.raccoonRadioPlaylist.length) {
+                    console.debug('Toggling off raccoon radio')
+                    this.raccoonRadioPlaylist = []
+                    if (this.playQueue && this.playQueue.length) {
+                        this.playQueue = []
+                        this.playQueueIndex = -1
+                    }
+                    return
+                }
                 const allSongs = []
                 this.bands.forEach(band => {
                     if (band && band.songs && Array.isArray(band.songs)) {
@@ -2244,6 +2253,18 @@ const app = createApp({
             this.playSongBand = null
             this.toastVisible = false
             this.toastIsMaximized = true
+            try {
+                if (this.raccoonRadioPlaylist && this.raccoonRadioPlaylist.length) {
+                    console.debug('Disabling raccoon radio because player toast closed')
+                    this.raccoonRadioPlaylist = []
+                }
+                if (this.playQueue && this.playQueue.length) {
+                    this.playQueue = []
+                    this.playQueueIndex = -1
+                }
+            } catch (e) {
+                console.error('Error clearing raccoon radio/queue on close', e)
+            }
         },
         navigateToPlayingBand() {
             if (!this.playSongBand) return
