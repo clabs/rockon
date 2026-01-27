@@ -48,8 +48,8 @@
         </track-list>
         <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
         <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack"
-                   :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
-                   :show-declined-bids="showDeclinedBids" :user-votes="userVotes"></band-list>
+               :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
+               :show-declined-bids="showDeclinedBids" :federal-states="federalStates" :user-votes="userVotes"></band-list>
         <band-details v-if="selectedBand && selectedBandDetails" :selected-band-details="selectedBandDetails"
                       :allow-votes="allowVotes" :allow-changes="allowChanges" :tracks="tracks"
                       :federal-states="federalStates" :comment-api="bandCommentsUrl" @update:track="updateTrack"
