@@ -83,7 +83,6 @@ const FilterService = {
                 case 'no-vote':
                     // Exclude declined bands, then filter for unvoted
                     return bands
-                        .filter(band => band.bid_status !== 'declined')
                         .filter(band => !userVotes.some(vote => vote.band__id === band.id))
 
                 default:
@@ -756,12 +755,10 @@ const BandTags = Vue.defineComponent({
     props: ['selectedBandDetails', 'federalStates'],
     computed: {
         federalStatesTag() {
-            console.debug('BandTags computed federalStatesTag:', this.federalStates)
             const federalState = this.federalStates.find(
                 federalState =>
                     federalState[0] === this.selectedBandDetails.federal_state
             )
-            console.debug('BandTags computed federalState:', federalState)
             return federalState ? federalState[1] : null
         }
     },
@@ -792,12 +789,10 @@ const BandListTags = Vue.defineComponent({
     props: ['selectedBandDetails', 'federalStates', 'userVotes'],
     computed: {
         federalStatesTag() {
-            console.debug('BandTags computed federalStatesTag:', this.federalStates)
             const federalState = this.federalStates.find(
                 federalState =>
                     federalState[0] === this.selectedBandDetails.federal_state
             )
-            console.debug('BandTags computed federalState:', federalState)
             return federalState ? federalState[1] : null
         }
     },
