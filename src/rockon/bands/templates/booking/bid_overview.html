@@ -77,6 +77,7 @@
                     <th class="no-wrap" scope="col">Verteilung</th>
                     <th class="no-wrap" scope="col">Status</th>
                     <th class="no-wrap" scope="col">Track</th>
+                    <th class="no-wrap" scope="col">Vollständig</th>
                     <th class="no-wrap" scope="col">Kontakt</th>
                     <th class="no-wrap" scope="col">Backstage</th>
                 </tr>
@@ -104,6 +105,13 @@
                         </td>
                         <td>{{ band.bid_status }}</td>
                         <td>{{ band.track.name }}</td>
+                        <td>
+                            {% if band.bid_complete %}
+                                <span class="badge text-bg-success">✅ Vollständig</span>
+                            {% else %}
+                                <span class="badge text-bg-warning">⚠️ Unvollständig</span>
+                            {% endif %}
+                        </td>
                         <td>
                             <a href="mailto:{{ band.contact.email }}">{{ band.contact.email }}</a>
                         </td>

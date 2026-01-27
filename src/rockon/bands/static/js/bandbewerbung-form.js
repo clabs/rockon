@@ -1,9 +1,33 @@
 console.debug('bandbewerbung-form.js loaded')
 
+// Alert message constants
+const ALERT_MESSAGES = {
+    complete: '<strong>✅ Bewerbung vollständig!</strong> Deine Bewerbung wird in der Auswahl berücksichtigt.',
+    incomplete: '<strong>⚠️ Bewerbung unvollständig!</strong> Deine Bewerbung wird erst in der Auswahl berücksichtigt, wenn alle erforderlichen Felder ausgefüllt sind. Du kannst deine Bewerbung jederzeit speichern.'
+}
+
+const SAVE_MESSAGES = {
+    complete: '✅ Änderungen gespeichert. Deine Bewerbung wird in der Auswahl berücksichtigt!',
+    incomplete: '✅ Änderungen gespeichert. Deine Bewerbung kann jederzeit bearbeitet werden.'
+}
+
 $(document).ready(() => {
     console.debug('document ready')
     const toastAudioPlayerElement = document.getElementById('toastAudioPlayer')
     const toastAudioPlayer = bootstrap.Toast.getOrCreateInstance(toastAudioPlayerElement)
+
+    // Display bid completion status alert
+    const bidComplete = window.rockon_data.bid_complete
+    const alertContainer = document.createElement('div')
+    alertContainer.className = bidComplete ? 'alert alert-success' : 'alert alert-warning'
+    alertContainer.setAttribute('role', 'alert')
+    alertContainer.innerHTML = bidComplete ? ALERT_MESSAGES.complete : ALERT_MESSAGES.incomplete
+
+    // Insert after the form section heading
+    const formSection = document.querySelector('form.needs-validation')
+    if (formSection) {
+        formSection.insertAdjacentElement('afterbegin', alertContainer)
+    }
     $('#save_form').on('click', event => {
         event.preventDefault()
         console.debug('save')
@@ -227,11 +251,37 @@ const send_form = () => {
 const save_success = data => {
     console.debug('save success', data)
     render_updated_at(data.updated_at)
-    alert("✅ Bandbewerbung gespeichert und abgeschickt.")
+    window.rockon_data.bid_complete = data.bid_complete
+
+    // Update the top alert
+    const topAlert = document.querySelector('form.needs-validation > .alert')
+    if (topAlert) {
+        if (data.bid_complete) {
+            topAlert.className = 'alert alert-success'
+            topAlert.innerHTML = ALERT_MESSAGES.complete
+        } else {
+            topAlert.className = 'alert alert-warning'
+            topAlert.innerHTML = ALERT_MESSAGES.incomplete
+        }
+    }
+
+    // Update the bottom info alert
+    const infoAlert = document.getElementById('bid-status-alert')
+    if (infoAlert) {
+        if (data.bid_complete) {
+            infoAlert.className = 'alert alert-success mt-2'
+            infoAlert.innerHTML = ALERT_MESSAGES.complete
+        } else {
+            infoAlert.className = 'alert alert-warning mt-2'
+            infoAlert.innerHTML = ALERT_MESSAGES.incomplete
+        }
+    }
+
+    // Show success message
+    alert(data.bid_complete ? SAVE_MESSAGES.complete : SAVE_MESSAGES.incomplete)
 }
 
 const api_add_url = (url, type) => {
-    console.debug('add url api')
     const media_obj = {
         url: url, media_type: type, band: window.rockon_data.band_id
     }
@@ -252,7 +302,6 @@ const api_add_url = (url, type) => {
 }
 
 const api_add_web_url = (url, type) => {
-    console.debug('add web url api')
     const media_obj = {
         url: url, media_type: type, band: window.rockon_data.band_id
     }

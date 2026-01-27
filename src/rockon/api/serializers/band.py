@@ -51,6 +51,7 @@ class BandListSerializer(serializers.ModelSerializer):
     press_photo = BandListMediaSerializer(
         source='get_press_photo', read_only=True, many=False
     )
+    songs = BandMediaSerializer(source='get_songs', read_only=True, many=True)
     bid_complete = serializers.ReadOnlyField()
 
     class Meta:
@@ -62,6 +63,7 @@ class BandListSerializer(serializers.ModelSerializer):
             'guid',
             'name',
             'track',
+            'songs',
             'bid_status',
             'federal_state',
             'are_students',

@@ -77,6 +77,9 @@ const FilterService = {
                 case 'student-bands':
                     return bands.filter(band => band.are_students)
 
+                case 'under-27':
+                    return bands.filter(band => band.mean_age_under_27 === true)
+
                 case 'no-vote':
                     // Exclude declined bands, then filter for unvoted
                     return bands
@@ -269,12 +272,12 @@ const BandDetailsSkeleton = Vue.defineComponent({
 const SongInfo = Vue.defineComponent({
     props: ['song', 'band'],
     emits: ['navigate-to-band'],
-    template: `
-    <div>
-      <p><h5>Band</h5> <a href="#" @click.prevent="$emit('navigate-to-band', band)" class="band-link">{{ band.name || band.guid }}</a></p>
-      <p><h5>Song</h5> {{ song.file_name_original }}</p>
-    </div>
-  `
+        template: `
+        <div>
+            <p><h5>Band</h5> <a :href="'#/bid/' + band.guid + '/'" @click.prevent="$emit('navigate-to-band', band)" class="band-link">{{ band.name || band.guid }}</a></p>
+            <p><h5>Song</h5> {{ song.file_name_original }}</p>
+        </div>
+    `
 })
 
 const BandLinks = Vue.defineComponent({
@@ -498,6 +501,7 @@ const TrackList = Vue.defineComponent({
         'tracks',
         'bands',
         'selectedTrack',
+        'selectedBand',
         'showBandNoName',
         'showIncompleteBids',
         'showDeclinedBids',
@@ -511,12 +515,12 @@ const TrackList = Vue.defineComponent({
     ],
     data() {
         return {
-            isFilterCollapsed: FilterService.loadFromStorage('filterCollapsed', false)
+            isFilterCollapsed: FilterService.loadFromStorage('filterCollapsed', true)
         }
     },
     computed: {
         isSpecialFilter() {
-            return ['no-track', 'no-vote', 'student-bands'].includes(this.selectedTrack) ||
+            return ['no-track', 'no-vote', 'student-bands', 'under-27'].includes(this.selectedTrack) ||
                    (typeof this.selectedTrack === 'string' && this.selectedTrack.startsWith('status-'))
         },
         hasActiveSelection() {
@@ -530,6 +534,7 @@ const TrackList = Vue.defineComponent({
             return ''
         }
     },
+
     methods: {
         getTrackCount(track) {
             if (!this.bands) return 0
@@ -543,7 +548,11 @@ const TrackList = Vue.defineComponent({
         },
         handleClick(track) {
             console.debug('TrackList handleClick:', track)
-            // If clicking the same track, deselect it
+            if (this.selectedBand) {
+                this.$emit('select-track', track)
+                return
+            }
+
             if (this.selectedTrack === track) {
                 this.$emit('select-track', null)
                 return
@@ -556,6 +565,11 @@ const TrackList = Vue.defineComponent({
         },
         toggleFilter(filterType) {
             console.debug('TrackList toggleFilter:', filterType)
+            if (this.selectedBand) {
+                this.$emit('select-track', filterType)
+                return
+            }
+
             // Toggle behavior: clicking active filter deselects it
             if (this.selectedTrack === filterType) {
                 this.$emit('select-track', null)
@@ -645,6 +659,15 @@ const TrackList = Vue.defineComponent({
               <i :class="selectedTrack === 'student-bands' ? 'fas fa-check me-1' : 'fas fa-graduation-cap me-1'"></i>
               Schülerbands
             </span>
+                        <span
+                            class="badge m-1 filter-badge"
+                            :class="selectedTrack === 'under-27' ? 'text-bg-success' : 'text-bg-outline-primary'"
+                            style="cursor: pointer; transition: all 0.2s ease;"
+                            @click="toggleFilter('under-27')"
+                            title="Zeigt nur Bands mit Durchschnittsalter unter 27">
+                            <i :class="selectedTrack === 'under-27' ? 'fas fa-check me-1' : 'fas fa-calendar me-1'"></i>
+                            Unter 27
+                        </span>
             <select
               class="form-select form-select-sm d-inline-block m-1 status-filter-dropdown"
               :class="selectedStatus ? 'bg-success text-white border-success' : ''"
@@ -883,14 +906,17 @@ const BandList = Vue.defineComponent({
             this.$emit('select-band', band)
         },
         cardImage(band) {
-            let file = band?.press_photo?.encoded_file || band?.press_photo?.file
-            if (!file) {
-                return window.rockon_data.placeholder
+            // Always return a valid src string for <img>
+            let file = band?.press_photo?.encoded_file || band?.press_photo?.file;
+            if (file && typeof file === 'string') {
+                if (file.endsWith('.webp')) {
+                    return file;
+                } else {
+                    return (window.rockon_data && window.rockon_data.media_offline) ? window.rockon_data.media_offline : '';
+                }
             }
-            if (!file.endsWith('.webp')) {
-                return window.rockon_data.media_offline
-            }
-            return file
+            // Fallback to placeholder if available, else empty string
+            return (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : '';
         },
         hoverBand(band) {
             this.selectedBand = band
@@ -935,7 +961,7 @@ const BandList = Vue.defineComponent({
     </div>
     <div v-if="groupedBands.length > 0" v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
       <div class="card-group">
-        <div class="card" v-for="item in group" :key="item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
+        <div class="card" v-for="item in group" :key="item.band.id" :id="'band-' + item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
           <div class="image-container">
             <div v-if="!loadedImages[item.band.id]" class="skeleton-loader"></div>
             <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" :class="{ 'loaded': loadedImages[item.band.id] }" style="height: 250px; object-fit: cover; object-position: center;" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto" @load="onImageLoad(item.band.id)">
@@ -1233,7 +1259,7 @@ const BandDetails = Vue.defineComponent({
         }
     },
     template: `
-    <section :v-if="selectedBandDetails" class="row p-4 form-section">
+    <section :v-if="selectedBandDetails" id="band-detail" class="row p-4 form-section">
       <div class="col">
           <h3>{{ bandName }}</h3>
       </div>
@@ -1266,12 +1292,16 @@ const BandDetails = Vue.defineComponent({
       </div>
       </div>
       <h3>Allgemeines</h3>
-      <div class="col-auto">
-          <div v-html="coverLetter" class="alert alert-secondary" role="alert"></div>
+      <div class="row">
+          <div class="col-12">
+              <div v-html="coverLetter" class="alert alert-secondary" role="alert"></div>
+          </div>
       </div>
-      <div class="col">
-          <div><h4>Web</h4></div>
-          <BandLinks :links="selectedBandDetails.web_links" />
+      <div class="row">
+          <div class="col">
+              <div><h4>Web</h4></div>
+              <BandLinks :links="selectedBandDetails.web_links" />
+          </div>
       </div>
       <h3>Media</h3>
       <div class="col">
@@ -1388,29 +1418,84 @@ const app = createApp({
             bandDetailLoaded: false,
             playSong: null,
             playSongBand: null,
+            _wavePlaying: false,
+            playerEndBehavior: 'next',
             toastAudioPlayer: null,
             toastVisible: false,
             toastIsMaximized: true,
+            raccoonRadioPlaylist: [],
+            playQueue: [],
+            playQueueIndex: -1,
             wavesurfer: null,
             showBandNoName: null,
             showIncompleteBids: null,
             showDeclinedBids: null,
             BandRating: null,
             lightbox: null
+            ,
+            currentTime: 0,
+            duration: 0,
+            volume: 1
+            ,
+            volumePopupOpen: false,
+            volumeDragging: false,
+            // Numeric tooltip for the volume thumb and inactivity timer
+            volumeTooltip: 100,
+            volumeTooltipVisible: false,
+            _volumePopupTimerId: null,
+            _volumePopupTimeoutMs: 2500
         }
     },
     computed: {
         currentSongIndex() {
+            // If a play queue is active, return its index
+            if (this.playQueue && this.playQueue.length) return this.playQueueIndex
             if (!this.playSong || !this.playSongBand || !this.playSongBand.songs) return -1
             return this.playSongBand.songs.findIndex(s => s.id === this.playSong.id)
         },
         canPlayPrevious() {
+            if (this.playQueue && this.playQueue.length) return this.playQueueIndex > 0
             return this.currentSongIndex > 0
         },
         canPlayNext() {
+            if (this.playQueue && this.playQueue.length) return this.playQueueIndex < this.playQueue.length - 1
             if (!this.playSongBand || !this.playSongBand.songs) return false
             return this.currentSongIndex < this.playSongBand.songs.length - 1
-        }
+        },
+        isPlaying() {
+            try {
+                if (this._wavePlaying) return true
+                if (!this.wavesurfer) return false
+                if (typeof this.wavesurfer.isPlaying === 'function') return this.wavesurfer.isPlaying()
+                // fallback: check currentTime vs duration
+                const cur = typeof this.wavesurfer.getCurrentTime === 'function' ? this.wavesurfer.getCurrentTime() : 0
+                const dur = typeof this.wavesurfer.getDuration === 'function' ? this.wavesurfer.getDuration() : 0
+                return dur > 0 && cur < dur && !this.wavesurfer.paused
+            } catch (e) {
+                console.error('isPlaying check failed', e)
+                return false
+            }
+        },
+        playerEndIcon() {
+            switch (this.playerEndBehavior) {
+                case 'stop':
+                    return 'fa-solid fa-stop'
+                case 'loop-one':
+                    return 'fa-solid fa-repeat'
+                default:
+                    return 'fa-solid fa-forward'
+            }
+        },
+        playerEndTitle() {
+            switch (this.playerEndBehavior) {
+                case 'stop':
+                    return 'Am Ende stoppen'
+                case 'loop-one':
+                    return 'Aktuellen Titel wiederholen'
+                default:
+                    return 'Nächsten Titel starten'
+            }
+        },
     },
     components: {
         TrackList,
@@ -1431,12 +1516,21 @@ const app = createApp({
     },
     created() {
         this.getBandList(this.bandListUrl, window.rockon_data.event_slug)
+        // restore saved player behavior (stop | next | loop)
+        try {
+            const saved = sessionStorage.getItem('playerEndBehavior')
+            if (saved) this.playerEndBehavior = saved
+        } catch (e) {
+            console.error('Could not read playerEndBehavior from sessionStorage', e)
+        }
         window.addEventListener('popstate', this.handlePopState)
     },
     methods: {
         handlePopState(event) {
             const url = new URL(window.location.href)
             const hashSegments = url.hash.split('/').filter(segment => segment)
+            const previousBandId = this.selectedBand?.id
+            const shouldScrollToDetail = hashSegments.includes('bid') || window.location.hash.includes('/bid/')
 
             if (hashSegments.includes('status')) {
                 const statusFilter = hashSegments[hashSegments.indexOf('status') + 1]
@@ -1452,7 +1546,7 @@ const app = createApp({
             } else if (hashSegments.includes('track')) {
                 const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
                 // Check if it's an old-style special filter URL or actual track
-                if (['no-vote', 'no-track', 'student-bands'].includes(trackSlug)) {
+                if (['no-vote', 'no-track', 'student-bands', 'under-27'].includes(trackSlug)) {
                     this.selectedTrack = trackSlug
                 } else {
                     this.selectedTrack = this.tracks.find(track => track.slug === trackSlug) || null
@@ -1463,15 +1557,237 @@ const app = createApp({
                 const bandGuid = hashSegments[hashSegments.indexOf('bid') + 1]
                 const band = this.bands.find(band => band.guid === bandGuid) || null
                 this.selectedBand = band
-                this.selectedTrack = null
+                // Don't clear selectedTrack when viewing band details - keep the filter active
                 this.selectedBandDetails = null
                 if (band) {
-                    this.getBandDetails(band.id)
+                    // Scroll to band-detail anchor after DOM update
+                    this.$nextTick(() => {
+                        const detailElement = document.getElementById('band-detail')
+                        if (detailElement && shouldScrollToDetail) {
+                            this.scrollToElementById('band-detail', 'start')
+                        }
+                    })
                 }
             } else {
-                this.selectedTrack = null
+                const savedTrackData = sessionStorage.getItem('selectedTrack')
+                if (savedTrackData) {
+                    try {
+                        const trackData = JSON.parse(savedTrackData)
+                        if (trackData.type === 'status') {
+                            this.selectedTrack = `status-${trackData.value}`
+                        } else if (trackData.type === 'filter') {
+                            this.selectedTrack = trackData.value
+                        } else if (trackData.type === 'track') {
+                            const track = this.tracks.find(t => t.id === trackData.id)
+                            this.selectedTrack = track || null
+                        }
+                    } catch (e) {
+                        console.error('Error parsing savedTrackData in popstate:', e)
+                        sessionStorage.removeItem('selectedTrack')
+                        this.selectedTrack = null
+                    }
+                } else {
+                    this.selectedTrack = null
+                }
+
                 this.selectedBand = null
                 this.selectedBandDetails = null
+                // Going back to list view - scroll to the previously selected band tile
+                if (previousBandId) {
+                    this.$nextTick(() => {
+                        this.scrollToElementById(`band-${previousBandId}`, 'center')
+                    })
+                }
+            }
+        },
+        // Scroll helper that accounts for a fixed navbar height so anchors aren't hidden.
+        scrollToElementById(id, block = 'start') {
+            const el = document.getElementById(id)
+            if (!el) return
+            const nav = document.querySelector('.navbar') || document.querySelector('nav') || document.getElementById('navbar')
+            const navHeight = nav ? nav.getBoundingClientRect().height : 0
+            const extra = 8
+            if (block === 'center') {
+                const rect = el.getBoundingClientRect()
+                const top = rect.top + window.scrollY - (window.innerHeight / 2) + (rect.height / 2) - Math.round(navHeight / 2)
+                window.scrollTo({top: Math.max(0, top - extra), behavior: 'auto'})
+            } else {
+                const top = el.getBoundingClientRect().top + window.scrollY - navHeight - extra
+                window.scrollTo({top: Math.max(0, top), behavior: 'auto'})
+            }
+        },
+        togglePlayerEndBehavior() {
+            // cycle: stop -> next -> loop-one -> stop
+            try {
+                if (this.playerEndBehavior === 'stop') this.playerEndBehavior = 'next'
+                else if (this.playerEndBehavior === 'next') this.playerEndBehavior = 'loop-one'
+                else this.playerEndBehavior = 'stop'
+                sessionStorage.setItem('playerEndBehavior', this.playerEndBehavior)
+            } catch (e) {
+                console.error('Failed to persist playerEndBehavior', e)
+            }
+        },
+        togglePlayPause() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.isPlaying === 'function' ? this.wavesurfer.isPlaying() : this._wavePlaying) {
+                    this.wavesurfer.pause()
+                } else {
+                    this.wavesurfer.play()
+                }
+            } catch (e) {
+                console.error('togglePlayPause error', e)
+            }
+        },
+        stopPlayback() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.stop === 'function') {
+                    this.wavesurfer.stop()
+                } else if (typeof this.wavesurfer.setTime === 'function') {
+                    this.wavesurfer.setTime(0)
+                    this.wavesurfer.pause && this.wavesurfer.pause()
+                }
+                this.currentTime = 0
+                this._wavePlaying = false
+            } catch (e) {
+                console.error('stopPlayback error', e)
+            }
+        },
+        toggleVolumePopup() {
+            this.volumePopupOpen = !this.volumePopupOpen
+            // show numeric tooltip when opening
+            if (this.volumePopupOpen) {
+                this.showVolumeTooltip(true)
+                this.resetVolumePopupInactivityTimer()
+            } else {
+                this.clearVolumePopupInactivityTimer()
+                this.volumeTooltipVisible = false
+            }
+        },
+        startVolumeDrag(event) {
+            if (!this.wavesurfer) return
+            this.volumeDragging = true
+            // capture pointer
+            event.target.setPointerCapture && event.target.setPointerCapture(event.pointerId)
+            this.handleVolumePointer(event)
+            // attach global listeners
+            document.addEventListener('pointermove', this.handleVolumePointer)
+            document.addEventListener('pointerup', this.endVolumeDrag)
+        },
+        handleVolumePointer(event) {
+            try {
+                const track = event.currentTarget || document.elementFromPoint(event.clientX, event.clientY)
+                // find the .volume-track element
+                const trackEl = track.closest && track.closest('.volume-track') ? track.closest('.volume-track') : (track.querySelector ? track.querySelector('.volume-track') : null)
+                if (!trackEl) return
+                const rect = trackEl.getBoundingClientRect()
+                // vertical from bottom
+                const offset = rect.bottom - event.clientY
+                const pct = Math.max(0, Math.min(1, offset / rect.height))
+                this.volume = pct
+                if (this.wavesurfer && typeof this.wavesurfer.setVolume === 'function') this.wavesurfer.setVolume(this.volume)
+                try { sessionStorage.setItem('playerVolume', String(this.volume)) } catch (e) {}
+                // update and show numeric tooltip, and reset inactivity timer
+                this.volumeTooltip = Math.round(this.volume * 100)
+                this.showVolumeTooltip()
+                this.resetVolumePopupInactivityTimer()
+            } catch (e) {
+                console.error('handleVolumePointer error', e)
+            }
+        },
+        endVolumeDrag(event) {
+            this.volumeDragging = false
+            try {
+                document.removeEventListener('pointermove', this.handleVolumePointer)
+                document.removeEventListener('pointerup', this.endVolumeDrag)
+                // after finishing drag, hide tooltip shortly
+                setTimeout(() => { try { this.volumeTooltipVisible = false } catch (e) {} }, 900)
+            } catch (e) {}
+        },
+        onVolumeKeyDown(event) {
+            if (event.key === 'ArrowUp' || event.key === 'ArrowRight') {
+                this.volume = Math.min(1, this.volume + 0.05)
+                this.setVolume()
+                this.volumeTooltip = Math.round(this.volume * 100)
+                this.showVolumeTooltip()
+                this.resetVolumePopupInactivityTimer()
+                event.preventDefault()
+            } else if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') {
+                this.volume = Math.max(0, this.volume - 0.05)
+                this.setVolume()
+                this.volumeTooltip = Math.round(this.volume * 100)
+                this.showVolumeTooltip()
+                this.resetVolumePopupInactivityTimer()
+                event.preventDefault()
+            }
+        },
+        setVolume() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.setVolume === 'function') {
+                    this.wavesurfer.setVolume(this.volume)
+                }
+                try { sessionStorage.setItem('playerVolume', String(this.volume)) } catch (e) {}
+                // reflect in tooltip when programmatically setting volume
+                this.volumeTooltip = Math.round(this.volume * 100)
+                this.showVolumeTooltip()
+                this.resetVolumePopupInactivityTimer()
+            } catch (e) {
+                console.error('setVolume error', e)
+            }
+        },
+
+        // Show numeric tooltip next to the thumb. If immediate is true keep visible.
+        showVolumeTooltip(immediate = false) {
+            try {
+                this.volumeTooltipVisible = true
+                // keep value synced
+                this.volumeTooltip = Math.round(this.volume * 100)
+                if (!immediate) {
+                    // hide after short delay unless user is actively dragging
+                    clearTimeout(this._hideTooltipTimer)
+                    this._hideTooltipTimer = setTimeout(() => {
+                        try { if (!this.volumeDragging) this.volumeTooltipVisible = false } catch (e) {}
+                    }, 900)
+                }
+            } catch (e) {
+                console.error('showVolumeTooltip error', e)
+            }
+        },
+
+        // Inactivity timer for the popup: close popup when no interaction
+        resetVolumePopupInactivityTimer() {
+            try {
+                this.clearVolumePopupInactivityTimer()
+                this._volumePopupTimerId = setTimeout(() => {
+                    try {
+                        this.volumePopupOpen = false
+                        this.volumeTooltipVisible = false
+                        this._volumePopupTimerId = null
+                    } catch (e) { console.error('volume popup auto-close error', e) }
+                }, this._volumePopupTimeoutMs)
+            } catch (e) {
+                console.error('resetVolumePopupInactivityTimer error', e)
+            }
+        },
+
+        clearVolumePopupInactivityTimer() {
+            try {
+                if (this._volumePopupTimerId) {
+                    clearTimeout(this._volumePopupTimerId)
+                    this._volumePopupTimerId = null
+                }
+            } catch (e) {}
+        },
+        formatTime(sec) {
+            try {
+                sec = Number(sec) || 0
+                const m = Math.floor(sec / 60)
+                const s = Math.floor(sec % 60)
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+            } catch (e) {
+                return '0:00'
             }
         },
         selectTrack(track) {
@@ -1485,29 +1801,53 @@ const app = createApp({
             if (typeof track === 'string' && track.startsWith('status-')) {
                 const statusValue = track.replace('status-', '')
                 url.hash = `#/status/${statusValue}/`
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'status', value: statusValue}))
             } else if (track === 'no-vote') {
                 url.hash = '#/filter/no-vote/'
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'filter', value: 'no-vote'}))
             } else if (track === 'no-track') {
                 url.hash = '#/filter/no-track/'
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'filter', value: 'no-track'}))
             } else if (track === 'student-bands') {
                 url.hash = '#/filter/student-bands/'
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'filter', value: 'student-bands'}))
+            } else if (track === 'under-27') {
+                url.hash = '#/filter/under-27/'
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'filter', value: 'under-27'}))
             } else if (track) {
                 url.hash = `#/track/${track.slug}/`
+                sessionStorage.setItem('selectedTrack', JSON.stringify({type: 'track', id: track.id}))
             } else {
                 url.hash = ''
+                sessionStorage.removeItem('selectedTrack')
             }
             window.history.pushState({}, '', url)
         },
         selectBand(band) {
             console.debug('app selectBand:', band)
             this.selectedBand = band
+            sessionStorage.setItem('selectedBandId', band.id)
             console.debug('Selected band:', this.selectedBand)
             const url = new URL(window.location.href)
             url.hash = `#/bid/${band.guid}/`
             window.history.pushState({}, '', url)
+            document.title = `${band.name || band.guid} - Band Bewertung`
             this.bandDetailLoaded = false
-            this.getBandDetails(band.id)
+            // Scroll to band-detail anchor after DOM update (do not change hash)
+            this.$nextTick(() => {
+                const detailElement = document.getElementById('band-detail')
+                if (detailElement) {
+                    this.scrollToElementById('band-detail', 'start')
+                }
+            })
+            // On mount, ensure detail is visible when selected
+            this.$nextTick(() => {
+                if (document.getElementById('band-detail')) {
+                    this.scrollToElementById('band-detail', 'start')
+                }
+            })
         },
+
         updateTrack(trackId) {
             api_url = window.rockon_api.update_band.replace(
                 'pk_placeholder',
@@ -1585,8 +1925,12 @@ const app = createApp({
             if (this.wavesurfer) {
                 this.wavesurfer.destroy()
                 this.wavesurfer = null
+                this._wavePlaying = false
             }
 
+            this.initWavesurferForSong(song)
+        },
+        initWavesurferForSong(song) {
             this.wavesurfer = WaveSurfer.create({
                 container: document.getElementById('player-wrapper'),
                 waveColor: '#fff300',
@@ -1596,29 +1940,193 @@ const app = createApp({
                 dragToSeek: true,
                 cursorWidth: 3,
                 url: song.encoded_file || song.file,
-                mediaControls: true,
+                mediaControls: false,
                 autoplay: true
             })
 
-            // Auto-play next track when current one ends
-            this.wavesurfer.on('finish', () => {
-                if (this.canPlayNext) {
-                    this.playNextTrack()
+            // WaveSurfer ready: set duration and volume
+            this.wavesurfer.on('ready', () => {
+                try {
+                    this.duration = typeof this.wavesurfer.getDuration === 'function' ? this.wavesurfer.getDuration() : 0
+                    // restore previously selected volume
+                    try {
+                        const savedVol = sessionStorage.getItem('playerVolume')
+                        if (savedVol !== null) this.volume = parseFloat(savedVol)
+                    } catch (e) {}
+                    if (typeof this.wavesurfer.setVolume === 'function') {
+                        this.wavesurfer.setVolume(this.volume)
+                    }
+                } catch (e) {
+                    console.error('ready handler error', e)
                 }
             })
+
+            // Update current time during playback
+            this.wavesurfer.on('audioprocess', (time) => {
+                try { this.currentTime = time } catch (e) {}
+            })
+
+            this.wavesurfer.on('finish', () => {
+                try {
+                    if (this.playerEndBehavior === 'stop') {
+                        this._wavePlaying = false
+                    } else if (this.playerEndBehavior === 'next') {
+                        if (this.canPlayNext) {
+                            this.playNextTrack()
+                        } else {
+                            this._wavePlaying = false
+                        }
+                    } else if (this.playerEndBehavior === 'loop-one') {
+                        // restart same song
+                        if (this.playSong) {
+                            if (this.wavesurfer) {
+                                if (typeof this.wavesurfer.setTime === 'function') {
+                                    this.wavesurfer.setTime(0)
+                                    this.wavesurfer.play && this.wavesurfer.play()
+                                } else if (typeof this.wavesurfer.setCurrentTime === 'function') {
+                                    this.wavesurfer.setCurrentTime(0)
+                                    this.wavesurfer.play && this.wavesurfer.play()
+                                } else {
+                                    // fallback: reload the same track
+                                    const first = this.playSongBand && this.playSongBand.songs ? this.playSongBand.songs.find(s => s.id === this.playSong.id) : null
+                                    if (first) this.playTrackFromCurrentBand(first)
+                                }
+                            } else {
+                                const first = this.playSongBand && this.playSongBand.songs ? this.playSongBand.songs.find(s => s.id === this.playSong.id) : null
+                                if (first) this.playTrackFromCurrentBand(first)
+                                else this._wavePlaying = false
+                            }
+                        } else {
+                            this._wavePlaying = false
+                        }
+                    }
+                } catch (e) {
+                    console.error('finish handler error', e)
+                    this._wavePlaying = false
+                }
+            })
+            this.wavesurfer.on('play', () => { this._wavePlaying = true })
+            this.wavesurfer.on('pause', () => { this._wavePlaying = false })
         },
         toggleIcon() {
             this.toastIsMaximized = !this.toastIsMaximized
         },
         playPreviousTrack() {
             if (!this.canPlayPrevious) return
+            // If a queue is active, play previous from queue
+            if (this.playQueue && this.playQueue.length) {
+                this.playQueueIndex = Math.max(0, this.playQueueIndex - 1)
+                this.playQueueTrack(this.playQueueIndex)
+                return
+            }
             const prevSong = this.playSongBand.songs[this.currentSongIndex - 1]
             this.playTrackFromCurrentBand(prevSong)
         },
+        skipBack15() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.skip === 'function') {
+                    this.wavesurfer.skip(-10)
+                } else {
+                    const cur = this.wavesurfer.getCurrentTime ? this.wavesurfer.getCurrentTime() : 0
+                    const target = Math.max(0, cur - 10)
+                    if (typeof this.wavesurfer.setTime === 'function') {
+                        this.wavesurfer.setTime(target)
+                    } else if (typeof this.wavesurfer.setCurrentTime === 'function') {
+                        this.wavesurfer.setCurrentTime(target)
+                    }
+                }
+            } catch (e) {
+                console.error('skipBack15 error', e)
+            }
+        },
+        skipForward15() {
+            if (!this.wavesurfer) return
+            try {
+                if (typeof this.wavesurfer.skip === 'function') {
+                    this.wavesurfer.skip(10)
+                } else {
+                    const cur = this.wavesurfer.getCurrentTime ? this.wavesurfer.getCurrentTime() : 0
+                    const dur = this.wavesurfer.getDuration ? this.wavesurfer.getDuration() : Infinity
+                    const target = Math.min(dur, cur + 10)
+                    if (typeof this.wavesurfer.setTime === 'function') {
+                        this.wavesurfer.setTime(target)
+                    } else if (typeof this.wavesurfer.setCurrentTime === 'function') {
+                        this.wavesurfer.setCurrentTime(target)
+                    }
+                }
+            } catch (e) {
+                console.error('skipForward15 error', e)
+            }
+        },
         playNextTrack() {
             if (!this.canPlayNext) return
+            // If a queue is active, play next from queue
+            if (this.playQueue && this.playQueue.length) {
+                this.playQueueIndex = Math.min(this.playQueue.length - 1, this.playQueueIndex + 1)
+                this.playQueueTrack(this.playQueueIndex)
+                return
+            }
             const nextSong = this.playSongBand.songs[this.currentSongIndex + 1]
             this.playTrackFromCurrentBand(nextSong)
+        },
+        raccoonRadioMode() {
+            try {
+                const allSongs = []
+                this.bands.forEach(band => {
+                    if (band && band.songs && Array.isArray(band.songs)) {
+                        band.songs.forEach(song => {
+                            allSongs.push({
+                                bandId: band.id,
+                                bandName: band.name || band.guid || 'Unknown',
+                                songName: song.file_name_original || song.file || 'Track',
+                                id: song.id,
+                                songObj: song,
+                            })
+                        })
+                    }
+                })
+
+                if (allSongs.length === 0) {
+                    // clear playlist if nothing available
+                    this.raccoonRadioPlaylist = []
+                    return
+                }
+
+                // Shuffle using Fisher-Yates
+                for (let i = allSongs.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1))
+                    const tmp = allSongs[i]
+                    allSongs[i] = allSongs[j]
+                    allSongs[j] = tmp
+                }
+
+                const selected = allSongs.slice(0, Math.min(10, allSongs.length))
+                // Display-friendly playlist with band photo/logo for artwork
+                this.raccoonRadioPlaylist = selected.map(s => {
+                    // Try to get band object from bands list for artwork
+                    let band = this.bands.find(b => b.id === s.bandId) || {};
+                    let pressPhoto = band.press_photo?.encoded_file || band.press_photo?.file || null;
+                    let logo = band.logo?.encoded_file || band.logo?.file || null;
+                    // Fallbacks for artwork
+                    if (!pressPhoto || typeof pressPhoto !== 'string') pressPhoto = (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : '';
+                    if (!logo || typeof logo !== 'string') logo = (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : '';
+                    return {
+                        bandName: s.bandName,
+                        songName: s.songName,
+                        id: s.id,
+                        bandPressPhoto: pressPhoto,
+                        bandLogo: logo
+                    };
+                })
+                // Build playQueue with full song objects and band info, replacing any current queue
+                this.playQueue = selected.map(s => ({ song: s.songObj, bandId: s.bandId, bandName: s.bandName }))
+                this.playQueueIndex = 0
+                // Start playback from the first queued track
+                this.playQueueTrack(0)
+            } catch (e) {
+                console.error('raccoonRadioMode error', e)
+            }
         },
         playTrackFromCurrentBand(song) {
             // Play a track from the already stored playSongBand (don't overwrite band info)
@@ -1632,24 +2140,97 @@ const app = createApp({
                 this.wavesurfer = null
             }
 
-            this.wavesurfer = WaveSurfer.create({
-                container: document.getElementById('player-wrapper'),
-                waveColor: '#fff300',
-                progressColor: '#999400',
-                normalize: false,
-                splitChannels: false,
-                dragToSeek: true,
-                cursorWidth: 3,
-                url: song.encoded_file || song.file,
-                mediaControls: true,
-                autoplay: true
-            })
+            this.initWavesurferForSong(song)
+        },
+        playQueueTrack(index) {
+            try {
+                if (!this.playQueue || !this.playQueue.length || index < 0 || index >= this.playQueue.length) return
+                const entry = this.playQueue[index]
+                const song = entry.song
+                // Set the playSong and playSongBand for UI consistency
+                this.playSong = { ...song }
+                this.playSongBand = { id: entry.bandId || null, name: entry.bandName || null, songs: [song] }
 
-            this.wavesurfer.on('finish', () => {
-                if (this.canPlayNext) {
-                    this.playNextTrack()
+                // show toast if hidden
+                if (!this.toastVisible && this.toastAudioPlayer) {
+                    this.toastAudioPlayer.show()
+                    this.toastVisible = true
+                }
+
+                if (this.wavesurfer) {
+                    this.wavesurfer.destroy()
+                    this.wavesurfer = null
+                    this._wavePlaying = false
+                }
+
+                this.initWavesurferForSong(song)
+            } catch (e) {
+                console.error('playQueueTrack error', e)
+            }
+        },
+        playQueueStartAt(index) {
+            try {
+                if (!this.playQueue || !this.playQueue.length) return
+                this.playQueueIndex = index
+                this.playQueueTrack(index)
+                // If few tracks remain, append more
+                const remaining = this.playQueue.length - (this.playQueueIndex + 1)
+                if (remaining <= 3) {
+                    this.appendRandomToQueue(10)
+                }
+            } catch (e) {
+                console.error('playQueueStartAt error', e)
+            }
+        },
+
+        getAllSongEntries() {
+            const entries = []
+            this.bands.forEach(band => {
+                if (band && band.songs && Array.isArray(band.songs)) {
+                    band.songs.forEach(song => {
+                        entries.push({
+                            bandId: band.id,
+                            bandName: band.name || band.guid || 'Unknown',
+                            songName: song.file_name_original || song.file || 'Track',
+                            id: song.id,
+                            songObj: song,
+                        })
+                    })
                 }
             })
+            return entries
+        },
+
+        appendRandomToQueue(count = 10) {
+            try {
+                const candidates = this.getAllSongEntries()
+                if (!candidates.length) return
+                // Exclude already queued ids
+                const existingIds = new Set((this.playQueue || []).map(e => e.song && e.song.id))
+                const pool = candidates.filter(e => !existingIds.has(e.id))
+                if (!pool.length) return
+                // Shuffle pool
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1))
+                    const tmp = pool[i]
+                    pool[i] = pool[j]
+                    pool[j] = tmp
+                }
+                const picked = pool.slice(0, Math.min(count, pool.length))
+                // Append to playQueue and display playlist
+                picked.forEach(p => {
+                    this.playQueue.push({ song: p.songObj, bandId: p.bandId, bandName: p.bandName })
+                    // Determine artwork for the appended item (match raccoonRadioMode)
+                    let band = this.bands.find(b => b.id === p.bandId) || {}
+                    let pressPhoto = band.press_photo?.encoded_file || band.press_photo?.file || null
+                    let logo = band.logo?.encoded_file || band.logo?.file || null
+                    if (!pressPhoto || typeof pressPhoto !== 'string') pressPhoto = (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : ''
+                    if (!logo || typeof logo !== 'string') logo = (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : ''
+                    this.raccoonRadioPlaylist.push({ bandName: p.bandName, songName: p.songName, id: p.id, bandPressPhoto: pressPhoto, bandLogo: logo })
+                })
+            } catch (e) {
+                console.error('appendRandomToQueue error', e)
+            }
         },
         handleCloseClick() {
             console.debug('app handleCloseClick')
@@ -1657,6 +2238,7 @@ const app = createApp({
             if (this.wavesurfer) {
                 this.wavesurfer.destroy()
                 this.wavesurfer = null
+                this._wavePlaying = false
             }
             this.playSong = null
             this.playSongBand = null
@@ -1666,10 +2248,40 @@ const app = createApp({
         navigateToPlayingBand() {
             if (!this.playSongBand) return
             console.debug('app navigateToPlayingBand:', this.playSongBand)
-            // Find the band in the bands list by id
-            const band = this.bands.find(b => b.id === this.playSongBand.id)
+            let band = null
+            if (this.playSongBand.id != null) {
+                band = this.bands.find(b => b.id === this.playSongBand.id)
+            }
+            if (!band && this.playSongBand.guid) {
+                band = this.bands.find(b => b.guid === this.playSongBand.guid)
+            }
             if (band) {
                 this.selectBand(band)
+                return
+            }
+
+            if (this.playSongBand.guid) {
+                const url = new URL(window.location.href)
+                url.hash = `#/bid/${this.playSongBand.guid}/`
+                window.history.pushState({}, '', url)
+                document.title = `${this.playSongBand.name || this.playSongBand.guid} - Band Bewertung`
+                try {
+                    this.handlePopState()
+                } catch (e) {
+                    console.error('navigateToPlayingBand handlePopState error', e)
+                }
+                if (!this.selectedBand && this.playSongBand) {
+                    try {
+                        this.selectedBandDetails = JSON.parse(JSON.stringify(this.playSongBand))
+                        this.bandDetailLoaded = true
+                        this.$nextTick(() => {
+                            const detailElement = document.getElementById('band-detail')
+                            if (detailElement) this.scrollToElementById('band-detail', 'start')
+                        })
+                    } catch (e) {
+                        console.error('navigateToPlayingBand fallback error', e)
+                    }
+                }
             }
         },
         handleFilterShowBandNoNameChange(checked) {
@@ -1764,12 +2376,40 @@ const app = createApp({
         )
         bootstrap.Toast.getOrCreateInstance(toastAudioPlayer)
         this.toastAudioPlayer = toastAudioPlayer
-        this.handlePopState()
 
-        // Initialize filter states from sessionStorage
         this.showBandNoName = FilterService.loadFromStorage('showBandNoName', false)
         this.showIncompleteBids = FilterService.loadFromStorage('showIncompleteBids', false)
         this.showDeclinedBids = FilterService.loadFromStorage('showDeclinedBids', false)
+
+        const savedTrackData = sessionStorage.getItem('selectedTrack')
+        if (savedTrackData) {
+            try {
+                const trackData = JSON.parse(savedTrackData)
+                if (trackData.type === 'status') {
+                    this.selectedTrack = `status-${trackData.value}`
+                } else if (trackData.type === 'filter') {
+                    this.selectedTrack = trackData.value
+                } else if (trackData.type === 'track') {
+                    const track = this.tracks.find(t => t.id === trackData.id)
+                    this.selectedTrack = track || null
+                }
+            } catch (e) {
+                console.error('Error parsing savedTrackData:', e)
+                sessionStorage.removeItem('selectedTrack')
+            }
+        }
+
+        this.handlePopState()
+
+        // Restore selected band from sessionStorage if it exists
+        const savedBandId = sessionStorage.getItem('selectedBandId')
+        if (savedBandId && this.bands.length > 0) {
+            const band = this.bands.find(b => b.id === parseInt(savedBandId))
+            if (band) {
+                this.selectedBand = band
+                document.title = `${band.name || band.guid} - Band Bewertung`
+            }
+        }
     },
     beforeDestroy() {
         window.removeEventListener('popstate', this.handlePopState)
@@ -1779,8 +2419,15 @@ const app = createApp({
             immediate: true,
             handler(newValue, oldValue) {
                 console.log('watch selectedBand changed:', newValue)
-                if (newValue && !this.selectedBandDetails) {
-                    this.getBandDetails(newValue.id)
+                // Fetch details if we don't have any, or if the currently
+                // loaded details don't match the newly selected band.
+                if (newValue) {
+                    const needFetch = !this.selectedBandDetails || (this.selectedBandDetails.id !== newValue.id)
+                    if (needFetch) {
+                        this.selectedBandDetails = null
+                        this.bandDetailLoaded = false
+                        this.getBandDetails(newValue.id)
+                    }
                 }
             }
         },
@@ -1788,6 +2435,12 @@ const app = createApp({
             immediate: true,
             handler(newValue, oldValue) {
                 console.log('watch selectedBandDetails changed:', newValue)
+                this.$nextTick(() => {
+                    const detailElement = document.getElementById('band-detail')
+                    if (detailElement && (window.location.hash.includes('/bid/') || this.selectedBand)) {
+                        this.scrollToElementById('band-detail', 'start')
+                    }
+                })
             }
         },
         showBandNoName: {
