@@ -83,7 +83,6 @@ const FilterService = {
                 case 'no-vote':
                     // Exclude declined bands, then filter for unvoted
                     return bands
-                        .filter(band => band.bid_status !== 'declined')
                         .filter(band => !userVotes.some(vote => vote.band__id === band.id))
 
                 default:
