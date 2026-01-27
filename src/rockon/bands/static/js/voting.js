@@ -2234,7 +2234,13 @@ const app = createApp({
                 // Append to playQueue and display playlist
                 picked.forEach(p => {
                     this.playQueue.push({ song: p.songObj, bandId: p.bandId, bandName: p.bandName })
-                    this.raccoonRadioPlaylist.push({ bandName: p.bandName, songName: p.songName, id: p.id })
+                    // Determine artwork for the appended item (match raccoonRadioMode)
+                    let band = this.bands.find(b => b.id === p.bandId) || {}
+                    let pressPhoto = band.press_photo?.encoded_file || band.press_photo?.file || null
+                    let logo = band.logo?.encoded_file || band.logo?.file || null
+                    if (!pressPhoto || typeof pressPhoto !== 'string') pressPhoto = (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : ''
+                    if (!logo || typeof logo !== 'string') logo = (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : ''
+                    this.raccoonRadioPlaylist.push({ bandName: p.bandName, songName: p.songName, id: p.id, bandPressPhoto: pressPhoto, bandLogo: logo })
                 })
             } catch (e) {
                 console.error('appendRandomToQueue error', e)
