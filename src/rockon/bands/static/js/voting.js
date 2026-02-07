@@ -1564,29 +1564,13 @@ const app = createApp({
                     })
                 }
             } else {
-                const savedTrackData = sessionStorage.getItem('selectedTrack')
-                if (savedTrackData) {
-                    try {
-                        const trackData = JSON.parse(savedTrackData)
-                        if (trackData.type === 'status') {
-                            this.selectedTrack = `status-${trackData.value}`
-                        } else if (trackData.type === 'filter') {
-                            this.selectedTrack = trackData.value
-                        } else if (trackData.type === 'track') {
-                            const track = this.tracks.find(t => t.id === trackData.id)
-                            this.selectedTrack = track || null
-                        }
-                    } catch (e) {
-                        console.error('Error parsing savedTrackData in popstate:', e)
-                        sessionStorage.removeItem('selectedTrack')
-                        this.selectedTrack = null
-                    }
-                } else {
-                    this.selectedTrack = null
-                }
-
+                // No hash present - clear selections, don't restore from sessionStorage
+                this.selectedTrack = null
                 this.selectedBand = null
                 this.selectedBandDetails = null
+                // Clear sessionStorage to stay in sync
+                sessionStorage.removeItem('selectedTrack')
+
                 // Going back to list view - scroll to the previously selected band tile
                 if (previousBandId) {
                     this.$nextTick(() => {
