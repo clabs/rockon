@@ -107,11 +107,18 @@ const FilterService = {
      * Apply all filters to a band list
      * @param {Array} bands - All bands
      * @param {Object} options - {filters, selectedTrack, userVotes}
-     * @returns {Array} Filtered bands
+     * @returns {Array} Filtered bands sorted by name (case-insensitive)
      */
     filterBands(bands, { filters, selectedTrack, userVotes = [] }) {
         const visibilityFiltered = this.applyVisibilityFilters(bands, filters)
-        return this.applySelectionFilter(visibilityFiltered, selectedTrack, userVotes)
+        const selectionFiltered = this.applySelectionFilter(visibilityFiltered, selectedTrack, userVotes)
+
+        // Sort case-insensitively by band name
+        return selectionFiltered.sort((a, b) => {
+            const nameA = (a.name || a.guid || '').toLowerCase()
+            const nameB = (b.name || b.guid || '').toLowerCase()
+            return nameA.localeCompare(nameB)
+        })
     }
 }
 
