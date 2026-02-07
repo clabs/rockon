@@ -1863,7 +1863,7 @@ const app = createApp({
             const url = new URL(window.location.href)
             url.hash = `#/bid/${band.guid}/`
             window.history.pushState({}, '', url)
-            document.title = `${band.name || band.guid} - Band Bewertung`
+            document.title = `${band.name || band.guid} - Bandbewertung`
             this.bandDetailLoaded = false
         },
 
@@ -2311,7 +2311,7 @@ const app = createApp({
                 const url = new URL(window.location.href)
                 url.hash = `#/bid/${this.playSongBand.guid}/`
                 window.history.pushState({}, '', url)
-                document.title = `${this.playSongBand.name || this.playSongBand.guid} - Band Bewertung`
+                document.title = `${this.playSongBand.name || this.playSongBand.guid} - Bandbewertung`
                 try {
                     this.handlePopState()
                 } catch (e) {
@@ -2454,7 +2454,7 @@ const app = createApp({
             const band = this.bands.find(b => b.id === parseInt(savedBandId))
             if (band) {
                 this.selectedBand = band
-                document.title = `${band.name || band.guid} - Band Bewertung`
+                document.title = `${band.name || band.guid} - Bandbewertung`
             }
         }
     },

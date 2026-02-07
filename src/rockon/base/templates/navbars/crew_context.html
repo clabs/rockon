@@ -4,8 +4,7 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="{% url 'crew:guestlist_entries' slug=current_event.slug %}">Gästeliste</a>
             {% if current_event.bid_browsing_allowed %}
-                <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band
-                    Bewertung</a>
+                <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Bandbewertung</a>
             {% endif %}
         </div>
     </li>
@@ -33,10 +32,8 @@
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Booking</a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Band
-                    Bewertung</a>
-                <a class="dropdown-item" href="{% url 'bands:booking_bid_overview' slug=current_event.slug %}">Übersicht
-                    Bewertungen</a>
+                <a class="dropdown-item" aria-current="page" href="{% url 'bands:bid_vote' slug=current_event.slug %}">Bewertung</a>
+                <a class="dropdown-item" href="{% url 'bands:booking_bid_overview' slug=current_event.slug %}">Übersicht</a>
             </div>
         </li>
     {% endif %}
