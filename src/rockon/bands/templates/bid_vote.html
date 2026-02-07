@@ -53,9 +53,9 @@
              :show-declined-bids="showDeclinedBids" :federal-states="federalStates" :user-votes="userVotes" @select-band="selectBand"></band-list>
         <band-details v-if="selectedBand && selectedBandDetails" :selected-band-details="selectedBandDetails"
                       :allow-votes="allowVotes" :allow-changes="allowChanges" :tracks="tracks"
-                      :federal-states="federalStates" :comment-api="bandCommentsUrl" @update:track="updateTrack"
-                      @update:select-song="handleSongSelect" @update:rating="setRating" :bid-states="bidStates"
-                      @update:bid-status="updateBidStatus"></band-details>
+                      :federal-states="federalStates" :comment-api="bandCommentsUrl" :filtered-bands="filteredBands"
+                      @update:track="updateTrack" @update:select-song="handleSongSelect" @update:rating="setRating"
+                      :bid-states="bidStates" @update:bid-status="updateBidStatus" @navigate-to-band="selectBand"></band-details>
         <div class="toast-container position-fixed bottom-0 end-0 p-3">
                 <div id="toastAudioPlayer"
                      class="toast"
@@ -722,6 +722,28 @@
             color: #000 !important;
             border-color: #ffd700 !important;
             box-shadow: 0 4px 12px rgba(255,215,0,0.25);
+        }
+
+        /* Band navigation chevron buttons */
+        .btn-nav-chevron {
+            background: transparent;
+            border: 2px solid var(--rockon-primary);
+            color: var(--rockon-primary);
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-nav-chevron:hover:not(:disabled) {
+            background: var(--rockon-primary);
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        .btn-nav-chevron:disabled {
+            opacity: 0;
+            cursor: default;
         }
     </style>
     {% compress js file voting %}
