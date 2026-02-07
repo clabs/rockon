@@ -123,7 +123,7 @@ class BandVoteViewSet(viewsets.ModelViewSet):
             vote = BandVote.objects.update_or_create(
                 band=band, user=user, defaults={'vote': vote, 'event': band.event}
             )
-        except (KeyError, BandVote.DoesNotExist):
+        except KeyError, BandVote.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_201_CREATED)
 

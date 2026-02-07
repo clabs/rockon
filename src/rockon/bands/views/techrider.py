@@ -10,7 +10,7 @@ from rockon.bands.models import Band
 def techrider(request, slug):
     try:
         band_obj = Band.objects.get(slug=slug)
-    except (Band.DoesNotExist, ValidationError):
+    except Band.DoesNotExist, ValidationError:
         raise Http404('Band nicht gefunden...')
 
     template = loader.get_template('techrider.html')

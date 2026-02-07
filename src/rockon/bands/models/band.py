@@ -13,9 +13,10 @@ class BidStatus(models.TextChoices):
     """Bid status."""
 
     UNKNOWN = 'unknown', 'Unbekannt'
-    PENDING = 'pending', 'Bearbeitung'
-    ACCEPTED = 'accepted', 'Angenommen'
-    DECLINED = 'declined', 'Abgelehnt'
+    PENDING = 'pending', 'In Bearbeitung'
+    ACCEPTED = 'accepted', 'Bewerbung angenommen'
+    DECLINED = 'declined', 'Bwerbung abgelehnt'
+    LINEUP = 'lineup', 'Line Up'
 
 
 class Band(CustomModel):
