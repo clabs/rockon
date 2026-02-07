@@ -1923,7 +1923,14 @@ const app = createApp({
                 .then(response => response.json())
                 .then(data => console.log('Success:', data))
                 .catch(error => console.error('Error:', error))
-            this.selectedBandDetails.bid_state = bidStatus
+            // Update all references to ensure filters work correctly
+            this.selectedBand.bid_status = bidStatus
+            this.selectedBandDetails.bid_status = bidStatus
+            // Also update the band in the main bands array
+            const bandInList = this.bands.find(b => b.id === this.selectedBandDetails.id)
+            if (bandInList) {
+                bandInList.bid_status = bidStatus
+            }
         },
         handleSongSelect(song) {
             console.debug('app handleSongSelect:', song)
