@@ -2,13 +2,13 @@ console.debug('bandbewerbung-form.js loaded')
 
 // Alert message constants
 const ALERT_MESSAGES = {
-    complete: '<strong>✅ Bewerbung vollständig!</strong> Deine Bewerbung wird in der Auswahl berücksichtigt.',
-    incomplete: '<strong>⚠️ Bewerbung unvollständig!</strong> Deine Bewerbung wird erst in der Auswahl berücksichtigt, wenn alle erforderlichen Felder ausgefüllt sind. Du kannst deine Bewerbung jederzeit speichern.'
+    complete: '<strong>✅ Bewerbung vollständig!</strong> Eure Bewerbung wird in der Auswahl berücksichtigt.',
+    incomplete: '<strong>⚠️ Bewerbung unvollständig!</strong> Eure Bewerbung wird erst in der Auswahl berücksichtigt, wenn alle erforderlichen Felder ausgefüllt sind. Ihr könnt eure Bewerbung jederzeit speichern.'
 }
 
 const SAVE_MESSAGES = {
-    complete: '✅ Änderungen gespeichert. Deine Bewerbung wird in der Auswahl berücksichtigt!',
-    incomplete: '✅ Änderungen gespeichert. Deine Bewerbung kann jederzeit bearbeitet werden.'
+    complete: '✅ Änderungen gespeichert. Eure Bewerbung wird in der Auswahl berücksichtigt!',
+    incomplete: '✅ Änderungen gespeichert. Eure Bewerbung kann jederzeit bearbeitet werden.'
 }
 
 $(document).ready(() => {
@@ -28,6 +28,24 @@ $(document).ready(() => {
     if (formSection) {
         formSection.insertAdjacentElement('afterbegin', alertContainer)
     }
+
+    // Disable form if bid_status is accepted, declined, or lineup
+    const bidStatus = window.rockon_data.bid_status
+    const readOnlyStatuses = ['accepted', 'declined', 'lineup']
+    if (readOnlyStatuses.includes(bidStatus)) {
+        console.debug('Form is read-only due to bid_status:', bidStatus)
+        // Disable all form inputs
+        $('#application input, #application textarea, #application select, #application button').prop('disabled', true)
+        // Disable save button
+        $('#save_form').prop('disabled', true)
+        // Disable file upload buttons
+        $('#selectNewDocument, #selectNewSong').prop('disabled', true)
+        // Disable image upload clicks
+        $('#bandPressPhoto, #bandLogo').css('cursor', 'not-allowed').off('click')
+        // Disable all remove buttons
+        $('[data-remove-url], [data-remove-document], [data-remove-song]').prop('disabled', true).css('pointer-events', 'none')
+    }
+
     $('#save_form').on('click', event => {
         event.preventDefault()
         console.debug('save')

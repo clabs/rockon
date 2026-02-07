@@ -139,7 +139,7 @@ def bid_vote(
         'bid_vote.html',
         {
             'media_url': settings.MEDIA_URL,
-            'site_title': 'Band Bewertung',
+            'site_title': 'Bandbewertung',
             'tracks': mark_safe(json.dumps(tracks)),
             'federal_states': mark_safe(json.dumps(list(FederalState.choices))),
             'bid_states': mark_safe(json.dumps(list(BidStatus.choices))),

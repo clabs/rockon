@@ -107,11 +107,18 @@ const FilterService = {
      * Apply all filters to a band list
      * @param {Array} bands - All bands
      * @param {Object} options - {filters, selectedTrack, userVotes}
-     * @returns {Array} Filtered bands
+     * @returns {Array} Filtered bands sorted by name (case-insensitive)
      */
     filterBands(bands, { filters, selectedTrack, userVotes = [] }) {
         const visibilityFiltered = this.applyVisibilityFilters(bands, filters)
-        return this.applySelectionFilter(visibilityFiltered, selectedTrack, userVotes)
+        const selectionFiltered = this.applySelectionFilter(visibilityFiltered, selectedTrack, userVotes)
+
+        // Sort case-insensitively by band name
+        return selectionFiltered.sort((a, b) => {
+            const nameA = (a.name || a.guid || '').toLowerCase()
+            const nameB = (b.name || b.guid || '').toLowerCase()
+            return nameA.localeCompare(nameB)
+        })
     }
 }
 
@@ -1205,8 +1212,9 @@ const BandDetails = Vue.defineComponent({
         'allowChanges',
         'allowVotes',
         'commentApi',
+        'filteredBands',
     ],
-    emits: ['update:track', 'update:select-song', 'update:rating'],
+    emits: ['update:track', 'update:select-song', 'update:rating', 'navigate-to-band'],
     components: {
         TrackDropdown,
         BackstageLink,
@@ -1251,12 +1259,36 @@ const BandDetails = Vue.defineComponent({
         },
         isUnknownOrPending() {
             return this.selectedBandDetails.bid_status === 'unknown' || this.selectedBandDetails.bid_status === 'pending';
+        },
+        currentBandIndex() {
+            if (!this.filteredBands || !this.selectedBandDetails) return -1
+            return this.filteredBands.findIndex(b => b.id === this.selectedBandDetails.id)
+        },
+        previousBand() {
+            if (this.currentBandIndex <= 0) return null
+            return this.filteredBands[this.currentBandIndex - 1]
+        },
+        nextBand() {
+            if (this.currentBandIndex < 0 || this.currentBandIndex >= this.filteredBands.length - 1) return null
+            return this.filteredBands[this.currentBandIndex + 1]
         }
     },
     template: `
     <section :v-if="selectedBandDetails" id="band-detail" class="row p-4 form-section">
-      <div class="col">
-          <h3>{{ bandName }}</h3>
+      <div class="col d-flex align-items-center justify-content-between">
+          <button v-if="previousBand" @click="navigateToPrevious()" class="btn btn-nav-chevron me-3" :title="'Vorherige Band: ' + (previousBand.name || previousBand.guid)">
+            <i class="fas fa-chevron-left me-2"></i>Vorherige
+          </button>
+          <button v-else class="btn btn-nav-chevron me-3" disabled style="visibility: hidden;">
+            <i class="fas fa-chevron-left me-2"></i>Vorherige
+          </button>
+          <h3 class="mb-0 flex-grow-1 text-center">{{ bandName }}</h3>
+          <button v-if="nextBand" @click="navigateToNext()" class="btn btn-nav-chevron ms-3" :title="'Nächste Band: ' + (nextBand.name || nextBand.guid)">
+            Nächste<i class="fas fa-chevron-right ms-2"></i>
+          </button>
+          <button v-else class="btn btn-nav-chevron ms-3" disabled style="visibility: hidden;">
+            Nächste<i class="fas fa-chevron-right ms-2"></i>
+          </button>
       </div>
       <div v-if="isUnknownOrPending" class="row mt-2">
       <div class="col">
@@ -1387,6 +1419,16 @@ const BandDetails = Vue.defineComponent({
         emitRating(rating) {
             console.debug('BandDetails emitRating:', rating)
             this.$emit('update:rating', rating)
+        },
+        navigateToPrevious() {
+            if (this.previousBand) {
+                this.$emit('navigate-to-band', this.previousBand)
+            }
+        },
+        navigateToNext() {
+            if (this.nextBand) {
+                this.$emit('navigate-to-band', this.nextBand)
+            }
         }
     },
 })
@@ -1491,6 +1533,17 @@ const app = createApp({
                     return 'Nächsten Titel starten'
             }
         },
+        filteredBands() {
+            return FilterService.filterBands(this.bands, {
+                filters: {
+                    showIncompleteBids: this.showIncompleteBids,
+                    showBandNoName: this.showBandNoName,
+                    showDeclinedBids: this.showDeclinedBids
+                },
+                selectedTrack: this.selectedTrack,
+                userVotes: this.userVotes
+            })
+        }
     },
     components: {
         TrackList,
@@ -1564,29 +1617,13 @@ const app = createApp({
                     })
                 }
             } else {
-                const savedTrackData = sessionStorage.getItem('selectedTrack')
-                if (savedTrackData) {
-                    try {
-                        const trackData = JSON.parse(savedTrackData)
-                        if (trackData.type === 'status') {
-                            this.selectedTrack = `status-${trackData.value}`
-                        } else if (trackData.type === 'filter') {
-                            this.selectedTrack = trackData.value
-                        } else if (trackData.type === 'track') {
-                            const track = this.tracks.find(t => t.id === trackData.id)
-                            this.selectedTrack = track || null
-                        }
-                    } catch (e) {
-                        console.error('Error parsing savedTrackData in popstate:', e)
-                        sessionStorage.removeItem('selectedTrack')
-                        this.selectedTrack = null
-                    }
-                } else {
-                    this.selectedTrack = null
-                }
-
+                // No hash present - clear selections, don't restore from sessionStorage
+                this.selectedTrack = null
                 this.selectedBand = null
                 this.selectedBandDetails = null
+                // Clear sessionStorage to stay in sync
+                sessionStorage.removeItem('selectedTrack')
+
                 // Going back to list view - scroll to the previously selected band tile
                 if (previousBandId) {
                     this.$nextTick(() => {
@@ -1826,21 +1863,8 @@ const app = createApp({
             const url = new URL(window.location.href)
             url.hash = `#/bid/${band.guid}/`
             window.history.pushState({}, '', url)
-            document.title = `${band.name || band.guid} - Band Bewertung`
+            document.title = `${band.name || band.guid} - Bandbewertung`
             this.bandDetailLoaded = false
-            // Scroll to band-detail anchor after DOM update (do not change hash)
-            this.$nextTick(() => {
-                const detailElement = document.getElementById('band-detail')
-                if (detailElement) {
-                    this.scrollToElementById('band-detail', 'start')
-                }
-            })
-            // On mount, ensure detail is visible when selected
-            this.$nextTick(() => {
-                if (document.getElementById('band-detail')) {
-                    this.scrollToElementById('band-detail', 'start')
-                }
-            })
         },
 
         updateTrack(trackId) {
@@ -1899,7 +1923,14 @@ const app = createApp({
                 .then(response => response.json())
                 .then(data => console.log('Success:', data))
                 .catch(error => console.error('Error:', error))
-            this.selectedBandDetails.bid_state = bidStatus
+            // Update all references to ensure filters work correctly
+            this.selectedBand.bid_status = bidStatus
+            this.selectedBandDetails.bid_status = bidStatus
+            // Also update the band in the main bands array
+            const bandInList = this.bands.find(b => b.id === this.selectedBandDetails.id)
+            if (bandInList) {
+                bandInList.bid_status = bidStatus
+            }
         },
         handleSongSelect(song) {
             console.debug('app handleSongSelect:', song)
@@ -2280,7 +2311,7 @@ const app = createApp({
                 const url = new URL(window.location.href)
                 url.hash = `#/bid/${this.playSongBand.guid}/`
                 window.history.pushState({}, '', url)
-                document.title = `${this.playSongBand.name || this.playSongBand.guid} - Band Bewertung`
+                document.title = `${this.playSongBand.name || this.playSongBand.guid} - Bandbewertung`
                 try {
                     this.handlePopState()
                 } catch (e) {
@@ -2423,7 +2454,7 @@ const app = createApp({
             const band = this.bands.find(b => b.id === parseInt(savedBandId))
             if (band) {
                 this.selectedBand = band
-                document.title = `${band.name || band.guid} - Band Bewertung`
+                document.title = `${band.name || band.guid} - Bandbewertung`
             }
         }
     },
@@ -2440,7 +2471,12 @@ const app = createApp({
                 if (newValue) {
                     const needFetch = !this.selectedBandDetails || (this.selectedBandDetails.id !== newValue.id)
                     if (needFetch) {
-                        this.selectedBandDetails = null
+                        // Don't set to null when navigating - just fetch and update
+                        // This prevents unmounting the component which causes jumps
+                        const isNavigating = oldValue && this.selectedBandDetails
+                        if (!isNavigating) {
+                            this.selectedBandDetails = null
+                        }
                         this.bandDetailLoaded = false
                         this.getBandDetails(newValue.id)
                     }
@@ -2451,12 +2487,16 @@ const app = createApp({
             immediate: true,
             handler(newValue, oldValue) {
                 console.log('watch selectedBandDetails changed:', newValue)
-                this.$nextTick(() => {
-                    const detailElement = document.getElementById('band-detail')
-                    if (detailElement && (window.location.hash.includes('/bid/') || this.selectedBand)) {
-                        this.scrollToElementById('band-detail', 'start')
-                    }
-                })
+                // Only scroll if we're coming from a non-detail view (oldValue is null/undefined)
+                // When navigating between band details, don't auto-scroll
+                if (newValue && !oldValue) {
+                    this.$nextTick(() => {
+                        const detailElement = document.getElementById('band-detail')
+                        if (detailElement && (window.location.hash.includes('/bid/') || this.selectedBand)) {
+                            this.scrollToElementById('band-detail', 'start')
+                        }
+                    })
+                }
             }
         },
         showBandNoName: {
