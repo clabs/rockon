@@ -1091,6 +1091,16 @@ const CommentFeed = Vue.defineComponent({
     </div>
     `,
     watch: {
+        'selectedBandDetails.id': {
+            handler(newId, oldId) {
+                if (newId && newId !== oldId) {
+                    console.debug('CommentFeed band changed, re-fetching comments');
+                    this.comments = [];
+                    this.loading = true;
+                    this.fetchComments();
+                }
+            }
+        },
         newComment(newVal) {
             if (newVal) {
                 console.debug('CommentFeed reloadComments');
@@ -1124,6 +1134,16 @@ const CommentField = Vue.defineComponent({
         }
     },
     watch: {
+        'selectedBandDetails.id': {
+            handler(newId, oldId) {
+                if (newId && newId !== oldId) {
+                    console.debug('CommentField band changed, resetting form');
+                    this.selectedMood = 'thumbs-up';
+                    this.selectedReason = '';
+                    this.commentText = '';
+                }
+            }
+        },
         selectedMood(newVal) {
             if (newVal !== 'thumbs-down') {
                 this.selectedReason = ''; // Reset the selected reason if thumbs-down is not selected
