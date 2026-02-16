@@ -15,7 +15,7 @@ class BidStatus(models.TextChoices):
     UNKNOWN = 'unknown', 'Unbekannt'
     PENDING = 'pending', 'In Bearbeitung'
     ACCEPTED = 'accepted', 'Bewerbung angenommen'
-    DECLINED = 'declined', 'Bwerbung abgelehnt'
+    DECLINED = 'declined', 'Bewerbung abgelehnt'
     LINEUP = 'lineup', 'Line Up'
 
 
