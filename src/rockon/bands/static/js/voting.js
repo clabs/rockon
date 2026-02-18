@@ -1402,6 +1402,7 @@ const CommentField = Vue.defineComponent({
                 {id: 7, text: 'Professionals'},
                 {id: 8, text: 'Internationals'},
                 {id: 9, text: 'Wollen Gage'},
+                {id: 10, text: 'Sonstiges'},
             ]
         }
     },
