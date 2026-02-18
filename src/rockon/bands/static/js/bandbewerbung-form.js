@@ -402,7 +402,7 @@ ajax_success = data => {
 ajax_error = (data, form_obj, url) => {
     // FIXME: needs error handling
     console.error(data)
-    const response = responseJSON
+    const response = data.responseJSON
     $('#api_message').html(`
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <strong>Fehler!</strong> Bitte schicke uns folgenden Text an <a href="mailto:hallo@rockon.dev">hallo@rockon.dev</a>: <br>

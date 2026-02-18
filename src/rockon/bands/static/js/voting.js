@@ -1340,7 +1340,7 @@ const CommentFeed = Vue.defineComponent({
                 const response = await fetch(`${this.commentApi}?band=${this.selectedBandDetails.id}`);
                 if (response.ok) {
                     const apiResponse = await response.json();
-                    this.comments = apiResponse.results;
+                    this.comments = apiResponse;
                     console.debug('Fetched comments:', this.comments);
                 } else {
                     console.error('Failed to fetch comments:', response.statusText);
@@ -1743,7 +1743,7 @@ const app = createApp({
             bidStates: window.rockon_data.bid_states,
             selectedTrack: null,
             selectedBand: null,
-            userVotes: window.rockon_data.user_votes,
+            userVotes: JSON.parse(sessionStorage.getItem('userVotes')) || window.rockon_data.user_votes,
             selectedBandDetails: null,
             bandDetailLoaded: false,
             playSong: null,
@@ -2697,11 +2697,17 @@ const app = createApp({
                 })
             if (rating === -1) {
                 this.userVotes = this.userVotes.filter(
-                    vote => vote !== this.selectedBand.id
+                    vote => vote.band__id !== this.selectedBand.id
                 )
             } else {
-                this.userVotes.push({band__id: this.selectedBand.id, vote: rating})
+                const existing = this.userVotes.find(v => v.band__id === this.selectedBand.id)
+                if (existing) {
+                    existing.vote = rating
+                } else {
+                    this.userVotes.push({band__id: this.selectedBand.id, vote: rating})
+                }
             }
+            sessionStorage.setItem('userVotes', JSON.stringify(this.userVotes))
         },
         getBandList(url, _event = null) {
             console.debug('app getBandList:', url, _event)
@@ -2712,15 +2718,10 @@ const app = createApp({
                 .then(response => response.json())
                 .then(data => {
                     console.debug('app getBandList:', data)
-                    this.bands = [...this.bands, ...data.results]
-                    this.bandsToFetch = data.count
-                    if (data.next) {
-                        this.getBandList(data.next)
-                    } else {
-                        this.bandListLoaded = true
-                        console.debug('app getBandList:', this.bands)
-                        this.handlePopState()
-                    }
+                    this.bands = data
+                    this.bandsToFetch = data.length
+                    this.bandListLoaded = true
+                    this.handlePopState()
                 })
                 .catch(error => console.error('Error:', error))
         },

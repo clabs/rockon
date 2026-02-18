@@ -29,11 +29,11 @@
             media_offline: "{% static 'assets/media-offline.webp' %}"
         }
         window.rockon_api = {
-            list_bands: "{% url 'bands-list' %}",
-            update_band: "{% url 'bands-detail' pk='pk_placeholder' %}",
-            fetch_rating: "{% url 'band-votes-detail' pk='pk_placeholder' %}",
-            comments_api: "{% url 'band-comments-list' %}",
-            band_vote: "{% url 'band-votes-perform-create' %}",
+            list_bands: "/api/v2/bands/",
+            update_band: "/api/v2/bands/pk_placeholder",
+            fetch_rating: "/api/v2/band-votes/pk_placeholder",
+            comments_api: "/api/v2/comments/",
+            band_vote: "/api/v2/band-votes/",
             allow_changes: {{ allow_changes }},
             allow_votes: {{ allow_votes }},
         }

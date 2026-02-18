@@ -11,13 +11,27 @@ from rockon.api.views import (
     update_user_profile,
     verify_email,
 )
-from .routers import router
 
-from .endpoints import accountCreate, exhibitorSignup, markVoucher, requestMagicLink
+from .endpoints import (
+    accountCreate,
+    bandMediaRouter,
+    bandRouter,
+    bandVote,
+    commentRouter,
+    exhibitorSignup,
+    markVoucher,
+    requestMagicLink,
+    trackRouter,
+)
 
 api = NinjaAPI(urls_namespace='apiv2')
 
 api.add_router('account-create', accountCreate)
+api.add_router('bands/', bandRouter)
+api.add_router('band-media/', bandMediaRouter)
+api.add_router('band-votes/', bandVote)
+api.add_router('comments/', commentRouter)
+api.add_router('tracks/', trackRouter)
 api.add_router('request-magic-link', requestMagicLink)
 api.add_router('mark-voucher', markVoucher)
 api.add_router('exhibitor-signup/', exhibitorSignup)
@@ -36,7 +50,6 @@ urlpatterns = [
         name='api_crm_update_user_profile',
     ),
     path('bands/<slug:slug>/techrider/', band_techrider, name='api_band_techrider'),
-    path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('v2/', api.urls),
 ]
