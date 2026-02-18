@@ -68,7 +68,7 @@ def upload_media(
             band = body.get('band')
             media_type = body.get('media_type', 'unknown')
             url = body.get('url')
-        except (json.JSONDecodeError, UnicodeDecodeError, Exception):
+        except json.JSONDecodeError, UnicodeDecodeError, Exception:
             pass
 
     if not band:
