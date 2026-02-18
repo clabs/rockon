@@ -20,9 +20,21 @@ class ExhibitorAttendanceAdmin(CustomAdminModel):
 
 
 class ExhibitorAdmin(CustomAdminModel):
-    list_display = ('organisation', 'event', 'created_at')
-    list_filter = ('event',)
+    list_display = ('organisation', 'event', 'state', 'website', 'created_at')
+    list_filter = ('event', 'state')
     search_fields = ('organisation', 'event')
+    readonly_fields = ('logo_preview',)
+
+    def logo_preview(self, obj):
+        if obj.logo:
+            from django.utils.html import format_html
+
+            return format_html(
+                '<img src="{}" style="max-height: 100px;" />', obj.logo.url
+            )
+        return '-'
+
+    logo_preview.short_description = 'Logo Vorschau'
 
 
 class AssetAdmin(CustomAdminModel):

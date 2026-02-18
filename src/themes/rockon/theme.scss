@@ -83,6 +83,12 @@ $form-switch-checked-color:         $black !default;
 $form-range-track-bg:               $gray-800 !default;
 $form-file-button-color:            $black !default;
 
+$form-select-indicator-color:       $yellow !default;
+$form-select-color:                 $white !default;
+$form-select-bg:                    $black !default;
+$form-select-border-color:          $yellow !default;
+$form-select-focus-border-color:    lighten($yellow, 10%) !default;
+
 
 // Dropdowns
 $dropdown-bg:                       $gray-900 !default;

@@ -1,4 +1,8 @@
 .form-select {
+  option {
+    color:            $white;
+    background-color: $gray-900;
+  }
   option:checked, option:focus {
     color:            $black !important;
     background-color: $yellow !important;

@@ -12,8 +12,8 @@
     <script nonce="{{ request.csp_nonce }}">
         window.rockon_data = {
             band_id: "{{band.id}}",
-            api_url_band_details: "{% url "bands-detail" pk=band.id %}",
-            api_url_new_media: "{% url "band-media-list" %}",
+            api_url_band_details: "/api/v2/bands/{{band.id}}",
+            api_url_new_media: "/api/v2/band-media/",
             bid_complete: {{ band.bid_complete|lower }},
             bid_status: "{{ band.bid_status }}",
         }

@@ -48,6 +48,14 @@ def _calculate_available_event_ids(user):
             except Event.DoesNotExist:
                 pass
 
+    if user.groups.filter(name='bands').exists():
+        from rockon.bands.models import Band
+
+        band_events = Band.objects.filter(band_members__user=user).values_list(
+            'event_id', flat=True
+        )
+        event_ids.update(band_events)
+
     return list(event_ids)
 
 

@@ -130,9 +130,10 @@ def bid_vote(
         {'id': str(t['id']), 'name': t['name'], 'slug': t['slug']}
         for t in Track.objects.filter(events=event).values('id', 'name', 'slug')
     ]
-    user_votes = list(
-        request.user.band_votes.filter(event=event).values('band__id', 'vote')
-    )
+    user_votes = [
+        {'band__id': str(v['band__id']), 'vote': v['vote']}
+        for v in request.user.band_votes.filter(event=event).values('band__id', 'vote')
+    ]
 
     return render(
         request,

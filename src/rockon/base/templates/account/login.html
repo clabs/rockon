@@ -1,162 +1,216 @@
 {% extends "base.html" %} {% block content %}
     {% load static %}{% load compress %}
-    {% compress js %}
-        <script src="{% static 'js/login.js' %}"></script>
+    {% compress js file vue %}
+        <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
+    {% endcompress %}
+    {% compress js file login_vue %}
+        <script src="{% static 'js/login.vue.js' %}"></script>
     {% endcompress %}
 
     <script type="text/javascript" nonce="{{ request.csp_nonce }}">
         window.rockon_data = {
-            api_crm_account_create: "{% url "api_crm_account_create" %}",
-            api_crm_request_magic_link: "{% url "apiv2:request_magic_link" %}",
-            account_created_redirect: "{% url "base:account_created" %}",
+            accountContext: "{{ account_context }}",
+        }
+        window.rockon_api = {
+            createAccount: "{% url "apiv2:account_create" %}",
+            requestMagicLink: "{% url "apiv2:request_magic_link" %}",
+            accountCreatedRedirect: "{% url "base:account_created" %}",
+            privacyUrl: "{% url "rockon_privacy" %}",
+            csrfToken: "{{ csrf_token }}",
         }
     </script>
-    <div><h1>Rockon Login</h1></div>
-    <section class="row p-4 form-section">
-        <div><h3>Magischen Link anfordern</h3></div>
-        <div class="alert alert-secondary">Wenn du bereits einen Account bei Rockon hast, kannst du dir hier einen
-            Magic-Link zusenden lassen, mit dem du dich einloggen kannst.<br>Diese Links laufen nicht ab, du kannst also
-            auch direkt auf einen Link klicken, den du bereits in deinem Postfach hast.
-        </div>
-        <form id="login_form" class="row g-3 needs-validation" novalidate>
-            {% csrf_token %}
-            <div class="col-md-4"></div>
-            <div class="col-md-4">
-                <label for="user_email">E-Mail Adresse</label>
-                <input type="email" name="login_user_email" id="login_user_email" class="form-control not-empty"
-                       placeholder="jane.doe@example.net" autocomplete="email"/>
-                <div class="valid-feedback">
-                </div>
-                <div class="invalid-feedback">
-                    Bitte gibt eine gültige E-Mail Adresse an.
-                </div>
-            </div>
-            <div class="col-md-4"></div>
-            <div class="col-md-4"></div>
-            <div class="col-md-4">
-                <button type="button" id="form_login_submit" class="w-100 btn btn-primary" disabled>Anfordern</button>
-            </div>
-            <div class="col-md-4"></div>
-            <div class="col-md-2"></div>
-            <div id="login_message" class="col-md-8 d-none">
-                <div class="alert alert-primary" role="alert">
-                    <h4 class="alert-heading">🪄 Magic-Link versandt</h4>
-                    <p>
-                        Wir haben dir eine Mail mit einem Magic-Link zugeschickt. Bitte überprüfe
-                        in den nächsten Minuten, ob Du eine entsprechende Mail von uns bekommen hast.
-                    </p>
-                    <hr>
-                    <p>
-                        ⚠️ Wie immer gilt: Im Zweifel solltest du auch den Spamverdacht-Ordner checken.
-                        Sollte das der Fall sein, würden wir uns sehr über Feedback an
-                        <a href="mailto:rockon@cpye.de">rockon@cpye.de</a> freuen.
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-2"></div>
-        </form>
-    </section>
 
-    <div class="centered text-center mt-3">
-        <h3>oder</h3>
+    {% verbatim %}
+    <div id="app" v-cloak>
+
+        <!-- ==================== LOGIN PANEL ==================== -->
+        <transition name="fade" mode="out-in">
+        <section v-if="activePanel === 'login'" key="login" class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 col-sm-10">
+                <div class="p-4 form-section">
+                    <div class="text-center mb-4">
+                        <h2>Einloggen</h2>
+                        <p class="text-white mb-0">
+                            Wir schicken dir einen Magic-Link per E-Mail, mit dem du dich sofort einloggen kannst.
+                        </p>
+                    </div>
+
+                    <form @submit.prevent="requestMagicLink">
+                        <div class="mb-3">
+                            <label for="login_email" class="form-label">E-Mail Adresse</label>
+                            <input type="email"
+                                   id="login_email"
+                                   class="form-control form-control-lg"
+                                   :class="loginEmailClass"
+                                   v-model="loginForm.email"
+                                   @blur="touchLogin"
+                                   @keyup="touchLogin"
+                                   placeholder="jane.doe@example.net"
+                                   autocomplete="email"
+                                   :disabled="loginForm.sent"
+                                   autofocus />
+                            <div class="invalid-feedback">Bitte gib eine gültige E-Mail Adresse an.</div>
+                            <small class="form-text text-white">
+                                Bereits erhaltene Links laufen nicht ab.
+                            </small>
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary btn-lg w-100"
+                                :disabled="!loginCanSubmit">
+                            <span v-if="loginForm.loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Magic-Link anfordern
+                        </button>
+                    </form>
+
+                    <!-- Success message -->
+                    <div v-if="loginForm.sent" class="alert alert-primary mt-3" role="alert">
+                        <h5 class="alert-heading">🪄 Magic-Link versandt</h5>
+                        <p>
+                            Wir haben dir eine Mail mit einem Magic-Link zugeschickt. Bitte überprüfe
+                            in den nächsten Minuten dein Postfach.
+                        </p>
+                        <hr>
+                        <p class="mb-0">
+                            ⚠️ Im Zweifel auch den Spam-Ordner checken. Bei Problemen melde dich bei
+                            <a href="mailto:rockon@cpye.de">rockon@cpye.de</a>.
+                        </p>
+                    </div>
+
+                    <!-- Error: unknown email -->
+                    <div v-if="loginForm.error === 'unknown'" class="alert alert-danger mt-3" role="alert">
+                        Diese E-Mail-Adresse ist unbekannt. Falls du Hilfe beim Login benötigst, wende dich an
+                        <a href="mailto:crew@rocktreff.de">crew@rocktreff.de</a>.
+                    </div>
+
+                    <!-- Error: network -->
+                    <div v-if="loginForm.error === 'network'" class="alert alert-danger mt-3" role="alert">
+                        Es ist ein Netzwerkfehler aufgetreten. Bitte versuche es später erneut.
+                    </div>
+
+                    <!-- Switch to signup -->
+                    <div class="text-center mt-4 pt-3 border-top border-secondary">
+                        <span class="text-white">Noch keinen Account?</span>
+                        <a href="#" @click.prevent="setPanel('signup')" class="ms-1 fw-semibold">Jetzt registrieren</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SIGNUP PANEL ==================== -->
+        <section v-else key="signup" class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="p-4 form-section">
+                    <div class="text-center mb-4">
+                        <h2>Account erstellen</h2>
+                        <p class="text-white mb-0">
+                            Du brauchst nur deine E-Mail-Adresse.
+                        </p>
+                    </div>
+
+                    <form @submit.prevent="createAccount">
+                        <!-- Email fields -->
+                        <div class="mb-3">
+                            <label for="signup_email" class="form-label">E-Mail Adresse</label>
+                            <input type="email"
+                                   id="signup_email"
+                                   class="form-control form-control-lg"
+                                   :class="signupFieldClass('email')"
+                                   v-model="signupForm.email"
+                                   @blur="touchSignup('email')"
+                                   placeholder="jane.doe@example.net"
+                                   autocomplete="email"
+                                   :disabled="signupForm.loading" />
+                            <div class="invalid-feedback">Bitte gib eine gültige E-Mail Adresse an.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signup_email_confirm" class="form-label">E-Mail Adresse bestätigen</label>
+                            <input type="email"
+                                   id="signup_email_confirm"
+                                   class="form-control form-control-lg"
+                                   :class="signupFieldClass('emailConfirm')"
+                                   v-model="signupForm.emailConfirm"
+                                   @blur="touchSignup('emailConfirm')"
+                                   placeholder="jane.doe@example.net"
+                                   autocomplete="off"
+                                   :disabled="signupForm.loading" />
+                            <div class="invalid-feedback">Die E-Mail Adressen stimmen nicht überein.</div>
+                        </div>
+
+                        <!-- Consent checkboxes -->
+                        <h6 class="mt-4 mb-3 text-white text-uppercase" style="letter-spacing:.05em">Rechtliches</h6>
+
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input"
+                                   :class="signupFieldClass('allowContact')"
+                                   type="checkbox"
+                                   role="switch"
+                                   id="signup_allow_contact"
+                                   v-model="signupForm.allowContact"
+                                   @change="touchSignup('allowContact')"
+                                   :disabled="signupForm.loading" />
+                            <label class="form-check-label" for="signup_allow_contact">
+                                Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff
+                                und das Spielfest kontaktieren darf.
+                            </label>
+                            <div class="invalid-feedback">Bitte erlaube uns, dich zu kontaktieren.</div>
+                        </div>
+
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input"
+                                   :class="signupFieldClass('readPrivacy')"
+                                   type="checkbox"
+                                   role="switch"
+                                   id="signup_read_privacy"
+                                   v-model="signupForm.readPrivacy"
+                                   @change="touchSignup('readPrivacy')"
+                                   :disabled="signupForm.loading" />
+                            <label class="form-check-label" for="signup_read_privacy">
+                                Ich habe die
+                                <a :href="privacyUrl" target="_blank">Datenschutzbestimmungen</a>
+                                zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung
+                                personenbezogener Daten im Rahmen der Veranstaltungen Rocktreff und Spielfest
+                                einverstanden.
+                            </label>
+                            <div class="invalid-feedback">Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.</div>
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary btn-lg w-100"
+                                :disabled="!signupCanSubmit">
+                            <span v-if="signupForm.loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Account erstellen
+                        </button>
+                    </form>
+
+                    <!-- Error: already exists -->
+                    <div v-if="signupForm.error === 'exists'" class="alert alert-warning mt-3" role="alert">
+                        Diese E-Mail-Adresse ist bereits registriert.
+                        <a href="#" @click.prevent="setPanel('login')"><strong>Zum Login wechseln</strong></a>
+                        und einen Magic-Link anfordern.
+                    </div>
+
+                    <!-- Error: unknown -->
+                    <div v-if="signupForm.error === 'unknown'" class="alert alert-danger mt-3" role="alert">
+                        Es ist ein unbekannter Fehler aufgetreten. Bitte versuche es später erneut oder kontaktiere
+                        <a href="mailto:crew@rocktreff.de">crew@rocktreff.de</a>.
+                    </div>
+
+                    <!-- Error: network -->
+                    <div v-if="signupForm.error === 'network'" class="alert alert-danger mt-3" role="alert">
+                        Es ist ein Netzwerkfehler aufgetreten. Bitte überprüfe deine Verbindung und versuche es erneut.
+                    </div>
+
+                    <!-- Switch to login -->
+                    <div class="text-center mt-4 pt-3 border-top border-secondary">
+                        <span class="text-white">Bereits einen Account?</span>
+                        <a href="#" @click.prevent="setPanel('login')" class="ms-1 fw-semibold">Einloggen</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        </transition>
     </div>
-
-    <section class="row p-4 form-section">
-        <div><h3>Neuen Account erstellen</h3></div>
-        <div class="alert alert-secondary">Wenn du das erste mal hier bist und noch keinen Account hast, dann kannst du
-            dir hier einen Account erstellen.
-        </div>
-        <form id="signup" class="row align-items-center needs-validation" novalidate>
-            <div class="col-lg-8">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div><h3>E-Mail-Adresse</h3></div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-6 g-4">
-                        <label for="user_email">E-Mail Adresse</label>
-                        <input type="email" name="user_email" id="user_email" class="form-control not-empty"
-                               placeholder="jane.doe@example.net" autocomplete="email"/>
-                        <div class="valid-feedback">
-                        </div>
-                        <div class="invalid-feedback">
-                            Bitte gibt eine gültige E-Mail Adresse an.
-                        </div>
-                    </div>
-                    <div class="col-sm-6 g-4">
-                        <label for="user_email_confirmation">E-Mail Adresse bestätigen</label>
-                        <input type="email" name="user_email_confirmation" id="user_email_confirmation"
-                               class="form-control not-empty" placeholder="jane.doe@example.net" autocomplete="off"/>
-                        <div class="valid-feedback">
-                        </div>
-                        <div class="invalid-feedback">
-                            Bitte wiederhole deine E-Mail Adresse.
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div><h4>Warum erheben wir diese Informationen?</h4></div>
-                <p>
-                    Deine Email-Adresse ist für uns sehr wichtig. Mit ihr kannst du dich immer wieder
-                    bei Rockon anmlden.
-                </p>
-            </div>
-
-            <div class="col-md-12">
-                <div class="pt-3"><h3>Rechtliches</h3></div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input not-empty" type="checkbox" role="switch" id="allow_contact"
-                           name="allow_contact">
-                    <label class="form-check-label" for="allow_contact">
-                        Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das
-                        Spielfest kontaktieren darf.
-                    </label>
-                    <div class="valid-feedback"></div>
-                    <div class="invalid-feedback">
-                        Bitte erlaube uns, dich zu kontaktieren.
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-check form-switch">
-                    <input class="form-check-input not-empty" type="checkbox" role="switch" id="read_privacy"
-                           name="read_privacy">
-                    <label class="form-check-label" for="read_privacy">
-                        Ich habe die <a href="{% url "rockon_privacy" %}" target="_blank">Datenschutzbestimmungen</a>
-                        zur Kenntnis genommen
-                        und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der
-                        Veranstaltungen Rocktreff
-                        und Spielfest einverstanden.
-                    </label>
-                    <div class="valid-feedback"></div>
-                    <div class="invalid-feedback">
-                        Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-grid gap-2 col-12 mx-auto pt-3">
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="d-grid gap-2 col-12 mx-auto">
-                            <button id="form_signup_submit" type="button" class="btn btn-primary">Account erstellen
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="d-grid gap-2 col-12 mx-auto pt-3">
-                <div class="row g-2">
-                    <div class="col">
-                        <div id="form_message"></div>
-                    </div>
-                </div>
-            </div>
-            <input type="hidden" name="account_context" value="{{ account_context }}"/>
-
-        </form>
-    </section>
+    {% endverbatim %}
 
 {% endblock content %}

@@ -60,26 +60,37 @@ class BandMedia(CustomModel):
         super().save(*args, **kwargs)
 
     def encode_file(self):
-        """Encode file."""
+        """Encode file.
+
+        Dispatches encoding to a django-q worker.  If the broker is
+        unreachable the error is logged and swallowed so the calling
+        view can still return a timely HTTP response.
+        """
         if not self.file:
             return
-        if self.media_type == MediaType.AUDIO:
-            _task = AsyncTask(
-                'rockon.bands.models.band_media.BandMedia.encode_audio_file',
+        try:
+            if self.media_type == MediaType.AUDIO:
+                _task = AsyncTask(
+                    'rockon.bands.models.band_media.BandMedia.encode_audio_file',
+                    self.id,
+                    group='encode_audio_file',
+                )
+                _task.run()
+            elif self.media_type in (MediaType.PRESS_PHOTO, MediaType.LOGO):
+                _task = AsyncTask(
+                    'rockon.bands.models.band_media.BandMedia.encode_image_file',
+                    self.id,
+                    group='encode_image_file',
+                )
+                _task.run()
+        except Exception:
+            import logging
+
+            logging.getLogger(__name__).exception(
+                'Failed to enqueue encode task for BandMedia %s. '
+                'The broker may be unavailable.',
                 self.id,
-                group='encode_audio_file',
             )
-            _task.run()
-        elif (
-            self.media_type == MediaType.PRESS_PHOTO
-            or self.media_type == MediaType.LOGO
-        ):
-            _task = AsyncTask(
-                'rockon.bands.models.band_media.BandMedia.encode_image_file',
-                self.id,
-                group='encode_image_file',
-            )
-            _task.run()
         return
 
     def json_dump(self):
