@@ -8,7 +8,12 @@ const FilterService = {
         showBandNoName: 'filterShowBandsNoName',
         showIncompleteBids: 'filterIncompleteBids',
         showDeclinedBids: 'filterDeclinedBids',
-        filterCollapsed: 'filterOptionsCollapsed'
+        filterCollapsed: 'filterOptionsCollapsed',
+        viewMode: 'filterViewMode',
+        sortField: 'filterSortField',
+        sortDirection: 'filterSortDirection',
+        selectedFederalStates: 'filterFederalStates',
+        federalStatesCollapsed: 'filterFederalStatesCollapsed'
     },
 
     /**
@@ -104,20 +109,38 @@ const FilterService = {
     },
 
     /**
+     * Apply federal state filter (multi-select)
+     * @param {Array} bands - The bands to filter
+     * @param {Array} selectedFederalStates - Array of selected state codes (e.g. ['BY', 'NW'])
+     * @returns {Array} Filtered bands
+     */
+    applyFederalStateFilter(bands, selectedFederalStates = []) {
+        if (!selectedFederalStates || selectedFederalStates.length === 0) return bands
+        return bands.filter(band => selectedFederalStates.includes(band.federal_state))
+    },
+
+    /**
      * Apply all filters to a band list
      * @param {Array} bands - All bands
-     * @param {Object} options - {filters, selectedTrack, userVotes}
-     * @returns {Array} Filtered bands sorted by name (case-insensitive)
+     * @param {Object} options - {filters, selectedTrack, userVotes, sortField, sortDirection, selectedFederalStates}
+     * @returns {Array} Filtered and sorted bands
      */
-    filterBands(bands, { filters, selectedTrack, userVotes = [] }) {
+    filterBands(bands, { filters, selectedTrack, userVotes = [], sortField = 'name', sortDirection = 'asc', selectedFederalStates = [] }) {
         const visibilityFiltered = this.applyVisibilityFilters(bands, filters)
-        const selectionFiltered = this.applySelectionFilter(visibilityFiltered, selectedTrack, userVotes)
+        const federalStateFiltered = this.applyFederalStateFilter(visibilityFiltered, selectedFederalStates)
+        const selectionFiltered = this.applySelectionFilter(federalStateFiltered, selectedTrack, userVotes)
 
-        // Sort case-insensitively by band name
+        // Sort by chosen field and direction
+        const dir = sortDirection === 'desc' ? -1 : 1
         return selectionFiltered.sort((a, b) => {
+            if (sortField === 'created_at' || sortField === 'updated_at') {
+                const valA = a[sortField] || ''
+                const valB = b[sortField] || ''
+                return dir * valA.localeCompare(valB)
+            }
             const nameA = (a.name || a.guid || '').toLowerCase()
             const nameB = (b.name || b.guid || '').toLowerCase()
-            return nameA.localeCompare(nameB)
+            return dir * nameA.localeCompare(nameB)
         })
     }
 }
@@ -442,7 +465,7 @@ const TrackDropdown = Vue.defineComponent({
     template: `
     <div class="form-group">
       <label for="trackSelect" class="form-label">Track</label>
-      <select id="trackSelect" @change="updateSelectedTrack" v-model="selectedBandDetails.track" class="form-control">
+      <select id="trackSelect" name="trackSelect" @change="updateSelectedTrack" v-model="selectedBandDetails.track" class="form-control">
         <option v-if="!selectedBandDetails.track" disabled v-bind:value="null">Track auswählen</option>
         <option v-if="selectedBandDetails.track" value="">Track entfernen</option>
         <option v-for="track in tracks" :value="track.id" :key="track.id">
@@ -470,7 +493,7 @@ const BidStatusDropdown = Vue.defineComponent({
     template: `
     <div class="form-group">
       <label for="bidStatusSelect" class="form-label">Status</label>
-      <select id="bidStatusSelect" @change="updateBidStatus" v-model="selectedBandDetails.bid_status" class="form-control">
+      <select id="bidStatusSelect" name="bidStatusSelect" @change="updateBidStatus" v-model="selectedBandDetails.bid_status" class="form-control">
         <option v-for="(state, index) in bidStates" :key="index" :value="state[0]">
           {{ state[1] }}
         </option>
@@ -511,17 +534,23 @@ const TrackList = Vue.defineComponent({
         'showBandNoName',
         'showIncompleteBids',
         'showDeclinedBids',
-        'bidStates'
+        'bidStates',
+        'federalStates',
+        'selectedFederalStates'
     ],
     emits: [
         'select-track',
         'filter-no-name',
         'filter-incomplete-bids',
-        'filter-declined-bids'
+        'filter-declined-bids',
+        'update:selectedFederalStates'
     ],
     data() {
         return {
-            isFilterCollapsed: FilterService.loadFromStorage('filterCollapsed', true)
+            isFilterCollapsed: FilterService.loadFromStorage('filterCollapsed', true),
+            federalStatesDropdownOpen: false,
+            statusDropdownOpen: false,
+            declinedBidsAutoEnabled: false
         }
     },
     computed: {
@@ -598,6 +627,12 @@ const TrackList = Vue.defineComponent({
         handleFilterDeclinedBids(event) {
             console.debug('TrackList handleFilterDeclinedBids:', event.target.checked)
             this.$emit('filter-declined-bids', event.target.checked)
+            // Manual toggle resets auto-enabled tracking
+            this.declinedBidsAutoEnabled = false
+            // If declining bids visibility is turned off and declined status filter is active, clear it
+            if (!event.target.checked && this.selectedStatus === 'declined') {
+                this.$emit('select-track', null)
+            }
         },
         handleStatusChange(event) {
             const status = event.target.value
@@ -608,10 +643,85 @@ const TrackList = Vue.defineComponent({
                 this.$emit('select-track', null)
             }
         },
+        selectStatus(status) {
+            this.statusDropdownOpen = false
+            if (status) {
+                // Auto-enable show declined bids when declined status is selected
+                if (status === 'declined' && !this.showDeclinedBids) {
+                    this.declinedBidsAutoEnabled = true
+                    this.$emit('filter-declined-bids', true)
+                }
+                this.$emit('select-track', `status-${status}`)
+            } else {
+                // Auto-disable show declined bids if it was auto-enabled
+                if (this.declinedBidsAutoEnabled) {
+                    this.declinedBidsAutoEnabled = false
+                    this.$emit('filter-declined-bids', false)
+                }
+                this.$emit('select-track', null)
+            }
+        },
+        toggleStatusDropdown() {
+            this.statusDropdownOpen = !this.statusDropdownOpen
+        },
+        closeStatusDropdown(e) {
+            if (!e.target.closest('.status-filter-dropdown')) {
+                this.statusDropdownOpen = false
+            }
+        },
+        statusLabel() {
+            if (!this.selectedStatus) return 'Status'
+            const state = this.bidStates.find(s => s[0] === this.selectedStatus)
+            return state ? state[1] : 'Status'
+        },
         toggleFilterCollapsed() {
             this.isFilterCollapsed = !this.isFilterCollapsed
             FilterService.saveToStorage('filterCollapsed', this.isFilterCollapsed)
+        },
+        toggleFederalState(code) {
+            const current = [...(this.selectedFederalStates || [])]
+            const idx = current.indexOf(code)
+            if (idx >= 0) {
+                current.splice(idx, 1)
+            } else {
+                current.push(code)
+            }
+            this.$emit('update:selectedFederalStates', current)
+        },
+        clearFederalStates() {
+            this.$emit('update:selectedFederalStates', [])
+        },
+        toggleFederalStatesDropdown() {
+            this.federalStatesDropdownOpen = !this.federalStatesDropdownOpen
+        },
+        closeFederalStatesDropdown(e) {
+            // Close dropdown when clicking outside
+            if (!e.target.closest('.federal-state-dropdown')) {
+                this.federalStatesDropdownOpen = false
+            }
+        },
+        federalStateLabel(code) {
+            const state = this.federalStates.find(s => s[0] === code)
+            return state ? state[1] : code
+        },
+        getFederalStateCount(code) {
+            if (!this.bands) return 0
+            const visibleBands = FilterService.applyVisibilityFilters(this.bands, {
+                showIncompleteBids: this.showIncompleteBids,
+                showBandNoName: this.showBandNoName,
+                showDeclinedBids: this.showDeclinedBids
+            })
+            const trackFiltered = FilterService.applySelectionFilter(visibleBands, this.selectedTrack, [])
+            return trackFiltered.filter(band => band.federal_state === code).length
         }
+    },
+    mounted() {
+        document.addEventListener('click', this.closeFederalStatesDropdown)
+        document.addEventListener('click', this.closeStatusDropdown)
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this.closeFederalStatesDropdown)
+        document.removeEventListener('click', this.closeStatusDropdown)
     },
     template: `
       <section class="row p-4 form-section">
@@ -674,18 +784,53 @@ const TrackList = Vue.defineComponent({
                             <i :class="selectedTrack === 'under-27' ? 'fas fa-check me-1' : 'fas fa-calendar me-1'"></i>
                             Unter 27
                         </span>
-            <select
-              class="form-select form-select-sm d-inline-block m-1 status-filter-dropdown"
-              :class="selectedStatus ? 'bg-success text-white border-success' : ''"
-              style="width: auto; min-width: 150px;"
-              :value="selectedStatus"
-              @change="handleStatusChange"
-              title="Filtere nach Bewerbungsstatus">
-              <option value="">Status</option>
-              <option v-for="state in bidStates" :key="state[0]" :value="state[0]">
-                {{ state[1] }}
-              </option>
-            </select>
+            <!-- Status Filter Dropdown -->
+            <div class="dropdown status-filter-dropdown d-inline-block m-1">
+              <span class="badge filter-badge"
+                    :class="selectedStatus ? 'text-bg-success' : 'text-bg-outline-primary'"
+                    style="cursor: pointer; transition: all 0.2s ease;"
+                    @click.stop="toggleStatusDropdown"
+                    title="Filtere nach Bewerbungsstatus">
+                <i :class="selectedStatus ? 'fas fa-check me-1' : 'fas fa-clipboard-list me-1'"></i>
+                {{ statusLabel() }}
+                <i class="fas fa-caret-down ms-1"></i>
+              </span>
+              <div class="dropdown-menu status-filter-menu" :class="{ 'show': statusDropdownOpen }">
+                <button class="dropdown-item" :class="{ active: !selectedStatus }" @click="selectStatus('')">
+                  Alle Status
+                </button>
+                <div class="dropdown-divider"></div>
+                <button v-for="state in bidStates" :key="state[0]" class="dropdown-item" :class="{ active: selectedStatus === state[0] }" @click="selectStatus(state[0])">
+                  {{ state[1] }}
+                </button>
+              </div>
+            </div>
+            <!-- Federal State Dropdown -->
+            <div class="dropdown federal-state-dropdown d-inline-block m-1">
+              <span class="badge filter-badge federal-state-dropdown-btn"
+                      :class="selectedFederalStates && selectedFederalStates.length > 0 ? 'text-bg-success' : 'text-bg-outline-primary'"
+                      style="cursor: pointer; transition: all 0.2s ease;"
+                      @click.stop="toggleFederalStatesDropdown"
+                      title="Nach Bundesland filtern">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                Bundesland
+                <span v-if="selectedFederalStates && selectedFederalStates.length > 0" class="badge bg-dark ms-1">{{ selectedFederalStates.length }}</span>
+                <i class="fas fa-caret-down ms-1"></i>
+              </span>
+              <div class="dropdown-menu federal-state-menu" :class="{ 'show': federalStatesDropdownOpen }">
+                <div class="dropdown-item-text px-3 py-1 d-flex justify-content-between align-items-center border-bottom mb-1">
+                  <small class="text-muted">Bundesländer</small>
+                  <button v-if="selectedFederalStates && selectedFederalStates.length > 0" class="btn btn-link btn-sm p-0 text-decoration-none" @click.stop="clearFederalStates" title="Alle abwählen">
+                    <i class="fas fa-times me-1"></i>Reset
+                  </button>
+                </div>
+                <label v-for="state in federalStates" :key="state[0]" class="dropdown-item federal-state-item" @click.stop>
+                  <input type="checkbox" class="form-check-input me-2" :id="'federalState-' + state[0]" :name="'federalState-' + state[0]" :checked="selectedFederalStates && selectedFederalStates.includes(state[0])" @change="toggleFederalState(state[0])">
+                  {{ state[1] }} <span class="badge ms-1" style="background-color: #fff300; color: #000;">{{ getFederalStateCount(state[0]) }}</span>
+                </label>
+              </div>
+            </div>
+            <span class="ms-auto"></span>
             <span
               v-if="hasActiveSelection"
               class="badge m-1 filter-badge text-bg-outline-primary"
@@ -715,6 +860,7 @@ const TrackList = Vue.defineComponent({
                 type="checkbox"
                 role="switch"
                 id="filterIncompleteBids"
+                name="filterIncompleteBids"
                 :checked="showIncompleteBids"
                 @change="handleFilterIncompleteBids" />
               <label class="form-check-label" for="filterIncompleteBids">
@@ -728,6 +874,7 @@ const TrackList = Vue.defineComponent({
                 type="checkbox"
                 role="switch"
                 id="filterNoName"
+                name="filterNoName"
                 :checked="showBandNoName"
                 :disabled="!showIncompleteBids"
                 @change="handleFilterNoNameChange" />
@@ -742,6 +889,7 @@ const TrackList = Vue.defineComponent({
                 type="checkbox"
                 role="switch"
                 id="filterDeclinedBids"
+                name="filterDeclinedBids"
                 :checked="showDeclinedBids"
                 @change="handleFilterDeclinedBids" />
               <label class="form-check-label" for="filterDeclinedBids">
@@ -806,7 +954,7 @@ const BandListTags = Vue.defineComponent({
     methods: {
         hasVote(band) {
             const userVote = this.userVotes.find(vote => vote.band__id === band.id)
-            console.debug('BandList hasVote:', userVote)
+            // console.debug('BandList hasVote:', userVote)
             return userVote
         },
         voteCount(band) {
@@ -837,10 +985,15 @@ const BandList = Vue.defineComponent({
         'showIncompleteBids',
         'showDeclinedBids',
         'federalStates',
-        'userVotes'
+        'userVotes',
+        'viewMode',
+        'sortField',
+        'sortDirection',
+        'selectedFederalStates',
+        'tracks'
     ],
     components: {BandListTags},
-    emits: ['select-band'],
+    emits: ['select-band', 'update:viewMode', 'update:sortField', 'update:sortDirection'],
     computed: {
         filteredBands() {
             return FilterService.filterBands(this.bands, {
@@ -850,7 +1003,10 @@ const BandList = Vue.defineComponent({
                     showDeclinedBids: this.showDeclinedBids
                 },
                 selectedTrack: this.selectedTrack,
-                userVotes: this.userVotes
+                userVotes: this.userVotes,
+                sortField: this.sortField || 'name',
+                sortDirection: this.sortDirection || 'asc',
+                selectedFederalStates: this.selectedFederalStates || []
             })
         },
         isTrackFilter() {
@@ -933,6 +1089,41 @@ const BandList = Vue.defineComponent({
         onImageLoad(bandId) {
             this.loadedImages[bandId] = true
         },
+        trackName(band) {
+            if (!band.track || !this.tracks) return '—'
+            const track = this.tracks.find(t => t.id === band.track)
+            return track ? track.name : '—'
+        },
+        federalStateName(band) {
+            if (!band.federal_state || !this.federalStates) return '—'
+            const state = this.federalStates.find(s => s[0] === band.federal_state)
+            return state ? state[1] : band.federal_state
+        },
+        hasVote(band) {
+            return this.userVotes && this.userVotes.some(v => v.band__id === band.id)
+        },
+        voteValue(band) {
+            const v = this.userVotes && this.userVotes.find(v => v.band__id === band.id)
+            return v ? v.vote : null
+        },
+        setViewMode(mode) {
+            this.$emit('update:viewMode', mode)
+        },
+        setSortField(field) {
+            // If clicking same field, toggle direction; otherwise set field
+            if (field === this.sortField) {
+                this.$emit('update:sortDirection', this.sortDirection === 'asc' ? 'desc' : 'asc')
+            } else {
+                this.$emit('update:sortField', field)
+            }
+        },
+        toggleSortDirection() {
+            this.$emit('update:sortDirection', this.sortDirection === 'asc' ? 'desc' : 'asc')
+        },
+        sortIcon(field) {
+            if (this.sortField !== field) return 'fas fa-sort'
+            return this.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'
+        },
         preloadImages() {
             // Preload first 12 images (3 rows) immediately
             const toPreload = this.filteredBands.slice(0, 12)
@@ -958,9 +1149,39 @@ const BandList = Vue.defineComponent({
     },
     template: `
     <section class="row p-4 form-section">
-    <div class="row">
-      <h3>{{ filteredBands.length }} {{ filteredBands.length === 1 ? 'Band' : 'Bands' }} {{ filterLabel }}</h3>
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h3 class="mb-0">{{ filteredBands.length }} {{ filteredBands.length === 1 ? 'Band' : 'Bands' }} {{ filterLabel }}</h3>
+      <div class="d-flex align-items-center gap-2">
+        <!-- Sort dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-sm btn-band-toolbar dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" title="Sortierung">
+            <i class="fas fa-sort me-1"></i>
+            <span v-if="sortField === 'name'">Name</span>
+            <span v-else-if="sortField === 'created_at'">Anmeldedatum</span>
+            <span v-else-if="sortField === 'updated_at'">Letzte Änderung</span>
+            <i :class="sortDirection === 'asc' ? 'fas fa-arrow-up ms-1' : 'fas fa-arrow-down ms-1'"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+            <li><button class="dropdown-item" :class="{ active: sortField === 'name' }" @click="setSortField('name')"><i class="fas fa-font me-2"></i>Name <i v-if="sortField === 'name'" :class="sortDirection === 'asc' ? 'fas fa-arrow-up ms-1' : 'fas fa-arrow-down ms-1'"></i></button></li>
+            <li><button class="dropdown-item" :class="{ active: sortField === 'created_at' }" @click="setSortField('created_at')"><i class="fas fa-calendar-plus me-2"></i>Anmeldedatum <i v-if="sortField === 'created_at'" :class="sortDirection === 'asc' ? 'fas fa-arrow-up ms-1' : 'fas fa-arrow-down ms-1'"></i></button></li>
+            <li><button class="dropdown-item" :class="{ active: sortField === 'updated_at' }" @click="setSortField('updated_at')"><i class="fas fa-clock me-2"></i>Letzte Änderung <i v-if="sortField === 'updated_at'" :class="sortDirection === 'asc' ? 'fas fa-arrow-up ms-1' : 'fas fa-arrow-down ms-1'"></i></button></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item" @click="toggleSortDirection"><i :class="sortDirection === 'asc' ? 'fas fa-arrow-up me-2' : 'fas fa-arrow-down me-2'"></i>{{ sortDirection === 'asc' ? 'Aufsteigend' : 'Absteigend' }}</button></li>
+          </ul>
+        </div>
+        <!-- View mode toggle -->
+        <div class="btn-group btn-group-sm" role="group" aria-label="Ansicht">
+          <button type="button" class="btn btn-band-toolbar" :class="{ active: viewMode === 'card' }" @click="setViewMode('card')" title="Kartenansicht">
+            <i class="fas fa-th-large"></i>
+          </button>
+          <button type="button" class="btn btn-band-toolbar" :class="{ active: viewMode === 'list' }" @click="setViewMode('list')" title="Listenansicht">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
     </div>
+    <!-- Card View -->
+    <template v-if="viewMode !== 'list'">
     <div v-if="groupedBands.length > 0" v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
       <div class="card-group">
         <div class="card" v-for="item in group" :key="item.band.id" :id="'band-' + item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
@@ -975,6 +1196,57 @@ const BandList = Vue.defineComponent({
         </div>
       </div>
     </div>
+    </template>
+    <!-- List View -->
+    <template v-else>
+    <div class="table-responsive">
+      <table class="table band-list-table">
+        <thead>
+          <tr>
+            <th class="band-list-th-static" style="width: 60px;"></th>
+            <th class="band-list-th-sort" @click="setSortField('name')" title="Nach Name sortieren">
+              Name <i :class="sortIcon('name')" class="ms-1 sort-indicator"></i>
+            </th>
+            <th>Bundesland</th>
+            <th>Track</th>
+            <th>Bewertung</th>
+            <th class="band-list-th-sort" @click="setSortField('created_at')" title="Nach Anmeldedatum sortieren">
+              Angemeldet <i :class="sortIcon('created_at')" class="ms-1 sort-indicator"></i>
+            </th>
+            <th class="band-list-th-sort" @click="setSortField('updated_at')" title="Nach letzter Änderung sortieren">
+              Aktualisiert <i :class="sortIcon('updated_at')" class="ms-1 sort-indicator"></i>
+            </th>
+            <th>Tags</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="band in filteredBands" :key="band.id" :id="'band-' + band.id" @click="selectBand(band)" class="band-list-row">
+            <td class="band-list-thumb-cell">
+              <div class="band-list-thumb-container">
+                <div v-if="!loadedImages[band.id]" class="skeleton-loader band-list-skeleton"></div>
+                <img :src="cardImage(band)" class="band-list-thumb" :class="{ 'loaded': loadedImages[band.id] }" :alt="band.name || band.guid" loading="lazy" decoding="async" @load="onImageLoad(band.id)">
+              </div>
+            </td>
+            <td class="band-list-name">{{ band.name || band.guid }}</td>
+            <td><span class="badge text-bg-primary">{{ federalStateName(band) }}</span></td>
+            <td>{{ trackName(band) }}</td>
+            <td>
+              <span v-if="hasVote(band)" class="badge text-bg-success">{{ voteValue(band) }} 💖</span>
+              <span v-else-if="band.bid_status !== 'declined'" class="badge text-bg-secondary">Enthalten</span>
+              <span v-else class="badge text-bg-warning">Abgelehnt</span>
+            </td>
+            <td class="band-list-date">{{ band.created_at ? new Date(band.created_at).toLocaleDateString('de-DE') : '—' }}</td>
+            <td class="band-list-date">{{ band.updated_at ? new Date(band.updated_at).toLocaleDateString('de-DE') : '—' }}</td>
+            <td>
+              <span v-if="band.are_students" class="badge text-bg-success me-1">Schülerband</span>
+              <span v-if="band.mean_age_under_27" class="badge text-bg-success me-1">Unter 27</span>
+              <span v-if="!band.bid_complete" class="badge text-bg-warning me-1">Unvollständig</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </template>
     </section>
   `
 })
@@ -1209,14 +1481,14 @@ const CommentField = Vue.defineComponent({
           </label>
         </div>
         <div class="col">
-          <select class="form-select" aria-label="Begründung für negativen Kommentar" v-model="selectedReason" :disabled="selectedMood !== 'thumbs-down'">
+          <select id="commentReason" name="commentReason" class="form-select" aria-label="Begründung für negativen Kommentar" v-model="selectedReason" :disabled="selectedMood !== 'thumbs-down'">
             <option value="" selected>Wähle eine Begründung</option>
             <option v-for="reason in reasons" :key="reason.id" :value="reason.text">{{ reason.text }}</option>
           </select>
         </div>
       </div>
-      <textarea id="comment" class="form-control" rows="4" v-model="commentText"></textarea>
-      <button class="btn btn-primary mt-2" @click="emitComment" :disabled="isButtonDisabled()">Kommentar absenden</button>
+      <textarea id="comment" name="comment" class="form-control" rows="4" v-model="commentText"></textarea>
+      <button id="submitComment" name="submitComment" class="btn btn-primary mt-2" @click="emitComment" :disabled="isButtonDisabled()">Kommentar absenden</button>
     </div>
   `,
 })
@@ -1500,7 +1772,14 @@ const app = createApp({
             volumeTooltip: 100,
             volumeTooltipVisible: false,
             _volumePopupTimerId: null,
-            _volumePopupTimeoutMs: 2500
+            _volumePopupTimeoutMs: 2500,
+            // View mode / sort / federal state filter
+            viewMode: FilterService.loadFromStorage('viewMode', 'card'),
+            sortField: FilterService.loadFromStorage('sortField', 'name'),
+            sortDirection: FilterService.loadFromStorage('sortDirection', 'asc'),
+            selectedFederalStates: FilterService.loadFromStorage('selectedFederalStates', []),
+            // Navigation list snapshot for stable next/prev in detail view
+            navigationBandList: null
         }
     },
     computed: {
@@ -1561,7 +1840,10 @@ const app = createApp({
                     showDeclinedBids: this.showDeclinedBids
                 },
                 selectedTrack: this.selectedTrack,
-                userVotes: this.userVotes
+                userVotes: this.userVotes,
+                sortField: this.sortField || 'name',
+                sortDirection: this.sortDirection || 'asc',
+                selectedFederalStates: this.selectedFederalStates || []
             })
         }
     },
@@ -1606,11 +1888,13 @@ const app = createApp({
                 this.selectedTrack = `status-${statusFilter}`
                 this.selectedBand = null
                 this.selectedBandDetails = null
+                this.navigationBandList = null
             } else if (hashSegments.includes('filter')) {
                 const filterName = hashSegments[hashSegments.indexOf('filter') + 1]
                 this.selectedTrack = filterName
                 this.selectedBand = null
                 this.selectedBandDetails = null
+                this.navigationBandList = null
             } else if (hashSegments.includes('track')) {
                 const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
                 // Check if it's an old-style special filter URL or actual track
@@ -1621,6 +1905,7 @@ const app = createApp({
                 }
                 this.selectedBand = null
                 this.selectedBandDetails = null
+                this.navigationBandList = null
             } else if (hashSegments.includes('bid')) {
                 const bandGuid = hashSegments[hashSegments.indexOf('bid') + 1]
                 const band = this.bands.find(band => band.guid === bandGuid) || null
@@ -1641,6 +1926,7 @@ const app = createApp({
                 this.selectedTrack = null
                 this.selectedBand = null
                 this.selectedBandDetails = null
+                this.navigationBandList = null
                 // Clear sessionStorage to stay in sync
                 sessionStorage.removeItem('selectedTrack')
 
@@ -1847,6 +2133,7 @@ const app = createApp({
             console.debug('Selected track:', this.selectedTrack)
             this.selectedBand = null
             this.selectedBandDetails = null
+            this.navigationBandList = null
             console.debug('Selected band:', this.selectedBand)
             const url = new URL(window.location.href)
             // Check for status filter (status-unknown, status-pending, etc.)
@@ -1877,6 +2164,10 @@ const app = createApp({
         },
         selectBand(band) {
             console.debug('app selectBand:', band)
+            // Snapshot the current filtered band list for stable next/prev navigation
+            if (!this.navigationBandList) {
+                this.navigationBandList = [...this.filteredBands]
+            }
             this.selectedBand = band
             sessionStorage.setItem('selectedBandId', band.id)
             console.debug('Selected band:', this.selectedBand)
@@ -2362,6 +2653,22 @@ const app = createApp({
         handleFilterDeclinedBidsChange(checked) {
             FilterService.saveToStorage('showDeclinedBids', checked)
             this.showDeclinedBids = checked
+        },
+        handleViewModeChange(mode) {
+            this.viewMode = mode
+            FilterService.saveToStorage('viewMode', mode)
+        },
+        handleSortFieldChange(field) {
+            this.sortField = field
+            FilterService.saveToStorage('sortField', field)
+        },
+        handleSortDirectionChange(direction) {
+            this.sortDirection = direction
+            FilterService.saveToStorage('sortDirection', direction)
+        },
+        handleFederalStatesChange(states) {
+            this.selectedFederalStates = states
+            FilterService.saveToStorage('selectedFederalStates', states)
         },
         setRating(rating) {
             console.debug('BandRating setRating:', rating)

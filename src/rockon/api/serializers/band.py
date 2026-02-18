@@ -71,6 +71,8 @@ class BandListSerializer(serializers.ModelSerializer):
             'is_coverband',
             'bid_complete',
             'press_photo',
+            'created_at',
+            'updated_at',
         ]
 
 
