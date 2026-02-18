@@ -1,12 +1,25 @@
 {% extends "base.html" %} {% block content %}{% load static %}{% load compress %}
-    {% compress js %}
-        <script src="{% static 'js/exhibitor-join.js' %}"></script>
+    {% compress js file vue %}
+        <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
+    {% endcompress %}
+    {% compress js file exhibitor_signup %}
+        <script src="{% static 'js/exhibitor-signup.js' %}"></script>
     {% endcompress %}
 
     <script nonce="{{ request.csp_nonce }}">
-        window.rockon = {
-            joinSubmitted: "{% url "exhibitors:join_submitted" slug=event.slug %}",
-            signup: "{% url "api_exhibitor_signup" slug=slug %}",
+        window.rockon_data = {
+            attendances: {{ attendances_json }},
+            assets: {{ assets_json }},
+            org: {{ org_json }},
+            exhibitor: {{ exhibitor_json }},
+            readonly: {{ readonly|yesno:"true,false" }},
+            event_name: "{{ event.name }}",
+            event_image_url: "{{ event.get_image_url }}",
+            event_slug: "{{ event.slug }}",
+        }
+        window.rockon_api = {
+            signup: "/api/v2/exhibitor-signup/{{ event.slug }}/",
+            csrfToken: "{{ csrf_token }}",
         }
     </script>
 
@@ -15,315 +28,440 @@
          style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat">
     </div>
 
-    <form id="signup" class="row align-items-center needs-validation" novalidate>
-        {% csrf_token %}
+    {% verbatim %}
+    <div id="app">
 
-        <section class="row p-4 form-section">
-            {% if org %}
-                <input type="hidden" name="org_id" value="{{ org.id }}"/>
-                <div class="alert alert-secondary" role="alert">
-                    <h4 class="alert-heading">Datenübernahme</h4>
-                    <p>Deine Organisation wurde bereits angelegt. Sollte etwas nicht richtig sein, dann schicke uns
-                        bitte eine Mail an <a href="mailto:spielfest@cpye.de">spielfest@cpye.de</a></p>
+        <!-- Readonly success banner -->
+        <div v-if="readonly" class="alert alert-success" role="alert">
+            <h4 class="alert-heading"><i class="fa-solid fa-circle-check"></i> Anmeldung erfolgreich eingereicht!</h4>
+            <p>Eure Anmeldung wurde erfolgreich entgegengenommen und wird von uns geprüft.
+               Nachfolgend seht ihr eine Übersicht eurer eingereichten Daten.</p>
+            <hr />
+            <p class="mb-0">Bei Änderungswünschen oder Fragen schreibt uns bitte eine Mail an
+                <a href="mailto:spielfest@cpye.de">spielfest@cpye.de</a>.</p>
+        </div>
+
+        <form @submit.prevent="submitForm" class="row align-items-center needs-validation" novalidate>
+
+            <!-- Organisation Section -->
+            <section class="row p-4 form-section">
+                <template v-if="org">
+                    <div class="alert alert-secondary" role="alert">
+                        <h4 class="alert-heading">Datenübernahme</h4>
+                        <p>Deine Organisation wurde bereits angelegt. Sollte etwas nicht richtig sein, dann schicke uns
+                            bitte eine Mail an <a href="mailto:spielfest@cpye.de">spielfest@cpye.de</a></p>
+                    </div>
+                </template>
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div><h3>Organisation</h3></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 g-4">
+                            <label for="organisation_name">Organisation</label>
+                            <input type="text" class="form-control"
+                                   :class="fieldClass('organisation_name')"
+                                   v-model="formData.organisation_name"
+                                   id="organisation_name"
+                                   placeholder="Organisation" autocomplete="off"
+                                   :disabled="!!org"
+                                   @blur="validateField('organisation_name')"/>
+                            <div class="invalid-feedback">
+                                Organisationsname darf nicht leer sein.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-9 g-4">
+                            <label for="organisation_address">Straße</label>
+                            <input type="text" class="form-control"
+                                   :class="fieldClass('organisation_address')"
+                                   v-model="formData.organisation_address"
+                                   id="organisation_address"
+                                   placeholder="Am Geldspeicher" autocomplete="street-address"
+                                   :disabled="!!org"
+                                   @blur="validateField('organisation_address')"/>
+                            <div class="invalid-feedback">
+                                Straße darf nicht leer sein.
+                            </div>
+                        </div>
+                        <div class="col-sm-3 g-4">
+                            <label for="organisation_address_housenumber">Hausnummer</label>
+                            <input type="text" class="form-control"
+                                   :class="fieldClass('organisation_address_housenumber')"
+                                   v-model="formData.organisation_address_housenumber"
+                                   id="organisation_address_housenumber"
+                                   placeholder="23a"
+                                   :disabled="!!org"
+                                   @blur="validateField('organisation_address_housenumber')"/>
+                            <div class="invalid-feedback">
+                                Hausnummer darf nicht leer sein.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 g-4">
+                            <label for="organisation_address_extension">Addresszusatz</label>
+                            <input type="text" class="form-control"
+                                   v-model="formData.organisation_address_extension"
+                                   id="organisation_address_extension"
+                                   placeholder="Addresszusatz" autocomplete="off"
+                                   :disabled="!!org"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 g-4">
+                            <label for="organisation_zip">Postleitzahl</label>
+                            <input type="text" class="form-control"
+                                   :class="fieldClass('organisation_zip')"
+                                   v-model="formData.organisation_zip"
+                                   id="organisation_zip"
+                                   placeholder="10000" maxlength="5"
+                                   inputmode="numeric"
+                                   autocomplete="postal-code"
+                                   :disabled="!!org"
+                                   @blur="validateField('organisation_zip')"/>
+                            <div class="invalid-feedback">
+                                Postleitzahl muss 5 Ziffern lang sein.
+                            </div>
+                        </div>
+                        <div class="col-sm-9 g-4">
+                            <label for="organisation_place">Ort</label>
+                            <input type="text" class="form-control"
+                                   :class="fieldClass('organisation_place')"
+                                   v-model="formData.organisation_place"
+                                   id="organisation_place"
+                                   placeholder="Entenhausen"
+                                   autocomplete="home city"
+                                   :disabled="!!org"
+                                   @blur="validateField('organisation_place')"/>
+                            <div class="invalid-feedback">
+                                Ort darf nicht leer sein.
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
-            <div class="col-lg-8">
+                <div class="col-lg-4">
+                    <div><h4>Warum erheben wir diese Informationen?</h4></div>
+                    <p>
+                        Für die Organisation der Veranstaltung ist es wichtig, dass wir wissen, wer an der Veranstaltung
+                        teilnimmt. Wir benötigen diese Informationen, um die Teilnehmerliste zu erstellen und die Teilnehmer
+                        zu kontaktieren. Zu dem Versenden wir evenutell Informationen über die Veranstaltung an die
+                        angegebene Adresse.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Attendance Section -->
+            <section class="row p-4 form-section">
+                <div><h3>Anwesenheit</h3></div>
+
                 <div class="row">
-                    <div class="col-lg-12">
-                        <div><h3>Organisation</h3></div>
+                    <div class="col-sm-12 g-4">
+                        <label>An welchen Tagen wollt ihr teilnehmen?</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-12 g-4">
-                        <label for="organisation_name">Organisation</label>
-                        <input type="text" class="form-control not-empty" name="organisation_name"
-                               id="organisation_name" value="{{ org.org_name|default_if_none:"" }}"
-                               placeholder="Organisation" autocomplete="off" {% if org %}disabled{% endif %}/>
-                        <div class="valid-feedback">
-                        </div>
-                        <div class="invalid-feedback">
-                            Organisationsname darf nicht leer sein.
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-9 g-4">
-                        <label for="organisation_address">Straße</label>
-                        <input type="text" name="organisation_address" class="form-control not-empty"
-                               id="organisation_address" value="{{ org.org_address|default_if_none:"" }}"
-                               placeholder="Am Geldspeicher" autocomplete="street-address"
-                               {% if org %}disabled{% endif %}/>
-                        <div class="valid-feedback">
-                        </div>
-                        <div class="invalid-feedback">
-                            Straße darf nicht leer sein.
-                        </div>
-                    </div>
-                    <div class="col-sm-3 g-4">
-                        <label for="organisation_address_housenumber">Hausnummer</label>
-                        <input type="text" class="form-control not-empty" name="organisation_address_housenumber"
-                               id="organisation_address_housenumber"
-                               value="{{ org.org_house_number|default_if_none:"" }}" placeholder="23a"
-                               {% if org %}disabled{% endif %}/>
-                        <div class="valid-feedback">
-                        </div>
-                        <div class="invalid-feedback">
-                            Hausnummer darf nicht leer sein.
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-12 g-4">
-                        <label for="organisation_address_extension">Addresszusatz</label>
-                        <input type="text" class="form-control" name="organisation_address_extension"
-                               id="organisation_address_extension"
-                               value="{{ org.organisation_address_extension|default_if_none:"" }}"
-                               placeholder="Addresszusatz" autocomplete="off" {% if org %}disabled{% endif %}/>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-3 g-4">
-                        <label for="organisation_zip">Postleitzahl</label>
-                        <input type="text" pattern="[0-9]{5}" inputmode="numeric" name="organisation_zip"
-                               id="organisation_zip" value="{{ org.org_zip|default_if_none:"" }}"
-                               class="form-control not-empty" placeholder="10000" maxlength="5"
-                               autocomplete="postal-code" {% if org %}disabled{% endif %}/>
-                        <div class="valid-feedback">
-                        </div>
-                        <div class="invalid-feedback">
-                            Postleitzahl muss 5 Ziffern lang sein .
-                        </div>
-                    </div>
-                    <div class="col-sm-9 g-4">
-                        <label for="organisation_place">Ort</label>
-                        <input type="text" class="form-control not-empty" name="organisation_place" id="user_place"
-                               value="{{ org.org_place|default_if_none:"" }}" placeholder="Entenhausen"
-                               autocomplete="home city" {% if org %}disabled{% endif %}/>
-                        <div class="valid-feedback">
-                        </div>
-                        <div class="invalid-feedback">
-                            Ort darf nicht leer sein.
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div><h4>Warum erheben wir diese Informationen?</h4></div>
-                <p>
-                    Für die Organisation der Veranstaltung ist es wichtig, dass wir wissen, wer an der Veranstaltung
-                    teilnimmt. Wir benötigen diese Informationen, um die Teilnehmerliste zu erstellen und die Teilnehmer
-                    zu kontaktieren. Zu dem Versenden wir evenutell Informationen über die Veranstaltung an die
-                    angegebene Adresse.
-                </p>
-            </div>
-        </section>
-
-        <section class="row p-4 form-section">
-            <div><h3>Anwesenheit</h3></div>
-
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <label>An welchen Tagen wollt ihr teilnehmen?</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <table class="table table-sm table-dark table-responsive">
-                                <thead>
-                                <tr>
-                                    <th scope="col">Tag</th>
-                                    <th scope="col">Teilnahme</th>
-                                    <th scope="col">Anzahl Personen</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for day in attendances %}
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-sm table-dark table-responsive">
+                                    <thead>
                                     <tr>
-                                        <th scope="row" class="date-format-huge">{{ day }}</th>
-                                        <td><input class="form-check-input" type="checkbox" id="attendance_{{ day.id }}"
-                                                   name="attendance_{{ day.id }}" data-toggle="attendancecount_"
-                                                   data-id="{{ day.id }}"></td>
+                                        <th scope="col">Tag</th>
+                                        <th scope="col">Teilnahme</th>
+                                        <th scope="col">Anzahl Personen</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="day in attendances" :key="day.id">
+                                        <th scope="row">{{ day.day }}</th>
                                         <td>
-                                            <input type="number" inputmode="numeric" name="attendancecount_{{ day.id }}"
-                                                   class="form-control not-empty" id="attendancecount_{{ day.id }}"
-                                                   placeholder="Anzahl Personen" min="1" autocomplete="off" disabled/>
-                                            <div class="valid-feedback">
-                                            </div>
+                                            <input class="form-check-input" type="checkbox"
+                                                   v-model="attendanceChecked[day.id]"
+                                                   @change="onAttendanceToggle(day.id)"
+                                                   :disabled="readonly">
+                                        </td>
+                                        <td>
+                                            <input type="number" inputmode="numeric"
+                                                   class="form-control"
+                                                   :class="attendanceChecked[day.id] ? fieldClass('attendance_count_' + day.id) : ''"
+                                                   v-model.number="attendanceCounts[day.id]"
+                                                   placeholder="Anzahl Personen" min="1"
+                                                   autocomplete="off"
+                                                   :disabled="!attendanceChecked[day.id] || readonly"
+                                                   @blur="validateAttendanceCount(day.id)"/>
                                             <div class="invalid-feedback">
                                                 Personenanzahl darf nicht leer sein.
                                             </div>
                                         </td>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
+            <!-- Infrastructure Section -->
+            <section class="row p-4 form-section">
+                <div><h3>Infrastruktur</h3></div>
 
-        <section class="row p-4 form-section">
-            <div><h3>Infrastruktur</h3></div>
-
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <label>Was benötigt ihr vor Ort?</label>
+                <div class="row">
+                    <div class="col-sm-12 g-4">
+                        <label>Was benötigt ihr vor Ort?</label>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <table class="table table-sm table-dark table-striped table-responsive">
-                                <thead>
-                                <tr>
-                                    <th scope="col">Was</th>
-                                    <th scope="col">Benötigt</th>
-                                    <th scope="col">ggf. Menge</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for asset in assets %}
+                <div class="row">
+                    <div class="col-sm-12 g-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-sm table-dark table-striped table-responsive">
+                                    <thead>
                                     <tr>
-                                        <th scope="row">{{ asset }}<br/><small>{{ asset.description }}</small></th>
-                                        <td><input class="form-check-input" type="checkbox"
-                                                   id="assetrequired_{{ asset.id }}" name="assetrequired_{{ asset.id }}"
-                                                   data-toggle="assetcount_" data-id="{{ asset.id }}"></td>
+                                        <th scope="col">Was</th>
+                                        <th scope="col">Benötigt</th>
+                                        <th scope="col">ggf. Menge</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="asset in assets" :key="asset.id">
+                                        <th scope="row">{{ asset.name }}<br/><small>{{ asset.description }}</small></th>
                                         <td>
-                                            {% if not asset.is_bool %}
+                                            <input class="form-check-input" type="checkbox"
+                                                   v-model="assetChecked[asset.id]"
+                                                   @change="onAssetToggle(asset.id)"
+                                                   :disabled="readonly">
+                                        </td>
+                                        <td>
+                                            <template v-if="!asset.is_bool">
                                                 <input type="number" inputmode="numeric"
-                                                       name="assetcount_{{ asset.id }}" class="form-control not-empty"
-                                                       id="assetcount_{{ asset.id }}" placeholder="Anzahl" min="1"
-                                                       autocomplete="off" disabled/>
-                                                <div class="valid-feedback">
-                                                </div>
+                                                       class="form-control"
+                                                       :class="assetChecked[asset.id] ? fieldClass('asset_count_' + asset.id) : ''"
+                                                       v-model.number="assetCounts[asset.id]"
+                                                       placeholder="Anzahl" min="1"
+                                                       autocomplete="off"
+                                                       :disabled="!assetChecked[asset.id] || readonly"
+                                                       @blur="validateAssetCount(asset.id)"/>
                                                 <div class="invalid-feedback">
                                                     Menge darf nicht leer sein.
                                                 </div>
-                                            {% endif %}
+                                            </template>
                                         </td>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="row p-4 form-section">
-            <div><h3>Programmheft</h3></div>
-            <div class="col-sm-12">
-                <p>Für das Programmheft brauchen wir einige Informationen von euch, über ausführliche Einreichungen
-                    freuen wir uns sehr. Falls ihr nicht erwähnt werden wollt, dann lasst die Felder einfach leer.</p>
-                <p>Schickt uns bitte Bilder und Logos an <a href="mailto:spielfest@cpye.de">spielfest@cpye.de</a></p>
-            </div>
-            <div class="col-sm-12">
-                <label for="about_note" class="form-label">Bitte beschreibt eure Organisation oder Initiative. Erwähnt
-                    auch gerne eure Homepage, falls ihr eine habt.</label>
-                <textarea class="form-control" id="about_note" name="about_note" rows="3"></textarea>
-            </div>
-            <div class="col-sm-12">
-                <label for="offer_note" class="form-label">Was möchtet ihr auf dem Spielfest anbieten?</label>
-                <textarea class="form-control" id="offer_note" name="offer_note" rows="3"></textarea>
-            </div>
-        </section>
-
-        <section class="row p-4 form-section">
-            <div><h3>Verschiedenes</h3></div>
-            <div class="col-sm-12">
-                <p>Das Spielfest findet an allen Tagen von <strong>12.00 bis 18.00 Uhr</strong> statt. Um 16.00 Uhr
-                    beginnt an beiden Tagen der Rocktreff und
-                    läuft parallel.
-                <p>Aufbauzeiten an beiden Tagen von 10.00 bis 11.30 Uhr. Nach 11.30 Uhr dürfen keine Fahrzeuge mehr zum
-                    Entladen ins Stadion fahren.
-                    Abbau an beiden Tagen ab 18.00 Uhr. Es dürfen jedoch keine Fahrzeuge auf das Gelände fahren, da der
-                    Rocktreff noch läuft.
-                    Transport in Bollerwagen ist möglich.</p>
-                <p>Ihr erhaltet von uns eine Zufahrtsberechtigung für das Stadion. Am Andlauer Weg sind Flächen zum Be-
-                    und Entladen reserviert. Ein Anspruch auf einen Parkplatz besteht aus Mangel an genügend Plätzen
-                    nicht.
-                    Alle Spielfest-Helfer:innen erhalten einen Backstage-Pass, mit dem sie den Backstagebereich für eine
-                    Pause nutzen können.
-                    Getränke und Speisen stehen begrenzt zur Verfügung. Der Backstage-Bereich ist für die
-                    Spielfest-Helfer:innen von 12.00 bis 20.00 Uhr zugänglich.</p>
-                <p><strong>Als Standbetreiber erklärt ihr euch mit eurer Teilnahme damit einverstanden, dass auf dem
-                    Gelände Foto- und Videoaufnahmen
-                    gemacht werden, die ggf. veröffentlicht werden und/oder zu Marketing-Zwecken verwendet
-                    werden.</strong></p>
-            </div>
-            <div class="col-sm-12">
-                <label for="general_note" class="form-label">Möchtet ihr uns noch etwas mitteilen?</label>
-                <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
-            </div>
-        </section>
-
-
-        <section class="row p-4 form-section">
-            <div><h3>Rechtliches</h3></div>
-            <div class="col-md-12">
-                <div class="form-check form-switch">
-                    <input class="form-check-input not-empty" type="checkbox" role="switch" id="allow_contact"
-                           name="allow_contact">
-                    <label class="form-check-label" for="allow_contact">
-                        Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das
-                        Spielfest kontaktieren darf.
-                    </label>
-                    <div class="valid-feedback"></div>
+            <!-- Programmheft & Media Section -->
+            <section class="row p-4 form-section">
+                <div><h3>Programmheft</h3></div>
+                <div class="col-sm-12">
+                    <p>Das Programmheft ist eure digitale Visitenkarte &mdash; es wird an alle Besucher:innen verteilt und stellt
+                        eure Organisation oder Initiative vor. Nutzt die Gelegenheit, euch und euer Angebot nicht nur
+                        im Rahmen der Veranstaltung, sondern auch ganz allgemein zu präsentieren. Über ausführliche
+                        Einreichungen freuen wir uns sehr. Falls ihr nicht erwähnt werden wollt, dann lasst die Felder
+                        einfach leer.</p>
+                </div>
+                <div class="col-sm-12 mb-3">
+            {% endverbatim %}
+                    <div class="card mb-3">
+                        <div class="card-body text-center">
+                            <p class="card-text"><strong>So könnte euer Eintrag im Programmheft aussehen:</strong></p>
+                            <img src="{% static 'img/beispiel-sf-heft.png' %}" alt="Beispiel Programmheft-Eintrag"
+                                 class="img-fluid rounded" width="600" height="400"/>
+                        </div>
+                    </div>
+            {% verbatim %}
+                </div>
+                <div class="col-sm-12 mb-3">
+                    <label for="offer_note" class="form-label">Programmheft Text</label>
+                    <textarea class="form-control" id="offer_note"
+                              v-model="formData.offer_note"
+                              rows="3" maxlength="800"
+                              :disabled="readonly"
+                              @input="onOfferNoteInput"></textarea>
+                    <div class="d-flex justify-content-end mt-1">
+                        <small :class="charCounterClass">
+                            {{ offerNoteLength }} / 800 Zeichen
+                        </small>
+                    </div>
+                </div>
+                <div class="col-sm-12 mb-3">
+                    <label for="website" class="form-label">Internetadresse (Website)</label>
+                    <input type="url" class="form-control"
+                           :class="formData.website ? fieldClass('website') : ''"
+                           v-model="formData.website"
+                           id="website"
+                           placeholder="https://www.example.de"
+                           :disabled="readonly"
+                           @blur="validateField('website')"/>
                     <div class="invalid-feedback">
-                        Bitte erlaube uns, dich zu kontaktieren.
+                        Bitte eine gültige URL eingeben (z.B. https://www.example.de).
                     </div>
                 </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-check form-switch">
-                    <input class="form-check-input not-empty" type="checkbox" role="switch" id="read_privacy"
-                           name="read_privacy">
-                    <label class="form-check-label" for="read_privacy">
-                        Ich habe die <a href="{% url "rockon_privacy" %}" target="_blank">Datenschutzbestimmungen</a>
-                        zur Kenntnis genommen
-                        und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der
-                        Veranstaltungen Rocktreff
-                        und Spielfest einverstanden.
-                    </label>
-                    <div class="valid-feedback"></div>
-                    <div class="invalid-feedback">
-                        Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.
+                <div class="col-sm-12 mb-3">
+                    <label for="logo" class="form-label">Logo oder Bild</label>
+                    <template v-if="!readonly">
+                        <input type="file" class="form-control" id="logo"
+                               ref="logoInput"
+                               @change="onLogoSelected"/>
+                        <div class="form-text">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Bitte ladet ein <strong>hochauflösendes</strong> Bild hoch (JPG, PNG, EPS oder PDF).
+                            Damit euer Logo oder Foto im gedruckten Programmheft scharf und gut lesbar aussieht,
+                            sollte die Datei möglichst groß sein &mdash; idealerweise mindestens <strong>300 dpi</strong>
+                            bei der gewünschten Druckgröße (ca. 70 &times; 70 mm).
+                            <br/>
+                            <small class="text-muted">
+                                <strong>Was bedeutet das?</strong> Je größer und schärfer das Bild ist, desto besser sieht es
+                                im Druck aus. Ein Bild, das auf dem Bildschirm gut aussieht, kann im Druck unscharf wirken.
+                                Wenn ihr unsicher seid, schickt uns einfach die größte Version, die ihr habt.
+                            </small>
+                        </div>
+                    </template>
+                    <div v-if="logoPreview" class="mt-2">
+                        <img :src="logoPreview" alt="Logo Vorschau" class="img-thumbnail" style="max-height: 150px;"/>
+                        <button v-if="!readonly" type="button" class="btn btn-sm btn-outline-danger ms-2" @click="removeLogo">
+                            <i class="fa-solid fa-trash"></i> Entfernen
+                        </button>
+                    </div>
+                    <div v-else-if="logoFileName" class="mt-2">
+                        <span class="badge bg-secondary"><i class="fa-solid fa-file"></i> {{ logoFileName }}</span>
+                        <button v-if="!readonly" type="button" class="btn btn-sm btn-outline-danger ms-2" @click="removeLogo">
+                            <i class="fa-solid fa-trash"></i> Entfernen
+                        </button>
+                    </div>
+                    <div v-else-if="readonly" class="mt-2 text-muted">
+                        <em>Kein Logo hochgeladen.</em>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
+            <!-- Verschiedenes Section -->
+            <section class="row p-4 form-section">
+                <div><h3>Verschiedenes</h3></div>
+                <div class="col-sm-12">
+                    <p>Das Spielfest findet an allen Tagen von <strong>12.00 bis 18.00 Uhr</strong> statt. Um 16.00 Uhr
+                        beginnt an beiden Tagen der Rocktreff und
+                        läuft parallel.
+                    <p>Aufbauzeiten an beiden Tagen von 10.00 bis 11.30 Uhr. Nach 11.30 Uhr dürfen keine Fahrzeuge mehr zum
+                        Entladen ins Stadion fahren.
+                        Abbau an beiden Tagen ab 18.00 Uhr. Es dürfen jedoch keine Fahrzeuge auf das Gelände fahren, da der
+                        Rocktreff noch läuft.
+                        Transport in Bollerwagen ist möglich.</p>
+                    <p>Ihr erhaltet von uns eine Zufahrtsberechtigung für das Stadion. Am Andlauer Weg sind Flächen zum Be-
+                        und Entladen reserviert. Ein Anspruch auf einen Parkplatz besteht aus Mangel an genügend Plätzen
+                        nicht.
+                        Alle Spielfest-Helfer:innen erhalten einen Backstage-Pass, mit dem sie den Backstagebereich für eine
+                        Pause nutzen können.
+                        Getränke und Speisen stehen begrenzt zur Verfügung. Der Backstage-Bereich ist für die
+                        Spielfest-Helfer:innen von 12.00 bis 20.00 Uhr zugänglich.</p>
+                    <p><strong>Als Standbetreiber erklärt ihr euch mit eurer Teilnahme damit einverstanden, dass auf dem
+                        Gelände Foto- und Videoaufnahmen
+                        gemacht werden, die ggf. veröffentlicht werden und/oder zu Marketing-Zwecken verwendet
+                        werden.</strong></p>
+                </div>
+                <div class="col-sm-12">
+                    <label for="general_note" class="form-label">Möchtet ihr uns noch etwas mitteilen?</label>
+                    <textarea class="form-control" id="general_note"
+                              v-model="formData.general_note"
+                              rows="3"
+                              :disabled="readonly"></textarea>
+                </div>
+            </section>
 
-        <section class="row p-4 form-section">
-            <div class="d-grid gap-2 col-12 mx-auto pt-3">
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="d-grid gap-2 col-12 mx-auto">
-                            <button id="form_submit" type="button" class="btn btn-primary" disabled>Absenden</button>
+            <!-- Legal Section -->
+            <section class="row p-4 form-section">
+                <div><h3>Rechtliches</h3></div>
+                <div class="col-md-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               :class="fieldClass('allow_contact')"
+                               type="checkbox" role="switch" id="allow_contact"
+                               v-model="formData.allow_contact"
+                               :disabled="readonly"
+                               @change="validateField('allow_contact')">
+                        <label class="form-check-label" for="allow_contact">
+                            Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das
+                            Spielfest kontaktieren darf.
+                        </label>
+                        <div class="invalid-feedback">
+                            Bitte erlaube uns, dich zu kontaktieren.
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="d-grid gap-2 col-12 mx-auto">
-                            <button id="form_reset" type="button" class="btn btn-secondary">Neustart</button>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               :class="fieldClass('read_privacy')"
+                               type="checkbox" role="switch" id="read_privacy"
+                               v-model="formData.read_privacy"
+                               :disabled="readonly"
+                               @change="validateField('read_privacy')">
+                        <label class="form-check-label" for="read_privacy">
+                            Ich habe die
+                    {% endverbatim %}
+                            <a href="{% url "rockon_privacy" %}" target="_blank">Datenschutzbestimmungen</a>
+                    {% verbatim %}
+                            zur Kenntnis genommen
+                            und erkläre mich mit der Speicherung und Verarbeitung personenbezogener Daten im Rahmen der
+                            Veranstaltungen Rocktreff
+                            und Spielfest einverstanden.
+                        </label>
+                        <div class="invalid-feedback">
+                            Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="d-grid gap-2 col-12 mx-auto pt-3">
-                <div class="row g-2">
-                    <div class="col">
-                        <div id="form_message"></div>
+            </section>
+
+            <!-- Submit Section -->
+            <section v-if="!readonly" class="row p-4 form-section">
+                <div class="d-grid gap-2 col-12 mx-auto pt-3">
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="d-grid gap-2 col-12 mx-auto">
+                                <button type="submit" class="btn btn-primary"
+                                        :disabled="!canSubmit || submitting">
+                                    <span v-if="submitting">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Wird gesendet...
+                                    </span>
+                                    <span v-else>Absenden</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-grid gap-2 col-12 mx-auto">
+                                <button type="button" class="btn btn-secondary" @click="resetForm">Neustart</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+                <div class="d-grid gap-2 col-12 mx-auto pt-3">
+                    <div class="row g-2">
+                        <div class="col">
+                            <div v-if="formError" class="alert alert-danger" role="alert">
+                                {{ formError }}
+                            </div>
+                            <div v-if="formSuccess" class="alert alert-success" role="alert">
+                                {{ formSuccess }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-    </form>
+        </form>
+    </div>
+    {% endverbatim %}
 
 {% endblock content %}

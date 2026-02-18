@@ -6,7 +6,6 @@ from .bandmember_signup import bandmember_signup
 from .bands import BandMediaViewSet, BandTrackViewSet, BandViewSet, BandVoteViewSet
 from .comment import CommentViewSet
 from .crew_signup import crew_signup
-from .exhibitor_signup import exhibitor_signup
 from .update_user_email import update_user_email
 from .update_user_profile import update_user_profile
 from .verify_email import verify_email
@@ -21,7 +20,6 @@ __all__ = [
     'BandVoteViewSet',
     'CommentViewSet',
     'crew_signup',
-    'exhibitor_signup',
     'update_user_email',
     'update_user_profile',
     'verify_email',
