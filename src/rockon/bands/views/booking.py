@@ -43,7 +43,7 @@ def booking_bid_overview(request, slug):
 
     template = loader.get_template('booking/bid_overview.html')
     extra_context = {
-        'site_title': 'Bandbewertungen',
+        'site_title': 'Übersicht',
         'bands': bands,
     }
     return HttpResponse(template.render(extra_context, request))
