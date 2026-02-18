@@ -5,13 +5,12 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.template import loader
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from django_q.tasks import async_task
 
 from rockon.library.custom_model import CustomModel, models
+from rockon.library.mailer import send_mail_async
 
 
 class MagicLink(CustomModel):
@@ -57,12 +56,9 @@ class MagicLink(CustomModel):
         message = f'Hallo {extra_context["name"]},\nhier findest du deinen persönlichen Link \
                     zum einsehen und ändern deiner persönlichen Daten:\n{extra_context["magic_link"]}'
 
-        async_task(
-            send_mail,
+        send_mail_async(
             subject=extra_context['subject'],
             message=message,
-            from_email=settings.EMAIL_DEFAULT_FROM,
             recipient_list=[extra_context['recipient']],
             html_message=template.render(extra_context),
-            fail_silently=False,
         )

@@ -4,12 +4,11 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.template import loader
 from django.urls import reverse
-from django_q.tasks import async_task
 
 from rockon.library.custom_model import CustomModel, models
+from rockon.library.mailer import send_mail_async
 
 
 class EmailVerification(CustomModel):
@@ -47,12 +46,9 @@ class EmailVerification(CustomModel):
             'url': f'{settings.DOMAIN}{reverse("base:verify_email", kwargs={"token": email_verifcation.token})}',
         }
 
-        async_task(
-            send_mail,
+        send_mail_async(
             subject=extra_context['subject'],
             message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{extra_context["url"]}\n\nSolltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
-            from_email=settings.EMAIL_DEFAULT_FROM,
             recipient_list=[f'{user.email}'],
             html_message=template.render(extra_context),
-            fail_silently=False,
         )

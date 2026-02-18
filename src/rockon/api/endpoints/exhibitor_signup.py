@@ -4,7 +4,6 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.template import loader
 from ninja import File, Router
@@ -13,6 +12,7 @@ from ninja.security import django_auth
 
 from rockon.api.schemas.exhibitor_signup import ExhibitorSignupIn, ExhibitorSignupOut
 from rockon.base.models import Event, Organisation
+from rockon.library.mailer import get_admin_url, send_mail_async
 from rockon.exhibitors.models import (
     Asset,
     Attendance,
@@ -122,14 +122,14 @@ def exhibitor_signup(
         )
 
     # Send admin notification email (non-blocking)
-    _send_admin_notification(event, organisation)
+    _send_admin_notification(event, organisation, exhibitor)
 
     return ExhibitorSignupOut(
         status='created', message='Anmeldung erfolgreich erstellt.'
     )
 
 
-def _send_admin_notification(event, organisation):
+def _send_admin_notification(event, organisation, exhibitor):
     """Send admin notification email. Failures are logged but don't block the response."""
     try:
         admins = list(
@@ -140,44 +140,28 @@ def _send_admin_notification(event, organisation):
         if not admins:
             return
 
+        admin_url = get_admin_url(exhibitor)
+
         template = loader.get_template('mail/exhibitor_signup.html')
         extra_context = {
             'event_name': event.name,
             'organisation': organisation.org_name,
+            'admin_url': admin_url,
         }
 
         message = (
             f'Hallo Admin-Team,\nes gibt eine neue Anmeldung eines Ausstellers bei '
             f'{event.name}. Bitte überprüft die Angaben und schaut ob alles stimmt.'
+            f'\n\nIm Admin ansehen: {admin_url}'
         )
 
-        try:
-            from django_q.tasks import async_task
-
-            async_task(
-                send_mail,
-                subject=f'{settings.EMAIL_SUBJECT_PREFIX} Neue Ausstelleranmeldung',
-                message=message,
-                from_email=settings.EMAIL_DEFAULT_FROM,
-                recipient_list=admins,
-                html_message=template.render(extra_context),
-                fail_silently=False,
-                timeout=5,
-            )
-        except Exception:
-            # django-q / Redis unavailable — send synchronously as fallback
-            logger.warning('django-q unavailable, sending email synchronously')
-            try:
-                send_mail(
-                    subject=f'{settings.EMAIL_SUBJECT_PREFIX} Neue Ausstelleranmeldung',
-                    message=message,
-                    from_email=settings.EMAIL_DEFAULT_FROM,
-                    recipient_list=admins,
-                    html_message=template.render(extra_context),
-                    fail_silently=True,
-                )
-            except Exception:
-                logger.exception('Failed to send exhibitor signup notification')
+        send_mail_async(
+            subject=f'{settings.EMAIL_SUBJECT_PREFIX} Neue Ausstelleranmeldung',
+            message=message,
+            recipient_list=admins,
+            html_message=template.render(extra_context),
+            timeout=5,
+        )
     except Group.DoesNotExist:
         pass  # No admin group configured
     except Exception:
