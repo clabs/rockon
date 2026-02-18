@@ -4,7 +4,6 @@ from django.urls import include, path
 from ninja import NinjaAPI
 
 from rockon.api.views import (
-    account_create,
     band_techrider,
     bandmember_signup,
     crew_signup,
@@ -14,10 +13,11 @@ from rockon.api.views import (
 )
 from .routers import router
 
-from .endpoints import exhibitorSignup, markVoucher, requestMagicLink
+from .endpoints import accountCreate, exhibitorSignup, markVoucher, requestMagicLink
 
 api = NinjaAPI(urls_namespace='apiv2')
 
+api.add_router('account-create', accountCreate)
 api.add_router('request-magic-link', requestMagicLink)
 api.add_router('mark-voucher', markVoucher)
 api.add_router('exhibitor-signup/', exhibitorSignup)
@@ -36,7 +36,6 @@ urlpatterns = [
         name='api_crm_update_user_profile',
     ),
     path('bands/<slug:slug>/techrider/', band_techrider, name='api_band_techrider'),
-    path('crm/account/create/', account_create, name='api_crm_account_create'),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('v2/', api.urls),

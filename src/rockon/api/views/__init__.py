@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from .account_create import account_create
 from .band_techrider import band_techrider
 from .bandmember_signup import bandmember_signup
 from .bands import BandMediaViewSet, BandTrackViewSet, BandViewSet, BandVoteViewSet
@@ -11,7 +10,6 @@ from .update_user_profile import update_user_profile
 from .verify_email import verify_email
 
 __all__ = [
-    'account_create',
     'band_techrider',
     'bandmember_signup',
     'BandMediaViewSet',
