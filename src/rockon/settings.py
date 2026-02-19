@@ -263,7 +263,7 @@ COMPRESS_CACHE_BACKEND = (
 )
 
 if DEBUG:
-    COMPRESS_ENABLED = False
+    COMPRESS_OFFLINE = False
 
 with env.prefixed('DJANGO_MEDIA_'):
     MEDIA_ROOT = env.str('ROOT', default='uploads/')
