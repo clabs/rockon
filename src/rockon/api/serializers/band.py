@@ -8,8 +8,18 @@ from rockon.bands.models import BandMedia, Track
 class BandMediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = BandMedia
-        # fields not listed here can not be changed via the API
-        fields = '__all__'
+        fields = [
+            'id',
+            'band',
+            'media_type',
+            'url',
+            'file',
+            'encoded_file',
+            'file_name_original',
+            'thumbnail',
+            'created_at',
+            'updated_at',
+        ]
 
     # only booking team can see contact
     def get_contact(self, obj):
@@ -34,4 +44,4 @@ class BandMediaSerializer(serializers.ModelSerializer):
 class BandTrackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Track
-        fields = '__all__'
+        fields = ['id', 'name', 'slug', 'active', 'events']

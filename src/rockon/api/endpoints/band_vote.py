@@ -21,8 +21,8 @@ def get_vote(request, band_id: str):
     if vote is None:
         return 204, None
     return 200, {
-        'band': str(vote.band.id),
-        'user': vote.user.id,
+        'band': str(vote.band_id),
+        'user': vote.user_id,
         'vote': vote.vote,
     }
 

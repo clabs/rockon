@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from functools import wraps
+
 from django.shortcuts import get_object_or_404, redirect
 
 from rockon.base.models import Event
 
 
 def check_band_application_open(view_func):
+    @wraps(view_func)
     def _wrapped_view_func(request, *args, **kwargs):
         slug = kwargs.get('slug', None)
         event = get_object_or_404(Event, slug=slug)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -9,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from rockon.bands.models import Band, BandMedia, MediaType, Track
+from rockon.bands.models import Band, BandMedia, Track
 from rockon.bands.models.band import BidStatus
 from rockon.base.models import Event
 from rockon.library.decorators import check_band_application_open
@@ -86,11 +87,10 @@ def bid_form(request, slug, guid):
             status=403,
         )
 
-    media = BandMedia.objects.filter(band=band)
-    media_by_type = {
-        media_type[0]: media.filter(media_type=media_type[0])
-        for media_type in MediaType.choices
-    }
+    all_media = list(BandMedia.objects.filter(band=band))
+    media_by_type: dict = defaultdict(list)
+    for m in all_media:
+        media_by_type[m.media_type].append(m)
 
     return render(
         request,

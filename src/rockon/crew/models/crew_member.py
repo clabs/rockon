@@ -35,6 +35,7 @@ class CrewMember(CustomModel):
         max_length=12,
         choices=CrewMemberStatus.choices,
         default=CrewMemberStatus.UNKNOWN,
+        db_default=CrewMemberStatus.UNKNOWN,
     )
     shirt = models.ForeignKey(
         Shirt,
@@ -47,6 +48,7 @@ class CrewMember(CustomModel):
         max_length=12,
         choices=CrewMemberNutrion.choices,
         default=CrewMemberNutrion.UNKNOWN,
+        db_default=CrewMemberNutrion.UNKNOWN,
     )
     nutrition_note = models.TextField(null=True, blank=True)
     skills = models.ManyToManyField(Skill, blank=True)
@@ -55,7 +57,7 @@ class CrewMember(CustomModel):
         Attendance, blank=True, related_name='crew_members'
     )
     attendance_note = models.TextField(null=True, blank=True)
-    stays_overnight = models.BooleanField(default=False)
+    stays_overnight = models.BooleanField(default=False, db_default=False)
     general_note = models.TextField(null=True, blank=True)
     needs_leave_of_absence = models.BooleanField(default=False)
     has_leave_of_absence = models.BooleanField(default=False)

@@ -10,7 +10,10 @@ def is_crewmember(request):
         event_id = request.session.get('current_event_id')
         if event_id is not None:
             try:
-                current_event = Event.objects.get(id=event_id)
+                # Reuse event cached by current_event context processor if available
+                current_event = getattr(
+                    request, '_current_event_cache', None
+                ) or Event.objects.get(id=event_id)
                 return {'is_crewmember': current_event.crews.is_member(request.user)}
             except ObjectDoesNotExist, AttributeError:
                 pass

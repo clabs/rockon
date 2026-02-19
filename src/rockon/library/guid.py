@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import string
 from math import ceil, log
-from os import urandom
+from secrets import token_bytes
 
 
 def guid(length: int = 15) -> str:
@@ -19,7 +19,7 @@ def guid(length: int = 15) -> str:
     num_bytes = ceil(log(max_num) / log(256))
 
     while True:
-        bytes = urandom(num_bytes)
+        bytes = token_bytes(num_bytes)
         num = 0
         for i in range(len(bytes)):
             num += 256**i * bytes[i]
