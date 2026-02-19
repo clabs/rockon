@@ -9,7 +9,7 @@
     <div class="row"
          style="height: 33vh; background-image: url({{ event.get_image_url }}); background-size: cover; background-position: center center; background-repeat: no-repeat"></div>
 
-    <script nonce="{{ request.csp_nonce }}">
+    <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
             band_id: "{{band.id}}",
             api_url_band_details: "/api/v2/bands/{{band.id}}",

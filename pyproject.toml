@@ -32,7 +32,6 @@ dependencies = [
     "tzdata",
     "python-slugify[unidecode]",
     "djlint",
-    "django-csp[jinja2]",
     "django-ninja",
 ]
 

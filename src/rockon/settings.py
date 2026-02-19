@@ -15,7 +15,7 @@ from os import getenv, path
 from urllib.parse import urlparse
 
 import sentry_sdk
-from csp.constants import NONCE, NONE, SELF
+from django.utils.csp import CSP
 from environs import Env
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -53,7 +53,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_q',
-    'csp',
     'corsheaders',
     'rest_framework',
     'rockon.base',
@@ -72,7 +71,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'csp.middleware.CSPMiddleware',
+    'django.middleware.csp.ContentSecurityPolicyMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -102,7 +101,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # "csp.context_processors.nonce",
+                'django.template.context_processors.csp',
                 'rockon.library.context_processors.app_info.get_build_date',
                 'rockon.library.context_processors.app_info.get_build_hash',
                 'rockon.library.context_processors.sentry_frontend.get_sentry_data',
@@ -354,37 +353,34 @@ FFMPEG_BIN = env.str('FFMPEG_BIN', default='ffmpeg')
 CONVERT_BIN = env.str('CONVERT_BIN', default='convert')
 
 # Content Security Policy
-CONTENT_SECURITY_POLICY = {
-    'DIRECTIVES': {
-        'base-uri': [SELF],
-        'default-src': [SELF],
-        'font-src': [SELF],
-        'form-action': [SELF],
-        'frame-ancestors': [NONE],
-        'frame-src': [NONE],
-        'img-src': [SELF, 'data:'],
-        'media-src': [SELF, 'blob:'],
-        'object-src': [NONE],
-        'script-src': [
-            SELF,
-            "'unsafe-eval'",
-            'https://o4504770486337536.ingest.sentry.io',
-            NONCE,
-        ],
-        'script-src-elem': [SELF, 'https://o4504770486337536.ingest.sentry.io', NONCE],
-        'connect-src': [SELF],
-        'style-src': [SELF, "'unsafe-inline'"],
-    }
+SECURE_CSP = {
+    'base-uri': [CSP.SELF],
+    'default-src': [CSP.SELF],
+    'font-src': [CSP.SELF],
+    'form-action': [CSP.SELF],
+    'frame-ancestors': [CSP.NONE],
+    'frame-src': [CSP.NONE],
+    'img-src': [CSP.SELF, 'data:'],
+    'media-src': [CSP.SELF, 'blob:'],
+    'object-src': [CSP.NONE],
+    'script-src': [
+        CSP.SELF,
+        CSP.UNSAFE_EVAL,
+        CSP.NONCE,
+    ],
+    'script-src-elem': [CSP.SELF, CSP.NONCE],
+    'connect-src': [CSP.SELF],
+    'style-src': [CSP.SELF, CSP.UNSAFE_INLINE],
 }
 
 if SENTRY_DSN:
     sentry_target = urlparse(SENTRY_DSN)
-    CONTENT_SECURITY_POLICY['DIRECTIVES']['script-src'].append(
+    SECURE_CSP['script-src'].append(
         f'{sentry_target.scheme}://{sentry_target.hostname}'
     )
-    CONTENT_SECURITY_POLICY['DIRECTIVES']['script-src-elem'].append(
+    SECURE_CSP['script-src-elem'].append(
         f'{sentry_target.scheme}://{sentry_target.hostname}'
     )
-    CONTENT_SECURITY_POLICY['DIRECTIVES']['connect-src'].append(
+    SECURE_CSP['connect-src'].append(
         f'{sentry_target.scheme}://{sentry_target.hostname}'
     )

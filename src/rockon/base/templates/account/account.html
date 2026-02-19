@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% load has_group %} {% block content %}
-    <script nonce="{{ request.csp_nonce }}">
+    <script nonce="{{ csp_nonce }}">
         const validateEmail = (email) => {
             return String(email)
                 .toLowerCase()

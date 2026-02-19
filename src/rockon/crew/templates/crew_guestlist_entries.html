@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+    <script type="text/javascript" nonce="{{ csp_nonce }}">
         $(document).ready(() => {
             console.log('guestlist_entries.js loaded')
             $('.voucherfield').click(function () {

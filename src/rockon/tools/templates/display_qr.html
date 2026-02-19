@@ -3,7 +3,7 @@
         <script src="{% static 'vendor/qrcode.min.js' %}"></script>
     {% endcompress %}
 
-    <script nonce="{{ request.csp_nonce }}">
+    <script nonce="{{ csp_nonce }}">
         $(document).ready(() => {
             const url = '{{ link_shortener.url }}'
             console.debug(url)

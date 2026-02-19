@@ -8,7 +8,7 @@
     {% compress js file xlsx %}
         <script src="{% static 'vendor/xlsx.0.20.3.full.min.js' %}"></script>
     {% endcompress %}
-    <script nonce="{{ request.csp_nonce }}">
+    <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
             bands: {{ bands_json }}
         }

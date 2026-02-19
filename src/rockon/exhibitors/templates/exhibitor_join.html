@@ -6,7 +6,7 @@
         <script src="{% static 'js/exhibitor-signup.js' %}"></script>
     {% endcompress %}
 
-    <script nonce="{{ request.csp_nonce }}">
+    <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
             attendances: {{ attendances_json }},
             assets: {{ assets_json }},

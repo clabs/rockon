@@ -16,7 +16,7 @@
     {% compress css file simplelightbox %}
         <link rel="stylesheet" type="text/css" href="{% static 'vendor/simple-lightbox.2.13.0.min.css' %}">
     {% endcompress %}
-    <script nonce="{{ request.csp_nonce }}">
+    <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
             event_slug: "{{ current_event.slug }}",
             tracks: {{ tracks }},
