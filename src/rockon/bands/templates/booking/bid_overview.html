@@ -2,131 +2,242 @@
 {% block content %}
     {% load static %}
     {% load compress %}
-    <div>
-        <h1>Übersicht</h1>
-    </div>
-    {% compress css file datatables_css %}
-        <link href="{% static "vendor/datatables.2.1.0.min.css" %}"
-              rel="stylesheet">
+    {% compress js file vue %}
+        <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
     {% endcompress %}
-    {% compress js file datatables_js %}
-        <script src="{% static "vendor/datatables.2.1.0.min.js" %}"></script>
-        <script src="{% static "vendor/dataTables.buttons.js" %}"></script>
-        <script src="{% static "vendor/buttons.dataTables.js" %}"></script>
-        <script src="{% static "vendor/jszip.min.js" %}"></script>
-        <script src="{% static "vendor/buttons.html5.min.js" %}"></script>
-    {% endcompress %}
-    {% compress js file sparklines %}
-        <script src="{% static "vendor/jquery.sparkline.2.1.2.min.js" %}"></script>
+    {% compress js file xlsx %}
+        <script src="{% static 'vendor/xlsx.0.20.3.full.min.js' %}"></script>
     {% endcompress %}
     <script nonce="{{ request.csp_nonce }}">
-        $(document).ready(function () {
-            const tooltipTriggerList = document.querySelectorAll(
-                '[data-bs-toggle="tooltip"]'
-            )
-            const tooltipList = [...tooltipTriggerList].map(
-                tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl)
-            )
-            new DataTable('#band-table', {
-                dom: 'Blfrtip',
-                buttons: ['csv', 'excel'],
-                paging: true,
-                pageLength: 25,
-                lengthMenu: [10, 25, 50, 75, 100],
-                order: [
-                    [1, 'desc'],
-                    [2, 'desc']
-                ],
-                drawCallback: function () {
-                    $('.inlinesparkline').each(function () {
-                        if (!$(this).find('canvas').length) {
-                            $(this).sparkline('html', {
-                                type: 'bar',
-                                barWidth: '20px',
-                                barColor: '#fff300',
-                                disableTooltips: true,
-                                chartRangeMax: 6
-                            });
-                        }
-                    });
-                }
-            })
-        })
+        window.rockon_data = {
+            bands: {{ bands_json }}
+        }
     </script>
     <style>
-        .jqstooltip {
-            -webkit-box-sizing: content-box;
-            -moz-box-sizing: content-box;
-            box-sizing: content-box;
+        .no-wrap { white-space: nowrap; }
+        .sortable { cursor: pointer; user-select: none; }
+        .sortable:hover { color: #fff300; }
+        .sort-icon { font-size: 0.75em; margin-left: 4px; opacity: 0.6; }
+        .sortable.active .sort-icon { opacity: 1; color: #fff300; }
+        .spark-bar-wrap { display: inline-flex; align-items: flex-end; gap: 1px; height: 20px; }
+        .spark-bar { width: 12px; background: #fff300; border-radius: 2px 2px 0 0; min-height: 2px; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
+        .toolbar .form-control,
+        .toolbar .form-select { max-width: 220px; }
+        .col-filter { position: relative; display: inline-block; }
+        .col-filter-btn { background: none; border: none; color: inherit; padding: 0 2px; cursor: pointer; font-size: 0.7em; vertical-align: middle; opacity: 0.5; }
+        .col-filter-btn:hover, .col-filter-btn.active { opacity: 1; color: #fff300; }
+        .col-filter-dropdown { position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 180px; max-height: 260px; overflow-y: auto; background: #424242; border: 1px solid #555; border-radius: 4px; padding: 0.4rem 0; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+        .col-filter-dropdown label { display: flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0.7rem; cursor: pointer; font-size: 0.85rem; white-space: nowrap; color: #ddd; }
+        .col-filter-dropdown label:hover { background: #555; }
+        .col-filter-dropdown .filter-actions { display: flex; justify-content: flex-end; padding: 0.25rem 0.5rem; border-top: 1px solid #555; margin-top: 0.25rem; }
+        .col-filter-dropdown .filter-actions button { font-size: 0.75rem; }
+        .table-wrap { background-color: #303030; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        /* Break out of .container but leave ~10% margin on each side */
+        .bid-overview-wide {
+            width: 80vw;
+            position: relative;
+            left: 50%;
+            margin-left: -40vw;
+            padding: 0 1rem;
         }
-
-        .no-wrap {
-            white-space: nowrap;
-        }
+        /* Compact table */
+        .bid-overview-wide .table { font-size: 0.875rem; }
+        .bid-overview-wide .table th,
+        .bid-overview-wide .table td { padding: 0.25rem 0.4rem; }
+        .bid-overview-wide .table td:last-child { white-space: nowrap; }
     </style>
-    <section class="row p-4 form-section">
-        <div style="background-color: #303030;">
-            <table id="band-table"
-                   class="table table-dark table-striped table-bordered table-hover table-fixed-header">
-                <thead class="no-wrap">
-                <tr>
-                    <th class="no-wrap" scope="col">Bandname</th>
-                    <th class="no-wrap" scope="col">&#216; ⭐</th>
-                    <th class="no-wrap" scope="col">Summe</th>
-                    <th class="no-wrap" scope="col">Stimmen</th>
-                    <th class="no-wrap" scope="col">Verteilung</th>
-                    <th class="no-wrap" scope="col">Status</th>
-                    <th class="no-wrap" scope="col">Track</th>
-                    <th class="no-wrap" scope="col">Vollständig</th>
-                    <th class="no-wrap" scope="col">Kontakt</th>
-                    <th class="no-wrap" scope="col">Backstage</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for band in bands %}
+    {% verbatim %}
+    <div id="app" v-cloak>
+        <div>
+            <h1>Übersicht</h1>
+        </div>
+        <section class="bid-overview-wide form-section">
+            <div class="toolbar">
+                <input type="text" class="form-control form-control-sm" placeholder="Suche…"
+                       v-model="searchQuery">
+                <select class="form-select form-select-sm" @change="setPageSize">
+                    <option value="all" selected>Alle</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <button class="btn btn-sm btn-outline-light" @click="exportExcel">
+                    <i class="fas fa-file-excel me-1"></i>Excel
+                </button>
+                <span class="text-muted small ms-auto">{{ filteredBands.length }} Einträge</span>
+            </div>
+            <div class="table-wrap">
+                <table class="table table-dark table-striped table-bordered table-hover mb-0">
+                    <thead class="no-wrap">
                     <tr>
-                        <td>{{ band.name|default_if_none:band.guid }}</td>
-                        <td>{{ band.votes_avg|default:"0" |floatformat }}</td>
-                        <td>{{ band.votes_sum|default:"0" }}</td>
-                        <td>{{ band.votes_count|default:"0" }}</td>
-                        <td {% if band.counters %} data-n="1" class="inlinesparkline" data-bs-toggle="tooltip"
-                                                   data-bs-placement="right" data-bs-html="true"data-bs-title="
-                                    {% for k, v in band.counters.items %}{% if v %}{{ v }}x {{ k }}⭐{% if not forloop.last %}<br />
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        "
-                        {% endif %}
-                        >
-                            {% for _, v in band.counters.items %}
-                                {{ v }}
-                                {% if not forloop.last %},{% endif %}
-                            {% endfor %}
+                        <th class="no-wrap sortable" :class="{ active: sortKey === 'name' }">
+                            <span @click="toggleSort('name')">
+                                Bandname <span class="sort-icon">{{ sortIcon('name') }}</span>
+                            </span>
+                            <span class="col-filter" @click.stop>
+                                <button class="col-filter-btn" :class="{ active: isFilterActive('name') }"
+                                        @click="toggleFilter('name')" title="Filter">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <div v-if="openFilter === 'name'" class="col-filter-dropdown">
+                                    <label v-for="n in availableName" :key="String(n.value)">
+                                        <input type="checkbox" :checked="isChecked('name', n.value)"
+                                               @change="toggleFilterValue('name', n.value)"> {{ n.label }}
+                                    </label>
+                                    <div class="filter-actions">
+                                        <button class="btn btn-link btn-sm text-warning p-0" @click="clearFilter('name')">Zurücksetzen</button>
+                                    </div>
+                                </div>
+                            </span>
+                        </th>
+                        <th class="no-wrap sortable" :class="{ active: sortKey === 'votes_avg' }"
+                            @click="toggleSort('votes_avg')">
+                            Ø ⭐ <span class="sort-icon">{{ sortIcon('votes_avg') }}</span>
+                        </th>
+                        <th class="no-wrap sortable" :class="{ active: sortKey === 'votes_sum' }"
+                            @click="toggleSort('votes_sum')">
+                            Summe <span class="sort-icon">{{ sortIcon('votes_sum') }}</span>
+                        </th>
+                        <th class="no-wrap sortable" :class="{ active: sortKey === 'votes_count' }"
+                            @click="toggleSort('votes_count')">
+                            Stimmen <span class="sort-icon">{{ sortIcon('votes_count') }}</span>
+                        </th>
+                        <th class="no-wrap" scope="col">Verteilung</th>
+                        <th class="no-wrap sortable" :class="{ active: sortKey === 'bid_status' }">
+                            <span @click="toggleSort('bid_status')">
+                                Status <span class="sort-icon">{{ sortIcon('bid_status') }}</span>
+                            </span>
+                            <span class="col-filter" @click.stop>
+                                <button class="col-filter-btn" :class="{ active: isFilterActive('status') }"
+                                        @click="toggleFilter('status')" title="Filter">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <div v-if="openFilter === 'status'" class="col-filter-dropdown">
+                                    <label v-for="s in availableStatuses" :key="s">
+                                        <input type="checkbox" :checked="isChecked('status', s)"
+                                               @change="toggleFilterValue('status', s)"> {{ s }}
+                                    </label>
+                                    <div class="filter-actions">
+                                        <button class="btn btn-link btn-sm text-warning p-0" @click="clearFilter('status')">Zurücksetzen</button>
+                                    </div>
+                                </div>
+                            </span>
+                        </th>
+                        <th class="no-wrap sortable" :class="{ active: sortKey === 'track_name' }">
+                            <span @click="toggleSort('track_name')">
+                                Track <span class="sort-icon">{{ sortIcon('track_name') }}</span>
+                            </span>
+                            <span class="col-filter" @click.stop>
+                                <button class="col-filter-btn" :class="{ active: isFilterActive('track') }"
+                                        @click="toggleFilter('track')" title="Filter">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <div v-if="openFilter === 'track'" class="col-filter-dropdown">
+                                    <label v-for="t in availableTracks" :key="t.value">
+                                        <input type="checkbox" :checked="isChecked('track', t.value)"
+                                               @change="toggleFilterValue('track', t.value)"> {{ t.label }}
+                                    </label>
+                                    <div class="filter-actions">
+                                        <button class="btn btn-link btn-sm text-warning p-0" @click="clearFilter('track')">Zurücksetzen</button>
+                                    </div>
+                                </div>
+                            </span>
+                        </th>
+                        <th class="no-wrap sortable" :class="{ active: sortKey === 'bid_complete' }">
+                            <span @click="toggleSort('bid_complete')">
+                                Vollständig <span class="sort-icon">{{ sortIcon('bid_complete') }}</span>
+                            </span>
+                            <span class="col-filter" @click.stop>
+                                <button class="col-filter-btn" :class="{ active: isFilterActive('complete') }"
+                                        @click="toggleFilter('complete')" title="Filter">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <div v-if="openFilter === 'complete'" class="col-filter-dropdown">
+                                    <label v-for="c in availableComplete" :key="String(c.value)">
+                                        <input type="checkbox" :checked="isChecked('complete', c.value)"
+                                               @change="toggleFilterValue('complete', c.value)"> {{ c.label }}
+                                    </label>
+                                    <div class="filter-actions">
+                                        <button class="btn btn-link btn-sm text-warning p-0" @click="clearFilter('complete')">Zurücksetzen</button>
+                                    </div>
+                                </div>
+                            </span>
+                        </th>
+                        <th class="no-wrap" scope="col">Kontakt</th>
+                        <th class="no-wrap" scope="col">Backstage</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="band in paginatedBands" :key="band.id">
+                        <td>{{ band.name }}</td>
+                        <td>{{ band.votes_avg.toFixed(1) }}</td>
+                        <td>{{ band.votes_sum }}</td>
+                        <td>{{ band.votes_count }}</td>
+                        <td>
+                            <span class="spark-bar-wrap"
+                                  data-bs-toggle="tooltip"
+                                  data-bs-placement="right"
+                                  data-bs-html="true"
+                                  :data-bs-title="hasVotes(band.counters) ? tooltipHtml(band.counters) : 'Keine Stimmen'">
+                                <span v-for="(count, star) in band.counters" :key="star"
+                                      class="spark-bar"
+                                      :class="{ 'opacity-25': !hasVotes(band.counters) }"
+                                      :style="{ height: barHeight(count, band.counters) + 'px' }">
+                                </span>
+                            </span>
                         </td>
                         <td>{{ band.bid_status }}</td>
-                        <td>{{ band.track.name }}</td>
+                        <td>{{ band.track_name }}</td>
                         <td>
-                            {% if band.bid_complete %}
-                                <span class="badge text-bg-success">✅ Vollständig</span>
-                            {% else %}
-                                <span class="badge text-bg-warning">⚠️ Unvollständig</span>
-                            {% endif %}
+                            <span v-if="band.bid_complete" class="badge text-bg-success">✅ Vollständig</span>
+                            <span v-else class="badge text-bg-warning">⚠️ Unvollständig</span>
                         </td>
                         <td>
-                            <a href="mailto:{{ band.contact.email }}">{{ band.contact.email }}</a>
+                            <a :href="'mailto:' + band.contact_email">{{ band.contact_email }}</a>
                         </td>
                         <td>
-      <span><a href="{% url "admin:rockonbands_band_change" object_id=band.id %}"
-               target="_blank"
-               title="Bearbeiten"><i class="fas fa-cog"></i></a></span>
-                            <span><a href="{% url 'bands:bid_vote' slug=current_event.slug %}#/bid/{{ band.guid }}/"
-                                     target="_blank"
-                                     title="Voting"><i class="fas fa-eye"></i></a></span>
+                            <span>
+                                <a :href="band.admin_url" target="_blank" title="Bearbeiten">
+                                    <i class="fas fa-cog"></i>
+                                </a>
+                            </span>
+                            <span class="ms-2">
+                                <a :href="band.vote_url" target="_blank" title="Voting">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </span>
                         </td>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
+                    <tr v-if="paginatedBands.length === 0">
+                        <td colspan="10" class="text-center text-muted py-4">
+                            Keine Einträge gefunden.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <nav v-if="totalPages > 1" aria-label="Seitennavigation" class="mt-3">
+                <ul class="pagination pagination-sm justify-content-center">
+                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                        <a class="page-link" href="#" @click.prevent="currentPage = currentPage - 1">‹</a>
+                    </li>
+                    <li v-for="p in paginationPages" :key="'p' + p"
+                        class="page-item"
+                        :class="{ active: p === currentPage, disabled: p === '...' }">
+                        <a class="page-link" href="#"
+                           @click.prevent="typeof p === 'number' && (currentPage = p)">{{ p }}</a>
+                    </li>
+                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                        <a class="page-link" href="#" @click.prevent="currentPage = currentPage + 1">›</a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+    </div>
+    {% endverbatim %}
+    {% compress js file bid_overview %}
+        <script src="{% static 'js/bid-overview.js' %}"></script>
+    {% endcompress %}
 {% endblock content %}
