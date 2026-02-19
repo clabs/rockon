@@ -9,7 +9,7 @@ from .shirt import Shirt
 from .skill import Skill
 from .team import Team
 from .team_category import TeamCategory
-from .team_member import TeamMember
+from .team_member import TeamMember, TeamMemberState
 
 __all__ = [
     'Attendance',
@@ -25,4 +25,5 @@ __all__ = [
     'Team',
     'TeamCategory',
     'TeamMember',
+    'TeamMemberState',
 ]

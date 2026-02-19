@@ -37,7 +37,7 @@
 <meta name="theme-color" content="#303030">
 {% if SENTRY_FRONTEND_ENABLED %}
     <script src="{% static "vendor/sentry.10.17.0.bundle.tracing.min.js" %}"></script>
-    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+    <script type="text/javascript" nonce="{{ csp_nonce }}">
         Sentry.init({
             dsn: '{{ SENTRY_DSN }}',
             tracesSampleRate: {{SENTRY_TRACES_SAMPLE_RATE|floatformat:2}},
@@ -46,7 +46,7 @@
         });
     </script>
 {% endif %}
-<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+<script type="text/javascript" nonce="{{ csp_nonce }}">
     $(document).ready(() => {
         const dateHugeFormatter = new Intl.DateTimeFormat('de-DE', {
             weekday: 'long',

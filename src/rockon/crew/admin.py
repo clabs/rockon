@@ -15,6 +15,7 @@ from .models import (
 )
 
 
+@admin.register(Attendance)
 class AttendanceAdmin(CustomAdminModel):
     list_display = ('day', 'event', 'phase', 'updated_at')
     search_fields = ('day', 'event')
@@ -22,6 +23,7 @@ class AttendanceAdmin(CustomAdminModel):
     list_filter = ('day', 'event__name', 'phase')
 
 
+@admin.register(AttendanceAddition)
 class AttendanceAdditionAdmin(CustomAdminModel):
     list_display = ('attendance', 'comment', 'amount', 'updated_at')
     search_fields = ('attendance', 'comment', 'amount')
@@ -49,6 +51,7 @@ def mark_unknown(modeladmin, request, queryset):
     queryset.update(state='unknown')
 
 
+@admin.register(CrewMember)
 class CrewMemberAdmin(CustomAdminModel):
     list_display = (
         '__str__',
@@ -74,8 +77,13 @@ class CrewMemberAdmin(CustomAdminModel):
         'updated_at',
     )
     actions = [mark_confirmed, mark_rejected, mark_arrived, mark_unknown]
+    show_facets = admin.ShowFacets.ALWAYS
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user', 'crew', 'shirt')
 
 
+@admin.register(Crew)
 class CrewAdmin(CustomAdminModel):
     list_display = ('name', 'event', 'created_at', 'updated_at')
     search_fields = ('name',)
@@ -83,6 +91,7 @@ class CrewAdmin(CustomAdminModel):
     list_filter = ('event__name',)
 
 
+@admin.register(GuestListEntry)
 class GuestListEntryAdmin(CustomAdminModel):
     list_display = ('crew_member', 'voucher', 'day', 'send', 'updated_at')
     search_fields = ('crew_member__user__last_name', 'voucher')
@@ -90,6 +99,7 @@ class GuestListEntryAdmin(CustomAdminModel):
     list_filter = ('day', 'send', 'updated_at')
 
 
+@admin.register(Shirt)
 class ShirtAdmin(CustomAdminModel):
     list_display = ('size', 'cut', 'updated_at')
     search_fields = ('size', 'cut')
@@ -100,13 +110,27 @@ class ShirtAdmin(CustomAdminModel):
     )
 
 
+@admin.register(Skill)
 class SkillAdmin(CustomAdminModel):
     list_display = ('name', 'explanation', 'icon', 'updated_at')
     search_fields = ('name', 'explanation')
     ordering = ('name', 'updated_at')
 
 
+class TeamMemberInline(admin.TabularInline):
+    model = TeamMember
+    extra = 0
+    readonly_fields = ('created_at', 'updated_at')
+    fields = ('crewmember', 'state', 'created_at', 'updated_at')
+    autocomplete_fields = ('crewmember',)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('crewmember__user')
+
+
+@admin.register(Team)
 class TeamAdmin(CustomAdminModel):
+    inlines = (TeamMemberInline,)
     list_display = (
         'name',
         'lead',
@@ -120,12 +144,14 @@ class TeamAdmin(CustomAdminModel):
     list_filter = ('name', 'is_public', 'updated_at')
 
 
+@admin.register(TeamCategory)
 class TeamCategoryAdmin(CustomAdminModel):
     list_display = ('name', 'description', 'image', 'updated_at')
     search_fields = ('name', 'description')
     ordering = ('name', 'description', 'updated_at')
 
 
+@admin.register(TeamMember)
 class TeamMemberAdmin(CustomAdminModel):
     list_display = ('crewmember', 'team', 'state', 'created_at', 'updated_at')
     search_fields = (
@@ -138,15 +164,3 @@ class TeamMemberAdmin(CustomAdminModel):
         'team__name',
         'crewmember__crew__event',
     )
-
-
-admin.site.register(Attendance, AttendanceAdmin)
-admin.site.register(AttendanceAddition, AttendanceAdditionAdmin)
-admin.site.register(Crew, CrewAdmin)
-admin.site.register(CrewMember, CrewMemberAdmin)
-admin.site.register(GuestListEntry, GuestListEntryAdmin)
-admin.site.register(Shirt, ShirtAdmin)
-admin.site.register(Skill, SkillAdmin)
-admin.site.register(Team, TeamAdmin)
-admin.site.register(TeamCategory, TeamCategoryAdmin)
-admin.site.register(TeamMember, TeamMemberAdmin)

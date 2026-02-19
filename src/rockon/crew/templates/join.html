@@ -9,7 +9,7 @@
                  background-size: cover;
                  background-position: center center;
                  background-repeat: no-repeat"></div>
-    <script nonce="{{ request.csp_nonce }}">
+    <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
             api_crew_signup: "{% url "api_crew_signup" slug=slug %}",
             success_redirect: "{% url "crew:join_submitted" slug=slug %}",

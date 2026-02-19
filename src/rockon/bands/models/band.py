@@ -26,10 +26,10 @@ class Band(CustomModel):
     slug = models.SlugField(default=None, blank=True, null=True, unique=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='bands')
     name = models.CharField(max_length=255, default=None, blank=True, null=True)
-    has_management = models.BooleanField(default=False)
-    are_students = models.BooleanField(default=False)
-    mean_age_under_27 = models.BooleanField(default=False)
-    is_coverband = models.BooleanField(default=False)
+    has_management = models.BooleanField(default=False, db_default=False)
+    are_students = models.BooleanField(default=False, db_default=False)
+    mean_age_under_27 = models.BooleanField(default=False, db_default=False)
+    is_coverband = models.BooleanField(default=False, db_default=False)
     genre = models.CharField(max_length=128, default=None, blank=True, null=True)
     federal_state = models.CharField(
         max_length=255,
@@ -48,9 +48,12 @@ class Band(CustomModel):
         blank=True,
     )
     bid_status = models.CharField(
-        max_length=32, default=BidStatus.UNKNOWN, choices=BidStatus.choices
+        max_length=32,
+        default=BidStatus.UNKNOWN,
+        db_default=BidStatus.UNKNOWN,
+        choices=BidStatus.choices,
     )
-    repeated = models.BooleanField(default=False)
+    repeated = models.BooleanField(default=False, db_default=False)
     techrider = models.JSONField(default=dict, blank=True, null=True)
     track = models.ForeignKey(
         'Track',
@@ -59,7 +62,7 @@ class Band(CustomModel):
         default=None,
         related_name='bands',
     )
-    bid_complete = models.BooleanField(default=False)
+    bid_complete = models.BooleanField(default=False, db_default=False)
 
     class Meta:
         ordering = ['name']

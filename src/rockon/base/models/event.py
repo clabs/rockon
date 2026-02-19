@@ -55,20 +55,24 @@ class Event(CustomModel):
         null=True,
         related_name='sub_events',
     )
-    show_on_landing_page = models.BooleanField(default=False)
+    show_on_landing_page = models.BooleanField(default=False, db_default=False)
     signup_is_open = models.BooleanField(
         default=True,
+        db_default=True,
         help_text='Crew Anmeldung und Bandbewerbung werden auf der Website angezeigt',
     )
     signup_type = models.CharField(
-        max_length=12, choices=SignUpType.choices, default=SignUpType.UNKNOWN
+        max_length=12,
+        choices=SignUpType.choices,
+        default=SignUpType.UNKNOWN,
+        db_default=SignUpType.UNKNOWN,
     )
-    is_current = models.BooleanField(default=False)
+    is_current = models.BooleanField(default=False, db_default=False)
     bid_vote_allowed = models.BooleanField(
-        default=False, help_text='Bandbewertung aktiv'
+        default=False, db_default=False, help_text='Bandbewertung aktiv'
     )
     bid_browsing_allowed = models.BooleanField(
-        default=False, help_text='Bandbewerbungen einsehbar'
+        default=False, db_default=False, help_text='Bandbewerbungen einsehbar'
     )
 
     def __str__(self):

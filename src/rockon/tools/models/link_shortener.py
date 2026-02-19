@@ -18,7 +18,7 @@ class LinkShortener(CustomModel):
     url = models.URLField()
     slug = models.SlugField(unique=True)
     comment = models.TextField()
-    counter = models.IntegerField(default=0)
+    counter = models.IntegerField(default=0, db_default=0)
 
     def __str__(self: LinkShortener):
         return str(self.slug)

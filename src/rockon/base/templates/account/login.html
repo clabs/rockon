@@ -7,7 +7,7 @@
         <script src="{% static 'js/login.vue.js' %}"></script>
     {% endcompress %}
 
-    <script type="text/javascript" nonce="{{ request.csp_nonce }}">
+    <script type="text/javascript" nonce="{{ csp_nonce }}">
         window.rockon_data = {
             accountContext: "{{ account_context }}",
         }

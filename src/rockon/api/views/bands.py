@@ -23,12 +23,12 @@ class BandMediaViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def get_queryset(self):
-        media = BandMedia.objects.all()
+        media = BandMedia.objects.select_related('band').all()
         if self.request.query_params.get('band_id', None):
             media = media.filter(band__id=self.request.query_params.get('band_id'))
         if not self.request.user.is_staff:
             user_bands = self.request.user.bands.values_list('id', flat=True)
-            media.filter(band__id__in=user_bands)
+            media = media.filter(band__id__in=user_bands)
         return media
 
     @action(detail=False, methods=['post'], url_path='upload', url_name='upload')

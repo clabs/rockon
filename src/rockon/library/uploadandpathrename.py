@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from os import path
+from pathlib import Path
 
 from django.utils.deconstruct import deconstructible
 
@@ -11,6 +11,6 @@ class UploadToPathAndRename:
         self.sub_path = path
 
     def __call__(self, instance, filename):
-        ext = filename.split('.')[-1]
+        ext = Path(filename).suffix.lstrip('.')
         filename = f'{instance.id}.{ext}'
-        return path.join(self.sub_path, filename)
+        return str(Path(self.sub_path) / filename)

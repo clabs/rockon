@@ -9,6 +9,8 @@ def current_event(request):
     if event_id is not None:
         try:
             event = Event.objects.get(id=event_id)
+            # Cache on request so other context processors avoid a duplicate query
+            request._current_event_cache = event
         except Event.DoesNotExist:
             pass
     return {

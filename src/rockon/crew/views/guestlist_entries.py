@@ -25,7 +25,7 @@ def guestlist_entries(request, slug) -> HttpResponse:
                 request,
             )
         )
-    vouchers = crew_member.guestlist_entries.all().order_by('day')
+    vouchers = crew_member.guestlist_entries.select_related('day').order_by('day')
 
     extra_context = {
         'event': event,

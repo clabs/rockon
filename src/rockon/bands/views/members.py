@@ -23,13 +23,16 @@ def members(request, slug, slug_guid):
     count = members.count()
 
     members_values = list(members.values())
+    user_ids = [m['user_id'] for m in members_values]
+    users_by_id = {
+        u.id: u for u in User.objects.filter(id__in=user_ids).select_related('profile')
+    }
     for idx, member in enumerate(members_values):
         member['position'] = BandMemberPosition(member['position']).label
         member['nutrition'] = CrewMemberNutrion(member['nutrition']).label
-        member['user'] = model_to_dict(User.objects.get(id=member['user_id']))
-        member['profile'] = model_to_dict(
-            User.objects.get(id=member['user_id']).profile
-        )
+        user = users_by_id.get(member['user_id'])
+        member['user'] = model_to_dict(user) if user else {}
+        member['profile'] = model_to_dict(user.profile) if user else {}
         members_values[idx] = member
 
     template = loader.get_template('members.html')

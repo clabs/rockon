@@ -10,8 +10,7 @@ class MagicLinkAuth(BaseBackend):
     def authenticate(self, request, token=None):
         # Check the token and return a user.
         try:
-            magic_link = MagicLink.objects.get(token=token)
-            user = User.objects.get(id=magic_link.user.id)
-            return user
+            magic_link = MagicLink.objects.select_related('user').get(token=token)
+            return magic_link.user
         except MagicLink.DoesNotExist, User.DoesNotExist:
             return None

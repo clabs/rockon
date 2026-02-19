@@ -63,18 +63,16 @@ def crew_shirts(request, slug):
 
         shirts = Shirt.objects.all()
 
-        shirt_counts = crew_members.values('shirt').annotate(
+        shirt_counts_qs = crew_members.values('shirt').annotate(
             shirt_count=Count('shirt'),
         )
-
-        counts = []
-        for shirt in shirts:
-            shirt_count = shirt_counts.filter(shirt=shirt.id).values('shirt_count')
-            try:
-                amount = shirt_count[0]['shirt_count']
-            except IndexError:
-                amount = 0
-            counts.append({'shirt': shirt, 'count': amount})
+        shirt_count_map = {
+            item['shirt']: item['shirt_count'] for item in shirt_counts_qs
+        }
+        counts = [
+            {'shirt': shirt, 'count': shirt_count_map.get(shirt.id, 0)}
+            for shirt in shirts
+        ]
     except Event.DoesNotExist:
         counts = None
         crew_members = None
