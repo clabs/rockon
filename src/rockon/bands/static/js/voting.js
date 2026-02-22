@@ -1620,21 +1620,22 @@ const BandDetails = Vue.defineComponent({
         }
     },
     template: `
-    <section :v-if="selectedBandDetails" id="band-detail" class="row p-4 form-section">
-      <div class="col d-flex align-items-center justify-content-between">
-          <button v-if="previousBand" @click="navigateToPrevious()" class="btn btn-nav-chevron me-3" :title="'Vorherige Band: ' + (previousBand.name || previousBand.guid)">
-            <i class="fas fa-chevron-left me-2"></i>Vorherige
-          </button>
-          <button v-else class="btn btn-nav-chevron me-3" disabled style="visibility: hidden;">
-            <i class="fas fa-chevron-left me-2"></i>Vorherige
-          </button>
-          <h3 class="mb-0 flex-grow-1 text-center">{{ bandName }}</h3>
-          <button v-if="nextBand" @click="navigateToNext()" class="btn btn-nav-chevron ms-3" :title="'Nächste Band: ' + (nextBand.name || nextBand.guid)">
-            Nächste<i class="fas fa-chevron-right ms-2"></i>
-          </button>
-          <button v-else class="btn btn-nav-chevron ms-3" disabled style="visibility: hidden;">
-            Nächste<i class="fas fa-chevron-right ms-2"></i>
-          </button>
+    <nav id="band-detail" class="band-nav-controls d-flex align-items-center justify-content-between mb-3">
+      <button class="btn btn-player-control" @click="navigateToPrevious()" :disabled="!previousBand" :title="previousBand ? (previousBand.name || previousBand.guid) : ''">
+        <i class="fas fa-chevron-left"></i>
+        <span v-if="previousBand" class="band-nav-label">{{ previousBand.name || previousBand.guid }}</span>
+      </button>
+      <div class="band-nav-counter">
+        {{ currentBandIndex + 1 }} / {{ filteredBands.length }}
+      </div>
+      <button class="btn btn-player-control" @click="navigateToNext()" :disabled="!nextBand" :title="nextBand ? (nextBand.name || nextBand.guid) : ''">
+        <span v-if="nextBand" class="band-nav-label">{{ nextBand.name || nextBand.guid }}</span>
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </nav>
+    <section :v-if="selectedBandDetails" class="row p-4 form-section">
+      <div class="col">
+          <h3 class="mb-0 text-center">{{ bandName }}</h3>
       </div>
       <div v-if="isUnknownOrPending" class="row mt-2">
       <div class="col">
