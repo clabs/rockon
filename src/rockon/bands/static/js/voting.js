@@ -1252,9 +1252,23 @@ const BandList = Vue.defineComponent({
 })
 
 const BandRating = Vue.defineComponent({
-    props: ['selectedBandDetails'],
+    props: ['selectedBandDetails', 'readonly'],
     emits: ['update:rating'],
     template: `
+    <div v-if="readonly && rating !== null" class="d-flex align-items-center">
+      <span v-if="rating === 0" title="Daumen runter, 0 Sterne">
+        <i class="fa-solid fa-thumbs-down m-2 highlight"></i>
+      </span>
+      <span v-else-if="rating === -1" class="badge text-bg-secondary">Enthaltung</span>
+      <span v-else>
+        <i v-for="(star, index) in 5" :key="index" class="fa-solid fa-star m-2" :class="{'highlight': index < rating}"></i>
+      </span>
+      <small class="text-muted ms-2">(Abstimmung beendet)</small>
+    </div>
+    <div v-else-if="readonly && rating === null">
+      <small class="text-muted">Keine Bewertung abgegeben</small>
+    </div>
+    <template v-else>
     <i
       title="Daumen runter, 0 Sterne"
       class="fa-solid fa-thumbs-down m-2"
@@ -1275,6 +1289,7 @@ const BandRating = Vue.defineComponent({
         @mouseleave="hoverIndex = -1">
     </i>
     <button class="btn btn-outline-primary" @click="emitRating(-1)">Enthaltung</button>
+    </template>
   `,
     data() {
         return {
@@ -1702,6 +1717,9 @@ const BandDetails = Vue.defineComponent({
       </div>
       <div v-if="selectedBandDetails.bid_status === 'accepted' && allowVotes" class="col-3">
           <BandRating :selectedBandDetails="selectedBandDetails" @update:rating="emitRating" />
+      </div>
+      <div v-else-if="selectedBandDetails.bid_status === 'accepted' && !allowVotes" class="col-3">
+          <BandRating :selectedBandDetails="selectedBandDetails" :readonly="true" />
       </div>
       </div>
       <h3>Allgemeines</h3>
