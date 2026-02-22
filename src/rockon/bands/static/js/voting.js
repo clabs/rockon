@@ -1892,7 +1892,9 @@ const app = createApp({
             sortDirection: FilterService.loadFromStorage('sortDirection', 'asc'),
             selectedFederalStates: FilterService.loadFromStorage('selectedFederalStates', []),
             // Navigation list snapshot for stable next/prev in detail view
-            navigationBandList: null
+            navigationBandList: null,
+            // Store the original page title so we can restore it when navigating back
+            defaultTitle: document.title
         }
     },
     computed: {
@@ -2002,12 +2004,14 @@ const app = createApp({
                 this.selectedBand = null
                 this.selectedBandDetails = null
                 this.navigationBandList = null
+                document.title = this.defaultTitle
             } else if (hashSegments.includes('filter')) {
                 const filterName = hashSegments[hashSegments.indexOf('filter') + 1]
                 this.selectedTrack = filterName
                 this.selectedBand = null
                 this.selectedBandDetails = null
                 this.navigationBandList = null
+                document.title = this.defaultTitle
             } else if (hashSegments.includes('track')) {
                 const trackSlug = hashSegments[hashSegments.indexOf('track') + 1]
                 // Check if it's an old-style special filter URL or actual track
@@ -2019,6 +2023,7 @@ const app = createApp({
                 this.selectedBand = null
                 this.selectedBandDetails = null
                 this.navigationBandList = null
+                document.title = this.defaultTitle
             } else if (hashSegments.includes('bid')) {
                 const bandGuid = hashSegments[hashSegments.indexOf('bid') + 1]
                 const band = this.bands.find(band => band.guid === bandGuid) || null
@@ -2042,6 +2047,7 @@ const app = createApp({
                 this.navigationBandList = null
                 // Clear sessionStorage to stay in sync
                 sessionStorage.removeItem('selectedTrack')
+                document.title = this.defaultTitle
 
                 // Going back to list view - scroll to the previously selected band tile
                 if (previousBandId) {
@@ -2264,6 +2270,7 @@ const app = createApp({
             this.selectedBand = null
             this.selectedBandDetails = null
             this.navigationBandList = null
+            document.title = this.defaultTitle
             console.debug('Selected band:', this.selectedBand)
             const url = new URL(window.location.href)
             // Check for status filter (status-unknown, status-pending, etc.)
