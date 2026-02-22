@@ -1507,6 +1507,85 @@ const CommentField = Vue.defineComponent({
   `,
 })
 
+const EmojiReactions = Vue.defineComponent({
+    props: ['bandId'],
+    data() {
+        return {
+            socket: null,
+            bubbles: [],
+            bubbleIdCounter: 0,
+            emojis: ['🔥', '🎸', '🤘', '❤️', '👏', '👎'],
+        }
+    },
+    watch: {
+        bandId: {
+            immediate: true,
+            handler(newId, oldId) {
+                if (oldId) this.closeSocket()
+                if (newId) this.openSocket(newId)
+            }
+        }
+    },
+    beforeUnmount() {
+        this.closeSocket()
+    },
+    methods: {
+        openSocket(bandId) {
+            const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+            const url = `${protocol}://${window.location.host}/ws/bands/${bandId}/reactions/`
+            this.socket = new WebSocket(url)
+            this.socket.onmessage = (event) => {
+                const data = JSON.parse(event.data)
+                this.addBubble(data.emoji, data.user_name)
+            }
+            this.socket.onerror = (err) => {
+                console.error('EmojiReactions WebSocket error:', err)
+            }
+        },
+        closeSocket() {
+            if (this.socket) {
+                this.socket.close()
+                this.socket = null
+            }
+        },
+        sendReaction(emoji) {
+            if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                this.socket.send(JSON.stringify({ emoji }))
+            }
+        },
+        addBubble(emoji, userName) {
+            const id = this.bubbleIdCounter++
+            const left = 10 + Math.random() * 80
+            this.bubbles.push({ id, emoji, userName, left })
+            setTimeout(() => {
+                this.bubbles = this.bubbles.filter(b => b.id !== id)
+            }, 3200)
+        }
+    },
+    template: `
+    <div class="emoji-reactions-container">
+      <Teleport to="body">
+        <div class="emoji-bubbles-overlay" aria-hidden="true">
+          <span v-for="b in bubbles" :key="b.id"
+                class="emoji-bubble"
+                :style="{ left: b.left + '%' }"
+                :title="b.userName">
+            {{ b.emoji }}
+          </span>
+        </div>
+        <div class="emoji-bar-floating">
+          <button v-for="e in emojis" :key="e"
+                  class="emoji-btn"
+                  @click="sendReaction(e)"
+                  :title="'React with ' + e">
+            {{ e }}
+          </button>
+        </div>
+      </Teleport>
+    </div>
+  `,
+})
+
 const BandDetails = Vue.defineComponent({
     props: [
         'tracks',
@@ -1522,6 +1601,7 @@ const BandDetails = Vue.defineComponent({
     ],
     emits: ['update:track', 'update:select-song', 'update:rating', 'navigate-to-band'],
     components: {
+        EmojiReactions,
         TrackDropdown,
         BackstageLink,
         BidStatusDropdown,
@@ -1701,6 +1781,7 @@ const BandDetails = Vue.defineComponent({
       </div>
       </div>
     <!-- administrative section end -->
+    <EmojiReactions :band-id="selectedBandDetails.id" />
     </section>
   `,
     methods: {

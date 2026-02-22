@@ -9,6 +9,8 @@ license = "GPL-3.0-or-later"
 dependencies = [
     "blessed",
     "brotli",
+    "channels[daphne]",
+    "channels-redis",
     "dateparser",
     "django",
     "django-autoslug",
