@@ -198,6 +198,18 @@ const BidOverviewApp = {
     }
 
     // --- Sparkline helpers ---
+    const wowColors = {
+      0: '#9d9d9d', // Poor (grey)
+      1: '#ffffff', // Common (white)
+      2: '#1eff00', // Uncommon (green)
+      3: '#0070dd', // Rare (blue)
+      4: '#a335ee', // Epic (purple)
+      5: '#ff8000', // Legendary (orange)
+    }
+    function barColor(star) {
+      return wowColors[star] || '#9d9d9d'
+    }
+
     function barHeight(count, counters) {
       const maxVal = Math.max(...Object.values(counters), 1)
       if (maxVal === 0) return 8 // flat bars for no votes
@@ -276,6 +288,7 @@ const BidOverviewApp = {
       toggleSort,
       sortIcon,
       barHeight,
+      barColor,
       tooltipHtml,
       hasVotes,
       exportExcel,
