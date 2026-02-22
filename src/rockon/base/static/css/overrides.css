@@ -73,7 +73,7 @@
     flex: 1;
     overflow-x: auto;
 }
-.band-card {
+.lineup-card {
     background: #424242;
     border: 1px solid #666;
     border-radius: 6px;
@@ -83,17 +83,17 @@
     user-select: none;
     transition: box-shadow 0.15s, transform 0.15s;
 }
-.band-card:active { cursor: grabbing; }
-.band-card:hover {
+.lineup-card:active { cursor: grabbing; }
+.lineup-card:hover {
     box-shadow: 0 2px 8px rgba(255, 243, 0, 0.25);
     transform: translateY(-1px);
 }
-.band-card .band-name {
+.lineup-card .band-name {
     font-weight: 600;
     font-size: 0.9rem;
     color: #eee;
 }
-.band-card .band-genre {
+.lineup-card .band-genre {
     font-size: 0.75rem;
     color: #aaa;
 }
@@ -124,7 +124,7 @@
     border-color: #fff300;
     background: rgba(255, 243, 0, 0.08);
 }
-.timeslot-drop .band-card {
+.timeslot-drop .lineup-card {
     margin-bottom: 0;
     width: 100%;
 }

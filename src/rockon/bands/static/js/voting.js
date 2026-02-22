@@ -997,17 +997,6 @@ const BandList = Vue.defineComponent({
         // Flat list with indices for better lazy loading control
         filteredBandsWithIndex() {
             return this.filteredBands.map((band, index) => ({ band, index }))
-        },
-        groupedBands() {
-            let groups = []
-            for (let i = 0; i < this.filteredBandsWithIndex.length; i += 4) {
-                groups.push(this.filteredBandsWithIndex.slice(i, i + 4))
-            }
-            return groups
-        },
-        isLastGroupIncomplete() {
-            if (this.groupedBands.length === 0) return false
-            return this.groupedBands[this.groupedBands.length - 1].length < 4
         }
     },
     data() {
@@ -1127,17 +1116,15 @@ const BandList = Vue.defineComponent({
     </div>
     <!-- Card View -->
     <template v-if="viewMode !== 'list'">
-    <div v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
-      <div :class="groupIndex === groupedBands.length - 1 && isLastGroupIncomplete ? 'band-card-row' : 'card-group'">
-        <div class="card band-card" v-for="item in group" :key="item.band.id" :id="'band-' + item.band.id" @click="selectBand(item.band)">
-          <div class="image-container">
-            <div class="skeleton-loader"></div>
-            <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto" @load="$event.target.classList.add('loaded')">
-          </div>
-            <div class="card-body">
-            <h6 class="card-title">{{ item.band.name || item.band.guid }}</h6>
-            <BandTags :selectedBandDetails="item.band" :federalStates="federalStates" :userVotes="userVotes" :compact="true" />
-          </div>
+    <div class="band-grid">
+      <div class="vote-card" v-for="item in filteredBandsWithIndex" :key="item.band.id" :id="'band-' + item.band.id" @click="selectBand(item.band)">
+        <div class="vote-card__image">
+          <div class="skeleton-loader"></div>
+          <img :src="cardImage(item.band)" class="vote-card__img" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto" @load="$event.target.classList.add('loaded')">
+        </div>
+        <div class="vote-card__body">
+          <h4 class="vote-card__title">{{ item.band.name || item.band.guid }}</h4>
+          <BandTags :selectedBandDetails="item.band" :federalStates="federalStates" :userVotes="userVotes" :compact="true" />
         </div>
       </div>
     </div>
@@ -1576,12 +1563,56 @@ const BandDetails = Vue.defineComponent({
     },
     data() {
         return {
-            newComment: null
+            newComment: null,
+            navHoldDirection: null,
+            navHoldActive: false
         }
     },
     created() {
         console.debug('BandDetails created:', this.selectedBandDetails)
         console.debug('BandDetails created allowVotes:', this.allowVotes)
+    },
+    mounted() {
+        this._navHoldTimer = null
+        this._onKeydown = (e) => {
+            const tag = e.target.tagName
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+            e.preventDefault()
+            // Single press (no repeat) — navigate immediately
+            if (!e.repeat) {
+                this._cancelNavHold()
+                const dir = e.key === 'ArrowLeft' ? 'left' : 'right'
+                if (dir === 'left') this.navigateToPrevious()
+                else this.navigateToNext()
+                return
+            }
+            // Key is being held (repeat) — start hold timer if not already active
+            if (!this.navHoldActive) {
+                const dir = e.key === 'ArrowLeft' ? 'left' : 'right'
+                const hasBand = dir === 'left' ? this.previousBand : this.nextBand
+                if (!hasBand) return
+                this.navHoldDirection = dir
+                this.navHoldActive = true
+                this._navHoldTimer = setTimeout(() => {
+                    if (this.navHoldDirection === 'left') this.navigateToPrevious()
+                    else this.navigateToNext()
+                    this._cancelNavHold()
+                }, 3000)
+            }
+        }
+        this._onKeyup = (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                this._cancelNavHold()
+            }
+        }
+        window.addEventListener('keydown', this._onKeydown)
+        window.addEventListener('keyup', this._onKeyup)
+    },
+    beforeUnmount() {
+        this._cancelNavHold()
+        if (this._onKeydown) window.removeEventListener('keydown', this._onKeydown)
+        if (this._onKeyup) window.removeEventListener('keyup', this._onKeyup)
     },
     computed: {
         bandName() {
@@ -1620,6 +1651,10 @@ const BandDetails = Vue.defineComponent({
         }
     },
     template: `
+    <div v-if="navHoldActive" class="nav-hold-indicator" :class="{ 'nav-hold-left': navHoldDirection === 'left', 'nav-hold-right': navHoldDirection === 'right' }">
+      <div class="nav-hold-bar"></div>
+      <span class="nav-hold-label">{{ navHoldDirection === 'left' ? '◀' : '▶' }} {{ navHoldDirection === 'left' ? (previousBand?.name || previousBand?.guid) : (nextBand?.name || nextBand?.guid) }}</span>
+    </div>
     <nav id="band-detail" class="band-nav-controls d-flex align-items-center justify-content-between mb-3">
       <button class="btn btn-player-control" @click="navigateToPrevious()" :disabled="!previousBand" :title="previousBand ? (previousBand.name || previousBand.guid) : ''">
         <i class="fas fa-chevron-left"></i>
@@ -1780,6 +1815,14 @@ const BandDetails = Vue.defineComponent({
             if (this.nextBand) {
                 this.$emit('navigate-to-band', this.nextBand)
             }
+        },
+        _cancelNavHold() {
+            if (this._navHoldTimer) {
+                clearTimeout(this._navHoldTimer)
+                this._navHoldTimer = null
+            }
+            this.navHoldActive = false
+            this.navHoldDirection = null
         }
     },
 })

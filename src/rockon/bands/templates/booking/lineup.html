@@ -45,7 +45,7 @@
                     <h5 class="mb-3">Bands <small class="text-muted">({{ regularBands.length }})</small></h5>
                     <div id="band-pool" ref="bandPool">
                         <div v-for="band in regularBands" :key="band.id"
-                             class="band-card" :data-band-id="band.id">
+                             class="lineup-card" :data-band-id="band.id">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="band-name">{{ band.name }}</div>
                                 <div class="d-flex align-items-center gap-1">
@@ -61,7 +61,7 @@
                     <h5 class="mb-3 mt-4">Wildcard <small class="text-muted">({{ wildcardBands.length }})</small></h5>
                     <div id="wildcard-pool" ref="wildcardPool">
                         <div v-for="band in wildcardBands" :key="band.id"
-                             class="band-card" :data-band-id="band.id">
+                             class="lineup-card" :data-band-id="band.id">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="band-name">{{ band.name }}</div>
                                 <div class="d-flex align-items-center gap-1">
@@ -93,7 +93,7 @@
                                              :class="{ 'has-band': row.slotsByDay[day.date].band_id }"
                                              :data-slot-id="row.slotsByDay[day.date].id"
                                              :ref="el => setSlotRef(row.slotsByDay[day.date].id, el)">
-                                            <div v-if="row.slotsByDay[day.date].band_id" class="band-card"
+                                            <div v-if="row.slotsByDay[day.date].band_id" class="lineup-card"
                                                  :data-band-id="row.slotsByDay[day.date].band_id"
                                                  :style="bandCardStyle(row.slotsByDay[day.date].band_track)">
                                                 <div class="d-flex justify-content-between align-items-center">
