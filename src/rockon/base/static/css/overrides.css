@@ -53,3 +53,144 @@
   font-family: Arial,Baskerville,monospace;
   color: var(--rockon-primary) !important;
 }
+
+/* ── Lineup booking view ─────────────────────────────────── */
+.lineup-container {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+.lineup-sidebar {
+    min-width: 240px;
+    max-width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+}
+.lineup-main {
+    flex: 1;
+    overflow-x: auto;
+}
+.band-card {
+    background: #424242;
+    border: 1px solid #666;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.4rem;
+    cursor: grab;
+    user-select: none;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+.band-card:active { cursor: grabbing; }
+.band-card:hover {
+    box-shadow: 0 2px 8px rgba(255, 243, 0, 0.25);
+    transform: translateY(-1px);
+}
+.band-card .band-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #eee;
+}
+.band-card .band-genre {
+    font-size: 0.75rem;
+    color: #aaa;
+}
+.sortable-ghost {
+    opacity: 0.4;
+}
+.sortable-drag {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+.timeslot-drop {
+    min-height: 42px;
+    border: 2px dashed #555;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+    transition: border-color 0.15s, background 0.15s;
+}
+.timeslot-drop:empty::after {
+    content: 'Band hierher ziehen';
+    color: #666;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+.timeslot-drop.has-band {
+    border-style: solid;
+    border-color: #fff300;
+    background: rgba(255, 243, 0, 0.08);
+}
+.timeslot-drop .band-card {
+    margin-bottom: 0;
+    width: 100%;
+}
+.btn-remove {
+    background: none;
+    border: none;
+    color: #f44;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0 0.25rem;
+    margin-left: 0.5rem;
+    opacity: 0.7;
+}
+.btn-remove:hover { opacity: 1; }
+.band-track {
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.band-vote-link {
+    color: #fff300;
+    font-size: 0.75rem;
+    text-decoration: none;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+.band-vote-link:hover {
+    color: #fff300;
+    opacity: 1;
+}
+.day-header {
+    background: #333;
+    color: #fff300;
+    font-weight: 700;
+    font-size: 1rem;
+}
+.time-cell {
+    white-space: nowrap;
+    font-weight: 600;
+    vertical-align: middle;
+    width: 100px;
+}
+.slot-cell {
+    vertical-align: middle;
+    min-width: 180px;
+}
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.status-bar .badge { font-size: 0.85rem; }
+.save-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+}
+.save-indicator.saving { color: #ffc107; }
+.save-indicator.error { color: #f44336; }
+.save-indicator.ok { color: #4caf50; }
+.lineup-wide {
+    width: 90vw;
+    position: relative;
+    left: 50%;
+    margin-left: -45vw;
+    padding: 0 1rem;
+}

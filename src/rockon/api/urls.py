@@ -21,6 +21,7 @@ from .endpoints import (
     exhibitorSignup,
     markVoucher,
     requestMagicLink,
+    timeslotRouter,
     trackRouter,
 )
 
@@ -35,6 +36,7 @@ api.add_router('tracks/', trackRouter)
 api.add_router('request-magic-link', requestMagicLink)
 api.add_router('mark-voucher', markVoucher)
 api.add_router('exhibitor-signup/', exhibitorSignup)
+api.add_router('timeslots/', timeslotRouter)
 
 # Caching:
 # path("chat/list/", cache_page(60*15)(ChatList.as_view()), name="chat_list"),

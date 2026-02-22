@@ -6,6 +6,7 @@ from .comment import commentRouter
 from .exhibitor_signup import exhibitorSignup
 from .mark_voucher import markVoucher
 from .request_magic_link import requestMagicLink
+from .timeslot import timeslotRouter
 from .track import trackRouter
 
 __all__ = [

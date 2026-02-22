@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load static %}
+    {% load compress %}
+    {% compress js file vue %}
+        <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
+    {% endcompress %}
+    {% compress js file sortable %}
+        <script src="{% static 'vendor/Sortable.1.15.6.min.js' %}"></script>
+    {% endcompress %}
+    <script nonce="{{ csp_nonce }}">
+        window.rockon_data = {
+            timeslots: {{ timeslots_json }},
+            unassigned_bands: {{ unassigned_bands_json }},
+            csrf_token: '{{ csrf_token }}',
+            vote_url_base: '{{ vote_url_base }}'
+        }
+    </script>
+    {% verbatim %}
+    <div id="app" v-cloak>
+        <div>
+            <h1>Lineup</h1>
+        </div>
+        <section class="lineup-wide form-section">
+            <div class="status-bar">
+                <div>
+                    <span class="badge text-bg-secondary">{{ unassignedBands.length }} unverplant</span>
+                    <span class="badge text-bg-success ms-1">{{ assignedCount }} eingeteilt</span>
+                    <span class="badge text-bg-dark ms-1">{{ timeslots.length }} Slots</span>
+                </div>
+                <div>
+                    <span v-if="saving" class="save-indicator saving">
+                        <i class="fas fa-spinner fa-spin"></i> Speichern…
+                    </span>
+                    <span v-else-if="error" class="save-indicator error">
+                        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                    </span>
+                    <span v-else class="save-indicator ok">
+                        <i class="fas fa-check"></i> Gespeichert
+                    </span>
+                </div>
+            </div>
+            <div class="lineup-container">
+                <div class="lineup-sidebar">
+                    <h5 class="mb-3">Bands <small class="text-muted">({{ regularBands.length }})</small></h5>
+                    <div id="band-pool" ref="bandPool">
+                        <div v-for="band in regularBands" :key="band.id"
+                             class="band-card" :data-band-id="band.id">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="band-name">{{ band.name }}</div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span v-if="band.track" class="badge band-track" :style="trackStyle(band.track)">{{ band.track }}</span>
+                                    <a :href="voteUrl(band.guid)" target="_blank" class="band-vote-link" title="Bewertung öffnen" @mousedown.stop>
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="band-genre" v-if="band.genre">{{ band.genre }}</div>
+                        </div>
+                    </div>
+                    <h5 class="mb-3 mt-4">Wildcard <small class="text-muted">({{ wildcardBands.length }})</small></h5>
+                    <div id="wildcard-pool" ref="wildcardPool">
+                        <div v-for="band in wildcardBands" :key="band.id"
+                             class="band-card" :data-band-id="band.id">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="band-name">{{ band.name }}</div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <a :href="voteUrl(band.guid)" target="_blank" class="band-vote-link" title="Bewertung öffnen" @mousedown.stop>
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="band-genre" v-if="band.genre">{{ band.genre }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lineup-main">
+                    <table class="table table-dark table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th class="time-cell">Zeit</th>
+                                <th v-for="day in days" :key="day.date" class="day-header text-center">
+                                    {{ day.label }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="row in timeRows" :key="row.key">
+                                <td class="time-cell">{{ row.start }} – {{ row.end }}</td>
+                                <td v-for="day in days" :key="day.date" class="slot-cell">
+                                    <template v-if="row.slotsByDay[day.date]">
+                                        <div class="timeslot-drop"
+                                             :class="{ 'has-band': row.slotsByDay[day.date].band_id }"
+                                             :data-slot-id="row.slotsByDay[day.date].id"
+                                             :ref="el => setSlotRef(row.slotsByDay[day.date].id, el)">
+                                            <div v-if="row.slotsByDay[day.date].band_id" class="band-card"
+                                                 :data-band-id="row.slotsByDay[day.date].band_id"
+                                                 :style="bandCardStyle(row.slotsByDay[day.date].band_track)">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <span class="band-name">{{ row.slotsByDay[day.date].band_name }}</span>
+                                                        <span v-if="row.slotsByDay[day.date].band_track" class="badge ms-1 band-track" :style="trackStyle(row.slotsByDay[day.date].band_track)">{{ row.slotsByDay[day.date].band_track }}</span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-1">
+                                                        <a v-if="row.slotsByDay[day.date].band_guid" :href="voteUrl(row.slotsByDay[day.date].band_guid)" target="_blank" class="band-vote-link" title="Bewertung öffnen" @mousedown.stop>
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <button class="btn-remove" title="Entfernen"
+                                                                @click.stop="removeBand(row.slotsByDay[day.date])">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <span class="text-muted small">—</span>
+                                    </template>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+    {% endverbatim %}
+    <script src="{% static 'js/lineup.js' %}" nonce="{{ csp_nonce }}"></script>
+    <script nonce="{{ csp_nonce }}">
+        const { createApp } = Vue
+        createApp(LineupApp).mount('#app')
+    </script>
+{% endblock %}
