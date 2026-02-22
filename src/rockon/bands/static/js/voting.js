@@ -2299,6 +2299,14 @@ const app = createApp({
             this.initWavesurferForSong(song)
         },
         initWavesurferForSong(song) {
+            const audioUrl = song.encoded_file || song.file
+            if (!audioUrl) {
+                console.error('No audio URL available for song', song.id)
+                this.toastMessage = 'Keine Audiodatei verfügbar.'
+                this._wavePlaying = false
+                return
+            }
+
             this.wavesurfer = WaveSurfer.create({
                 container: document.getElementById('player-wrapper'),
                 waveColor: '#fff300',
@@ -2307,7 +2315,7 @@ const app = createApp({
                 splitChannels: false,
                 dragToSeek: true,
                 cursorWidth: 3,
-                url: song.encoded_file || song.file,
+                url: audioUrl,
                 mediaControls: false,
                 autoplay: false
             })
@@ -2376,6 +2384,11 @@ const app = createApp({
             })
             this.wavesurfer.on('play', () => { this._wavePlaying = true })
             this.wavesurfer.on('pause', () => { this._wavePlaying = false })
+            this.wavesurfer.on('error', (err) => {
+                console.error('WaveSurfer error:', err)
+                this.toastMessage = 'Track konnte nicht geladen werden.'
+                this._wavePlaying = false
+            })
         },
         toggleIcon() {
             this.toastIsMaximized = !this.toastIsMaximized

@@ -385,7 +385,7 @@ SECURE_CSP = {
         CSP.NONCE,
     ],
     'script-src-elem': [CSP.SELF, CSP.NONCE],
-    'connect-src': [CSP.SELF],
+    'connect-src': [CSP.SELF, 'blob:'],
     'style-src': [CSP.SELF, CSP.UNSAFE_INLINE],
 }
 
