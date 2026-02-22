@@ -24,6 +24,8 @@ if [ "$1" == "version" ]; then
 fi
 
 if [ "$1" == "app" ] || [ "$STARTMODE" == "app" ]; then
+    # remove stale socket and lock file from previous run
+    rm -f /run/rockon/app.sock /run/rockon/app.sock.lock
     # start daphne ASGI server (handles both HTTP and WebSocket)
     /app/.venv/bin/python -m daphne rockon.asgi:application \
         --bind 0.0.0.0 \

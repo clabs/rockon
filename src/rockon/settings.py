@@ -301,6 +301,9 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400
 
 DOMAIN = env.str('DJANGO_DOMAIN', default='http://localhost:8000')
 
+CSRF_TRUSTED_ORIGINS = [DOMAIN]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 with env.prefixed('DJANGO_CORS_'):
     CORS_ALLOWED_ORIGINS = env.list(
         'ALLOWED_ORIGINS', default=['http://localhost:8000']
