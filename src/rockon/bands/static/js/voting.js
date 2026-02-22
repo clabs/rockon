@@ -1313,6 +1313,19 @@ const BandRating = Vue.defineComponent({
     },
     mounted() {
         this.fetchRating()
+    },
+    watch: {
+        'selectedBandDetails.id': {
+            handler(newId, oldId) {
+                if (newId && newId !== oldId) {
+                    console.debug('BandRating band changed, clearing rating and re-fetching')
+                    this.rating = null
+                    this.hoverIndex = -1
+                    this.isHovering = false
+                    this.fetchRating()
+                }
+            }
+        }
     }
 })
 
