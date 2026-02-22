@@ -50,11 +50,11 @@
                 @update:selected-federal-states="handleFederalStatesChange">
         </track-list>
         <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
-         <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack"
-             :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
-             :show-declined-bids="showDeclinedBids" :federal-states="federalStates" :user-votes="userVotes"
+         <band-list v-if="bandListLoaded && !selectedBand" :filtered-bands="filteredBands"
+             :selected-track="selectedTrack"
+             :federal-states="federalStates" :user-votes="userVotes"
              :view-mode="viewMode" :sort-field="sortField" :sort-direction="sortDirection"
-             :selected-federal-states="selectedFederalStates" :tracks="tracks"
+             :tracks="tracks"
              @select-band="selectBand"
              @update:view-mode="handleViewModeChange"
              @update:sort-field="handleSortFieldChange"
@@ -197,7 +197,7 @@
         </div>
     </div>
     {% endverbatim %}
-    <style scoped>
+    <style>
         /* Emoji Reactions */
         .emoji-reactions-container {
             position: relative;
@@ -978,6 +978,70 @@
         .federal-state-item .form-check-input:checked {
             background-color: #fff300;
             border-color: #fff300;
+        }
+
+        /* Band card hover/select — replaces JS hoverBand/leaveBand */
+        .band-card {
+            cursor: pointer;
+            max-width: 312px;
+            height: 380px;
+            background-color: var(--rockon-card-bg);
+            transition: background-color 0.15s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .band-card .card-body {
+            transform: translateZ(0);
+        }
+
+        .band-card:hover {
+            background-color: var(--rockon-secondary-text-emphasis);
+        }
+
+        /* Last row flex container — cards keep their max-width instead of stretching */
+        .band-card-row {
+            display: flex;
+            gap: 0;
+        }
+
+        .band-card-row > .band-card {
+            flex: 0 0 25%;
+        }
+
+        /* Card image dimensions — moved from inline style */
+        .band-card .card-img-top {
+            height: 250px;
+            object-fit: cover;
+            object-position: center;
+            opacity: 0;
+            transition: transform 0.6s ease-in-out, opacity 0.3s ease-in-out;
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
+        .band-card .card-img-top.loaded {
+            opacity: 1;
+        }
+
+        /* Hide skeleton when sibling image is loaded */
+        .image-container:has(img.loaded) .skeleton-loader {
+            display: none;
+        }
+
+        .band-list-thumb-container:has(img.loaded) .skeleton-loader {
+            display: none;
+        }
+
+        /* Band tags — cursor for clickable badges */
+        .band-tags .badge {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Song list items */
+        .song-list-item {
+            cursor: pointer;
         }
     </style>
     {% compress js file voting %}

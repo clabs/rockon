@@ -438,7 +438,7 @@ const SongList = Vue.defineComponent({
     template: `
     <div>
       <ol>
-        <li v-for="song in songs" :key="song.id" @click="handleSongClick(song)" style="cursor: pointer;">
+        <li v-for="song in songs" :key="song.id" @click="handleSongClick(song)" class="song-list-item">
           {{ song.file_name_original }}
         </li>
       </ol>
@@ -907,7 +907,12 @@ const TrackList = Vue.defineComponent({
 })
 
 const BandTags = Vue.defineComponent({
-    props: ['selectedBandDetails', 'federalStates'],
+    props: {
+        selectedBandDetails: { required: true },
+        federalStates: { required: true },
+        userVotes: { default: () => [] },
+        compact: { type: Boolean, default: false }
+    },
     computed: {
         federalStatesTag() {
             const federalState = this.federalStates.find(
@@ -915,100 +920,51 @@ const BandTags = Vue.defineComponent({
                     federalState[0] === this.selectedBandDetails.federal_state
             )
             return federalState ? federalState[1] : null
-        }
-    },
-    init: function () {
-        console.debug('BandTags init:', this.selectedBandDetails)
-    },
-    template: `
-    <div style="user-select: none;">
-      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1">Bewerbung unvollständig!</span>
-      <span class="badge text-bg-primary m-1">{{ federalStatesTag }}</span>
-      <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1">Management</span>
-      <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1">Kein Management</span>
-      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1">Schülerband</span>
-      <span v-if="!selectedBandDetails.are_students" class="badge text-bg-primary m-1">Keine Schülerband</span>
-      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1">Unter 27</span>
-      <span v-if="!selectedBandDetails.mean_age_under_27" class="badge text-bg-primary m-1">Über 27</span>
-      <span v-if="selectedBandDetails.is_coverband" class="badge text-bg-warning m-1">Coverband</span>
-      <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1">Wiederholer</span>
-      <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1">Neu</span>
-      <span class="badge text-bg-primary m-1">{{ selectedBandDetails.genre || "Kein Gerne" }}</span>
-      <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1">Kein Coverletter</span>
-      <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1">Bewerbung abgelehnt</span>
-    </div>
-  `
-})
-
-const BandListTags = Vue.defineComponent({
-    props: ['selectedBandDetails', 'federalStates', 'userVotes'],
-    computed: {
-        federalStatesTag() {
-            const federalState = this.federalStates.find(
-                federalState =>
-                    federalState[0] === this.selectedBandDetails.federal_state
-            )
-            return federalState ? federalState[1] : null
-        }
-    },
-    methods: {
-        hasVote(band) {
-            const userVote = this.userVotes.find(vote => vote.band__id === band.id)
-            // console.debug('BandList hasVote:', userVote)
-            return userVote
         },
-        voteCount(band) {
-            return this.userVotes.find(vote => vote.band__id === band.id).vote
+        vote() {
+            if (!this.userVotes) return null
+            return this.userVotes.find(v => v.band__id === this.selectedBandDetails.id) || null
         }
     },
-    init: function () {
-        console.debug('BandTags init:', this.selectedBandDetails)
-    },
     template: `
-    <div>
-      <span class="badge text-bg-primary m-1" style="cursor: pointer;">{{ federalStatesTag }}</span>
-      <span v-if="hasVote(selectedBandDetails)" class="badge text-bg-success m-1" style="cursor: pointer;">Bewertet: {{ voteCount(selectedBandDetails) }} 💖</span>
-      <span v-if="!hasVote(selectedBandDetails) && (selectedBandDetails.bid_status !== 'declined')" class="badge text-bg-secondary m-1" style="cursor: pointer;">Enthalten</span>
-      <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1" style="cursor: pointer;">Abgelehnt</span>
-      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1" style="cursor: pointer;">Schülerband</span>
-      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1" style="cursor: pointer;">Unter 27</span>
-      <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1" style="cursor: pointer;">Bewerbung unvollständig!</span>
+    <div class="band-tags">
+      <span class="badge text-bg-primary m-1">{{ federalStatesTag }}</span>
+      <template v-if="compact">
+        <span v-if="vote" class="badge text-bg-success m-1">Bewertet: {{ vote.vote }} 💖</span>
+        <span v-else-if="selectedBandDetails.bid_status !== 'declined'" class="badge text-bg-secondary m-1">Enthalten</span>
+        <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1">Abgelehnt</span>
+      </template>
+      <template v-else>
+        <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1">Bewerbung unvollständig!</span>
+        <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1">Management</span>
+        <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1">Kein Management</span>
+        <span v-if="selectedBandDetails.is_coverband" class="badge text-bg-warning m-1">Coverband</span>
+        <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1">Wiederholer</span>
+        <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1">Neu</span>
+        <span class="badge text-bg-primary m-1">{{ selectedBandDetails.genre || "Kein Genre" }}</span>
+        <span v-if="!selectedBandDetails.cover_letter" class="badge text-bg-warning m-1">Kein Coverletter</span>
+        <span v-if="selectedBandDetails.bid_status === 'declined'" class="badge text-bg-warning m-1">Bewerbung abgelehnt</span>
+      </template>
+      <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1">Schülerband</span>
+      <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1">Unter 27</span>
     </div>
   `
 })
 
 const BandList = Vue.defineComponent({
     props: [
-        'bands',
+        'filteredBands',
         'selectedTrack',
-        'showBandNoName',
-        'showIncompleteBids',
-        'showDeclinedBids',
         'federalStates',
         'userVotes',
         'viewMode',
         'sortField',
         'sortDirection',
-        'selectedFederalStates',
         'tracks'
     ],
-    components: {BandListTags},
+    components: {BandTags},
     emits: ['select-band', 'update:viewMode', 'update:sortField', 'update:sortDirection'],
     computed: {
-        filteredBands() {
-            return FilterService.filterBands(this.bands, {
-                filters: {
-                    showIncompleteBids: this.showIncompleteBids,
-                    showBandNoName: this.showBandNoName,
-                    showDeclinedBids: this.showDeclinedBids
-                },
-                selectedTrack: this.selectedTrack,
-                userVotes: this.userVotes,
-                sortField: this.sortField || 'name',
-                sortDirection: this.sortDirection || 'asc',
-                selectedFederalStates: this.selectedFederalStates || []
-            })
-        },
         isTrackFilter() {
             // Check if selectedTrack is an actual track object (has .id and .name)
             return this.selectedTrack && typeof this.selectedTrack === 'object' && this.selectedTrack.name
@@ -1048,14 +1004,15 @@ const BandList = Vue.defineComponent({
                 groups.push(this.filteredBandsWithIndex.slice(i, i + 4))
             }
             return groups
+        },
+        isLastGroupIncomplete() {
+            if (this.groupedBands.length === 0) return false
+            return this.groupedBands[this.groupedBands.length - 1].length < 4
         }
     },
     data() {
         return {
-            selectedBand: null,
-            bgColor: 'var(--rockon-card-bg)',
-            imageCache: new Set(),
-            loadedImages: {}
+            imageCache: new Set()
         }
     },
     methods: {
@@ -1076,19 +1033,7 @@ const BandList = Vue.defineComponent({
             // Fallback to placeholder if available, else empty string
             return (window.rockon_data && window.rockon_data.placeholder) ? window.rockon_data.placeholder : '';
         },
-        hoverBand(band) {
-            this.selectedBand = band
-            this.bgColor = 'var(--rockon-secondary-text-emphasis)'
-        },
-        leaveBand(band) {
-            if (this.selectedBand === band) {
-                this.selectedBand = null
-                this.bgColor = 'var(--rockon-card-bg)'
-            }
-        },
-        onImageLoad(bandId) {
-            this.loadedImages[bandId] = true
-        },
+
         trackName(band) {
             if (!band.track || !this.tracks) return '—'
             const track = this.tracks.find(t => t.id === band.track)
@@ -1182,16 +1127,16 @@ const BandList = Vue.defineComponent({
     </div>
     <!-- Card View -->
     <template v-if="viewMode !== 'list'">
-    <div v-if="groupedBands.length > 0" v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
-      <div class="card-group">
-        <div class="card" v-for="item in group" :key="item.band.id" :id="'band-' + item.band.id" @click="selectBand(item.band)" style="cursor: pointer; max-width: 312px; height: 380px" :style="{ backgroundColor: selectedBand === item.band ? bgColor : 'var(--rockon-card-bg)' }" @mouseover="hoverBand(item.band)" @mouseleave="leaveBand(item.band)">
+    <div v-for="(group, groupIndex) in groupedBands" :key="'group-' + groupIndex">
+      <div :class="groupIndex === groupedBands.length - 1 && isLastGroupIncomplete ? 'band-card-row' : 'card-group'">
+        <div class="card band-card" v-for="item in group" :key="item.band.id" :id="'band-' + item.band.id" @click="selectBand(item.band)">
           <div class="image-container">
-            <div v-if="!loadedImages[item.band.id]" class="skeleton-loader"></div>
-            <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" :class="{ 'loaded': loadedImages[item.band.id] }" style="height: 250px; object-fit: cover; object-position: center;" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto" @load="onImageLoad(item.band.id)">
+            <div class="skeleton-loader"></div>
+            <img :src="cardImage(item.band)" class="card-img-top img-fluid zoom-image" :alt="item.band.name || item.band.guid" :loading="item.index < 12 ? 'eager' : 'lazy'" decoding="async" fetchpriority="auto" @load="$event.target.classList.add('loaded')">
           </div>
             <div class="card-body">
             <h6 class="card-title">{{ item.band.name || item.band.guid }}</h6>
-            <BandListTags :selectedBandDetails="item.band" :federalStates="federalStates" :userVotes="userVotes" />
+            <BandTags :selectedBandDetails="item.band" :federalStates="federalStates" :userVotes="userVotes" :compact="true" />
           </div>
         </div>
       </div>
@@ -1223,8 +1168,8 @@ const BandList = Vue.defineComponent({
           <tr v-for="band in filteredBands" :key="band.id" :id="'band-' + band.id" @click="selectBand(band)" class="band-list-row">
             <td class="band-list-thumb-cell">
               <div class="band-list-thumb-container">
-                <div v-if="!loadedImages[band.id]" class="skeleton-loader band-list-skeleton"></div>
-                <img :src="cardImage(band)" class="band-list-thumb" :class="{ 'loaded': loadedImages[band.id] }" :alt="band.name || band.guid" loading="lazy" decoding="async" @load="onImageLoad(band.id)">
+                <div class="skeleton-loader band-list-skeleton"></div>
+                <img :src="cardImage(band)" class="band-list-thumb" :alt="band.name || band.guid" loading="lazy" decoding="async" @load="$event.target.classList.add('loaded')">
               </div>
             </td>
             <td class="band-list-name">{{ band.name || band.guid }}</td>
@@ -1466,7 +1411,7 @@ const CommentField = Vue.defineComponent({
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value
                 },
                 body: JSON.stringify(commentData)
             })
@@ -1846,7 +1791,7 @@ const app = createApp({
             eventSlug: window.rockon_data.event_slug,
             allowChanges: window.rockon_api.allow_changes,
             allowVotes: window.rockon_api.allow_votes,
-            crsf_token: $('[name=csrfmiddlewaretoken]').val(),
+            crsf_token: document.querySelector('[name=csrfmiddlewaretoken]')?.value,
             bandListUrl: window.rockon_api.list_bands,
             bandCommentsUrl: window.rockon_api.comments_api,
             tracks: window.rockon_data.tracks,
@@ -1975,7 +1920,6 @@ const app = createApp({
         BandDocuments,
         BandLinks,
         BandTags,
-        BandListTags,
         BandRating,
         LoadingSpinner
     },
@@ -2316,7 +2260,7 @@ const app = createApp({
         },
 
         updateTrack(trackId) {
-            api_url = window.rockon_api.update_band.replace(
+            const api_url = window.rockon_api.update_band.replace(
                 'pk_placeholder',
                 this.selectedBandDetails.id
             )
@@ -2348,7 +2292,7 @@ const app = createApp({
             this.selectedTrack = track
         },
         updateBidStatus(bidStatus) {
-            api_url = window.rockon_api.update_band.replace(
+            const api_url = window.rockon_api.update_band.replace(
                 'pk_placeholder',
                 this.selectedBandDetails.id
             )
@@ -2794,57 +2738,38 @@ const app = createApp({
             }
         },
         handleFilterShowBandNoNameChange(checked) {
-            FilterService.saveToStorage('showBandNoName', checked)
-            this.showBandNoName = checked
+            this.updateFilter('showBandNoName', checked)
         },
         handleFilterIncompleteBidsChange(checked) {
-            FilterService.saveToStorage('showIncompleteBids', checked)
-            this.showIncompleteBids = checked
+            this.updateFilter('showIncompleteBids', checked)
         },
         handleFilterDeclinedBidsChange(checked) {
-            FilterService.saveToStorage('showDeclinedBids', checked)
-            this.showDeclinedBids = checked
+            this.updateFilter('showDeclinedBids', checked)
         },
         handleViewModeChange(mode) {
-            this.viewMode = mode
-            FilterService.saveToStorage('viewMode', mode)
+            this.updateFilter('viewMode', mode)
         },
         handleSortFieldChange(field) {
-            this.sortField = field
-            FilterService.saveToStorage('sortField', field)
+            this.updateFilter('sortField', field)
         },
         handleSortDirectionChange(direction) {
-            this.sortDirection = direction
-            FilterService.saveToStorage('sortDirection', direction)
+            this.updateFilter('sortDirection', direction)
         },
         handleFederalStatesChange(states) {
-            this.selectedFederalStates = states
-            FilterService.saveToStorage('selectedFederalStates', states)
+            this.updateFilter('selectedFederalStates', states)
+        },
+        updateFilter(key, value) {
+            FilterService.saveToStorage(key, value)
+            this[key] = value
         },
         setRating(rating) {
             console.debug('BandRating setRating:', rating)
             this.rating = rating
-            api_url = window.rockon_api.band_vote
+            const api_url = window.rockon_api.band_vote
             console.debug('BandRating setRating:', this.selectedBand, rating, api_url)
-            fetch(api_url, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.crsf_token
-                },
-                body: JSON.stringify({
-                    band: this.selectedBand.id,
-                    vote: rating
-                })
-            })
-                .then(response => response)
-                .then(data => {
-                    console.log('Success:', data)
-                })
-                .catch(error => {
-                    console.error('Error:', error)
-                    alert('Fehler beim Speichern der Bewertung, bitte schrei um Hilfe!')
-                })
+
+            // Optimistic update
+            const previousVotes = JSON.parse(JSON.stringify(this.userVotes))
             if (rating === -1) {
                 this.userVotes = this.userVotes.filter(
                     vote => vote.band__id !== this.selectedBand.id
@@ -2858,6 +2783,29 @@ const app = createApp({
                 }
             }
             sessionStorage.setItem('userVotes', JSON.stringify(this.userVotes))
+
+            fetch(api_url, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.crsf_token
+                },
+                body: JSON.stringify({
+                    band: this.selectedBand.id,
+                    vote: rating
+                })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+                    console.log('Vote saved successfully')
+                })
+                .catch(error => {
+                    console.error('Error:', error)
+                    // Rollback on failure
+                    this.userVotes = previousVotes
+                    sessionStorage.setItem('userVotes', JSON.stringify(this.userVotes))
+                    alert('Fehler beim Speichern der Bewertung, bitte schrei um Hilfe!')
+                })
         },
         getBandList(url, _event = null) {
             console.debug('app getBandList:', url, _event)
@@ -2876,7 +2824,7 @@ const app = createApp({
                 .catch(error => console.error('Error:', error))
         },
         getBandDetails(selectedBandId) {
-            url = window.rockon_api.update_band.replace(
+            const url = window.rockon_api.update_band.replace(
                 'pk_placeholder',
                 selectedBandId
             )
