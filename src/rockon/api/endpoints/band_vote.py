@@ -49,15 +49,3 @@ def submit_vote(request, data: BandVoteIn):
             band=band, user=user, defaults={'vote': data.vote, 'event': band.event}
         )
     return 201, None
-
-
-@bandVote.delete(
-    '/{band_id}',
-    response={204: None},
-    url_name='band_vote_delete',
-    auth=django_auth,
-)
-def delete_vote(request, band_id: str):
-    """Delete the current user's vote for a specific band."""
-    BandVote.objects.filter(user=request.user, band__id=band_id).delete()
-    return 204, None

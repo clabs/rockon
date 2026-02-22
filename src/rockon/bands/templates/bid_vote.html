@@ -50,11 +50,11 @@
                 @update:selected-federal-states="handleFederalStatesChange">
         </track-list>
         <loading-spinner v-if="!bandListLoaded" :bands-to-fetch="bandsToFetch" :bands="bands"></loading-spinner>
-         <band-list v-if="bandListLoaded && !selectedBand" :bands="bands" :selected-track="selectedTrack"
-             :show-band-no-name="showBandNoName" :show-incomplete-bids="showIncompleteBids"
-             :show-declined-bids="showDeclinedBids" :federal-states="federalStates" :user-votes="userVotes"
+         <band-list v-if="bandListLoaded && !selectedBand" :filtered-bands="filteredBands"
+             :selected-track="selectedTrack"
+             :federal-states="federalStates" :user-votes="userVotes"
              :view-mode="viewMode" :sort-field="sortField" :sort-direction="sortDirection"
-             :selected-federal-states="selectedFederalStates" :tracks="tracks"
+             :tracks="tracks"
              @select-band="selectBand"
              @update:view-mode="handleViewModeChange"
              @update:sort-field="handleSortFieldChange"
@@ -197,7 +197,7 @@
         </div>
     </div>
     {% endverbatim %}
-    <style scoped>
+    <style>
         /* Emoji Reactions */
         .emoji-reactions-container {
             position: relative;
@@ -287,11 +287,70 @@
 
         .image-container {
             overflow: hidden;
-            /* Optimize for repaints */
             contain: layout style paint;
             position: relative;
             height: 250px;
             background-color: #2a2a2a;
+        }
+
+        /* Band grid — custom 4-column grid, no Bootstrap card dependencies */
+        .band-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+        }
+
+        .vote-card {
+            cursor: pointer;
+            background-color: #1e1e1e;
+            overflow: hidden;
+            transition: background-color 0.2s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .vote-card:hover {
+            background-color: #141414;
+        }
+
+        .vote-card__image {
+            position: relative;
+            aspect-ratio: 3 / 2;
+            overflow: hidden;
+            background-color: #2a2a2a;
+            contain: layout style paint;
+        }
+
+        .vote-card__img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            opacity: 0;
+            transition: transform 0.6s ease-in-out, opacity 0.3s ease-in-out;
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
+        .vote-card__img.loaded {
+            opacity: 1;
+        }
+
+        .vote-card:hover .vote-card__img.loaded {
+            transform: scale(1.1);
+        }
+
+        .vote-card__body {
+            padding: 1.25rem 1.25rem 5rem;
+        }
+
+        .vote-card__title {
+            margin: 0 0 0.35rem;
+            color: #eee;
+        }
+
+        .vote-card__image:has(img.loaded) .skeleton-loader {
+            display: none;
         }
 
         /* Skeleton loading placeholder */
@@ -410,28 +469,6 @@
 
         .detail-image.loaded {
             opacity: 1;
-        }
-
-        .zoom-image {
-            transition: transform 0.6s ease-in-out, opacity 0.3s ease-in-out;
-            transform: scale(1);
-            /* GPU acceleration for smoother animations */
-            will-change: transform;
-            backface-visibility: hidden;
-            opacity: 0;
-        }
-
-        .zoom-image.loaded {
-            opacity: 1;
-        }
-
-        .card:hover .zoom-image.loaded {
-            transform: scale(1.1);
-        }
-
-        /* Optimize card rendering for large lists */
-        .card-group {
-            contain: layout style;
         }
 
         @keyframes scroll {
@@ -796,26 +833,99 @@
             box-shadow: 0 4px 12px rgba(255,215,0,0.25);
         }
 
-        /* Band navigation chevron buttons */
-        .btn-nav-chevron {
-            background: transparent;
-            border: 2px solid var(--rockon-primary);
+        /* Band navigation controls container */
+        .band-nav-controls {
+            display: grid !important;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Hold-to-navigate indicator */
+        .nav-hold-indicator {
+            position: relative;
+            height: 2rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-hold-bar {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            background: rgba(255, 243, 0, 0.15);
+            animation: nav-hold-fill 3s linear forwards;
+        }
+
+        .nav-hold-left .nav-hold-bar {
+            left: 0;
+            animation-name: nav-hold-fill-left;
+        }
+
+        .nav-hold-right .nav-hold-bar {
+            right: 0;
+            animation-name: nav-hold-fill-right;
+        }
+
+        @keyframes nav-hold-fill-left {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes nav-hold-fill-right {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .nav-hold-label {
+            position: relative;
+            z-index: 6;
+            font-size: 0.9rem;
+            font-weight: 600;
             color: var(--rockon-primary);
-            padding: 0.5rem 1rem;
-            margin: 0.5rem;
-            transition: all 0.3s ease;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        }
+
+        .band-nav-controls .btn-player-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 0;
+            max-width: 100%;
+            justify-self: start;
+        }
+
+        .band-nav-controls .btn-player-control:last-child {
+            justify-self: end;
+        }
+
+        .band-nav-controls .btn-player-control .fa-chevron-left,
+        .band-nav-controls .btn-player-control .fa-chevron-right {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .band-nav-label {
+            font-size: 0.85rem;
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .btn-nav-chevron:hover:not(:disabled) {
-            background: var(--rockon-primary);
-            color: #000;
-            transform: scale(1.05);
-        }
-
-        .btn-nav-chevron:disabled {
-            opacity: 0;
-            cursor: default;
+        .band-nav-counter {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--rockon-primary);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         /* List view table styles */
@@ -978,6 +1088,26 @@
         .federal-state-item .form-check-input:checked {
             background-color: #fff300;
             border-color: #fff300;
+        }
+
+        /* Hide skeleton when sibling image is loaded */
+        .image-container:has(img.loaded) .skeleton-loader {
+            display: none;
+        }
+
+        .band-list-thumb-container:has(img.loaded) .skeleton-loader {
+            display: none;
+        }
+
+        /* Band tags — cursor for clickable badges */
+        .band-tags .badge {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Song list items */
+        .song-list-item {
+            cursor: pointer;
         }
     </style>
     {% compress js file voting %}
