@@ -20,7 +20,7 @@
         .sort-icon { font-size: 0.75em; margin-left: 4px; opacity: 0.6; }
         .sortable.active .sort-icon { opacity: 1; color: #fff300; }
         .spark-bar-wrap { display: inline-flex; align-items: flex-end; gap: 1px; height: 20px; }
-        .spark-bar { width: 12px; background: #fff300; border-radius: 2px 2px 0 0; min-height: 2px; }
+        .spark-bar { width: 12px; border-radius: 2px 2px 0 0; min-height: 2px; }
         .toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
         .toolbar .form-control,
         .toolbar .form-select { max-width: 220px; }
@@ -183,7 +183,7 @@
                                 <span v-for="(count, star) in band.counters" :key="star"
                                       class="spark-bar"
                                       :class="{ 'opacity-25': !hasVotes(band.counters) }"
-                                      :style="{ height: barHeight(count, band.counters) + 'px' }">
+                                      :style="{ height: barHeight(count, band.counters) + 'px', background: barColor(star) }">
                                 </span>
                             </span>
                         </td>
