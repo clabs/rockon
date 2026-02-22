@@ -16,6 +16,7 @@ class SessionCurrentEventMiddleware:
             if current_event:
                 request.session['current_event_id'] = str(current_event.id)
                 request.session['current_event_slug'] = current_event.slug
+                request.current_event = current_event
 
         response = self.get_response(request)
         return response

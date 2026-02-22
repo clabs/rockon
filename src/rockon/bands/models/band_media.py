@@ -125,8 +125,13 @@ class BandMedia(CustomModel):
         )
 
         ffmpeg_bin = settings.FFMPEG_BIN
-        ffmpeg_cmd = f'{ffmpeg_bin} -y -hide_banner -i {_file.file.path} -vn -c:a libmp3lame -b:a 128k -ar 44100 {new_absolute_path}'
-        return_code = subprocess.call(ffmpeg_cmd, shell=True)
+        ffmpeg_cmd = [
+            ffmpeg_bin, '-y', '-hide_banner',
+            '-i', _file.file.path,
+            '-vn', '-c:a', 'libmp3lame', '-b:a', '128k', '-ar', '44100',
+            new_absolute_path,
+        ]
+        return_code = subprocess.call(ffmpeg_cmd)
 
         if return_code != 0:
             raise RuntimeError('Encoding failed')
@@ -158,9 +163,13 @@ class BandMedia(CustomModel):
         )
 
         convert_bin = settings.CONVERT_BIN
-        convert_cmd = f'{convert_bin} {_file.file.path} -quality 70% -resize 310x {new_absolute_path}'
+        convert_cmd = [
+            convert_bin, _file.file.path,
+            '-quality', '70%', '-resize', '310x',
+            new_absolute_path,
+        ]
         try:
-            return_code = subprocess.call(convert_cmd, shell=True)
+            return_code = subprocess.call(convert_cmd)
 
             if return_code != 0:
                 raise RuntimeError('Encoding failed')

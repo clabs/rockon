@@ -7,14 +7,19 @@ from rockon.base.models import Event
 
 def is_crewmember(request):
     if getattr(request, 'user') and request.user.is_authenticated:
-        event_id = request.session.get('current_event_id')
-        if event_id is not None:
+        # Reuse event cached on request by middleware / current_event CP
+        current_event = getattr(request, 'current_event', None)
+        if current_event is None:
+            event_id = request.session.get('current_event_id')
+            if event_id is not None:
+                try:
+                    current_event = Event.objects.get(id=event_id)
+                    request.current_event = current_event
+                except Event.DoesNotExist:
+                    pass
+        if current_event is not None:
             try:
-                # Reuse event cached by current_event context processor if available
-                current_event = getattr(
-                    request, '_current_event_cache', None
-                ) or Event.objects.get(id=event_id)
                 return {'is_crewmember': current_event.crews.is_member(request.user)}
-            except ObjectDoesNotExist, AttributeError:
+            except (ObjectDoesNotExist, AttributeError):
                 pass
     return {'is_crewmember': False}

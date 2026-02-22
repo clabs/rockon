@@ -1979,13 +1979,30 @@ const app = createApp({
                 console.error('Failed to persist playerEndBehavior', e)
             }
         },
+        safePlay(ws) {
+            if (!ws) return
+            try {
+                const p = ws.play()
+                if (p && typeof p.catch === 'function') {
+                    p.catch(err => {
+                        if (err.name === 'AbortError') {
+                            console.debug('play() aborted (expected race):', err.message)
+                        } else {
+                            console.error('play() error:', err)
+                        }
+                    })
+                }
+            } catch (e) {
+                console.error('safePlay error:', e)
+            }
+        },
         togglePlayPause() {
             if (!this.wavesurfer) return
             try {
                 if (typeof this.wavesurfer.isPlaying === 'function' ? this.wavesurfer.isPlaying() : this._wavePlaying) {
                     this.wavesurfer.pause()
                 } else {
-                    this.wavesurfer.play()
+                    this.safePlay(this.wavesurfer)
                 }
             } catch (e) {
                 console.error('togglePlayPause error', e)
@@ -2282,6 +2299,14 @@ const app = createApp({
             this.initWavesurferForSong(song)
         },
         initWavesurferForSong(song) {
+            const audioUrl = song.encoded_file || song.file
+            if (!audioUrl) {
+                console.error('No audio URL available for song', song.id)
+                this.toastMessage = 'Keine Audiodatei verfügbar.'
+                this._wavePlaying = false
+                return
+            }
+
             this.wavesurfer = WaveSurfer.create({
                 container: document.getElementById('player-wrapper'),
                 waveColor: '#fff300',
@@ -2290,12 +2315,12 @@ const app = createApp({
                 splitChannels: false,
                 dragToSeek: true,
                 cursorWidth: 3,
-                url: song.encoded_file || song.file,
+                url: audioUrl,
                 mediaControls: false,
-                autoplay: true
+                autoplay: false
             })
 
-            // WaveSurfer ready: set duration and volume
+            // WaveSurfer ready: set duration, volume, then start playback via safePlay
             this.wavesurfer.on('ready', () => {
                 try {
                     this.duration = typeof this.wavesurfer.getDuration === 'function' ? this.wavesurfer.getDuration() : 0
@@ -2307,6 +2332,7 @@ const app = createApp({
                     if (typeof this.wavesurfer.setVolume === 'function') {
                         this.wavesurfer.setVolume(this.volume)
                     }
+                    this.safePlay(this.wavesurfer)
                 } catch (e) {
                     console.error('ready handler error', e)
                 }
@@ -2333,10 +2359,10 @@ const app = createApp({
                             if (this.wavesurfer) {
                                 if (typeof this.wavesurfer.setTime === 'function') {
                                     this.wavesurfer.setTime(0)
-                                    this.wavesurfer.play && this.wavesurfer.play()
+                                    this.safePlay(this.wavesurfer)
                                 } else if (typeof this.wavesurfer.setCurrentTime === 'function') {
                                     this.wavesurfer.setCurrentTime(0)
-                                    this.wavesurfer.play && this.wavesurfer.play()
+                                    this.safePlay(this.wavesurfer)
                                 } else {
                                     // fallback: reload the same track
                                     const first = this.playSongBand && this.playSongBand.songs ? this.playSongBand.songs.find(s => s.id === this.playSong.id) : null
@@ -2358,6 +2384,11 @@ const app = createApp({
             })
             this.wavesurfer.on('play', () => { this._wavePlaying = true })
             this.wavesurfer.on('pause', () => { this._wavePlaying = false })
+            this.wavesurfer.on('error', (err) => {
+                console.error('WaveSurfer error:', err)
+                this.toastMessage = 'Track konnte nicht geladen werden.'
+                this._wavePlaying = false
+            })
         },
         toggleIcon() {
             this.toastIsMaximized = !this.toastIsMaximized

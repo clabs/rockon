@@ -19,6 +19,7 @@ class BandVote(CustomModel):
 
     class Meta:
         ordering = ['band', 'user', 'created_at']
+        unique_together = [('band', 'user')]
 
     def __str__(self):
         return f'vote:{self.user}:{self.band}'

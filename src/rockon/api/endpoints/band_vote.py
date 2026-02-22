@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.db import transaction
 from ninja import Router
 from ninja.security import django_auth
 
@@ -36,16 +37,17 @@ def get_vote(request, band_id: str):
 def submit_vote(request, data: BandVoteIn):
     """Create or update a vote. A vote of -1 deletes the existing vote (abstain)."""
     try:
-        band = Band.objects.get(id=data.band)
+        band = Band.objects.select_related('event').get(id=data.band)
     except Band.DoesNotExist:
         return 404, None
     user = request.user
-    if data.vote == -1:
-        BandVote.objects.filter(band=band, user=user).delete()
-        return 204, None
-    BandVote.objects.update_or_create(
-        band=band, user=user, defaults={'vote': data.vote, 'event': band.event}
-    )
+    with transaction.atomic():
+        if data.vote == -1:
+            BandVote.objects.filter(band=band, user=user).delete()
+            return 204, None
+        BandVote.objects.update_or_create(
+            band=band, user=user, defaults={'vote': data.vote, 'event': band.event}
+        )
     return 201, None
 
 
