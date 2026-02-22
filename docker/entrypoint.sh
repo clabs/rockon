@@ -2,7 +2,8 @@
 set -e
 
 export HOME=/app
-export NUM_WORKERS=$((1 * $(nproc --all)))
+#export NUM_WORKERS=$((1 * $(nproc --all)))
+export NUM_WORKERS=1
 
 cd $HOME
 
