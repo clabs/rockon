@@ -5,6 +5,7 @@ from .models import (
     Band,
     BandMedia,
     BandMember,
+    BandReaction,
     BandVote,
     Comment,
     Stage,
@@ -154,6 +155,14 @@ class BandVoteAdmin(CustomAdminModel):
         # Exclude 'vote' from the fields displayed in the detail view
         fields = super().get_fields(request, obj)
         return [field for field in fields if field != 'vote']
+
+
+@admin.register(BandReaction)
+class BandReactionAdmin(CustomAdminModel):
+    list_display = ('band', 'user', 'emoji', 'created_at')
+    list_filter = ('emoji', 'band__name')
+    search_fields = ('band__name', 'user__username', 'emoji')
+    readonly_fields = ('band', 'user', 'emoji')
 
 
 @admin.register(Comment)

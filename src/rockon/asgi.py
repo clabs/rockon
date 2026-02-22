@@ -11,8 +11,21 @@ from __future__ import annotations
 
 import os
 
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rockon.settings')
 
-application = get_asgi_application()
+# Initialize Django ASGI application early to ensure AppRegistry is populated
+# before importing consumers.
+django_asgi_app = get_asgi_application()
+
+from rockon.bands.routing import websocket_urlpatterns  # noqa: E402
+
+application = ProtocolTypeRouter(
+    {
+        'http': django_asgi_app,
+        'websocket': AuthMiddlewareStack(URLRouter(websocket_urlpatterns)),
+    }
+)

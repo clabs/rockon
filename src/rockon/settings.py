@@ -47,6 +47,7 @@ APP_BUILD_HASH = env.str('GITHUB_SHA', default='local-dev')
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
     'django_q',
     'corsheaders',
     'rest_framework',
+    'channels',
     'rockon.base',
     'rockon.bands',
     'rockon.crew',
@@ -116,6 +118,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'rockon.wsgi.application'
+ASGI_APPLICATION = 'rockon.asgi.application'
 
 
 # Database
@@ -184,6 +187,16 @@ if DEBUG:
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 SESSION_CACHE_ALIAS = 'default'
 SESSION_DATABASE_ALIAS = 'default'
+
+# Django Channels
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [(REDIS_HOST, int(REDIS_PORT))],
+        },
+    },
+}
 
 Q_CLUSTER = {
     'name': 'DJRedis',
@@ -385,7 +398,7 @@ SECURE_CSP = {
         CSP.NONCE,
     ],
     'script-src-elem': [CSP.SELF, CSP.NONCE],
-    'connect-src': [CSP.SELF, 'blob:'],
+    'connect-src': [CSP.SELF, 'blob:', 'ws:', 'wss:'],
     'style-src': [CSP.SELF, CSP.UNSAFE_INLINE],
 }
 

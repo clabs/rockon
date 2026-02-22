@@ -24,18 +24,13 @@ if [ "$1" == "version" ]; then
 fi
 
 if [ "$1" == "app" ] || [ "$STARTMODE" == "app" ]; then
-    # start gunicorn (might be called indirectly via supervisor when started with 'all')
-    /app/.venv/bin/python -m gunicorn rockon.wsgi:application \
-        --name rockon \
-        --workers $NUM_WORKERS \
-        --worker-tmp-dir /dev/shm \
-        --max-requests 1200 \
-        --max-requests-jitter 50 \
-        --log-level=info \
-        --access-logfile=/dev/null \
-        --error-logfile=- \
-        --bind=0.0.0.0:8000 \
-        --bind=unix:/run/rockon/app.sock
+    # start daphne ASGI server (handles both HTTP and WebSocket)
+    /app/.venv/bin/python -m daphne rockon.asgi:application \
+        --bind 0.0.0.0 \
+        --port 8000 \
+        --unix-socket /run/rockon/app.sock \
+        --access-log /dev/null \
+        --verbosity 1
       exit $?
 fi
 
