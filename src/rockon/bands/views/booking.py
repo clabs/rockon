@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from rockon.bands.models import Band, BandVote, TimeSlot
+from rockon.bands.models.band import BidStatus
 
 
 @login_required
@@ -66,6 +67,7 @@ def booking_bid_overview(request, slug):
                 'votes_count': int(band.votes_count or 0),
                 'counters': counters,
                 'bid_status': band.get_bid_status_display(),
+                'bid_status_value': band.bid_status,
                 'track_name': band.track.name if band.track else '',
                 'bid_complete': band.bid_complete,
                 'contact_email': band.contact.email if band.contact else '',
@@ -75,9 +77,12 @@ def booking_bid_overview(request, slug):
         )
 
     template = loader.get_template('booking/bid_overview.html')
+    status_choices = [{'value': c.value, 'label': c.label} for c in BidStatus]
+
     extra_context = {
         'site_title': 'Übersicht',
         'bands_json': mark_safe(json.dumps(bands_data, ensure_ascii=False)),
+        'status_choices_json': mark_safe(json.dumps(status_choices, ensure_ascii=False)),
     }
     return HttpResponse(template.render(extra_context, request))
 

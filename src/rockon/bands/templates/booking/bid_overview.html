@@ -10,7 +10,8 @@
     {% endcompress %}
     <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
-            bands: {{ bands_json }}
+            bands: {{ bands_json }},
+            statusChoices: {{ status_choices_json }}
         }
     </script>
     <style>
@@ -46,6 +47,20 @@
         .bid-overview-wide .table th,
         .bid-overview-wide .table td { padding: 0.25rem 0.4rem; }
         .bid-overview-wide .table td:last-child { white-space: nowrap; }
+        .status-select {
+            background: transparent; color: inherit; border: 1px solid transparent;
+            border-radius: 4px; padding: 0.1rem 0.3rem; font-size: 0.85rem;
+            cursor: pointer; max-width: 160px;
+        }
+        .status-select:hover, .status-select:focus { border-color: #666; background: #424242; }
+        .status-select option { background: #303030; color: #ddd; }
+        .status-saving { opacity: 0.5; pointer-events: none; }
+        .status-flash { animation: flash-success 0.6s ease; }
+        @keyframes flash-success {
+            0% { box-shadow: 0 0 0 0 rgba(25,135,84,0.7); }
+            50% { box-shadow: 0 0 0 4px rgba(25,135,84,0.3); }
+            100% { box-shadow: 0 0 0 0 rgba(25,135,84,0); }
+        }
     </style>
     {% verbatim %}
     <div id="app" v-cloak>
@@ -187,7 +202,16 @@
                                 </span>
                             </span>
                         </td>
-                        <td>{{ band.bid_status }}</td>
+                        <td>
+                            <select class="status-select"
+                                    :class="{ 'status-saving': band._saving }"
+                                    :value="band.bid_status_value"
+                                    @change="updateBandStatus(band, $event.target.value)">
+                                <option v-for="sc in statusChoices" :key="sc.value" :value="sc.value">
+                                    {{ sc.label }}
+                                </option>
+                            </select>
+                        </td>
                         <td>{{ band.track_name }}</td>
                         <td>
                             <span v-if="band.bid_complete" class="badge text-bg-success">✅ Vollständig</span>

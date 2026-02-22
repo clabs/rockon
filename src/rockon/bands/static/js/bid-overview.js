@@ -1,8 +1,19 @@
 const { createApp, ref, computed, onMounted, nextTick, watch } = Vue
 
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+  return match ? decodeURIComponent(match[2]) : null
+}
+
 const BidOverviewApp = {
   setup() {
     const bands = ref(window.rockon_data.bands)
+    const statusChoices = ref(window.rockon_data.statusChoices)
+    const statusLabelMap = computed(() => {
+      const m = {}
+      for (const c of statusChoices.value) m[c.value] = c.label
+      return m
+    })
     const searchQuery = ref('')
     const sortKey = ref('votes_sum')
     const sortDir = ref('desc')
@@ -227,6 +238,32 @@ const BidOverviewApp = {
       return Object.values(counters).some((v) => v > 0)
     }
 
+    // --- Inline status editing ---
+    async function updateBandStatus(band, newValue) {
+      const oldValue = band.bid_status_value
+      const oldDisplay = band.bid_status
+      band._saving = true
+      band.bid_status_value = newValue
+      band.bid_status = statusLabelMap.value[newValue] || newValue
+      try {
+        const resp = await fetch(`/api/v2/bands/${band.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({ bid_status: newValue }),
+        })
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+      } catch (err) {
+        console.error('Status update failed:', err)
+        band.bid_status_value = oldValue
+        band.bid_status = oldDisplay
+      } finally {
+        band._saving = false
+      }
+    }
+
     // --- Excel export ---
     function exportExcel() {
       const rows = sortedBands.value
@@ -305,6 +342,9 @@ const BidOverviewApp = {
       clearFilter,
       isFilterActive,
       isChecked,
+      // Inline status editing
+      statusChoices,
+      updateBandStatus,
     }
   },
 }
