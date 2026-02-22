@@ -15,6 +15,7 @@ from os import getenv, path
 from urllib.parse import urlparse
 
 import sentry_sdk
+from django.db.backends.signals import connection_created
 from django.utils.csp import CSP
 from environs import Env
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -126,8 +127,23 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': path.join(BASE_DIR, DEFAULT_SQLITE_PATH),
+        'ATOMIC_REQUESTS': True,
+        'OPTIONS': {
+            'timeout': 30,
+        },
     },
 }
+
+
+def _enable_wal_mode(sender, connection, **kwargs):
+    """Enable WAL mode for SQLite connections to allow concurrent reads during writes."""
+    if connection.vendor == 'sqlite':
+        cursor = connection.cursor()
+        cursor.execute('PRAGMA journal_mode=WAL;')
+        cursor.execute('PRAGMA synchronous=NORMAL;')
+
+
+connection_created.connect(_enable_wal_mode)
 
 # Redis
 with env.prefixed('REDIS_'):

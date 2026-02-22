@@ -34,19 +34,16 @@ def _calculate_available_event_ids(user):
         from rockon.exhibitors.models import Exhibitor
 
         org_ids = user.organisations.values_list('id', flat=True)
-        exhibitor_events = Exhibitor.objects.filter(
-            organisation_id__in=org_ids
-        ).values_list('event_id', flat=True)
+        exhibitor_events = (
+            Exhibitor.objects.filter(organisation_id__in=org_ids)
+            .select_related('event__sub_event_of')
+        )
 
-        for event_id in list(exhibitor_events):
-            try:
-                event = Event.objects.get(id=event_id)
-                if event.sub_event_of:
-                    event_ids.add(event.sub_event_of.id)
-                else:
-                    event_ids.add(event_id)
-            except Event.DoesNotExist:
-                pass
+        for exhibitor in exhibitor_events:
+            if exhibitor.event.sub_event_of:
+                event_ids.add(exhibitor.event.sub_event_of.id)
+            else:
+                event_ids.add(exhibitor.event_id)
 
     if user.groups.filter(name='bands').exists():
         from rockon.bands.models import Band
