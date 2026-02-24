@@ -98,7 +98,7 @@ def booking_lineup(request, slug):
         .order_by('day__day', 'start')
     )
     lineup_bands = (
-        Band.objects.filter(event__slug=slug, bid_status='lineup')
+        Band.objects.filter(event__slug=slug, bid_status__in=['lineup', 'replacement'])
         .select_related('track')
         .order_by('name')
     )
@@ -122,6 +122,7 @@ def booking_lineup(request, slug):
                 'band_guid': ts.band.guid if ts.band else None,
                 'band_genre': ts.band.genre or '' if ts.band else None,
                 'band_track': ts.band.track.name if ts.band and ts.band.track else None,
+                'band_bid_status': ts.band.bid_status if ts.band else None,
             }
         )
 
@@ -135,6 +136,7 @@ def booking_lineup(request, slug):
                     'guid': band.guid,
                     'genre': band.genre or '',
                     'track': band.track.name if band.track else None,
+                    'bid_status': band.bid_status,
                 }
             )
 

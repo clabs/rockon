@@ -17,6 +17,7 @@ class BidStatus(models.TextChoices):
     ACCEPTED = 'accepted', 'Bewerbung angenommen'
     DECLINED = 'declined', 'Bewerbung abgelehnt'
     LINEUP = 'lineup', 'Line Up'
+    REPLACEMENT = 'replacement', 'Nachrücker'
 
 
 class Band(CustomModel):

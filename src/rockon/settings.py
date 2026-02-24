@@ -337,6 +337,11 @@ LOGGING = {
         'handlers': ['console'],
         'level': getenv('DJANGO_LOG_LEVEL', 'INFO'),
     },
+    'loggers': {
+        'asyncio': {
+            'level': 'WARNING',
+        },
+    },
 }
 
 with env.prefixed('SENTRY_'):

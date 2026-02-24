@@ -18,6 +18,7 @@ class TimeSlotOut(Schema):
     band_guid: str | None = None
     band_genre: str | None = None
     band_track: str | None = None
+    band_bid_status: str | None = None
 
 
 class TimeSlotPatchIn(Schema):
@@ -31,4 +32,5 @@ class TimeSlotPatchOut(Schema):
     band_guid: str | None = None
     band_genre: str | None = None
     band_track: str | None = None
+    band_bid_status: str | None = None
     updated_at: datetime
