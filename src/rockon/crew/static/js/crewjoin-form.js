@@ -52,10 +52,40 @@ $(document).ready(() => {
             }
         }
         console.debug('validated', validated)
-        const form_data = form.serializeArray()
-        console.debug('form data', form_data)
+
         if (validated) {
-            send_form(form_data)
+            const data = {}
+            // Scalar fields
+            data.crew_shirt = parseInt($('[name=crew_shirt]').val())
+            data.nutrition_type = $('[name=nutriton_type]').val() || ''
+            data.nutrition_note = $('[name=nutrition_note]').val() || ''
+            data.skills_note = $('[name=skills_note]').val() || ''
+            data.attendance_note = $('[name=note_attendance]').val() || ''
+            data.stays_overnight = $('[name=stays_overnight]').is(':checked')
+            data.general_note = $('[name=general_note]').val() || ''
+            data.needs_leave_of_absence = $('[name=leave_of_absence]').is(':checked')
+            data.leave_of_absence_note = $('[name=leave_of_absence_note]').val() || ''
+
+            // Collect checked checkbox IDs into typed arrays
+            data.skill_ids = []
+            $('[name^=skill_]:checked').each(function () {
+                data.skill_ids.push(parseInt(this.name.split('_')[1]))
+            })
+            data.attendance_ids = []
+            $('[name^=attendance_]:checked').each(function () {
+                data.attendance_ids.push(parseInt(this.name.split('_')[1]))
+            })
+            data.teamcategory_ids = []
+            $('[name^=teamcategory_]:checked').each(function () {
+                data.teamcategory_ids.push(parseInt(this.name.split('_')[1]))
+            })
+            data.team_ids = []
+            $('[name^=team_]:checked').each(function () {
+                data.team_ids.push(parseInt(this.name.split('_')[1]))
+            })
+
+            console.debug('form data', data)
+            send_form(data)
         }
     })
 

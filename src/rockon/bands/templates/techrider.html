@@ -54,7 +54,7 @@
             console.debug(fields)
             $.ajax({
                 type: "POST",
-                url: "{% url "api_band_techrider" slug=slug %}",
+                url: "/api/v2/band-techrider/{{ slug }}/",
                 data: JSON.stringify(fields),
                 contentType: "application/json",
                 headers: {

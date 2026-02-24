@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_q',
     'corsheaders',
-    'rest_framework',
     'channels',
     'rockon.base',
     'rockon.bands',
@@ -338,20 +337,6 @@ LOGGING = {
         'handlers': ['console'],
         'level': getenv('DJANGO_LOG_LEVEL', 'INFO'),
     },
-}
-
-REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 15,
 }
 
 with env.prefixed('SENTRY_'):

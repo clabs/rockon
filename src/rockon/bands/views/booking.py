@@ -82,7 +82,9 @@ def booking_bid_overview(request, slug):
     extra_context = {
         'site_title': 'Übersicht',
         'bands_json': mark_safe(json.dumps(bands_data, ensure_ascii=False)),
-        'status_choices_json': mark_safe(json.dumps(status_choices, ensure_ascii=False)),
+        'status_choices_json': mark_safe(
+            json.dumps(status_choices, ensure_ascii=False)
+        ),
     }
     return HttpResponse(template.render(extra_context, request))
 

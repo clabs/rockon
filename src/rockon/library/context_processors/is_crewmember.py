@@ -20,6 +20,6 @@ def is_crewmember(request):
         if current_event is not None:
             try:
                 return {'is_crewmember': current_event.crews.is_member(request.user)}
-            except (ObjectDoesNotExist, AttributeError):
+            except ObjectDoesNotExist, AttributeError:
                 pass
     return {'is_crewmember': False}
