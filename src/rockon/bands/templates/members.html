@@ -26,15 +26,26 @@
             $("#new_person_send").click((event) => {
                 event.preventDefault()
                 const form = $("#form_new_person")
-                const data = form.serializeArray()
-                console.debug("form data", data)
-                if (data.some(fieldEmpty)) {
+                const person = {
+                    first_name: form.find('[name=first_name]').val(),
+                    last_name: form.find('[name=last_name]').val(),
+                    address: form.find('[name=address]').val(),
+                    housenumber: form.find('[name=housenumber]').val(),
+                    zip_code: form.find('[name=zip_code]').val(),
+                    place: form.find('[name=place]').val(),
+                    email: form.find('[name=email]').val(),
+                    nutrition: form.find('[name=nutrition]').val(),
+                    position: form.find('[name=position]').val(),
+                }
+                const values = Object.values(person)
+                console.debug("form data", person)
+                if (values.some(v => v === '' || v === 'unknown')) {
                     return alert("Bitte alle Felder ausfüllen.")
                 }
-                if (!validateEmail(data[6].value)) {
+                if (!validateEmail(person.email)) {
                     return alert("Bitte eine gültige E-Mail Adresse eingeben.")
                 }
-                saveForm(data)
+                saveForm(person)
                 $("#form_new_person :input").prop("disabled", true)
                 $("#new_person_send").prop("disabled", true)
                 $("#new_person_send").addClass("d-none")
@@ -64,7 +75,7 @@
                 if (confirm("Bist du dir sicher, dass du das Formular abschicken willst?")) {
                     console.debug("submit persons", persons)
                     $.ajax({
-                        url: '{% url "api_bandmember_signup" %}',
+                        url: '/api/v2/bandmember-signup/',
                         type: 'POST',
                         data: JSON.stringify({"band": band_id, "persons": persons}),
                         contentType: 'application/json',
@@ -99,8 +110,8 @@
             $("#new_person_close").addClass("d-none")
         }
 
-        const fieldEmpty = (element, index, array) => {
-            return element.value === ('' || 'unknown')
+        const fieldEmpty = (value, index, array) => {
+            return value === '' || value === 'unknown'
         }
 
         const saveForm = (data) => {
@@ -113,11 +124,12 @@
         }
 
         const appendRow = (data, index) => {
-            if (!index) index = persons.length - 1
+            if (index === undefined) index = persons.length - 1
             row = `<tr>`
             row += `<td>${index + 1}</td>`
-            data.forEach(element => {
-                row += `<td>${element.value}</td>`
+            const fields = ['first_name', 'last_name', 'address', 'housenumber', 'zip_code', 'place', 'email', 'nutrition', 'position']
+            fields.forEach(field => {
+                row += `<td>${data[field]}</td>`
             })
             row += `<td><button type="button" class="btn btn-danger btn-sm person-delete" data-index="${index}"><i class="fa-solid fa-trash-can"></i></button></td>`
             row += "</tr>"
@@ -145,7 +157,7 @@
             }
             $('#person_table_body').empty()
             persons.forEach((person, index) => {
-                appendRow(person[0], index)
+                appendRow(person, index)
             })
         })
 

@@ -11,7 +11,7 @@
                  background-repeat: no-repeat"></div>
     <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
-            api_crew_signup: "{% url "api_crew_signup" slug=slug %}",
+            api_crew_signup: "/api/v2/crew-signup/{{ slug }}/",
             success_redirect: "{% url "crew:join_submitted" slug=slug %}",
         }
     </script>

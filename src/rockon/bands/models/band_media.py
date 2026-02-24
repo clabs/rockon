@@ -126,9 +126,18 @@ class BandMedia(CustomModel):
 
         ffmpeg_bin = settings.FFMPEG_BIN
         ffmpeg_cmd = [
-            ffmpeg_bin, '-y', '-hide_banner',
-            '-i', _file.file.path,
-            '-vn', '-c:a', 'libmp3lame', '-b:a', '128k', '-ar', '44100',
+            ffmpeg_bin,
+            '-y',
+            '-hide_banner',
+            '-i',
+            _file.file.path,
+            '-vn',
+            '-c:a',
+            'libmp3lame',
+            '-b:a',
+            '128k',
+            '-ar',
+            '44100',
             new_absolute_path,
         ]
         return_code = subprocess.call(ffmpeg_cmd)
@@ -164,8 +173,12 @@ class BandMedia(CustomModel):
 
         convert_bin = settings.CONVERT_BIN
         convert_cmd = [
-            convert_bin, _file.file.path,
-            '-quality', '70%', '-resize', '310x',
+            convert_bin,
+            _file.file.path,
+            '-quality',
+            '70%',
+            '-resize',
+            '310x',
             new_absolute_path,
         ]
         try:

@@ -37,7 +37,7 @@
                 console.debug(fields)
                 $.ajax({
                     type: "POST",
-                    url: "{% url "api_crm_verify_email" %}",
+                    url: "/api/v2/verify-email/",
                     data: JSON.stringify({token: $("input[name=token]").val()}),
                     contentType: "application/json",
                     headers: {

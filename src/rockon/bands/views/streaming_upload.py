@@ -28,7 +28,9 @@ def streaming_upload(request, band, filename):
                 length = end - start + 1
                 file.seek(start)
                 response = FileResponse(
-                    file, status=206, content_type='audio/mpeg',
+                    file,
+                    status=206,
+                    content_type='audio/mpeg',
                 )
                 response['Content-Length'] = length
                 response['Content-Range'] = f'bytes {start}-{end}/{file_size}'

@@ -28,6 +28,7 @@ def _serialize_timeslot(ts):
         'band_guid': ts.band.guid if ts.band else None,
         'band_genre': ts.band.genre or '' if ts.band else None,
         'band_track': ts.band.track.name if ts.band and ts.band.track else None,
+        'band_bid_status': ts.band.bid_status if ts.band else None,
     }
 
 
@@ -59,7 +60,9 @@ def patch_timeslot(request, timeslot_id: str, data: TimeSlotPatchIn):
     )
 
     if data.band_id is not None:
-        band = get_object_or_404(Band, id=data.band_id, bid_status='lineup')
+        band = get_object_or_404(
+            Band, id=data.band_id, bid_status__in=['lineup', 'replacement']
+        )
         # If this band is already in another slot, clear that slot first
         TimeSlot.objects.filter(band=band).exclude(id=ts.id).update(band=None)
         ts.band = band
@@ -76,5 +79,6 @@ def patch_timeslot(request, timeslot_id: str, data: TimeSlotPatchIn):
         'band_guid': ts.band.guid if ts.band else None,
         'band_genre': ts.band.genre or '' if ts.band else None,
         'band_track': ts.band.track.name if ts.band and ts.band.track else None,
+        'band_bid_status': ts.band.bid_status if ts.band else None,
         'updated_at': ts.updated_at,
     }

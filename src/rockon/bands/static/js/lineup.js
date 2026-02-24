@@ -59,6 +59,7 @@ const LineupApp = {
 
     const bandPool = ref(null)
     const wildcardPool = ref(null)
+    const replacementPool = ref(null)
 
     // ── computed ────────────────────────────────────────────
     const assignedCount = computed(
@@ -66,10 +67,13 @@ const LineupApp = {
     )
 
     const regularBands = computed(
-      () => unassignedBands.value.filter((b) => b.track !== 'Wildcard')
+      () => unassignedBands.value.filter((b) => b.bid_status !== 'replacement' && b.track !== 'Wildcard')
     )
     const wildcardBands = computed(
-      () => unassignedBands.value.filter((b) => b.track === 'Wildcard')
+      () => unassignedBands.value.filter((b) => b.bid_status !== 'replacement' && b.track === 'Wildcard')
+    )
+    const replacementBands = computed(
+      () => unassignedBands.value.filter((b) => b.bid_status === 'replacement')
     )
 
     const days = computed(() => {
@@ -110,9 +114,9 @@ const LineupApp = {
       unassignedBands.value = unassignedBands.value.filter((b) => b.id !== bandId)
     }
 
-    function addBandToPool(bandId, bandName, genre, track, guid) {
+    function addBandToPool(bandId, bandName, genre, track, guid, bidStatus) {
       if (!findBandInPool(bandId)) {
-        unassignedBands.value.push({ id: bandId, name: bandName, genre: genre || '', track: track || null, guid: guid || null })
+        unassignedBands.value.push({ id: bandId, name: bandName, genre: genre || '', track: track || null, guid: guid || null, bid_status: bidStatus || 'lineup' })
       }
     }
 
@@ -153,6 +157,7 @@ const LineupApp = {
       const oldBandGenre = ts.band_genre
       const oldBandTrack = ts.band_track
       const oldBandGuid = ts.band_guid
+      const oldBandBidStatus = ts.band_bid_status
 
       // Find band info (pool or another slot)
       const poolBand = findBandInPool(bandId)
@@ -160,6 +165,7 @@ const LineupApp = {
       let bandGenre = poolBand ? poolBand.genre : null
       let bandTrack = poolBand ? poolBand.track : null
       let bandGuid = poolBand ? poolBand.guid : null
+      let bandBidStatus = poolBand ? poolBand.bid_status : null
 
       // If band came from another slot, clear that slot (or swap)
       const sourceSlot = timeslots.value.find(
@@ -170,6 +176,7 @@ const LineupApp = {
         bandGenre = bandGenre || sourceSlot.band_genre
         bandTrack = bandTrack || sourceSlot.band_track
         bandGuid = bandGuid || sourceSlot.band_guid
+        bandBidStatus = bandBidStatus || sourceSlot.band_bid_status
 
         // Swap: move the target slot's band into the source slot
         if (oldBandId && oldBandId !== bandId) {
@@ -178,12 +185,14 @@ const LineupApp = {
           sourceSlot.band_genre = oldBandGenre
           sourceSlot.band_track = oldBandTrack
           sourceSlot.band_guid = oldBandGuid
+          sourceSlot.band_bid_status = oldBandBidStatus
         } else {
           sourceSlot.band_id = null
           sourceSlot.band_name = null
           sourceSlot.band_genre = null
           sourceSlot.band_track = null
           sourceSlot.band_guid = null
+          sourceSlot.band_bid_status = null
         }
       }
 
@@ -194,10 +203,11 @@ const LineupApp = {
       ts.band_genre = bandGenre
       ts.band_track = bandTrack
       ts.band_guid = bandGuid
+      ts.band_bid_status = bandBidStatus
 
       // If the old band wasn't swapped into source slot, return it to pool
       if (oldBandId && oldBandId !== bandId && !sourceSlot) {
-        addBandToPool(oldBandId, oldBandName, oldBandGenre, oldBandTrack, oldBandGuid)
+        addBandToPool(oldBandId, oldBandName, oldBandGenre, oldBandTrack, oldBandGuid, oldBandBidStatus)
       }
 
       try {
@@ -208,6 +218,7 @@ const LineupApp = {
         ts.band_genre = result.band_genre
         ts.band_track = result.band_track
         ts.band_guid = result.band_guid
+        ts.band_bid_status = result.band_bid_status
 
         // If we swapped, also persist the source slot
         if (sourceSlot && sourceSlot.band_id) {
@@ -217,6 +228,7 @@ const LineupApp = {
           sourceSlot.band_genre = swapResult.band_genre
           sourceSlot.band_track = swapResult.band_track
           sourceSlot.band_guid = swapResult.band_guid
+          sourceSlot.band_bid_status = swapResult.band_bid_status
         } else if (sourceSlot) {
           await patchTimeslot(sourceSlot.id, null)
         }
@@ -227,12 +239,14 @@ const LineupApp = {
         ts.band_genre = oldBandGenre
         ts.band_track = oldBandTrack
         ts.band_guid = oldBandGuid
+        ts.band_bid_status = oldBandBidStatus
         if (sourceSlot) {
           sourceSlot.band_id = bandId
           sourceSlot.band_name = bandName
           sourceSlot.band_genre = bandGenre
           sourceSlot.band_track = bandTrack
           sourceSlot.band_guid = bandGuid
+          sourceSlot.band_bid_status = bandBidStatus
         }
         if (poolBand) {
           addBandToPool(bandId, bandName, bandGenre)
@@ -253,6 +267,7 @@ const LineupApp = {
       const bandGenre = ts.band_genre
       const bandTrack = ts.band_track
       const bandGuid = ts.band_guid
+      const bandBidStatus = ts.band_bid_status
       if (!bandId) return
 
       // Optimistic
@@ -261,7 +276,8 @@ const LineupApp = {
       ts.band_genre = null
       ts.band_track = null
       ts.band_guid = null
-      addBandToPool(bandId, bandName, bandGenre, bandTrack, bandGuid)
+      ts.band_bid_status = null
+      addBandToPool(bandId, bandName, bandGenre, bandTrack, bandGuid, bandBidStatus)
 
       try {
         await patchTimeslot(ts.id, null)
@@ -272,6 +288,7 @@ const LineupApp = {
         ts.band_genre = bandGenre
         ts.band_track = bandTrack
         ts.band_guid = bandGuid
+        ts.band_bid_status = bandBidStatus
         removeBandFromPool(bandId)
       }
 
@@ -282,6 +299,7 @@ const LineupApp = {
     // ── SortableJS setup ────────────────────────────────────
     let poolSortable = null
     let wildcardSortable = null
+    let replacementSortable = null
     const slotSortables = new Map()
 
     function _makePoolSortable(el) {
@@ -306,8 +324,10 @@ const LineupApp = {
     function initPoolSortable() {
       if (poolSortable) poolSortable.destroy()
       if (wildcardSortable) wildcardSortable.destroy()
+      if (replacementSortable) replacementSortable.destroy()
       if (bandPool.value) poolSortable = _makePoolSortable(bandPool.value)
       if (wildcardPool.value) wildcardSortable = _makePoolSortable(wildcardPool.value)
+      if (replacementPool.value) replacementSortable = _makePoolSortable(replacementPool.value)
     }
 
     function initSlotSortables() {
@@ -367,6 +387,8 @@ const LineupApp = {
       timeRows,
       bandPool,
       wildcardPool,
+      replacementPool,
+      replacementBands,
       setSlotRef,
       removeBand,
       voteUrl,

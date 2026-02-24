@@ -1,53 +1,35 @@
 from __future__ import annotations
 
-import json
 import logging
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from django.http import JsonResponse
 from django.template import loader
+from ninja import Router
+from ninja.security import django_auth
 
+from rockon.api.schemas.crew_signup import CrewSignupIn
+from rockon.api.schemas.status import StatusOut
 from rockon.crew.models import Crew, CrewMember, Shirt, Team, TeamMember
 from rockon.library.mailer import get_admin_url, send_mail_async
 
 logger = logging.getLogger(__name__)
 
+crewSignupRouter = Router()
 
-@login_required
-def crew_signup(request, slug):
-    # FIXME: refactor to Django forms to validate input
-    body_list = json.loads(request.body)
-    body = {}
-    for item in body_list:
-        body[item['name']] = item['value']
 
-    _skills = [
-        k.split('_')[1] for k, v in body.items() if k.startswith('skill_') and v == 'on'
-    ]
-    _attendance = [
-        k.split('_')[1]
-        for k, v in body.items()
-        if k.startswith('attendance_') and v == 'on'
-    ]
-
-    _teamcategories = [
-        k.split('_')[1]
-        for k, v in body.items()
-        if k.startswith('teamcategory_') and v == 'on'
-    ]
-
-    _teams = [
-        k.split('_')[1] for k, v in body.items() if k.startswith('team_') and v == 'on'
-    ]
-
+@crewSignupRouter.post(
+    '/{slug}/',
+    response={200: StatusOut, 404: StatusOut},
+    url_name='crew_signup',
+    auth=django_auth,
+)
+def crew_signup(request, slug: str, data: CrewSignupIn):
+    """Sign up the authenticated user for a crew."""
     try:
         crew = Crew.objects.get(event__slug=slug)
     except Crew.DoesNotExist:
-        return JsonResponse(
-            {'status': 'error', 'message': 'Crew not found'}, status=404
-        )
+        return 404, {'status': 'error', 'message': 'Crew not found'}
 
     try:
         crew_member = CrewMember.objects.get(user=request.user, crew=crew)
@@ -55,31 +37,31 @@ def crew_signup(request, slug):
         crew_member = CrewMember.objects.create(
             user=request.user,
             crew=crew,
-            shirt=Shirt.objects.get(id=body.get('crew_shirt')),
-            nutrition=body.get('nutriton_type'),
-            nutrition_note=body.get('nutrition_note'),
-            skills_note=body.get('skills_note'),
-            attendance_note=body.get('note_attendance'),
-            stays_overnight=body.get('stays_overnight') == 'on',
-            general_note=body.get('general_note'),
-            needs_leave_of_absence=body.get('leave_of_absence') == 'on',
-            leave_of_absence_note=body.get('leave_of_absence_note'),
+            shirt=Shirt.objects.get(id=data.crew_shirt),
+            nutrition=data.nutrition_type,
+            nutrition_note=data.nutrition_note,
+            skills_note=data.skills_note,
+            attendance_note=data.attendance_note,
+            stays_overnight=data.stays_overnight,
+            general_note=data.general_note,
+            needs_leave_of_absence=data.needs_leave_of_absence,
+            leave_of_absence_note=data.leave_of_absence_note,
         )
 
-    crew_member.skills.add(*_skills)
-    crew_member.attendance.add(*_attendance)
-    crew_member.interested_in.add(*_teamcategories)
+    crew_member.skills.add(*data.skill_ids)
+    crew_member.attendance.add(*data.attendance_ids)
+    crew_member.interested_in.add(*data.teamcategory_ids)
     TeamMember.objects.filter(
         crewmember=crew_member
     ).delete()  # remove all team memberships
-    for team in _teams:
-        team_id = Team.objects.get(id=team)
-        TeamMember.objects.create(team=team_id, crewmember=crew_member)
+    for team_id in data.team_ids:
+        team = Team.objects.get(id=team_id)
+        TeamMember.objects.create(team=team, crewmember=crew_member)
     crew_member.save()
 
-    _send_crewcoord_notification(crew, crew_member, _teams)
+    _send_crewcoord_notification(crew, crew_member, data.team_ids)
 
-    return JsonResponse({'status': 'ok', 'message': 'signed up for crew successfully'})
+    return 200, {'status': 'ok', 'message': 'signed up for crew successfully'}
 
 
 def _send_crewcoord_notification(crew, crew_member, team_ids):

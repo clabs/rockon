@@ -40,7 +40,7 @@
                 })
                 console.debug("data", data)
                 $.ajax({
-                    url: '{% url "api_crm_update_user_profile" %}',
+                    url: '/api/v2/user-profile/',
                     type: 'POST',
                     data: JSON.stringify(data),
                     contentType: 'application/json',
@@ -76,7 +76,7 @@
                 })
                 console.debug("data", data)
                 $.ajax({
-                    url: '{% url "api_crm_update_email" %}',
+                    url: '/api/v2/user-email/',
                     type: 'POST',
                     data: JSON.stringify(data),
                     contentType: 'application/json',
