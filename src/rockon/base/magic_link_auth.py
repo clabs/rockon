@@ -12,5 +12,5 @@ class MagicLinkAuth(BaseBackend):
         try:
             magic_link = MagicLink.objects.select_related('user').get(token=token)
             return magic_link.user
-        except MagicLink.DoesNotExist, User.DoesNotExist:
+        except MagicLink.DoesNotExist, User.DoesNotExist, ValueError:
             return None
