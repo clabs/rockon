@@ -6,7 +6,7 @@ from unittest.mock import mock_open, patch
 
 from django.test import RequestFactory, TestCase
 
-from rockon.bands.views.streaming_upload import _is_safe_filename, streaming_upload
+from rockon.bands.views.streaming_upload import _is_safe_filename, streaming_download
 
 
 class SafeFilenameTests(TestCase):
@@ -67,12 +67,12 @@ class StreamingUploadViewTests(TestCase):
 
     def test_invalid_filename_returns_400(self):
         request = self._get('../bad.mp3')
-        response = streaming_upload(request, self.band, '../bad.mp3')
+        response = streaming_download(request, self.band, '../bad.mp3')
         self.assertEqual(response.status_code, 400)
 
     def test_no_extension_returns_400(self):
         request = self._get('noextension')
-        response = streaming_upload(request, self.band, 'noextension')
+        response = streaming_download(request, self.band, 'noextension')
         self.assertEqual(response.status_code, 400)
 
     def test_file_not_found_returns_404(self):
@@ -85,7 +85,7 @@ class StreamingUploadViewTests(TestCase):
             patch('rockon.bands.views.streaming_upload.settings.MEDIA_ROOT', '/media'),
             patch('builtins.open', side_effect=FileNotFoundError),
         ):
-            response = streaming_upload(request, self.band, 'song.mp3')
+            response = streaming_download(request, self.band, 'song.mp3')
         self.assertEqual(response.status_code, 404)
 
     def test_mp3_returns_200(self):
@@ -104,7 +104,7 @@ class StreamingUploadViewTests(TestCase):
             ),
             patch('builtins.open', m),
         ):
-            response = streaming_upload(request, self.band, filename)
+            response = streaming_download(request, self.band, filename)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'audio/mpeg')
 
@@ -124,7 +124,7 @@ class StreamingUploadViewTests(TestCase):
             ),
             patch('builtins.open', m),
         ):
-            response = streaming_upload(request, self.band, filename)
+            response = streaming_download(request, self.band, filename)
         self.assertEqual(response.status_code, 206)
         self.assertEqual(response['Content-Range'], 'bytes 0-1/4')
 
@@ -144,7 +144,7 @@ class StreamingUploadViewTests(TestCase):
             ),
             patch('builtins.open', m),
         ):
-            response = streaming_upload(request, self.band, filename)
+            response = streaming_download(request, self.band, filename)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'image/webp')
 
@@ -164,5 +164,5 @@ class StreamingUploadViewTests(TestCase):
             ),
             patch('builtins.open', m),
         ):
-            response = streaming_upload(request, self.band, filename)
+            response = streaming_download(request, self.band, filename)
         self.assertEqual(response.status_code, 200)

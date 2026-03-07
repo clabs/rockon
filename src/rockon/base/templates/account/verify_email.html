@@ -12,11 +12,11 @@
                 // FIXME: needs success handling
             }
             ajax_error = (data) => {
-                // FIXMIE: needs error handling
+                // FIXME: needs error handling
                 console.error("error", data)
             }
             ajax_complete = (data) => {
-                // hopenfully this is never triggered
+                // hopefully this is never triggered
                 console.debug("complete", data)
                 if (data.status == 200) {
                     $("#result").html('<div class="alert alert-primary" role="alert">E-Mail-Adresse erfolgreich bestätigt, du wirst in 5 Sekunden weitergeleitet.</div>')

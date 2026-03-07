@@ -23,7 +23,7 @@ def _is_safe_filename(filename: str) -> bool:
     return all(c in _ALLOWED_FILENAME_CHARS for c in filename)
 
 
-def streaming_upload(request, band, filename):
+def streaming_download(request, band, filename):
     if not _is_safe_filename(filename):
         return JsonResponse({'message': 'Invalid filename'}, status=400)
 
@@ -34,38 +34,57 @@ def streaming_upload(request, band, filename):
         return JsonResponse({'message': 'Invalid file path'}, status=400)
 
     try:
-        file = open(file_path, 'rb')
         file_size = os.path.getsize(file_path)
+        file = open(file_path, 'rb')  # FileResponse takes ownership and closes the file
     except FileNotFoundError:
         return JsonResponse({'message': 'File not found'}, status=404)
+    except OSError:
+        # Handle other access-related errors (e.g., PermissionError, IsADirectoryError)
+        return JsonResponse({'message': 'Unable to access file'}, status=403)
 
-    if filename.endswith('.mp3'):
-        range_header = request.META.get('HTTP_RANGE')
-        if range_header:
-            match = re.match(r'bytes=(\d+)-(\d*)', range_header)
-            if match:
-                start = int(match.group(1))
-                end = int(match.group(2)) if match.group(2) else file_size - 1
-                end = min(end, file_size - 1)
-                length = end - start + 1
-                file.seek(start)
-                response = FileResponse(
-                    file,
-                    status=206,
-                    content_type='audio/mpeg',
-                )
-                response['Content-Length'] = length
-                response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
-                response['Accept-Ranges'] = 'bytes'
-                return response
-        response = FileResponse(file, status=200, content_type='audio/mpeg')
-        response['Accept-Ranges'] = 'bytes'
-        response['Content-Length'] = file_size
-        return response
+    try:
+        if filename.endswith('.mp3'):
+            range_header = request.META.get('HTTP_RANGE')
+            if range_header:
+                match = re.match(r'bytes=(\d+)-(\d*)', range_header)
+                if match:
+                    start = int(match.group(1))
+                    end = int(match.group(2)) if match.group(2) else file_size - 1
+                    end = min(end, file_size - 1)
+                    # Validate the requested range; return 416 if invalid.
+                    if start < 0 or start >= file_size or start > end:
+                        file.close()
+                        file = None
+                        response = JsonResponse({'message': 'Range Not Satisfiable'}, status=416)
+                        response['Content-Range'] = f'bytes */{file_size}'
+                        return response
+                    length = end - start + 1
+                    file.seek(start)
+                    response = FileResponse(
+                        file,
+                        status=206,
+                        content_type='audio/mpeg',
+                    )
+                    file = None
+                    response['Content-Length'] = length
+                    response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
+                    response['Accept-Ranges'] = 'bytes'
+                    return response
+            response = FileResponse(file, status=200, content_type='audio/mpeg')
+            file = None
+            response['Accept-Ranges'] = 'bytes'
+            response['Content-Length'] = file_size
+            return response
 
-    if filename.endswith('.webp'):
+        if filename.endswith('.webp'):
+            response = FileResponse(file, status=200)
+            file = None
+            response['Content-Type'] = 'image/webp'
+            return response
+
         response = FileResponse(file, status=200)
-        response['Content-Type'] = 'image/webp'
+        file = None
         return response
-
-    return FileResponse(file, status=200)
+    finally:
+        if file is not None:
+            file.close()
