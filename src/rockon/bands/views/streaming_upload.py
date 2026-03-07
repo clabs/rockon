@@ -7,11 +7,21 @@ from django.conf import settings
 from django.http import FileResponse, JsonResponse
 
 
+# Only allow filenames that are a single safe name with one extension (no path separators or traversal).
+_SAFE_FILENAME_RE = re.compile(r'[\w\-]+\.[\w]+$')
+
+
 def streaming_upload(request, band, filename):
-    path = os.path.join(settings.MEDIA_ROOT, 'bids', band)
+    if not _SAFE_FILENAME_RE.match(filename):
+        return JsonResponse({'message': 'Invalid filename'}, status=400)
+
+    base_dir = os.path.realpath(os.path.join(settings.MEDIA_ROOT, 'bids', str(band)))
+    file_path = os.path.realpath(os.path.join(base_dir, filename))
+
+    if not file_path.startswith(base_dir + os.sep):
+        return JsonResponse({'message': 'Invalid file path'}, status=400)
 
     try:
-        file_path = os.path.join(path, filename)
         file = open(file_path, 'rb')
         file_size = os.path.getsize(file_path)
     except FileNotFoundError:

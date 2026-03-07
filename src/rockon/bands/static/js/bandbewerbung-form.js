@@ -400,19 +400,16 @@ ajax_success = data => {
     console.info(data)
 }
 ajax_error = (data, form_obj, url) => {
-    // FIXME: needs error handling
     console.error(data)
-    const response = data.responseJSON
-    $('#api_message').html(`
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <strong>Fehler!</strong> Bitte schicke uns folgenden Text an <a href="mailto:hallo@rockon.dev">hallo@rockon.dev</a>: <br>
-      <pre style="background-color: black; font-color: white;">
-      ${JSON.stringify(data)}
-      ${JSON.stringify(form_obj)}
-      ${url}
-      </pre>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `)
+    const detail = [JSON.stringify(data), JSON.stringify(form_obj), url].join('\n')
+    $('#api_message').html(
+        '<div class="alert alert-danger alert-dismissible fade show" role="alert">'
+        + '<strong>Fehler!</strong> Bitte schicke uns folgenden Text an <a href="mailto:hallo@rockon.dev">hallo@rockon.dev</a>: <br>'
+        + '<pre id="api_error_detail" style="background-color: black; color: white;"></pre>'
+        + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+        + '</div>'
+    )
+    $('#api_error_detail').text(detail)
 }
 ajax_complete = data => {
     console.info(data)
