@@ -46,11 +46,6 @@ Prefer simple solutions over clever abstractions.
 - Use Django’s built-in security defaults (autoescaping, CSRF protection).
 - Use Django's own i18n and message system for all user facing strings.
 
-### Forms
-
-- Use Django forms for server-rendered flows and validation.
-- Put input validation in forms; put cross-entity domain rules in services.
-
 ### Queries
 
 - Avoid N+1: use `select_related` / `prefetch_related` where needed.
@@ -81,9 +76,6 @@ Prefer simple solutions over clever abstractions.
   - pages work without JS when feasible
   - JS enhances interactivity (fetch, inline updates)
 - Use `fetch()` to call django-ninja APIs where appropriate.
-- Keep DOM manipulation simple; avoid building mini-frameworks.
-- Keep static assets organized:
-  - `static/<app>/...` and `templates/<app>/...` (or match existing layout)
 - Use CSRF correctly for unsafe methods:
   - include `{% csrf_token %}` in forms
   - for `fetch()` POST/PUT/PATCH/DELETE, send the CSRF token header from the cookie.
