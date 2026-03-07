@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import File, Router, UploadedFile
@@ -7,6 +9,8 @@ from ninja.security import django_auth
 
 from rockon.api.schemas.band_media import BandMediaOut
 from rockon.bands.models import Band, BandMedia
+
+logger = logging.getLogger(__name__)
 
 bandMediaRouter = Router()
 
@@ -69,7 +73,9 @@ def upload_media(
             media_type = body.get('media_type', 'unknown')
             url = body.get('url')
         except (json.JSONDecodeError, UnicodeDecodeError):
-            pass
+            # Treat invalid or undecodable JSON as if no JSON body was provided;
+            # the missing `band` will be handled by the validation below.
+            logger.debug("Failed to parse JSON body when uploading band media", exc_info=True)
 
     if not band:
         return HttpResponse(status=400, content='band is required')
