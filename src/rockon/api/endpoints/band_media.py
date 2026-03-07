@@ -34,7 +34,7 @@ def _serialize_media(media: BandMedia) -> dict:
 )
 def list_media(request, band_id: str | None = None):
     """List media, optionally filtered by band_id."""
-    queryset = BandMedia.objects.all()
+    queryset = BandMedia.objects.all().select_related('file', 'encoded_file', 'thumbnail')
     if band_id:
         queryset = queryset.filter(band__id=band_id)
     if not request.user.is_staff:
@@ -68,7 +68,7 @@ def upload_media(
             band = body.get('band')
             media_type = body.get('media_type', 'unknown')
             url = body.get('url')
-        except json.JSONDecodeError, UnicodeDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             pass
 
     if not band:

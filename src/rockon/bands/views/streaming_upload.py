@@ -23,7 +23,7 @@ def _is_safe_filename(filename: str) -> bool:
     return all(c in _ALLOWED_FILENAME_CHARS for c in filename)
 
 
-def streaming_upload(request, band, filename):
+def streaming_download(request, band, filename):
     if not _is_safe_filename(filename):
         return JsonResponse({'message': 'Invalid filename'}, status=400)
 
@@ -34,10 +34,13 @@ def streaming_upload(request, band, filename):
         return JsonResponse({'message': 'Invalid file path'}, status=400)
 
     try:
-        file = open(file_path, 'rb')
         file_size = os.path.getsize(file_path)
+        file = open(file_path, 'rb')  # FileResponse takes ownership and closes the file
     except FileNotFoundError:
         return JsonResponse({'message': 'File not found'}, status=404)
+    except OSError:
+        # Handle other access-related errors (e.g., PermissionError, IsADirectoryError)
+        return JsonResponse({'message': 'Unable to access file'}, status=403)
 
     if filename.endswith('.mp3'):
         range_header = request.META.get('HTTP_RANGE')
@@ -47,6 +50,12 @@ def streaming_upload(request, band, filename):
                 start = int(match.group(1))
                 end = int(match.group(2)) if match.group(2) else file_size - 1
                 end = min(end, file_size - 1)
+                # Validate the requested range; return 416 if invalid.
+                if start < 0 or start >= file_size or start > end:
+                    file.close()
+                    response = JsonResponse({'message': 'Range Not Satisfiable'}, status=416)
+                    response['Content-Range'] = f'bytes */{file_size}'
+                    return response
                 length = end - start + 1
                 file.seek(start)
                 response = FileResponse(
