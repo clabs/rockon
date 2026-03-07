@@ -2,17 +2,29 @@ from __future__ import annotations
 
 import os
 import re
+import string
 
 from django.conf import settings
 from django.http import FileResponse, JsonResponse
 
+_ALLOWED_FILENAME_CHARS = frozenset(string.ascii_letters + string.digits + '._-')
 
-# Only allow filenames that are a single safe name with one extension (no path separators or traversal).
-_SAFE_FILENAME_RE = re.compile(r'[\w\-]+\.[\w]+$')
+
+def _is_safe_filename(filename: str) -> bool:
+    # Must not be empty and must not start with a dot (prevents hidden/traversal names).
+    if not filename or filename.startswith('.'):
+        return False
+    # Path separators are forbidden regardless of OS.
+    if '/' in filename or '\\' in filename:
+        return False
+    # Must have at least one dot (i.e. an extension).
+    if '.' not in filename:
+        return False
+    return all(c in _ALLOWED_FILENAME_CHARS for c in filename)
 
 
 def streaming_upload(request, band, filename):
-    if not _SAFE_FILENAME_RE.match(filename):
+    if not _is_safe_filename(filename):
         return JsonResponse({'message': 'Invalid filename'}, status=400)
 
     base_dir = os.path.realpath(os.path.join(settings.MEDIA_ROOT, 'bids', str(band)))
