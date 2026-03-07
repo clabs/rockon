@@ -2,16 +2,38 @@ from __future__ import annotations
 
 import os
 import re
+import string
 
 from django.conf import settings
 from django.http import FileResponse, JsonResponse
 
+_ALLOWED_FILENAME_CHARS = frozenset(string.ascii_letters + string.digits + '._-')
+
+
+def _is_safe_filename(filename: str) -> bool:
+    # Must not be empty and must not start with a dot (prevents hidden/traversal names).
+    if not filename or filename.startswith('.'):
+        return False
+    # Path separators are forbidden regardless of OS.
+    if '/' in filename or '\\' in filename:
+        return False
+    # Must have at least one dot (i.e. an extension).
+    if '.' not in filename:
+        return False
+    return all(c in _ALLOWED_FILENAME_CHARS for c in filename)
+
 
 def streaming_upload(request, band, filename):
-    path = os.path.join(settings.MEDIA_ROOT, 'bids', band)
+    if not _is_safe_filename(filename):
+        return JsonResponse({'message': 'Invalid filename'}, status=400)
+
+    base_dir = os.path.realpath(os.path.join(settings.MEDIA_ROOT, 'bids', str(band)))
+    file_path = os.path.realpath(os.path.join(base_dir, filename))
+
+    if not file_path.startswith(base_dir + os.sep):
+        return JsonResponse({'message': 'Invalid file path'}, status=400)
 
     try:
-        file_path = os.path.join(path, filename)
         file = open(file_path, 'rb')
         file_size = os.path.getsize(file_path)
     except FileNotFoundError:

@@ -8,5 +8,5 @@ from .views import streaming_upload
 # path("chat/list/", cache_page(60*15)(ChatList.as_view()), name="chat_list"),
 
 urlpatterns = [
-    path('<band>/<filename>', streaming_upload, name='bands_streaming_upload'),
+    path('<uuid:band>/<filename>', streaming_upload, name='bands_streaming_upload'),
 ]
