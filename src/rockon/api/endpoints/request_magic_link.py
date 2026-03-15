@@ -10,6 +10,7 @@ requestMagicLink = Router()
 
 @requestMagicLink.post('', response=RequestMagicLinkOut, url_name='request_magic_link')
 def request_login(request, data: RequestMagicLinkIn):
-    user = get_object_or_404(User, email=data.email)
+    email = data.email.strip().lower()
+    user = get_object_or_404(User, email=email, is_active=True)
     MagicLink.create_and_send(user)
     return {'status': 'ok', 'message': 'Magic link sent if mail matches a user.'}
