@@ -4,6 +4,7 @@ from .attendance import Attendance, AttendancePhase
 from .attendance_addition import AttendanceAddition
 from .crew import Crew
 from .crew_member import CrewMember, CrewMemberNutrion, CrewMemberStatus
+from .event_team import EventTeam
 from .guestlist_entry import GuestListEntry
 from .shirt import Shirt
 from .skill import Skill
@@ -19,6 +20,7 @@ __all__ = [
     'CrewMember',
     'CrewMemberNutrion',
     'CrewMemberStatus',
+    'EventTeam',
     'GuestListEntry',
     'Shirt',
     'Skill',

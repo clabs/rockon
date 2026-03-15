@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth import login
 from django.core import exceptions
+from django.db import transaction
 from django.urls import reverse
 from ninja import Router
 
@@ -25,14 +26,15 @@ def verify_email(request, data: VerifyEmailIn):
         )
         if not verification.is_active:
             return 201, {'status': 'token_spent'}
-        user = verification.user
-        user.profile.email_is_verified = True
-        if verification.new_email:
-            user.email = verification.new_email
-            user.username = verification.new_email
-        user.save()
-        verification.is_active = False
-        verification.save()
+        with transaction.atomic():
+            user = verification.user
+            user.profile.email_is_verified = True
+            if verification.new_email:
+                user.email = verification.new_email
+                user.username = verification.new_email
+            user.save()
+            verification.is_active = False
+            verification.save()
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         return 200, {'status': 'verified', 'next': reverse('base:account')}
     except (

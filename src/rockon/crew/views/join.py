@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from django.db.models import Prefetch
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
 
 from rockon.base.models import Event
-from rockon.crew.models import Attendance, Shirt, Skill, TeamCategory
+from rockon.crew.models import Attendance, EventTeam, Shirt, Skill, Team, TeamCategory
 from rockon.crew.models.crew_member import CrewMember
 
 
@@ -29,7 +30,31 @@ def join(request, slug):
     shirts = Shirt.objects.all()
     skills = Skill.objects.all()
     attendance_phases = Attendance.get_phases(event=event)
-    team_categories = TeamCategory.objects.all()
+    join_event_teams = EventTeam.objects.filter(event=event).select_related('event')
+    team_categories = (
+        TeamCategory.objects.filter(
+            teams__event_links__event=event,
+            teams__is_public=True,
+        )
+        .distinct()
+        .prefetch_related(
+            Prefetch(
+                'teams',
+                queryset=Team.objects.filter(
+                    event_links__event=event,
+                    is_public=True,
+                )
+                .order_by('name')
+                .prefetch_related(
+                    Prefetch(
+                        'event_links',
+                        queryset=join_event_teams,
+                        to_attr='join_event_links',
+                    )
+                ),
+            )
+        )
+    )
     allow_overnight = request.user.profile.over_18()
     extra_context = {
         'og_title': f'Crewanmeldung {event.name}',

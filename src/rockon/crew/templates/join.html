@@ -55,19 +55,21 @@
                                     <h5 class="card-text">Teams</h5>
                                     <ul class="list-group list-group-flush">
                                         {% for team in team_category.teams.all %}
-                                            {% if team.is_public %}
+                                            {% if team.is_public and team.join_event_links %}
+                                                {% with event_team=team.join_event_links.0 %}
                                                 <li class="list-group-item">
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input"
-                                                               data-team="{{ team.id }}"
+                                                               data-team="{{ event_team.id }}"
                                                                type="checkbox"
                                                                role="switch"
-                                                               id="team_{{ team.id }}"
-                                                               name="team_{{ team.id }}"/>
+                                                               id="team_{{ event_team.id }}"
+                                                               name="team_{{ event_team.id }}"/>
                                                         <label class="form-check-label"
-                                                               for="team_{{ team.id }}">{{ team }}</label>
+                                                               for="team_{{ event_team.id }}">{{ team }}</label>
                                                     </div>
                                                 </li>
+                                                {% endwith %}
                                             {% endif %}
                                         {% endfor %}
                                     </ul>
