@@ -15,6 +15,4 @@ class Crew(CustomModel):
         return self.name
 
     def is_member(self, user):
-        return self.crew_members.filter(
-            user=user, state__in=['confirmed', 'arrived']
-        ).exists()
+        return self.crew_members.filter(user=user, state='confirmed').exists()

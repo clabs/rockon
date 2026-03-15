@@ -21,7 +21,6 @@ from rockon.crew.models.crew_member import (
 
 READONLY_CREW_STATES = {
     CrewMemberStatus.CONFIRMED,
-    CrewMemberStatus.ARRIVED,
 }
 
 

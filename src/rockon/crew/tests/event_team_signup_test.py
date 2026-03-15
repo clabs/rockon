@@ -255,14 +255,13 @@ class EventScopedTeamSignupTests(TestCase):
         'rockon.base.models.user_profile.UserProfile.is_profile_complete_crew',
         return_value=True,
     )
-    def test_join_view_sets_readonly_only_for_confirmed_and_arrived(self, _is_complete):
+    def test_join_view_sets_readonly_only_for_confirmed(self, _is_complete):
         self.client.force_login(self.user)
 
         for state, expected_readonly in [
             (CrewMemberStatus.UNKNOWN, False),
             (CrewMemberStatus.REJECTED, False),
             (CrewMemberStatus.CONFIRMED, True),
-            (CrewMemberStatus.ARRIVED, True),
         ]:
             CrewMember.objects.filter(user=self.user, crew=self.crew_one).delete()
             CrewMember.objects.create(

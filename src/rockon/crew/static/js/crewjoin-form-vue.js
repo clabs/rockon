@@ -23,14 +23,9 @@ const CREW_STATE_ALERTS = {
         title: 'Status: Abgelehnt.',
         message: 'Deine Anmeldung wurde aktuell nicht bestätigt. Du kannst deine Angaben weiterhin bearbeiten und erneut absenden.',
     },
-    arrived: {
-        className: 'alert-success',
-        title: 'Status: Angekommen.',
-        message: 'Du bist bereits als angekommen markiert. Die Anmeldung ist schreibgeschützt.',
-    },
 }
 
-const READ_ONLY_STATES = ['confirmed', 'arrived']
+const READ_ONLY_STATES = ['confirmed']
 
 function createInitialFormData() {
     return {

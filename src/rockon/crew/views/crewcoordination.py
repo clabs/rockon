@@ -33,10 +33,7 @@ def crew_chart(request, slug):
         attendances = (
             Attendance.objects.filter(
                 event=event,
-                crew_members__state__in=[
-                    CrewMemberStatus.CONFIRMED,
-                    CrewMemberStatus.ARRIVED,
-                ],
+                crew_members__state=CrewMemberStatus.CONFIRMED,
             )
             .order_by('day')
             .annotate(no_of_crew_members=Count('crew_members'))
@@ -307,6 +304,25 @@ def crew_member_management(request, slug):
                 crew_member.state = state
                 crew_member.save(update_fields=['state'])
                 messages.success(request, 'Crewmitgliedsstatus wurde aktualisiert.')
+        elif action == 'update_member_arrived':
+            crew_member_id = request.POST.get('crew_member_id')
+            arrived_value = request.POST.get('arrived', '0')
+
+            crew_member = (
+                CrewMember.objects.filter(
+                    id=crew_member_id,
+                    crew__event=event,
+                )
+                .select_related('user')
+                .first()
+            )
+
+            if crew_member is None:
+                messages.error(request, 'Ungültiges Crewmitglied für dieses Event.')
+            else:
+                crew_member.arrived = arrived_value == '1'
+                crew_member.save(update_fields=['arrived'])
+                messages.success(request, 'Ankunftsstatus wurde aktualisiert.')
         else:
             messages.error(request, 'Unbekannte Aktion.')
 

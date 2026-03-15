@@ -14,7 +14,6 @@ class CrewMemberStatus(models.TextChoices):
     UNKNOWN = 'unknown', 'Unbekannt'
     CONFIRMED = 'confirmed', 'Bestätigt'
     REJECTED = 'rejected', 'Abgelehnt'
-    ARRIVED = 'arrived', 'Angekommen'
 
 
 class CrewMemberNutrion(models.TextChoices):
@@ -58,6 +57,7 @@ class CrewMember(CustomModel):
     )
     attendance_note = models.TextField(null=True, blank=True)
     stays_overnight = models.BooleanField(default=False, db_default=False)
+    arrived = models.BooleanField(default=False, db_default=False)
     general_note = models.TextField(null=True, blank=True)
     needs_leave_of_absence = models.BooleanField(default=False)
     has_leave_of_absence = models.BooleanField(default=False)

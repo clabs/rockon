@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     <div class="container-fluid">
         <h2>Crewmitglieder</h2>
@@ -30,9 +31,9 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3 d-grid gap-2">
-                    <button class="btn btn-primary" type="submit">Filtern</button>
-                    <a class="btn btn-outline-secondary" href="{% url 'crew:coord_members' slug=event.slug %}">Filter zurücksetzen</a>
+                <div class="col-md-3 d-flex gap-2 align-items-end">
+                    <button class="btn btn-primary btn-sm" type="submit">Filtern</button>
+                    <a class="btn btn-outline-secondary btn-sm" href="{% url 'crew:coord_members' slug=event.slug %}">Filter zurücksetzen</a>
                 </div>
             </div>
         </form>
@@ -49,6 +50,7 @@
                         <th scope="col">Crew</th>
                         <th scope="col">Status</th>
                         <th scope="col">Status ändern</th>
+                        <th scope="col">Angekommen</th>
                         <th scope="col">Backstage</th>
                     </tr>
                     </thead>
@@ -66,9 +68,9 @@
                                     <input type="hidden" name="crew_member_id" value="{{ member.id }}">
                                     <input type="hidden" name="q" value="{{ search_query }}">
                                     <input type="hidden" name="state_filter" value="{{ selected_state }}">
-                                    <div class="col-lg-8">
+                                    <div class="col-12">
                                         <label class="visually-hidden" for="state_{{ member.id }}">Status</label>
-                                        <select class="form-select form-select-sm" id="state_{{ member.id }}" name="state">
+                                        <select class="form-select form-select-sm" id="state_{{ member.id }}" name="state" data-autosubmit-state>
                                             {% for state_value, state_label in member_states %}
                                                 <option value="{{ state_value }}" {% if member.state == state_value %}selected{% endif %}>
                                                     {{ state_label }}
@@ -76,9 +78,22 @@
                                             {% endfor %}
                                         </select>
                                     </div>
-                                    <div class="col-lg-4 d-grid">
-                                        <button class="btn btn-sm btn-outline-light" type="submit">Setzen</button>
-                                    </div>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post" class="d-grid">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_member_arrived">
+                                    <input type="hidden" name="crew_member_id" value="{{ member.id }}">
+                                    <input type="hidden" name="q" value="{{ search_query }}">
+                                    <input type="hidden" name="state_filter" value="{{ selected_state }}">
+                                    {% if member.arrived %}
+                                        <input type="hidden" name="arrived" value="0">
+                                        <button class="btn btn-sm btn-primary fw-semibold" type="submit" title="Als nicht angekommen markieren">&#10003; Angekommen</button>
+                                    {% else %}
+                                        <input type="hidden" name="arrived" value="1">
+                                        <button class="btn btn-sm btn-outline-primary fw-semibold" type="submit" title="Als angekommen markieren">Nicht angekommen</button>
+                                    {% endif %}
                                 </form>
                             </td>
                             <td>
@@ -89,7 +104,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="6">Keine Crewmitglieder für dieses Event gefunden.</td>
+                            <td colspan="7">Keine Crewmitglieder für dieses Event gefunden.</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -99,4 +114,5 @@
             <div class="alert alert-secondary" role="alert">Keine Crewmitglieder für dieses Event gefunden.</div>
         {% endif %}
     </div>
+    <script src="{% static 'js/crewcoord-members.js' %}" nonce="{{ csp_nonce }}"></script>
 {% endblock content %}

@@ -103,7 +103,12 @@ def mark_rejected(modeladmin, request, queryset):
 
 @admin.action(description='Mark selected crew members as arrived')
 def mark_arrived(modeladmin, request, queryset):
-    queryset.update(state='arrived')
+    queryset.update(arrived=True)
+
+
+@admin.action(description='Mark selected crew members as not arrived')
+def mark_not_arrived(modeladmin, request, queryset):
+    queryset.update(arrived=False)
 
 
 @admin.action(description='Mark selected crew members as unknown')
@@ -117,6 +122,7 @@ class CrewMemberAdmin(CustomAdminModel):
         '__str__',
         'crew',
         'state',
+        'arrived',
         'stays_overnight',
         'over_16',
         'over_18',
@@ -130,6 +136,7 @@ class CrewMemberAdmin(CustomAdminModel):
     list_filter = (
         'crew__name',
         'state',
+        'arrived',
         'shirt__size',
         'shirt__cut',
         'nutrition',
@@ -139,7 +146,13 @@ class CrewMemberAdmin(CustomAdminModel):
         'created_at',
         'updated_at',
     )
-    actions = [mark_confirmed, mark_rejected, mark_arrived, mark_unknown]
+    actions = [
+        mark_confirmed,
+        mark_rejected,
+        mark_arrived,
+        mark_not_arrived,
+        mark_unknown,
+    ]
     show_facets = admin.ShowFacets.ALWAYS
 
     @admin.display(boolean=True, description='Over 16')
