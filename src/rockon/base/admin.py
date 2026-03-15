@@ -58,6 +58,7 @@ class MagicLinkAdmin(CustomAdminModel):
 class EventAdmin(CustomAdminModel):
     list_display = ('name', 'slug', 'start', 'end', 'created_at', 'updated_at')
     readonly_fields = ('slug',)
+    search_fields = ('name', 'slug', 'location')
 
 
 @admin.register(Organisation)

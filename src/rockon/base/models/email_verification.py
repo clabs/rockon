@@ -32,7 +32,6 @@ class EmailVerification(CustomModel):
         """Creates a verification link and sends email to the user."""
 
         email_verifcation = cls.objects.create(user=user, new_email=new_email)
-        email_verifcation.save()
 
         # FIXME: import the scheme, domain and rest of things from Django settings
         # FIXME: use absolute URLs in templates

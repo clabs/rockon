@@ -8,6 +8,7 @@ from .models import (
     AttendanceAddition,
     Crew,
     CrewMember,
+    EventTeam,
     GuestListEntry,
     Shirt,
     Skill,
@@ -202,20 +203,58 @@ class TeamMemberInline(admin.TabularInline):
         return super().get_queryset(request).select_related('crewmember__user')
 
 
+class EventTeamInline(admin.TabularInline):
+    model = EventTeam
+    extra = 0
+    readonly_fields = ('created_at', 'updated_at')
+    fields = ('event', 'lead', 'vize_lead', 'created_at', 'updated_at')
+    autocomplete_fields = ('event', 'lead', 'vize_lead')
+
+    def get_queryset(self, request):
+        return (
+            super().get_queryset(request).select_related('event', 'lead', 'vize_lead')
+        )
+
+
 @admin.register(Team)
 class TeamAdmin(CustomAdminModel):
-    inlines = (TeamMemberInline,)
+    inlines = (EventTeamInline,)
     list_display = (
         'name',
-        'lead',
-        'vize_lead',
+        'category',
         'description',
         'is_public',
         'updated_at',
     )
-    search_fields = ('name', 'lead', 'vize_lead', 'description')
-    ordering = ('name', 'lead', 'vize_lead', 'is_public', 'updated_at')
-    list_filter = ('name', 'is_public', 'updated_at')
+    search_fields = ('name', 'category__name', 'description')
+    ordering = ('name', 'category__name', 'is_public', 'updated_at')
+    list_filter = ('category__name', 'events__name', 'is_public', 'updated_at')
+
+
+@admin.register(EventTeam)
+class EventTeamAdmin(CustomAdminModel):
+    inlines = (TeamMemberInline,)
+    list_display = ('team', 'event', 'lead', 'vize_lead', 'is_public', 'updated_at')
+    search_fields = (
+        'team__name',
+        'event__name',
+        'lead__first_name',
+        'lead__last_name',
+        'vize_lead__first_name',
+        'vize_lead__last_name',
+    )
+    ordering = ('event__start', 'team__name', 'updated_at')
+    list_filter = (
+        'event__name',
+        'team__category__name',
+        'team__is_public',
+        'updated_at',
+    )
+    autocomplete_fields = ('event', 'team', 'lead', 'vize_lead')
+
+    @admin.display(boolean=True, description='Public')
+    def is_public(self, obj):
+        return obj.team.is_public
 
 
 @admin.register(TeamCategory)
@@ -227,14 +266,24 @@ class TeamCategoryAdmin(CustomAdminModel):
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(CustomAdminModel):
-    list_display = ('crewmember', 'team', 'state', 'created_at', 'updated_at')
+    list_display = ('crewmember', 'team', 'event', 'state', 'created_at', 'updated_at')
     search_fields = (
-        'team__name',
+        'event_team__team__name',
+        'event_team__event__name',
         'crewmember__user__first_name',
         'crewmember__user__last_name',
     )
-    ordering = ('team', 'state')
+    ordering = ('event_team__team__name', 'state')
     list_filter = (
-        'team__name',
-        'crewmember__crew__event',
+        'event_team__team__name',
+        'event_team__event',
+        'state',
     )
+
+    @admin.display(ordering='event_team__team__name')
+    def team(self, obj):
+        return obj.team
+
+    @admin.display(ordering='event_team__event__name')
+    def event(self, obj):
+        return obj.event

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.security import django_auth
@@ -59,17 +60,18 @@ def patch_timeslot(request, timeslot_id: str, data: TimeSlotPatchIn):
         TimeSlot.objects.select_related('band__track'), id=timeslot_id
     )
 
-    if data.band_id is not None:
-        band = get_object_or_404(
-            Band, id=data.band_id, bid_status__in=['lineup', 'replacement']
-        )
-        # If this band is already in another slot, clear that slot first
-        TimeSlot.objects.filter(band=band).exclude(id=ts.id).update(band=None)
-        ts.band = band
-    else:
-        ts.band = None
+    with transaction.atomic():
+        if data.band_id is not None:
+            band = get_object_or_404(
+                Band, id=data.band_id, bid_status__in=['lineup', 'replacement']
+            )
+            # If this band is already in another slot, clear that slot first
+            TimeSlot.objects.filter(band=band).exclude(id=ts.id).update(band=None)
+            ts.band = band
+        else:
+            ts.band = None
 
-    ts.save()
+        ts.save()
     ts.refresh_from_db()
     ts = TimeSlot.objects.select_related('band__track').get(id=ts.id)
     return {

@@ -129,7 +129,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': path.join(BASE_DIR, DEFAULT_SQLITE_PATH),
-        'ATOMIC_REQUESTS': True,
         'OPTIONS': {
             'timeout': 30,
         },
@@ -166,6 +165,8 @@ CACHES = {
         'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
         },
     },
     'offline_compress': {

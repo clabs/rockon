@@ -2,381 +2,415 @@
 {% block content %}
     {% load static %}
     {% load compress %}
-    <h1>CREW ANMELDUNG - {{ current_event.name }}</h1>
-    <div class="row"
-         style="height: 33vh;
-                 background-image: url({{ current_event.get_image_url }});
-                 background-size: cover;
-                 background-position: center center;
-                 background-repeat: no-repeat"></div>
+    {% compress js file vue %}
+        <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
+    {% endcompress %}
+    {% compress js file crewjoin_vue %}
+        <script src="{% static 'js/crewjoin-form-vue.js' %}"></script>
+    {% endcompress %}
     <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
             api_crew_signup: "/api/v2/crew-signup/{{ slug }}/",
             success_redirect: "{% url "crew:join_submitted" slug=slug %}",
+            privacy_url: "{% url 'rockon_privacy' %}",
+            csrf_token: "{{ csrf_token }}",
+            shirts: {{ shirts_json }},
+            skills: {{ skills_json }},
+            attendance_phases: {{ attendance_phases_json }},
+            team_categories: {{ team_categories_json }},
+            allow_overnight: {{ allow_overnight|yesno:"true,false" }},
+            event_name: "{{ event_name|escapejs }}",
+            event_image_url: "{{ event_image_url|escapejs }}"
         }
     </script>
-    {% compress js %}
-        <script src="{% static 'js/crewjoin-form.js' %}"></script>
-    {% endcompress %}
-    <form id="signup"
-          class="row align-items-center needs-validation"
-          novalidate>
-        {% csrf_token %}
-        <section class="row p-4 form-section">
-            <div>
-                <h3>Themen</h3>
-            </div>
-            <label>
-                Für welche Themen interessierst du dich? Du kannst dir Themenbereiche und/oder Teams aussuchen, die für
-                dich interessant klingen. Nicht das richtige dabei? Keine Sorge, wir finden für jeden etwas!
-            </label>
-            <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
-                {% for team_category in team_categories %}
-                    <div class="col">
-                        <div class="card h-100" data-teamcategory="{{ team_category.id }}">
-                            <img class="card-img-top img-fluid"
-                                 src="{{ team_category.get_image_url }}"/>
+    {% verbatim %}
+    <div id="app" v-cloak>
+        <h1>CREW ANMELDUNG - {{ eventName }}</h1>
+        <div class="row"
+             :style="{
+                 height: '33vh',
+                 backgroundImage: `url(${eventImageUrl})`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center center',
+                 backgroundRepeat: 'no-repeat'
+             }"></div>
+
+        <form id="signup"
+              class="row align-items-center needs-validation"
+              novalidate
+              @submit.prevent="submitForm">
+            <section class="row p-4 form-section">
+                <div>
+                    <h3>Themen</h3>
+                </div>
+                <label>
+                    Für welche Themen interessierst du dich? Du kannst dir Themenbereiche und/oder Teams aussuchen,
+                    die für dich interessant klingen. Nicht das richtige dabei? Keine Sorge, wir finden für jeden etwas!
+                </label>
+                <div class="row row-cols-1 row-cols-md-3 g-4 pb-3">
+                    <div v-for="teamCategory in teamCategories" :key="teamCategory.id" class="col">
+                        <div class="card h-100"
+                            :data-teamcategory="teamCategory.id">
+                               <img class="card-img-top img-fluid"
+                                   :src="teamCategory.image_url"
+                                   alt="Team Kategorie Bild"
+                                   width="400"
+                                   height="300" />
                             <div class="card-header">
-                                <h5 class="card-title">{{ team_category }}</h5>
+                                <h5 class="card-title">{{ teamCategory.name }}</h5>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input"
-                                           data-teamcategory="{{ team_category.id }}"
                                            type="checkbox"
                                            role="switch"
-                                           id="teamcategory_{{ team_category.id }}"
-                                           name="teamcategory_{{ team_category.id }}"/>
+                                           :id="`teamcategory_${teamCategory.id}`"
+                                           :value="teamCategory.id"
+                                           v-model="formData.teamcategory_ids" />
                                     <label class="form-check-label"
-                                           for="teamcategory_{{ team_category.id }}">Interesse</label>
+                                           :for="`teamcategory_${teamCategory.id}`">Interesse</label>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <p class="card-text">{{ team_category.description|safe }}</p>
-                                {% if team_category.teams.all %}
+                                <p class="card-text" v-html="teamCategory.description"></p>
+                                <template v-if="teamCategory.teams.length">
                                     <h5 class="card-text">Teams</h5>
                                     <ul class="list-group list-group-flush">
-                                        {% for team in team_category.teams.all %}
-                                            {% if team.is_public %}
-                                                <li class="list-group-item">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input"
-                                                               data-team="{{ team.id }}"
-                                                               type="checkbox"
-                                                               role="switch"
-                                                               id="team_{{ team.id }}"
-                                                               name="team_{{ team.id }}"/>
-                                                        <label class="form-check-label"
-                                                               for="team_{{ team.id }}">{{ team }}</label>
-                                                    </div>
-                                                </li>
-                                            {% endif %}
-                                        {% endfor %}
+                                        <li v-for="team in teamCategory.teams"
+                                            :key="team.id"
+                                            class="list-group-item">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       role="switch"
+                                                       :id="`team_${team.id}`"
+                                                       :value="team.id"
+                                                       v-model="formData.team_ids" />
+                                                <label class="form-check-label" :for="`team_${team.id}`">{{ team.name }}</label>
+                                            </div>
+                                        </li>
                                     </ul>
-                                {% endif %}
+                                </template>
                             </div>
                             <div class="card-footer d-none"></div>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-        </section>
-        <section class="row p-4 form-section">
-            <div class="col-lg-8">
-                <div class="row">
-                    <div class="col">
-                        <div>
-                            <h3>Formale Qualifikationen und Fähigkeiten</h3>
+                </div>
+            </section>
+
+            <section class="row p-4 form-section">
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="col">
+                            <div>
+                                <h3>Formale Qualifikationen und Fähigkeiten</h3>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-12 g-4">
-                        <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
-                        {% for skill in skills %}
-                            <div class="form-check form-switch">
+                    <div class="row">
+                        <div class="col-sm-12 g-4">
+                            <label>Welche Qualifikationen und Weiterbildungen hast du?</label>
+                            <div v-for="skill in skills" :key="skill.id" class="form-check form-switch">
                                 <input class="form-check-input"
                                        type="checkbox"
                                        role="switch"
-                                       id="skill_{{ skill.id }}"
-                                       name="skill_{{ skill.id }}"/>
-                                <label class="form-check-label" for="skill_{{ skill.id }}">
-                                    {{ skill.icon|safe }} &nbsp;&nbsp;{{ skill }} - <i>{{ skill.explanation }}</i>
+                                       :id="`skill_${skill.id}`"
+                                       :value="skill.id"
+                                       v-model="formData.skill_ids" />
+                                <label class="form-check-label" :for="`skill_${skill.id}`">
+                                    <span v-html="skill.icon"></span>&nbsp;&nbsp;{{ skill.name }} - <i>{{ skill.explanation }}</i>
                                 </label>
                             </div>
-                        {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 g-4">
+                            <label for="skills_note" class="form-label">Anmerkungen zu deinen Fähigkeiten</label>
+                            <textarea class="form-control" id="skills_note" rows="3" v-model="formData.skills_note"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div>
+                        <h4>Warum erheben wir diese Informationen?</h4>
+                    </div>
+                    <p>
+                        Einzelne Tätigkeiten, die du im Rahmen von {{ eventName }} ausführen könntest, erfordern
+                        eine formale Qualifikation. Für uns ist es in der Planung wichtig zu wissen, ob ihr z.B.
+                        entsprechende Führerscheine habt oder Ersthelfer seid.
+                    </p>
+                </div>
+            </section>
+
+            <section class="row p-4 form-section">
+                <div>
+                    <h3>Anwesenheit</h3>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 g-4">
+                        <label>An welchen Tagen kannst du vor Ort sein?</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-12 g-4">
-                        <label for="skills_note" class="form-label">Anmerkungen zu deinen Fähigkeiten</label>
-                        <textarea class="form-control" id="skills_note" name="skills_note" rows="3"></textarea>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   role="switch"
+                                   id="select_all_attendance"
+                                   v-model="selectAllAttendance"
+                                   @change="toggleAllAttendance" />
+                            <label class="form-check-label" for="select_all_attendance">Alle Tage auswählen</label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4">
-                <div>
-                    <h4>Warum erheben wir diese Informationen?</h4>
-                </div>
-                <p>
-                    Einzelne Tätigkeiten, die du im Rahmen von {{ current_event.name }} ausführen könntest, erforden
-                    eine formale Qualifikation. Für uns ist es in der Planung wichtig zu wissen, ob ihr z.B.
-                    entsprechende Führerscheine habt oder Ersthelfer seid.
-                </p>
-            </div>
-        </section>
-        <section class="row p-4 form-section">
-            <div>
-                <h3>Anwesenheit</h3>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <label>An welchen Tagen kannst du vor Ort sein?</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="select_all_attendance"/>
-                        <label class="form-check-label" for="select_all_attendance">Alle Tage auswählen</label>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <div class="card-group">
-                        {% for phase in attendance_phases %}
-                            <div class="card">
+                <div class="row">
+                    <div class="col-sm-12 g-4">
+                        <div class="card-group">
+                            <div v-for="phase in attendancePhases" :key="phase.phase" class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ phase.name }}</h5>
                                     <ul class="list-group list-group-flush">
-                                        {% for day in phase.days %}
-                                            <li class="list-group-item">
+                                        <li v-for="day in phase.days" :key="day.id" class="list-group-item">
+                                            <div class="form-check form-switch">
                                                 <input class="form-check-input"
                                                        type="checkbox"
-                                                       id="attendance_{{ day.id }}"
-                                                       name="attendance_{{ day.id }}"/>
+                                                       role="switch"
+                                                       :id="`attendance_${day.id}`"
+                                                       :value="day.id"
+                                                       v-model="formData.attendance_ids" />
                                                 <label class="form-check-label date-format-huge"
-                                                       for="attendance_{{ day.id }}">{{ day }}</label>
-                                            </li>
-                                        {% endfor %}
+                                                       :for="`attendance_${day.id}`">{{ day.label }}</label>
+                                            </div>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <div class="alert alert-primary" role="alert">
-                        <strong>Wichtig:</strong> Für den Abbau am Montag brauchen wir besonders viele
-                        Menschen, die mit anfassen.
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 g-4">
-                    <label for="skills_note" class="form-label">Anmerkungen zu deiner Anwesenheit</label>
-                    <textarea class="form-control"
-                              id="note_attendance"
-                              name="note_attendance"
-                              rows="2"></textarea>
-                </div>
-            </div>
-        </section>
-        <section class="row p-4 form-section">
-            <div>
-                <h3>Übernachtung</h3>
-            </div>
-            <label>Aus verschiedenen Gründen ist eine Übernachtung erst ab 18 Jahren möglich.</label>
-            <div class="col-sm-12 g-4">
-                <div class="form-check form-switch">
-                    <input class="form-check-input"
-                           type="checkbox"
-                           role="switch"
-                           id="stays_overnight"
-                           name="stays_overnight"
-                           {% if not allow_overnight %}disabled{% endif %}/>
-                    <label class="form-check-label" for="stays_overnight">Ich übernachte vor Ort.</label>
-                </div>
-            </div>
-        </section>
-        <section class="row p-4 form-section">
-            <div>
-                <h3>Freistellung</h3>
-            </div>
-            <label>Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche Tätigkeit zu bekommen.</label>
-            <div class="col-sm-12 g-4">
-                <div class="form-check form-switch">
-                    <input class="form-check-input"
-                           type="checkbox"
-                           role="switch"
-                           id="leave_of_absence"
-                           name="leave_of_absence"/>
-                    <label class="form-check-label" for="leave_of_absence">
-                        Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.
-                    </label>
-                </div>
-            </div>
-            <div class="col-sm-12 g-4">
-                <label for="leave_of_absence_note" class="form-label">Anmerkungen zu meiner Befreiung</label>
-                <textarea class="form-control"
-                          id="leave_of_absence_note"
-                          name="leave_of_absence_note"
-                          rows="2"
-                          disabled></textarea>
-            </div>
-        </section>
-        <section class="row p-4 form-section">
-            <div class="col-lg-8">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div>
-                            <h3>Essen &amp; T-Shirt</h3>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-6">
-                        <div class="row">
-                            <div class="col-sm-12 g-4">
-                                <label for="nutriton_type" class="form-label">Essensgewohnheit</label>
-                                <select id="nutriton_type" name="nutriton_type" class="form-select not-empty">
-                                    <option value="" selected></option>
-                                    <option value="omnivore">
-                                        <i class="fa fa-burger"></i> Alles-Esser
-                                    </option>
-                                    <option value="vegetarian">
-                                        <i class="fa fa-burger"></i> Vegetarisch
-                                    </option>
-                                    <option value="vegan">
-                                        <i class="fa fa-burger"></i> Vegan
-                                    </option>
-                                </select>
-                                <div class="valid-feedback"></div>
-                                <div class="invalid-feedback">Bitte wähle deine Ernährungsgewohnheit aus.</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-12 g-4">
-                                <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten,
-                                    Unverträglichkeiten, etc.</label>
-                                <textarea class="form-control"
-                                          id="nutrition_note"
-                                          name="nutrition_note"
-                                          rows="3"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="row">
-                            <div class="col-sm-12 g-4">
-                                <label for="crew_shirt" class="form-label">T-Shirt</label>
-                                <select id="crew_shirt" name="crew_shirt" class="form-select not-empty">
-                                    <option value="" selected></option>
-                                    {% for shirt in shirts %}
-                                        <option value="{{ shirt.id }}">{{ shirt }}</option>{% endfor %}
-                                </select>
-                                <div class="valid-feedback"></div>
-                                <div class="invalid-feedback">Bitte wähle T-Shirt Größe und Schnitt aus.</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-12 g-4">
-                                Erklärung Schnitt:
-                                <ul>
-                                    <li>
-                                        <strong>fitted</strong>: figurbetonter Schnitt
-                                    </li>
-                                    <li>
-                                        <strong>straight</strong>: normaler Schnitt
-                                    </li>
-                                </ul>
-                            </div>
+                    <div class="col-sm-12 g-4">
+                        <div class="alert alert-primary" role="alert">
+                            <strong>Wichtig:</strong> Für den Abbau am Montag brauchen wir besonders viele
+                            Menschen, die mit anfassen.
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-sm-12 g-4">
+                        <label for="attendance_note" class="form-label">Anmerkungen zu deiner Anwesenheit</label>
+                        <textarea class="form-control" id="attendance_note" rows="2" v-model="formData.attendance_note"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <section class="row p-4 form-section">
                 <div>
-                    <h4>Warum erheben wir diese Informationen?</h4>
+                    <h3>Übernachtung</h3>
                 </div>
-                <p>
-                    Während du mit uns zusammen die Veranstaltung begleitest, wollen wir uns natürlich um dein
-                    leibliches Wohl kümmern. Daher ist es für unsere Planung super wichtig, dass wir wissen worauf wir
-                    achten müssen!
-                </p>
-                <p>Desweiteren gibt es für die Crew natürlich ein T-Shirt als Dankeschön. Und das sollte dir natürlich
-                    auch passen.</p>
-            </div>
-        </section>
-        <section class="row p-4 form-section">
-            <div>
-                <h3>Verschiedenes</h3>
-            </div>
-            <div class="col-sm-12">
-                <label for="general_note" class="form-label">Möchtest du uns noch etwas mitteilen?</label>
-                <textarea class="form-control" id="general_note" name="general_note" rows="3"></textarea>
-            </div>
-        </section>
-        <section class="row p-4 form-section">
-            <div>
-                <h3>Rechtliches</h3>
-            </div>
-            <div class="col-md-12">
-                <div class="form-check form-switch">
-                    <input class="form-check-input not-empty"
-                           type="checkbox"
-                           role="switch"
-                           id="allow_contact"
-                           name="allow_contact"/>
-                    <label class="form-check-label" for="allow_contact">
-                        Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das
-                        Spielfest kontaktieren darf.
-                    </label>
-                    <div class="valid-feedback"></div>
-                    <div class="invalid-feedback">Bitte erlaube uns, dich zu kontaktieren.</div>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-check form-switch">
-                    <input class="form-check-input not-empty"
-                           type="checkbox"
-                           role="switch"
-                           id="read_privacy"
-                           name="read_privacy"/>
-                    <label class="form-check-label" for="read_privacy">
-                        Ich habe die <a href="{% url 'rockon_privacy' %}" target="_blank">Datenschutzbestimmungen</a>
-                        zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung personenbezogener
-                        Daten im Rahmen der Veranstaltungen Rocktreff und Spielfest einverstanden.
-                    </label>
-                    <div class="valid-feedback"></div>
-                    <div class="invalid-feedback">Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.
+                <label>Aus verschiedenen Gründen ist eine Übernachtung erst ab 18 Jahren möglich.</label>
+                <div class="col-sm-12 g-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               role="switch"
+                               id="stays_overnight"
+                               :disabled="!allowOvernight"
+                               v-model="formData.stays_overnight" />
+                        <label class="form-check-label" for="stays_overnight">Ich übernachte vor Ort.</label>
                     </div>
                 </div>
-            </div>
-        </section>
-        <section class="row p-4 form-section">
-            <div class="d-grid gap-2 col-12 mx-auto pt-3">
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="d-grid gap-2 col-12 mx-auto">
-                            <button id="form_submit" type="button" class="btn btn-primary">Absenden</button>
+            </section>
+
+            <section class="row p-4 form-section">
+                <div>
+                    <h3>Freistellung</h3>
+                </div>
+                <label>Wir versuchen dir zu helfen, eine Freistellung für diese ehrenamtliche Tätigkeit zu bekommen.</label>
+                <div class="col-sm-12 g-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               role="switch"
+                               id="leave_of_absence"
+                               v-model="formData.needs_leave_of_absence" />
+                        <label class="form-check-label" for="leave_of_absence">
+                            Ich brauche eine Befreiung von Schule, Universität oder ähnlichem.
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-12 g-4">
+                    <label for="leave_of_absence_note" class="form-label">Anmerkungen zu meiner Befreiung</label>
+                    <textarea class="form-control"
+                              id="leave_of_absence_note"
+                              rows="2"
+                              :disabled="!formData.needs_leave_of_absence"
+                              v-model="formData.leave_of_absence_note"></textarea>
+                </div>
+            </section>
+
+            <section class="row p-4 form-section">
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div>
+                                <h3>Essen &amp; T-Shirt</h3>
+                            </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="d-grid gap-2 col-12 mx-auto">
-                            <button id="form_reset" type="button" class="btn btn-secondary">Neustart</button>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12 g-4">
+                                    <label for="nutrition_type" class="form-label">Essensgewohnheit</label>
+                                    <select id="nutrition_type"
+                                            class="form-select"
+                                            :class="fieldClass('nutrition_type')"
+                                            v-model="formData.nutrition_type"
+                                            :style="formData.nutrition_type === '' ? { color: '#8a8a8a' } : {}"
+                                            @blur="touchField('nutrition_type')">
+                                        <option value="" disabled>Auswählen</option>
+                                        <option value="omnivore">Alles-Esser</option>
+                                        <option value="vegetarian">Vegetarisch</option>
+                                        <option value="vegan">Vegan</option>
+                                    </select>
+                                    <div class="valid-feedback"></div>
+                                    <div class="invalid-feedback">Bitte wähle deine Ernährungsgewohnheit aus.</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 g-4">
+                                    <label for="nutrition_note" class="form-label">Anmerkungen zu Essensgewohnheiten,
+                                        Unverträglichkeiten, etc.</label>
+                                    <textarea class="form-control" id="nutrition_note" rows="3" v-model="formData.nutrition_note"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12 g-4">
+                                    <label for="crew_shirt" class="form-label">T-Shirt</label>
+                                    <select id="crew_shirt"
+                                            class="form-select"
+                                            :class="fieldClass('crew_shirt')"
+                                            v-model="formData.crew_shirt"
+                                            :style="formData.crew_shirt === '' ? { color: '#8a8a8a' } : {}"
+                                            @blur="touchField('crew_shirt')">
+                                        <option value="" disabled>Auswählen</option>
+                                        <option v-for="shirt in shirts" :key="shirt.id" :value="shirt.id">{{ shirt.name }}</option>
+                                    </select>
+                                    <div class="valid-feedback"></div>
+                                    <div class="invalid-feedback">Bitte wähle T-Shirt Größe und Schnitt aus.</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 g-4">
+                                    Erklärung Schnitt:
+                                    <ul>
+                                        <li><strong>fitted</strong>: figurbetonter Schnitt</li>
+                                        <li><strong>straight</strong>: normaler Schnitt</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="d-grid gap-2 col-12 mx-auto pt-3">
-                <div class="row g-2">
-                    <div class="col">
-                        <div id="form_message"></div>
+                <div class="col-lg-4">
+                    <div>
+                        <h4>Warum erheben wir diese Informationen?</h4>
+                    </div>
+                    <p>
+                        Während du mit uns zusammen die Veranstaltung begleitest, wollen wir uns natürlich um dein
+                        leibliches Wohl kümmern. Daher ist es für unsere Planung super wichtig, dass wir wissen worauf wir
+                        achten müssen!
+                    </p>
+                    <p>Desweiteren gibt es für die Crew natürlich ein T-Shirt als Dankeschön. Und das sollte dir natürlich
+                        auch passen.</p>
+                </div>
+            </section>
+
+            <section class="row p-4 form-section">
+                <div>
+                    <h3>Verschiedenes</h3>
+                </div>
+                <div class="col-sm-12">
+                    <label for="general_note" class="form-label">Möchtest du uns noch etwas mitteilen?</label>
+                    <textarea class="form-control" id="general_note" rows="3" v-model="formData.general_note"></textarea>
+                </div>
+            </section>
+
+            <section class="row p-4 form-section">
+                <div>
+                    <h3>Rechtliches</h3>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               role="switch"
+                               id="allow_contact"
+                               :class="fieldClass('allow_contact')"
+                               v-model="formData.allow_contact"
+                               @blur="touchField('allow_contact')"
+                               @change="touchField('allow_contact')" />
+                        <label class="form-check-label" for="allow_contact">
+                            Ich bin damit einverstanden, dass der CPYE e.V. mich für Dinge rund um den Rocktreff und das
+                            Spielfest kontaktieren darf.
+                        </label>
+                        <div class="valid-feedback"></div>
+                        <div class="invalid-feedback">Bitte erlaube uns, dich zu kontaktieren.</div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </form>
+                <div class="col-md-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               role="switch"
+                               id="read_privacy"
+                               :class="fieldClass('read_privacy')"
+                               v-model="formData.read_privacy"
+                               @blur="touchField('read_privacy')"
+                               @change="touchField('read_privacy')" />
+                        <label class="form-check-label" for="read_privacy">
+                            Ich habe die <a :href="privacyUrl" target="_blank">Datenschutzbestimmungen</a>
+                            zur Kenntnis genommen und erkläre mich mit der Speicherung und Verarbeitung personenbezogener
+                            Daten im Rahmen der Veranstaltungen Rocktreff und Spielfest einverstanden.
+                        </label>
+                        <div class="valid-feedback"></div>
+                        <div class="invalid-feedback">Bitte bestätige, dass du die Datenschutzbestimmungen gelesen hast.</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="row p-4 form-section">
+                <div class="d-grid gap-2 col-12 mx-auto pt-3">
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="d-grid gap-2 col-12 mx-auto">
+                                <button id="form_submit" type="submit" class="btn btn-primary" :disabled="isSubmitting">Absenden</button>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-grid gap-2 col-12 mx-auto">
+                                <button id="form_reset" type="button" class="btn btn-secondary" @click="resetForm" :disabled="isSubmitting">Neustart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 col-12 mx-auto pt-3">
+                    <div class="row g-2">
+                        <div class="col">
+                            <div id="form_message">
+                                <div v-if="formMessage" :class="`alert ${formMessageClass}`" role="alert">{{ formMessage }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </form>
+    </div>
+    {% endverbatim %}
+    <script nonce="{{ csp_nonce }}">
+        const { createApp } = Vue
+        createApp(CrewJoinApp).mount('#app')
+    </script>
 {% endblock content %}
