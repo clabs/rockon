@@ -67,18 +67,3 @@ class CrewMember(CustomModel):
 
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name}'
-
-    # FIXME: this needs to move to profile model
-    # def save(self, *args, **kwargs):
-    #     if self.birthday is None:
-    #         self.is_adult = None
-    #         super().save(*args, **kwargs)
-    #         return
-
-    #     _birthday_as_datetime = make_aware(
-    #         datetime(self.birthday.year, self.birthday.month, self.birthday.day)
-    #     )
-    #     self.is_adult = make_aware(datetime.now()) > _birthday_as_datetime + timedelta(
-    #         days=365 * 18
-    #     )
-    #     super().save(*args, **kwargs)
