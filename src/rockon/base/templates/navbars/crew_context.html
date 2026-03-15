@@ -16,6 +16,7 @@
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="{% url 'crew:coord_overview' slug=current_event.slug %}">Übersicht</a>
                 <a class="dropdown-item" href="{% url 'crew:coord_tshirts' slug=current_event.slug %}">T-Shirts</a>
+                <a class="dropdown-item" href="{% url 'crew:coord_teams' slug=current_event.slug %}">Teamverwaltung</a>
             </div>
         </li>
     {% endif %}

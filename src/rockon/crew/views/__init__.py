@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .crewcoordination import crew_chart, crew_shirts
+from .crewcoordination import crew_chart, crew_shirts, crew_team_management
 from .guestlist_entries import guestlist_entries
 from .join import join, join_submitted
 from .kitchen import attendance_table
@@ -8,6 +8,7 @@ from .kitchen import attendance_table
 __all__ = [
     'crew_chart',
     'crew_shirts',
+    'crew_team_management',
     'guestlist_entries',
     'join',
     'join_submitted',
