@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import date, timedelta
-
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
@@ -32,11 +30,7 @@ def join(request, slug):
     skills = Skill.objects.all()
     attendance_phases = Attendance.get_phases(event=event)
     team_categories = TeamCategory.objects.all()
-    allow_overnight = False
-    if request.user.profile.birthday:
-        allow_overnight = request.user.profile.birthday < date.today() - timedelta(
-            days=18 * 365
-        )
+    allow_overnight = request.user.profile.over_18()
     extra_context = {
         'og_title': f'Crewanmeldung {event.name}',
         'og_description': f'Crewanmeldung für die Veranstaltung {event.name}, sei Teil des Teams!',

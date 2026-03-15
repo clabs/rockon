@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date
+
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -48,6 +50,25 @@ class UserProfile(CustomModel):
         if not full_name.strip():
             full_name = self.user.username
         return full_name
+
+    def _is_over_age(self, years: int) -> bool:
+        """Return whether the user reached a minimum age in full years."""
+        if self.birthday is None:
+            return False
+
+        today = date.today()
+        age = today.year - self.birthday.year
+        if (today.month, today.day) < (self.birthday.month, self.birthday.day):
+            age -= 1
+        return age >= years
+
+    def over_16(self) -> bool:
+        """Return whether the user is at least 16 years old."""
+        return self._is_over_age(16)
+
+    def over_18(self) -> bool:
+        """Return whether the user is at least 18 years old."""
+        return self._is_over_age(18)
 
     def is_profile_complete_crew(self) -> bool:
         """Check if user profile is complete for crew signup."""

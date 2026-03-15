@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date
+
 from rockon.library.custom_admin import CustomAdminModel, admin
 from .models import (
     Attendance,
@@ -13,6 +15,63 @@ from .models import (
     TeamCategory,
     TeamMember,
 )
+
+
+def _age_cutoff_date(years: int) -> date:
+    today = date.today()
+    try:
+        return today.replace(year=today.year - years)
+    except ValueError:
+        # Handle Feb 29 on non-leap years.
+        return today.replace(year=today.year - years, day=28)
+
+
+class Over16Filter(admin.SimpleListFilter):
+    title = 'over 16'
+    parameter_name = 'over_16'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Yes'),
+            ('no', 'No'),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        cutoff = _age_cutoff_date(16)
+        if value == 'yes':
+            return queryset.filter(user__profile__birthday__isnull=False).filter(
+                user__profile__birthday__lte=cutoff
+            )
+        if value == 'no':
+            return queryset.filter(
+                user__profile__birthday__gt=cutoff
+            ) | queryset.filter(user__profile__birthday__isnull=True)
+        return queryset
+
+
+class Over18Filter(admin.SimpleListFilter):
+    title = 'over 18'
+    parameter_name = 'over_18'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Yes'),
+            ('no', 'No'),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        cutoff = _age_cutoff_date(18)
+        if value == 'yes':
+            return queryset.filter(user__profile__birthday__isnull=False).filter(
+                user__profile__birthday__lte=cutoff
+            )
+        if value == 'no':
+            return queryset.filter(
+                user__profile__birthday__gt=cutoff
+            ) | queryset.filter(user__profile__birthday__isnull=True)
+        return queryset
 
 
 @admin.register(Attendance)
@@ -57,8 +116,9 @@ class CrewMemberAdmin(CustomAdminModel):
         '__str__',
         'crew',
         'state',
-        'nutrition',
         'stays_overnight',
+        'over_16',
+        'over_18',
         'updated_at',
     )
     search_fields = (
@@ -73,14 +133,28 @@ class CrewMemberAdmin(CustomAdminModel):
         'shirt__cut',
         'nutrition',
         'stays_overnight',
+        Over16Filter,
+        Over18Filter,
         'created_at',
         'updated_at',
     )
     actions = [mark_confirmed, mark_rejected, mark_arrived, mark_unknown]
     show_facets = admin.ShowFacets.ALWAYS
 
+    @admin.display(boolean=True, description='Over 16')
+    def over_16(self, obj):
+        return obj.user.profile.over_16()
+
+    @admin.display(boolean=True, description='Over 18')
+    def over_18(self, obj):
+        return obj.user.profile.over_18()
+
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user', 'crew', 'shirt')
+        return (
+            super()
+            .get_queryset(request)
+            .select_related('user', 'user__profile', 'crew', 'shirt')
+        )
 
 
 @admin.register(Crew)
