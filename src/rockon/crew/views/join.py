@@ -12,7 +12,76 @@ from django.utils.safestring import mark_safe
 from rockon.base.models import Event
 from rockon.crew.models import Attendance, EventTeam, Shirt, Skill, Team, TeamCategory
 from rockon.crew.models.attendance import AttendancePhase
-from rockon.crew.models.crew_member import CrewMember
+from rockon.crew.models.crew_member import (
+    CrewMember,
+    CrewMemberNutrion,
+    CrewMemberStatus,
+)
+
+
+READONLY_CREW_STATES = {
+    CrewMemberStatus.CONFIRMED,
+    CrewMemberStatus.ARRIVED,
+}
+
+
+def _build_initial_form_data(crew_member):
+    if crew_member is None:
+        return {
+            'crew_shirt': '',
+            'nutrition_type': '',
+            'nutrition_note': '',
+            'skills_note': '',
+            'attendance_note': '',
+            'stays_overnight': False,
+            'general_note': '',
+            'needs_leave_of_absence': False,
+            'leave_of_absence_note': '',
+            'skill_ids': [],
+            'attendance_ids': [],
+            'teamcategory_ids': [],
+            'team_ids': [],
+            'allow_contact': False,
+            'read_privacy': False,
+        }
+
+    return {
+        'crew_shirt': str(crew_member.shirt_id) if crew_member.shirt_id else '',
+        'nutrition_type': (
+            ''
+            if crew_member.nutrition == CrewMemberNutrion.UNKNOWN
+            else crew_member.nutrition
+        ),
+        'nutrition_note': crew_member.nutrition_note or '',
+        'skills_note': crew_member.skills_note or '',
+        'attendance_note': crew_member.attendance_note or '',
+        'stays_overnight': bool(crew_member.stays_overnight),
+        'general_note': crew_member.general_note or '',
+        'needs_leave_of_absence': bool(crew_member.needs_leave_of_absence),
+        'leave_of_absence_note': crew_member.leave_of_absence_note or '',
+        'skill_ids': [
+            str(skill_id)
+            for skill_id in crew_member.skills.values_list('id', flat=True)
+        ],
+        'attendance_ids': [
+            str(attendance_id)
+            for attendance_id in crew_member.attendance.values_list('id', flat=True)
+        ],
+        'teamcategory_ids': [
+            str(team_category_id)
+            for team_category_id in crew_member.interested_in.values_list(
+                'id', flat=True
+            )
+        ],
+        'team_ids': [
+            str(event_team_id)
+            for event_team_id in crew_member.teams.values_list(
+                'event_team_id', flat=True
+            )
+        ],
+        'allow_contact': True,
+        'read_privacy': True,
+    }
 
 
 def join(request, slug):
@@ -20,10 +89,20 @@ def join(request, slug):
         url = reverse('base:login_request')
         url += '?ctx=crew'
         return redirect(url)
-    if CrewMember.objects.filter(user=request.user, crew__event__slug=slug).exists():
-        return redirect('crew:join_submitted', slug=slug)
     template = loader.get_template('join.html')
     event = Event.objects.get(slug=slug)
+    crew_member = (
+        CrewMember.objects.filter(user=request.user, crew__event=event)
+        .select_related('shirt')
+        .prefetch_related('skills', 'attendance', 'interested_in', 'teams')
+        .first()
+    )
+    crew_member_state = (
+        crew_member.state if crew_member is not None else CrewMemberStatus.UNKNOWN
+    )
+    form_is_readonly = crew_member_state in READONLY_CREW_STATES
+    initial_form_data = _build_initial_form_data(crew_member)
+
     if not request.user.profile.is_profile_complete_crew():
         template = loader.get_template('join_profile_incomplete.html')
         extra_context = {
@@ -137,6 +216,12 @@ def join(request, slug):
             ensure_ascii=False,
         )
     )
+    initial_form_data_json = mark_safe(
+        json.dumps(
+            initial_form_data,
+            ensure_ascii=False,
+        )
+    )
 
     extra_context = {
         'og_title': f'Crewanmeldung {event.name}',
@@ -152,6 +237,9 @@ def join(request, slug):
         'skills_json': skills_json,
         'attendance_phases_json': attendance_phases_json,
         'team_categories_json': team_categories_json,
+        'initial_form_data_json': initial_form_data_json,
+        'crew_member_state': crew_member_state,
+        'form_is_readonly': form_is_readonly,
         'event_name': event.name,
         'event_image_url': event.get_image_url(),
     }

@@ -10,7 +10,16 @@ from django.urls import reverse
 
 from rockon.base.models import Event, UserProfile
 from rockon.base.models.event import SignUpType
-from rockon.crew.models import Crew, EventTeam, Shirt, Team, TeamCategory, TeamMember
+from rockon.crew.models import (
+    Crew,
+    CrewMember,
+    CrewMemberStatus,
+    EventTeam,
+    Shirt,
+    Team,
+    TeamCategory,
+    TeamMember,
+)
 from rockon.crew.models.shirt import ShirtCut, ShirtSize
 
 
@@ -190,3 +199,129 @@ class EventScopedTeamSignupTests(TestCase):
                 crewmember__crew=self.crew_one,
             ).exists()
         )
+
+    @patch(
+        'rockon.base.models.user_profile.UserProfile.is_profile_complete_crew',
+        return_value=True,
+    )
+    def test_join_view_stays_available_for_existing_signup(self, _is_complete):
+        self.client.force_login(self.user)
+        CrewMember.objects.create(
+            user=self.user,
+            crew=self.crew_one,
+            shirt=self.shirt,
+        )
+
+        response = self.client.get(
+            reverse('crew:join', kwargs={'slug': self.event_one.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'join.html')
+
+    @patch(
+        'rockon.base.models.user_profile.UserProfile.is_profile_complete_crew',
+        return_value=True,
+    )
+    def test_join_view_contains_hydrated_form_data_and_state_flags(self, _is_complete):
+        self.client.force_login(self.user)
+        crew_member = CrewMember.objects.create(
+            user=self.user,
+            crew=self.crew_one,
+            shirt=self.shirt,
+            nutrition='vegan',
+            nutrition_note='Keine Nuesse',
+            needs_leave_of_absence=True,
+            leave_of_absence_note='Brauche Bescheinigung',
+        )
+        crew_member.interested_in.add(self.shared_category)
+        TeamMember.objects.create(
+            event_team=self.stage_event_team,
+            crewmember=crew_member,
+        )
+
+        response = self.client.get(
+            reverse('crew:join', kwargs={'slug': self.event_one.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'crew_member_state: "unknown"')
+        self.assertContains(response, 'form_is_readonly: false')
+        self.assertContains(response, '"nutrition_type": "vegan"')
+        self.assertContains(response, '"nutrition_note": "Keine Nuesse"')
+        self.assertContains(response, f'"team_ids": ["{self.stage_event_team.id}"]')
+
+    @patch(
+        'rockon.base.models.user_profile.UserProfile.is_profile_complete_crew',
+        return_value=True,
+    )
+    def test_join_view_sets_readonly_only_for_confirmed_and_arrived(self, _is_complete):
+        self.client.force_login(self.user)
+
+        for state, expected_readonly in [
+            (CrewMemberStatus.UNKNOWN, False),
+            (CrewMemberStatus.REJECTED, False),
+            (CrewMemberStatus.CONFIRMED, True),
+            (CrewMemberStatus.ARRIVED, True),
+        ]:
+            CrewMember.objects.filter(user=self.user, crew=self.crew_one).delete()
+            CrewMember.objects.create(
+                user=self.user,
+                crew=self.crew_one,
+                shirt=self.shirt,
+                state=state,
+            )
+
+            response = self.client.get(
+                reverse('crew:join', kwargs={'slug': self.event_one.slug})
+            )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, f'crew_member_state: "{state}"')
+            expected_flag = 'true' if expected_readonly else 'false'
+            self.assertContains(response, f'form_is_readonly: {expected_flag}')
+
+    def test_signup_updates_existing_memberships_on_repeat_submit(self):
+        self.client.force_login(self.user)
+        second_team = Team.objects.create(
+            name='Logistics',
+            description='Logistics team',
+            category=self.shared_category,
+            is_public=True,
+        )
+        second_event_team = EventTeam.objects.create(
+            event=self.event_one,
+            team=second_team,
+        )
+
+        first_response = self.client.post(
+            f'/api/v2/crew-signup/{self.event_one.slug}/',
+            data=json.dumps(
+                self._signup_payload(
+                    team_ids=[str(self.stage_event_team.id)],
+                    teamcategory_ids=[str(self.shared_category.id)],
+                )
+            ),
+            content_type='application/json',
+        )
+        self.assertEqual(first_response.status_code, 200)
+
+        second_response = self.client.post(
+            f'/api/v2/crew-signup/{self.event_one.slug}/',
+            data=json.dumps(
+                self._signup_payload(
+                    team_ids=[str(second_event_team.id)],
+                    teamcategory_ids=[str(self.shared_category.id)],
+                )
+            ),
+            content_type='application/json',
+        )
+        self.assertEqual(second_response.status_code, 200)
+
+        crew_member = CrewMember.objects.get(user=self.user, crew=self.crew_one)
+        memberships = list(
+            TeamMember.objects.filter(crewmember=crew_member).values_list(
+                'event_team_id', flat=True
+            )
+        )
+        self.assertEqual(memberships, [second_event_team.id])

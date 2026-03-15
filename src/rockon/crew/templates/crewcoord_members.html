@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container-fluid">
+        <h2>Crewmitglieder</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.level_tag == 'error' %}danger{% else %}{{ message.tags|default:'secondary' }}{% endif %}" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="get" class="card card-body mb-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label" for="q">Name suchen</label>
+                    <input
+                        id="q"
+                        name="q"
+                        type="search"
+                        class="form-control"
+                        placeholder="Vorname oder Nachname"
+                        value="{{ search_query }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="state_filter">Status</label>
+                    <select class="form-select" id="state_filter" name="state">
+                        <option value="">Alle</option>
+                        {% for state_value, state_label in member_states %}
+                            <option value="{{ state_value }}" {% if selected_state == state_value %}selected{% endif %}>{{ state_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-grid gap-2">
+                    <button class="btn btn-primary" type="submit">Filtern</button>
+                    <a class="btn btn-outline-secondary" href="{% url 'crew:coord_members' slug=event.slug %}">Filter zurücksetzen</a>
+                </div>
+            </div>
+        </form>
+
+        <p class="text-muted">{{ members|length }} Crewmitglied(er) gefunden.</p>
+
+        {% if members %}
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Crew</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Status ändern</th>
+                        <th scope="col">Backstage</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for member in members %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ member.user.first_name }} {{ member.user.last_name }}</td>
+                            <td>{{ member.crew.name }}</td>
+                            <td>{{ member.get_state_display }}</td>
+                            <td>
+                                <form method="post" class="row g-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_member_state">
+                                    <input type="hidden" name="crew_member_id" value="{{ member.id }}">
+                                    <input type="hidden" name="q" value="{{ search_query }}">
+                                    <input type="hidden" name="state_filter" value="{{ selected_state }}">
+                                    <div class="col-lg-8">
+                                        <label class="visually-hidden" for="state_{{ member.id }}">Status</label>
+                                        <select class="form-select form-select-sm" id="state_{{ member.id }}" name="state">
+                                            {% for state_value, state_label in member_states %}
+                                                <option value="{{ state_value }}" {% if member.state == state_value %}selected{% endif %}>
+                                                    {{ state_label }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-4 d-grid">
+                                        <button class="btn btn-sm btn-outline-light" type="submit">Setzen</button>
+                                    </div>
+                                </form>
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-info" href="{% url 'admin:rockoncrew_crewmember_change' member.id %}">
+                                    Backstage
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">Keine Crewmitglieder für dieses Event gefunden.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary" role="alert">Keine Crewmitglieder für dieses Event gefunden.</div>
+        {% endif %}
+    </div>
+{% endblock content %}
