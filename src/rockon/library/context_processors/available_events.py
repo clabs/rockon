@@ -26,7 +26,7 @@ def _calculate_available_event_ids(user):
         from rockon.crew.models import CrewMember
 
         crew_events = CrewMember.objects.filter(
-            user=user, state__in=['confirmed', 'arrived']
+            user=user, state='confirmed'
         ).values_list('crew__event_id', flat=True)
         event_ids.update(crew_events)
 

@@ -27,7 +27,7 @@ def _can_vote_on_bands(user, event: Event) -> tuple[bool, str | None]:
 
     if not is_booking:
         is_confirmed_crew = user.crewmember_set.filter(
-            crew__event=event, state__in=['confirmed', 'arrived']
+            crew__event=event, state='confirmed'
         ).exists()
         if not is_confirmed_crew:
             return False, (

@@ -157,6 +157,9 @@ class CrewCoordTeamManagementTests(TestCase):
     def _url(self, slug: str) -> str:
         return reverse('crew:coord_teams', kwargs={'slug': slug})
 
+    def _members_url(self, slug: str) -> str:
+        return reverse('crew:coord_members', kwargs={'slug': slug})
+
     def test_access_control(self):
         response = self.client.get(self._url(self.event_one.slug))
         self.assertEqual(response.status_code, 302)
@@ -322,3 +325,100 @@ class CrewCoordTeamManagementTests(TestCase):
             cross_team_member.crewmember.user_id,
         )
         self.assertEqual(self.event_one_team_a.vize_lead_id, previous_vize_id)
+
+    def test_coord_members_view_access_control(self):
+        response = self.client.get(self._members_url(self.event_one.slug))
+        self.assertEqual(response.status_code, 302)
+
+        self.client.force_login(self.regular_user)
+        response = self.client.get(self._members_url(self.event_one.slug))
+        self.assertEqual(response.status_code, 302)
+
+        self.client.force_login(self.crewcoord_user)
+        response = self.client.get(self._members_url(self.event_one.slug))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Crewmitglieder')
+        self.assertContains(response, 'Alice Member')
+        self.assertNotContains(response, 'Other Event')
+
+    def test_coord_members_view_updates_member_state_for_current_event_only(self):
+        self.client.force_login(self.crewcoord_user)
+
+        response = self.client.post(
+            self._members_url(self.event_one.slug),
+            {
+                'action': 'update_member_state',
+                'crew_member_id': str(self.crew_member_one.id),
+                'state': 'confirmed',
+            },
+            follow=True,
+        )
+        self.assertRedirects(response, self._members_url(self.event_one.slug))
+        self.assertContains(response, 'Crewmitgliedsstatus wurde aktualisiert.')
+
+        self.crew_member_one.refresh_from_db()
+        self.assertEqual(self.crew_member_one.state, 'confirmed')
+
+        response = self.client.post(
+            self._members_url(self.event_one.slug),
+            {
+                'action': 'update_member_state',
+                'crew_member_id': str(self.crew_member_other_event.id),
+                'state': 'rejected',
+            },
+            follow=True,
+        )
+        self.assertRedirects(response, self._members_url(self.event_one.slug))
+        self.assertContains(response, 'Ungültiges Crewmitglied für dieses Event.')
+
+        self.crew_member_other_event.refresh_from_db()
+        self.assertEqual(self.crew_member_other_event.state, 'unknown')
+
+    def test_coord_members_view_contains_backstage_link(self):
+        self.client.force_login(self.crewcoord_user)
+
+        response = self.client.get(self._members_url(self.event_one.slug))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            reverse(
+                'admin:rockoncrew_crewmember_change',
+                args=[self.crew_member_one.id],
+            ),
+        )
+
+    def test_coord_members_view_filters_by_name_and_state(self):
+        self.client.force_login(self.crewcoord_user)
+        self.crew_member_two.state = 'confirmed'
+        self.crew_member_two.save(update_fields=['state'])
+
+        response = self.client.get(
+            self._members_url(self.event_one.slug),
+            {
+                'q': 'Bob',
+                'state': 'confirmed',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Bob Member')
+        self.assertNotContains(response, 'Alice Member')
+        self.assertNotContains(response, 'Other Event')
+
+    def test_coord_members_update_preserves_active_filters(self):
+        self.client.force_login(self.crewcoord_user)
+
+        response = self.client.post(
+            self._members_url(self.event_one.slug),
+            {
+                'action': 'update_member_state',
+                'crew_member_id': str(self.crew_member_one.id),
+                'state': 'confirmed',
+                'q': 'Alice',
+                'state_filter': 'unknown',
+            },
+        )
+
+        expected_url = f'{self._members_url(self.event_one.slug)}?q=Alice&state=unknown'
+        self.assertRedirects(response, expected_url, fetch_redirect_response=False)

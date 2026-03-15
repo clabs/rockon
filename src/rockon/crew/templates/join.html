@@ -11,13 +11,15 @@
     <script nonce="{{ csp_nonce }}">
         window.rockon_data = {
             api_crew_signup: "/api/v2/crew-signup/{{ slug }}/",
-            success_redirect: "{% url "crew:join_submitted" slug=slug %}",
             privacy_url: "{% url 'rockon_privacy' %}",
             csrf_token: "{{ csrf_token }}",
             shirts: {{ shirts_json }},
             skills: {{ skills_json }},
             attendance_phases: {{ attendance_phases_json }},
             team_categories: {{ team_categories_json }},
+            initial_form_data: {{ initial_form_data_json }},
+            crew_member_state: "{{ crew_member_state|escapejs }}",
+            form_is_readonly: {{ form_is_readonly|yesno:"true,false" }},
             allow_overnight: {{ allow_overnight|yesno:"true,false" }},
             event_name: "{{ event_name|escapejs }}",
             event_image_url: "{{ event_image_url|escapejs }}"
@@ -39,6 +41,15 @@
               class="row align-items-center needs-validation"
               novalidate
               @submit.prevent="submitForm">
+            <div class="col-12 pt-3">
+                <div v-if="stateAlert" :class="`alert ${stateAlert.className}`" role="alert">
+                    <strong>{{ stateAlert.title }}</strong> {{ stateAlert.message }}
+                </div>
+            </div>
+            <div class="col-12" id="submit-feedback" aria-live="polite" aria-atomic="true">
+                <div v-if="formMessage" :class="`alert ${formMessageClass}`" role="status">{{ formMessage }}</div>
+            </div>
+            <fieldset :disabled="isReadOnly || isSubmitting" class="border-0 p-0 m-0">
             <section class="row p-4 form-section">
                 <div>
                     <h3>Themen</h3>
@@ -386,26 +397,21 @@
                     <div class="row g-2">
                         <div class="col">
                             <div class="d-grid gap-2 col-12 mx-auto">
-                                <button id="form_submit" type="submit" class="btn btn-primary" :disabled="isSubmitting">Absenden</button>
+                                <button id="form_submit" type="submit" class="btn btn-primary" :disabled="isReadOnly || isSubmitting">
+                                    <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    {{ isSubmitting ? 'Wird gespeichert...' : 'Absenden' }}
+                                </button>
                             </div>
                         </div>
                         <div class="col">
                             <div class="d-grid gap-2 col-12 mx-auto">
-                                <button id="form_reset" type="button" class="btn btn-secondary" @click="resetForm" :disabled="isSubmitting">Neustart</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-grid gap-2 col-12 mx-auto pt-3">
-                    <div class="row g-2">
-                        <div class="col">
-                            <div id="form_message">
-                                <div v-if="formMessage" :class="`alert ${formMessageClass}`" role="alert">{{ formMessage }}</div>
+                                <button id="form_reset" type="button" class="btn btn-secondary" @click="resetForm" :disabled="isReadOnly || isSubmitting">Neustart</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+            </fieldset>
         </form>
     </div>
     {% endverbatim %}
