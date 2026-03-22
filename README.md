@@ -92,6 +92,22 @@ Either use the provied VScode launch configurations or run `uv run python src/ma
 
 Start the async queue cluster with `uv run python src/manage.py qcluster`
 
+## Testing
+
+The project test suite is standardized on `pytest` with `pytest-django`.
+
+- Keep tests in `src/rockon/<app>/tests/`.
+- Name test files `test_<feature>.py`.
+- Prefer testing observable behavior: HTTP responses, redirects, rendered content, and database state.
+- Use lightweight fixtures or local helpers for repeated setup. Avoid hiding business rules behind large factory layers.
+
+Common commands:
+
+- Run the full suite: `uv run pytest`
+- Run one app: `uv run pytest src/rockon/base/tests`
+- Run one file: `uv run pytest src/rockon/api/tests/test_account_create.py`
+- Run with coverage details: `uv run pytest --cov=rockon --cov-report=term-missing`
+
 ## Mail templates
 
 Source of template: <https://github.com/leemunroe/responsive-html-email-template>
