@@ -9,8 +9,10 @@ from django.urls import reverse
 from rockon.base.models import Event
 from rockon.base.models.event import SignUpType
 from rockon.crew.models import (
+    Attendance,
     Crew,
     CrewMember,
+    CrewMemberStatus,
     EventTeam,
     Team,
     TeamCategory,
@@ -159,6 +161,9 @@ class CrewCoordTeamManagementTests(TestCase):
 
     def _members_url(self, slug: str) -> str:
         return reverse('crew:coord_members', kwargs={'slug': slug})
+
+    def _availability_url(self, slug: str) -> str:
+        return reverse('crew:coord_availability', kwargs={'slug': slug})
 
     def test_access_control(self):
         response = self.client.get(self._url(self.event_one.slug))
@@ -422,3 +427,59 @@ class CrewCoordTeamManagementTests(TestCase):
 
         expected_url = f'{self._members_url(self.event_one.slug)}?q=Alice&state=unknown'
         self.assertRedirects(response, expected_url, fetch_redirect_response=False)
+
+    def test_coord_availability_view_access_control(self):
+        response = self.client.get(self._availability_url(self.event_one.slug))
+        self.assertEqual(response.status_code, 302)
+
+        self.client.force_login(self.regular_user)
+        response = self.client.get(self._availability_url(self.event_one.slug))
+        self.assertEqual(response.status_code, 302)
+
+        self.client.force_login(self.crewcoord_user)
+        response = self.client.get(self._availability_url(self.event_one.slug))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Verfügbarkeit')
+
+    def test_coord_availability_view_shows_confirmed_members_in_day_matrix(self):
+        self.client.force_login(self.crewcoord_user)
+
+        setup_day = Attendance.objects.create(
+            event=self.event_one,
+            day=self.event_one.setup_start,
+            phase='setup',
+        )
+        show_day = Attendance.objects.create(
+            event=self.event_one,
+            day=self.event_one.opening,
+            phase='show',
+        )
+        Attendance.objects.create(
+            event=self.event_two,
+            day=self.event_two.opening,
+            phase='show',
+        )
+
+        self.crew_member_one.state = CrewMemberStatus.CONFIRMED
+        self.crew_member_one.save(update_fields=['state'])
+        self.crew_member_one.attendance.add(setup_day, show_day)
+
+        self.crew_member_two.state = CrewMemberStatus.CONFIRMED
+        self.crew_member_two.save(update_fields=['state'])
+        self.crew_member_two.attendance.add(show_day)
+
+        self.crew_member_other_event.state = CrewMemberStatus.CONFIRMED
+        self.crew_member_other_event.save(update_fields=['state'])
+
+        response = self.client.get(self._availability_url(self.event_one.slug))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Alice Member')
+        self.assertContains(response, 'Bob Member')
+        self.assertNotContains(response, 'Other Event')
+        self.assertContains(response, setup_day.day.strftime('%d.%m.%Y'))
+        self.assertContains(response, show_day.day.strftime('%d.%m.%Y'))
+        self.assertContains(response, '2 Tage')
+        self.assertContains(response, '1 Tag')
+        self.assertContains(response, '2 bestätigt')
+        self.assertContains(response, '1 bestätigt')

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container-fluid">
+        <style nonce="{{ csp_nonce }}">
+            .crew-availability-scroll {
+                overflow-x: auto;
+            }
+
+            .crew-availability-table {
+                min-width: max-content;
+                font-size: 0.875rem;
+            }
+
+            .crew-availability-table th,
+            .crew-availability-table td {
+                white-space: nowrap;
+                min-width: 4.25rem;
+                padding: 0.4rem 0.45rem;
+                line-height: 1.2;
+            }
+
+            .crew-availability-table .sticky-name {
+                position: sticky;
+                left: 0;
+            }
+
+            .crew-availability-table .sticky-name {
+                min-width: 10.5rem;
+                z-index: 4;
+            }
+
+            .crew-availability-table thead .sticky-name,
+            .crew-availability-table tfoot .sticky-name {
+                background-color: var(--bs-table-bg, #212529);
+            }
+
+            .crew-availability-table tbody .sticky-name {
+                background-color: var(--bs-table-striped-bg, #2c3034);
+            }
+
+            .crew-availability-table tbody tr:nth-of-type(odd) .sticky-name {
+                background-color: var(--bs-table-bg, #212529);
+            }
+
+            .crew-availability-table .day-column {
+                min-width: 4.5rem;
+            }
+
+            .crew-availability-table .summary-column {
+                min-width: 5.5rem;
+            }
+
+            .crew-availability-table small {
+                font-size: 0.68rem;
+                line-height: 1.1;
+            }
+
+            .crew-availability-table .availability-indicator {
+                display: inline-flex;
+                width: 0.9rem;
+                height: 0.9rem;
+                border-radius: 999px;
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+            }
+
+            .crew-availability-table .availability-indicator-yes {
+                background-color: #198754;
+            }
+
+            .crew-availability-table .availability-indicator-no {
+                background-color: #dc3545;
+            }
+
+            .crew-availability-table .availability-cell {
+                padding-inline: 0.3rem;
+            }
+
+            @media (max-width: 991.98px) {
+                .crew-availability-table th,
+                .crew-availability-table td {
+                    min-width: 3.75rem;
+                    padding: 0.3rem 0.35rem;
+                }
+
+                .crew-availability-table .sticky-name {
+                    min-width: 9rem;
+                }
+
+                .crew-availability-table .day-column {
+                    min-width: 4rem;
+                }
+
+                .crew-availability-mobile-hint {
+                    font-size: 0.875rem;
+                }
+            }
+
+            @media (max-width: 575.98px) {
+                .crew-availability-table {
+                    font-size: 0.8125rem;
+                }
+
+                .crew-availability-table th,
+                .crew-availability-table td {
+                    min-width: 3.4rem;
+                    padding: 0.25rem 0.3rem;
+                }
+
+                .crew-availability-table .sticky-name {
+                    min-width: 7.75rem;
+                }
+
+                .crew-availability-table .day-column {
+                    min-width: 3.6rem;
+                }
+
+                .crew-availability-table small {
+                    font-size: 0.62rem;
+                }
+
+                .crew-availability-table .summary-column {
+                    min-width: 4.8rem;
+                }
+            }
+        </style>
+
+        <h2>Verfügbarkeit</h2>
+
+        {% if event %}
+            <p class="text-muted mb-3">
+                {{ member_rows|length }} bestätigte Crewmitglied(er), {{ attendance_days|length }} Tag(e).
+            </p>
+
+            {% if attendance_days and member_rows %}
+                <p class="text-muted crew-availability-mobile-hint d-lg-none">Seitlich scrollen, um alle Tage zu sehen.</p>
+                <div class="table-responsive crew-availability-scroll">
+                    <table class="table table-dark table-striped table-hover align-middle crew-availability-table">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="sticky-name">Name</th>
+                            {% for attendance_day in attendance_days %}
+                                <th scope="col" class="text-center day-column">
+                                    {{ attendance_day.day|date:"d.m.Y" }}
+                                    <small class="d-block text-body-secondary">{{ attendance_day.get_phase_display }}</small>
+                                </th>
+                            {% endfor %}
+                            <th scope="col" class="text-center summary-column">Summe</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in member_rows %}
+                            <tr>
+                                <th scope="row" class="sticky-name">{{ row.member.user.first_name }} {{ row.member.user.last_name }}</th>
+                                {% for item in row.availability %}
+                                    <td class="text-center day-column availability-cell">
+                                        {% if item.is_available %}
+                                            <span class="availability-indicator availability-indicator-yes" title="Verfügbar" aria-label="Verfügbar"></span>
+                                        {% else %}
+                                            <span class="availability-indicator availability-indicator-no" title="Nicht verfügbar" aria-label="Nicht verfügbar"></span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <td class="text-center summary-column">
+                                    {{ row.available_count }} Tag{% if row.available_count != 1 %}e{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th scope="row" class="sticky-name">Bestätigt</th>
+                            {% for item in day_totals %}
+                                <td class="text-center day-column" title="{{ item.count }} bestätigte Crewmitglieder" aria-label="{{ item.count }} bestätigte Crewmitglieder">{{ item.count }}</td>
+                            {% endfor %}
+                            <td class="text-center summary-column">{{ member_rows|length }} gesamt</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            {% elif not attendance_days %}
+                <div class="alert alert-secondary" role="alert">Für dieses Event sind noch keine Tage zur Verfügbarkeit angelegt.</div>
+            {% else %}
+                <div class="alert alert-secondary" role="alert">Für dieses Event gibt es noch keine bestätigten Crewmitglieder.</div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-secondary" role="alert">Event nicht gefunden.</div>
+        {% endif %}
+    </div>
+{% endblock content %}
