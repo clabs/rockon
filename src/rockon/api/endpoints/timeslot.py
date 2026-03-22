@@ -34,7 +34,10 @@ def _serialize_timeslot(ts):
 
 
 @timeslotRouter.get(
-    '/', response=list[TimeSlotOut], url_name='timeslot_list', auth=django_auth
+    '/',
+    response={200: list[TimeSlotOut], 403: list[TimeSlotOut]},
+    url_name='timeslot_list',
+    auth=django_auth,
 )
 def list_timeslots(request, event: str | None = None):
     if not _check_booking(request):

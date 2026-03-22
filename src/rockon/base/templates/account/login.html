@@ -1,9 +1,7 @@
 {% extends "base.html" %} {% block content %}
     {% load static %}{% load compress %}
-    {% compress js file vue %}
-        <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
-    {% endcompress %}
     {% compress js file login_vue %}
+        <script src="{% static 'vendor/vue.global.3.5.22.min.js' %}"></script>
         <script src="{% static 'js/login.vue.js' %}"></script>
     {% endcompress %}
 

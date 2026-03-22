@@ -3,13 +3,16 @@ from __future__ import annotations
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as django_auth_logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
 
 from rockon.base.models import Event
+from rockon.base.services import (
+    assign_account_context_group,
+    get_fallback_event_for_user,
+)
 
 
 @login_required
@@ -18,10 +21,8 @@ def account(request):
     template = loader.get_template('account/account.html')
     extra_context = {'site_title': 'Profil'}
     account_context = request.GET.get('ctx')
-    if account_context in ['crew', 'bands', 'exhibitors']:
-        group = Group.objects.get(name=account_context)
-        request.user.groups.add(group)
-        request.user.save()
+    if account_context:
+        assign_account_context_group(request.user, account_context)
     return HttpResponse(template.render(extra_context, request))
 
 
@@ -61,21 +62,25 @@ def login_token(request, token):
     current_event = Event.get_current_event()
 
     if not current_event:
-        current_event = Event.objects.order_by('start_date').first()
+        current_event = Event.objects.order_by('start').first()
 
-    # Store current_event in user session
-    request.session['current_event_id'] = str(current_event.id)
-    request.session['current_event_slug'] = current_event.slug
-    request.session.save()
+    if not current_event:
+        template = loader.get_template('errors/403.html')
+        extra_context = {
+            'site_title': 'Magic Link angefordert',
+            'reason': 'Es ist derzeit keine Veranstaltung konfiguriert.',
+        }
+        return HttpResponseForbidden(template.render(extra_context, request))
 
     if not user.groups.all().exists():
         return redirect(reverse('base:select_context'))
 
     if user.groups.filter(name='bands').exists():
+        target_event = get_fallback_event_for_user(user) or current_event
         return redirect(
             reverse(
                 'bands:bid_router',
-                kwargs={'slug': request.session['current_event_slug']},
+                kwargs={'slug': target_event.slug},
             )
         )
 

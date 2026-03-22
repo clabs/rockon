@@ -42,10 +42,24 @@ dev = [
     "ruff",
     "jupyter",
     "ipython",
+    "pytest",
+    "pytest-django",
+    "pytest-cov",
 ]
 
 [tool.ruff.format]
 quote-style = "single"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "rockon.settings"
+pythonpath = ["src"]
+testpaths = ["src"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*Tests"]
+addopts = [
+    "--cov=rockon",
+    "--cov-report=term-missing",
+]
 
 [build-system]
 requires = ["hatchling"]

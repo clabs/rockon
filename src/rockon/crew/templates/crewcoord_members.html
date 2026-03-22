@@ -33,7 +33,7 @@
                 </div>
                 <div class="col-md-3 d-flex gap-2 align-items-end">
                     <button class="btn btn-primary btn-sm" type="submit">Filtern</button>
-                    <a class="btn btn-outline-secondary btn-sm" href="{% url 'crew:coord_members' slug=event.slug %}">Filter zurücksetzen</a>
+                    <a class="btn btn-outline-secondary btn-sm" href="{% url 'crew:coord_members' slug=event_slug %}">Filter zurücksetzen</a>
                 </div>
             </div>
         </form>
@@ -89,7 +89,7 @@
                                     <input type="hidden" name="state_filter" value="{{ selected_state }}">
                                     {% if member.arrived %}
                                         <input type="hidden" name="arrived" value="0">
-                                        <button class="btn btn-sm btn-primary fw-semibold" type="submit" title="Als nicht angekommen markieren">&#10003; Angekommen</button>
+                                        <button class="btn btn-sm btn-primary fw-semibold" type="submit" title="Als nicht angekommen markieren">✓ Angekommen</button>
                                     {% else %}
                                         <input type="hidden" name="arrived" value="1">
                                         <button class="btn btn-sm btn-outline-primary fw-semibold" type="submit" title="Als angekommen markieren">Nicht angekommen</button>

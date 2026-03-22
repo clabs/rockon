@@ -15,6 +15,7 @@
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Crew Coord.</a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="{% url 'crew:coord_overview' slug=current_event.slug %}">Übersicht</a>
+                <a class="dropdown-item" href="{% url 'crew:coord_availability' slug=current_event.slug %}">Verfügbarkeit</a>
                 <a class="dropdown-item" href="{% url 'crew:coord_members' slug=current_event.slug %}">Crewmitglieder</a>
                 <a class="dropdown-item" href="{% url 'crew:coord_tshirts' slug=current_event.slug %}">T-Shirts</a>
                 <a class="dropdown-item" href="{% url 'crew:coord_teams' slug=current_event.slug %}">Teamverwaltung</a>

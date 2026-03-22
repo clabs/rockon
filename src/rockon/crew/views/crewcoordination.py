@@ -11,7 +11,7 @@ from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
 
-from rockon.base.models import Event
+from rockon.base.services import get_event_by_slug
 from rockon.crew.models import (
     Attendance,
     Crew,
@@ -28,8 +28,10 @@ from rockon.crew.models import (
 @user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
 def crew_chart(request, slug):
     template = loader.get_template('crew_overview.html')
-    try:
-        event = Event.objects.get(slug=slug)
+    event = get_event_by_slug(slug)
+    attendances = []
+    attendances_unknown = []
+    if event is not None:
         attendances = (
             Attendance.objects.filter(
                 event=event,
@@ -49,9 +51,6 @@ def crew_chart(request, slug):
             .order_by('day')
             .annotate(no_of_crew_members=Count('crew_members'))
         )
-    except Event.DoesNotExist:
-        event = None
-        attendances = None
 
     extra_context = {
         'event': event,
@@ -66,8 +65,10 @@ def crew_chart(request, slug):
 @user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
 def crew_shirts(request, slug):
     template = loader.get_template('crewcoord_tshirts.html')
-    try:
-        event = Event.objects.get(slug=slug)
+    event = get_event_by_slug(slug)
+    counts = []
+    crew_members = []
+    if event is not None:
         crews = Crew.objects.filter(event=event)
         crew_members = CrewMember.objects.filter(crew__in=crews).exclude(
             state__in=[CrewMemberStatus.UNKNOWN, CrewMemberStatus.REJECTED]
@@ -85,15 +86,12 @@ def crew_shirts(request, slug):
             {'shirt': shirt, 'count': shirt_count_map.get(shirt.id, 0)}
             for shirt in shirts
         ]
-    except Event.DoesNotExist:
-        counts = None
-        crew_members = None
 
     extra_context = {
         'event': event,
         'site_title': 'T-Shirts',
         'counts': counts,
-        'sum': sum([count['count'] for count in counts]),
+        'sum': sum(count['count'] for count in counts),
         'crew_members': crew_members,
     }
     return HttpResponse(template.render(extra_context, request))
@@ -123,11 +121,7 @@ def _clear_invalid_team_roles(event_team: EventTeam) -> None:
 @user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
 def crew_team_management(request, slug):
     template = loader.get_template('crewcoord_teams.html')
-
-    try:
-        event = Event.objects.get(slug=slug)
-    except Event.DoesNotExist:
-        event = None
+    event = get_event_by_slug(slug)
 
     if request.method == 'POST' and event is not None:
         action = request.POST.get('action')
@@ -261,11 +255,7 @@ def crew_team_management(request, slug):
 @user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
 def crew_member_management(request, slug):
     template = loader.get_template('crewcoord_members.html')
-
-    try:
-        event = Event.objects.get(slug=slug)
-    except Event.DoesNotExist:
-        event = None
+    event = get_event_by_slug(slug)
 
     if request.method == 'POST' and event is not None:
         action = request.POST.get('action')
@@ -357,10 +347,80 @@ def crew_member_management(request, slug):
 
     extra_context = {
         'event': event,
+        'event_slug': slug,
         'site_title': 'Crewmitglieder',
         'members': members,
         'member_states': member_states,
         'selected_state': selected_state,
         'search_query': search_query,
+    }
+    return HttpResponse(template.render(extra_context, request))
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
+def crew_availability_matrix(request, slug):
+    template = loader.get_template('crewcoord_availability.html')
+    event = get_event_by_slug(slug)
+
+    attendance_days = []
+    member_rows = []
+    day_totals = []
+
+    if event is not None:
+        attendance_days = list(Attendance.objects.filter(event=event).order_by('day'))
+        crew_members = list(
+            CrewMember.objects.filter(
+                crew__event=event,
+                state=CrewMemberStatus.CONFIRMED,
+            )
+            .select_related('user', 'crew')
+            .prefetch_related('attendance')
+            .order_by('user__last_name', 'user__first_name')
+        )
+
+        member_availability_ids = {
+            crew_member.id: {item.id for item in crew_member.attendance.all()}
+            for crew_member in crew_members
+        }
+
+        day_totals = [
+            {
+                'attendance': attendance_day,
+                'count': sum(
+                    1
+                    for crew_member in crew_members
+                    if attendance_day.id in member_availability_ids[crew_member.id]
+                ),
+            }
+            for attendance_day in attendance_days
+        ]
+
+        for crew_member in crew_members:
+            available_day_ids = member_availability_ids[crew_member.id]
+            member_rows.append(
+                {
+                    'member': crew_member,
+                    'availability': [
+                        {
+                            'attendance': attendance_day,
+                            'is_available': attendance_day.id in available_day_ids,
+                        }
+                        for attendance_day in attendance_days
+                    ],
+                    'available_count': sum(
+                        1
+                        for attendance_day in attendance_days
+                        if attendance_day.id in available_day_ids
+                    ),
+                }
+            )
+
+    extra_context = {
+        'event': event,
+        'site_title': 'Verfügbarkeit',
+        'attendance_days': attendance_days,
+        'member_rows': member_rows,
+        'day_totals': day_totals,
     }
     return HttpResponse(template.render(extra_context, request))

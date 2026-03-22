@@ -7,6 +7,7 @@ from ninja import Router
 from ninja.security import django_auth
 
 from rockon.api.schemas.comment import CommentIn, CommentOut
+from rockon.api.schemas.status import StatusOut
 from rockon.bands.models import Band, Comment
 
 commentRouter = Router()
@@ -30,7 +31,7 @@ def _serialize_comment(comment: Comment) -> dict:
 
 @commentRouter.get(
     '/',
-    response=list[CommentOut],
+    response={200: list[CommentOut], 400: StatusOut},
     url_name='comment_list',
     auth=django_auth,
 )
@@ -41,7 +42,7 @@ def list_comments(request, band: str | None = None):
         try:
             uuid.UUID(band)
         except ValueError:
-            return 400, None
+            return 400, {'status': 'error', 'message': 'Invalid band UUID'}
         queryset = queryset.filter(band__id=band)
     return [_serialize_comment(c) for c in queryset]
 

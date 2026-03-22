@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound
 from django.template import loader
 
-from rockon.base.models import Event
+from rockon.base.services import get_event_by_slug
 from rockon.crew.models import (
     CrewMember,
 )
@@ -14,7 +14,9 @@ from rockon.crew.models import (
 @user_passes_test(lambda u: u.groups.filter(name='crew').exists())
 def guestlist_entries(request, slug) -> HttpResponse:
     template = loader.get_template('crew_guestlist_entries.html')
-    event = Event.objects.get(slug=slug)
+    event = get_event_by_slug(slug)
+    if event is None:
+        return HttpResponseNotFound()
     try:
         crew_member = CrewMember.objects.get(user=request.user, crew__event=event)
     except CrewMember.DoesNotExist:
