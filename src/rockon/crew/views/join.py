@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-import json
-
 from django.db.models import Prefetch
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 
-from rockon.base.models import Event
+from rockon.base.services import get_event_by_slug
 from rockon.crew.models import Attendance, EventTeam, Shirt, Skill, Team, TeamCategory
 from rockon.crew.models.attendance import AttendancePhase
 from rockon.crew.models.crew_member import (
@@ -17,6 +14,7 @@ from rockon.crew.models.crew_member import (
     CrewMemberNutrion,
     CrewMemberStatus,
 )
+from rockon.library.template_json import template_json
 
 
 READONLY_CREW_STATES = {
@@ -89,7 +87,9 @@ def join(request, slug):
         url += '?ctx=crew'
         return redirect(url)
     template = loader.get_template('join.html')
-    event = Event.objects.get(slug=slug)
+    event = get_event_by_slug(slug)
+    if event is None:
+        return HttpResponseNotFound()
     crew_member = (
         CrewMember.objects.filter(user=request.user, crew__event=event)
         .select_related('shirt')
@@ -148,79 +148,66 @@ def join(request, slug):
     )
     allow_overnight = request.user.profile.over_18()
 
-    shirts_json = mark_safe(
-        json.dumps(
-            [
-                {
-                    'id': str(shirt.id),
-                    'name': str(shirt),
-                }
-                for shirt in shirts
-            ],
-            ensure_ascii=False,
-        )
+    shirts_json = template_json(
+        [
+            {
+                'id': str(shirt.id),
+                'name': str(shirt),
+            }
+            for shirt in shirts
+        ],
+        ensure_ascii=False,
     )
-    skills_json = mark_safe(
-        json.dumps(
-            [
-                {
-                    'id': str(skill.id),
-                    'name': skill.name,
-                    'explanation': skill.explanation,
-                    'icon': skill.icon,
-                }
-                for skill in skills
-            ],
-            ensure_ascii=False,
-        )
+    skills_json = template_json(
+        [
+            {
+                'id': str(skill.id),
+                'name': skill.name,
+                'explanation': skill.explanation,
+                'icon': skill.icon,
+            }
+            for skill in skills
+        ],
+        ensure_ascii=False,
     )
-    attendance_phases_json = mark_safe(
-        json.dumps(
-            [
-                {
-                    'phase': phase['phase'],
-                    'name': phase['name'],
-                    'days': [
-                        {
-                            'id': str(day.id),
-                            'label': str(day),
-                        }
-                        for day in phase['days']
-                    ],
-                }
-                for phase in attendance_phases
-            ],
-            ensure_ascii=False,
-        )
+    attendance_phases_json = template_json(
+        [
+            {
+                'phase': phase['phase'],
+                'name': phase['name'],
+                'days': [
+                    {
+                        'id': str(day.id),
+                        'label': str(day),
+                    }
+                    for day in phase['days']
+                ],
+            }
+            for phase in attendance_phases
+        ],
+        ensure_ascii=False,
     )
-    team_categories_json = mark_safe(
-        json.dumps(
-            [
-                {
-                    'id': str(team_category.id),
-                    'name': team_category.name,
-                    'description': team_category.description,
-                    'image_url': team_category.get_image_url(),
-                    'teams': [
-                        {
-                            'id': str(team.join_event_links[0].id),
-                            'name': team.name,
-                        }
-                        for team in getattr(team_category, 'teams').all()
-                        if team.join_event_links
-                    ],
-                }
-                for team_category in team_categories
-            ],
-            ensure_ascii=False,
-        )
+    team_categories_json = template_json(
+        [
+            {
+                'id': str(team_category.id),
+                'name': team_category.name,
+                'description': team_category.description,
+                'image_url': team_category.get_image_url(),
+                'teams': [
+                    {
+                        'id': str(team.join_event_links[0].id),
+                        'name': team.name,
+                    }
+                    for team in getattr(team_category, 'teams').all()
+                    if team.join_event_links
+                ],
+            }
+            for team_category in team_categories
+        ],
+        ensure_ascii=False,
     )
-    initial_form_data_json = mark_safe(
-        json.dumps(
-            initial_form_data,
-            ensure_ascii=False,
-        )
-    )
+    initial_form_data_json = template_json(initial_form_data, ensure_ascii=False)
 
     extra_context = {
         'og_title': f'Crewanmeldung {event.name}',

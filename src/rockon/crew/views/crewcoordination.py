@@ -347,6 +347,7 @@ def crew_member_management(request, slug):
 
     extra_context = {
         'event': event,
+        'event_slug': slug,
         'site_title': 'Crewmitglieder',
         'members': members,
         'member_states': member_states,

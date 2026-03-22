@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from collections import defaultdict
 
 from django.conf import settings
@@ -8,13 +7,13 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 
 from rockon.bands.models import Band, BandMedia, Track
 from rockon.bands.models.band import BidStatus
 from rockon.base.models import Event
 from rockon.library.decorators import check_band_application_open
 from rockon.library.federal_states import FederalState
+from rockon.library.template_json import template_json
 
 
 def _can_vote_on_bands(user, event: Event) -> tuple[bool, str | None]:
@@ -141,13 +140,13 @@ def bid_vote(
         {
             'media_url': settings.MEDIA_URL,
             'site_title': 'Bandbewertung',
-            'tracks': mark_safe(json.dumps(tracks)),
-            'federal_states': mark_safe(json.dumps(list(FederalState.choices))),
-            'bid_states': mark_safe(json.dumps(list(BidStatus.choices))),
-            'trackid': mark_safe(json.dumps(track)),
-            'bandid': mark_safe(json.dumps(bid)),
-            'user_votes': mark_safe(json.dumps(user_votes)),
-            'allow_changes': mark_safe(json.dumps(is_booking)),
-            'allow_votes': mark_safe(json.dumps(event.bid_vote_allowed)),
+            'tracks': template_json(tracks),
+            'federal_states': template_json(list(FederalState.choices)),
+            'bid_states': template_json(list(BidStatus.choices)),
+            'trackid': template_json(track),
+            'bandid': template_json(bid),
+            'user_votes': template_json(user_votes),
+            'allow_changes': template_json(is_booking),
+            'allow_votes': template_json(event.bid_vote_allowed),
         },
     )

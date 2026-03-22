@@ -4,6 +4,7 @@ import json
 from datetime import date, timedelta
 from unittest.mock import patch
 
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -279,6 +280,24 @@ class EventScopedTeamSignupTests(TestCase):
             self.assertContains(response, f'crew_member_state: "{state}"')
             expected_flag = 'true' if expected_readonly else 'false'
             self.assertContains(response, f'form_is_readonly: {expected_flag}')
+
+    def test_join_view_returns_404_for_unknown_event_slug(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('crew:join', kwargs={'slug': 'missing'}))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_guestlist_view_returns_404_for_unknown_event_slug(self):
+        crew_group = Group.objects.create(name='crew')
+        self.user.groups.add(crew_group)
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse('crew:guestlist_entries', kwargs={'slug': 'missing'})
+        )
+
+        self.assertEqual(response.status_code, 404)
 
     def test_signup_updates_existing_memberships_on_repeat_submit(self):
         self.client.force_login(self.user)
