@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.db import transaction
 from ninja import Router
 
 from rockon.api.schemas import AccountCreateIn, AccountCreateOut
 from rockon.base.models import EmailVerification
+from rockon.base.services import assign_account_context_group
 
 accountCreate = Router()
 
@@ -31,9 +32,7 @@ def create_account(request, data: AccountCreateIn):
             password=None,
         )
 
-        if data.account_context in ('crew', 'bands', 'exhibitors'):
-            group = Group.objects.get(name=data.account_context)
-            user.groups.add(group)
+        assign_account_context_group(user, data.account_context)
 
         EmailVerification.create_and_send(user=user)
 
