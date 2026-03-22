@@ -1,58 +1,14 @@
 from __future__ import annotations
 
 from rockon.base.models import Event
+from rockon.base.services import calculate_available_event_ids
 
 SESSION_KEY = 'available_event_ids'
 
 
 def _calculate_available_event_ids(user):
     """Calculate the list of event IDs the user has access to."""
-    if user.is_staff:
-        return list(
-            Event.objects.filter(sub_event_of__isnull=True)
-            .order_by('-start')
-            .values_list('id', flat=True)
-        )
-
-    event_ids = set()
-
-    current_event = Event.objects.filter(
-        is_current=True, sub_event_of__isnull=True
-    ).first()
-    if current_event:
-        event_ids.add(current_event.id)
-
-    if user.groups.filter(name='crew').exists():
-        from rockon.crew.models import CrewMember
-
-        crew_events = CrewMember.objects.filter(
-            user=user, state='confirmed'
-        ).values_list('crew__event_id', flat=True)
-        event_ids.update(crew_events)
-
-    if user.groups.filter(name='exhibitors').exists():
-        from rockon.exhibitors.models import Exhibitor
-
-        org_ids = user.organisations.values_list('id', flat=True)
-        exhibitor_events = Exhibitor.objects.filter(
-            organisation_id__in=org_ids
-        ).select_related('event__sub_event_of')
-
-        for exhibitor in exhibitor_events:
-            if exhibitor.event.sub_event_of:
-                event_ids.add(exhibitor.event.sub_event_of.id)
-            else:
-                event_ids.add(exhibitor.event_id)
-
-    if user.groups.filter(name='bands').exists():
-        from rockon.bands.models import Band
-
-        band_events = Band.objects.filter(band_members__user=user).values_list(
-            'event_id', flat=True
-        )
-        event_ids.update(band_events)
-
-    return list(event_ids)
+    return calculate_available_event_ids(user)
 
 
 def clear_available_events_cache(request):

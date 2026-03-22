@@ -9,7 +9,10 @@ from django.template import loader
 from django.urls import reverse
 
 from rockon.base.models import Event
-from rockon.base.services import assign_account_context_group
+from rockon.base.services import (
+    assign_account_context_group,
+    get_fallback_event_for_user,
+)
 
 
 @login_required
@@ -59,7 +62,7 @@ def login_token(request, token):
     current_event = Event.get_current_event()
 
     if not current_event:
-        current_event = Event.objects.order_by('start_date').first()
+        current_event = Event.objects.order_by('start').first()
 
     if not current_event:
         template = loader.get_template('errors/403.html')
@@ -69,19 +72,15 @@ def login_token(request, token):
         }
         return HttpResponseForbidden(template.render(extra_context, request))
 
-    # Store current_event in user session
-    request.session['current_event_id'] = str(current_event.id)
-    request.session['current_event_slug'] = current_event.slug
-    request.session.save()
-
     if not user.groups.all().exists():
         return redirect(reverse('base:select_context'))
 
     if user.groups.filter(name='bands').exists():
+        target_event = get_fallback_event_for_user(user) or current_event
         return redirect(
             reverse(
                 'bands:bid_router',
-                kwargs={'slug': request.session['current_event_slug']},
+                kwargs={'slug': target_event.slug},
             )
         )
 

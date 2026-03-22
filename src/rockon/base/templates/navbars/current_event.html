@@ -1,5 +1,5 @@
 {% load has_group %}
-{% if can_switch_events and available_events %}
+{% if current_event and can_switch_events and available_events %}
     <div class="nav-item dropdown">
         <a class="nav-link dropdown-toggle"
            href="#"
@@ -18,7 +18,7 @@
             {% for event in available_events %}
                 <li>
                     <a class="dropdown-item {% if event.id == current_event.id %}active{% endif %}"
-                       href="{% url 'base:switch_event' event_slug=event.slug %}">
+                       href="{% url 'base:switch_event' event_slug=event.slug %}?next={{ request.get_full_path|urlencode }}{% if current_account_context %}&ctx={{ current_account_context|urlencode }}{% endif %}">
                         {{ event.name }}
                         {% if event.sub_events.first %}
                             <small class="text-muted">/ {{ event.sub_events.first.name }}</small>
@@ -29,7 +29,7 @@
             {% endfor %}
         </ul>
     </div>
-{% else %}
+{% elif current_event %}
     <span class="nav-link" title="Event"><i class="fa-solid fa-calendar"></i>&nbsp;
         {% if user|has_group:'exhibitors' and current_event.sub_events.first %}
             {{ current_event.sub_events.first.name }}
