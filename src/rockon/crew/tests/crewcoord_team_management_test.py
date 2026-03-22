@@ -165,6 +165,12 @@ class CrewCoordTeamManagementTests(TestCase):
     def _availability_url(self, slug: str) -> str:
         return reverse('crew:coord_availability', kwargs={'slug': slug})
 
+    def _overview_url(self, slug: str) -> str:
+        return reverse('crew:coord_overview', kwargs={'slug': slug})
+
+    def _tshirts_url(self, slug: str) -> str:
+        return reverse('crew:coord_tshirts', kwargs={'slug': slug})
+
     def test_access_control(self):
         response = self.client.get(self._url(self.event_one.slug))
         self.assertEqual(response.status_code, 302)
@@ -177,6 +183,24 @@ class CrewCoordTeamManagementTests(TestCase):
         response = self.client.get(self._url(self.event_one.slug))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Teamverwaltung')
+
+    def test_coord_views_handle_unknown_event_slug(self):
+        self.client.force_login(self.crewcoord_user)
+
+        response = self.client.get(self._url('unknown-event'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(self._members_url('unknown-event'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(self._availability_url('unknown-event'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(self._overview_url('unknown-event'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(self._tshirts_url('unknown-event'))
+        self.assertEqual(response.status_code, 200)
 
     def test_update_member_state_success_and_cross_event_rejection(self):
         self.client.force_login(self.crewcoord_user)
