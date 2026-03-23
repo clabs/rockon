@@ -29,7 +29,7 @@ exhibitorSignup = Router()
 
 @exhibitorSignup.post(
     '{slug}/',
-    response=ExhibitorSignupOut,
+    response={200: ExhibitorSignupOut, 403: ExhibitorSignupOut},
     url_name='exhibitor_signup_v2',
     auth=django_auth,
 )

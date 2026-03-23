@@ -189,7 +189,7 @@ def get_band(request, band_id: str):
 
 @bandRouter.patch(
     '/{band_id}',
-    response=BandPatchOut,
+    response={200: BandPatchOut, 403: None},
     url_name='band_patch',
     auth=django_auth,
 )
