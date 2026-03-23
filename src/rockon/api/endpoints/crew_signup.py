@@ -40,6 +40,7 @@ def crew_signup(request, slug: str, data: CrewSignupIn):
         return 404, {'status': 'error', 'message': 'Crew not found'}
 
     with transaction.atomic():
+        notification_type = 'updated'
         try:
             crew_member = CrewMember.objects.get(user=request.user, crew=crew)
             shirt = Shirt.objects.get(id=data.crew_shirt)
@@ -54,6 +55,7 @@ def crew_signup(request, slug: str, data: CrewSignupIn):
             crew_member.needs_leave_of_absence = data.needs_leave_of_absence
             crew_member.leave_of_absence_note = data.leave_of_absence_note
         except CrewMember.DoesNotExist:
+            notification_type = 'created'
             shirt = Shirt.objects.get(id=data.crew_shirt)
             crew_member = CrewMember.objects.create(
                 user=request.user,
@@ -100,13 +102,17 @@ def crew_signup(request, slug: str, data: CrewSignupIn):
         for event_team in event_teams:
             TeamMember.objects.create(event_team=event_team, crewmember=crew_member)
 
-    _send_crewcoord_notification(crew, crew_member, event_teams)
+    _send_crewcoord_notification(
+        crew, crew_member, event_teams, notification_type=notification_type
+    )
 
     return 200, {'status': 'ok', 'message': 'signed up for crew successfully'}
 
 
-def _send_crewcoord_notification(crew, crew_member, event_teams):
-    """Notify crew coordinators about a new signup. Failures are logged, never block the response."""
+def _send_crewcoord_notification(
+    crew, crew_member, event_teams, notification_type: str = 'created'
+):
+    """Notify crew coordinators about a new or updated signup. Failures are logged, never block the response."""
     try:
         recipients = list(
             Group.objects.get(name='crewcoord').user_set.values_list('email', flat=True)
@@ -122,6 +128,17 @@ def _send_crewcoord_notification(crew, crew_member, event_teams):
         )
 
         admin_url = get_admin_url(crew_member)
+        is_update = notification_type == 'updated'
+        intro_text = (
+            f'eine bestehende Crew-Anmeldung bei {crew.event.name} wurde aktualisiert.'
+            if is_update
+            else f'es gibt eine neue Crew-Anmeldung bei {crew.event.name}.'
+        )
+        subject = (
+            f'{settings.EMAIL_SUBJECT_PREFIX} Crew-Anmeldung aktualisiert'
+            if is_update
+            else f'{settings.EMAIL_SUBJECT_PREFIX} Neue Crew-Anmeldung'
+        )
 
         template = loader.get_template('mail/crew_signup.html')
         extra_context = {
@@ -129,18 +146,19 @@ def _send_crewcoord_notification(crew, crew_member, event_teams):
             'member_name': f'{user.first_name} {user.last_name}',
             'teams': team_names,
             'admin_url': admin_url,
+            'is_update': is_update,
         }
 
         message = (
-            f'Hallo Crew-Koordination,\nes gibt eine neue Crew-Anmeldung bei '
-            f'{crew.event.name}.\nName: {extra_context["member_name"]}'
+            f'Hallo Crew-Koordination,\n{intro_text}\n'
+            f'Name: {extra_context["member_name"]}'
         )
         if team_names:
             message += f'\nGewünschte Teams: {team_names}'
         message += f'\n\nIm Admin ansehen: {admin_url}'
 
         send_mail_async(
-            subject=f'{settings.EMAIL_SUBJECT_PREFIX} Neue Crew-Anmeldung',
+            subject=subject,
             message=message,
             recipient_list=recipients,
             html_message=template.render(extra_context),
