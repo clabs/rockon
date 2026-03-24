@@ -15,6 +15,7 @@ dependencies = [
     "django",
     "django-autoslug",
     "django-compressor",
+    "django-libsass",
     "django-cors-headers",
     "django-extensions",
     "django-health-check",

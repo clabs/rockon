@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ninja import Router
+from ninja import Body, Router
 
 from rockon.api.schemas.status import StatusOut
 from rockon.bands.models import Band
@@ -15,7 +15,7 @@ bandTechriderRouter = Router()
     response={200: StatusOut, 404: StatusOut},
     url_name='band_techrider',
 )
-def band_techrider(request, slug: str, data: dict[str, Any]):
+def band_techrider(request, slug: str, data: Body[dict[str, Any]]):
     """Save techrider data for a band."""
     try:
         band = Band.objects.get(slug=slug)
