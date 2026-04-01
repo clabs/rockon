@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from typing import Optional
 
 from django.shortcuts import get_object_or_404
 from ninja import Router
@@ -35,7 +36,7 @@ def _serialize_comment(comment: Comment) -> dict:
     url_name='comment_list',
     auth=django_auth,
 )
-def list_comments(request, band: str | None = None):
+def list_comments(request, band: Optional[str] = None):
     """List comments, optionally filtered by band UUID."""
     queryset = Comment.objects.select_related('user').all()
     if band:

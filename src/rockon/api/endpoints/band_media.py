@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Optional
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -36,7 +37,7 @@ def _serialize_media(media: BandMedia) -> dict:
     url_name='band_media_list',
     auth=django_auth,
 )
-def list_media(request, band_id: str | None = None):
+def list_media(request, band_id: Optional[str] = None):
     """List media, optionally filtered by band_id."""
     queryset = BandMedia.objects.all()
     if band_id:
@@ -55,7 +56,7 @@ def list_media(request, band_id: str | None = None):
 )
 def upload_media(
     request,
-    file: UploadedFile | None = File(None),
+    file: Optional[UploadedFile] = File(None),
 ):
     """Create a media entry with optional file upload (multipart) or URL (JSON)."""
     import json

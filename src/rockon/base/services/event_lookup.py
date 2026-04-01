@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from typing import Optional
 from urllib.parse import quote
 
 from django.contrib.auth.models import AnonymousUser
@@ -11,17 +12,17 @@ SUPPORTED_ACCOUNT_CONTEXTS = ('crew', 'bands', 'exhibitors')
 EVENT_PATH_RE = re.compile(r'/event/(?P<slug>[^/]+)/')
 
 
-def get_event_by_slug(slug: str) -> Event | None:
+def get_event_by_slug(slug: str) -> Optional[Event]:
     """Return event for a slug or None when no event exists."""
     return Event.objects.filter(slug=slug).first()
 
 
-def get_selectable_event_by_slug(slug: str) -> Event | None:
+def get_selectable_event_by_slug(slug: str) -> Optional[Event]:
     """Return a top-level event that can be selected in the event switcher."""
     return Event.objects.filter(slug=slug, sub_event_of__isnull=True).first()
 
 
-def get_root_event(event: Event | None) -> Event | None:
+def get_root_event(event: Optional[Event]) -> Optional[Event]:
     """Normalize sub-events to their top-level parent event."""
     if event is None:
         return None
@@ -87,12 +88,12 @@ def get_available_events(user):
     )
 
 
-def get_default_event() -> Event | None:
+def get_default_event() -> Optional[Event]:
     """Return the global fallback event when no user-specific choice exists."""
     return Event.get_current_event() or Event.objects.order_by('start').first()
 
 
-def get_fallback_event_for_user(user) -> Event | None:
+def get_fallback_event_for_user(user) -> Optional[Event]:
     """Return the event to use on non-event pages."""
     if user and not isinstance(user, AnonymousUser) and user.is_authenticated:
         event = get_available_events(user).first()
@@ -101,7 +102,7 @@ def get_fallback_event_for_user(user) -> Event | None:
     return get_default_event()
 
 
-def get_request_path_event_slug(request) -> str | None:
+def get_request_path_event_slug(request) -> Optional[str]:
     """Return the event slug from the resolved route when available."""
     resolver_match = getattr(request, 'resolver_match', None)
     if resolver_match is None:
@@ -112,7 +113,7 @@ def get_request_path_event_slug(request) -> str | None:
     return None
 
 
-def get_current_event_for_request(request) -> Event | None:
+def get_current_event_for_request(request) -> Optional[Event]:
     """Resolve the current event from the request URL, falling back on global pages."""
     cached_event = getattr(request, 'current_event', None)
     if cached_event is not None:
@@ -128,7 +129,7 @@ def get_current_event_for_request(request) -> Event | None:
     return event
 
 
-def get_request_account_context(request) -> str | None:
+def get_request_account_context(request) -> Optional[str]:
     """Infer the account context for default event landing pages."""
     explicit_context = request.GET.get('ctx')
     if explicit_context in SUPPORTED_ACCOUNT_CONTEXTS:

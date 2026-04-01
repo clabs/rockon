@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Optional
 
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
@@ -159,7 +160,7 @@ def _serialize_band_detail(band):
     url_name='band_list',
     auth=django_auth,
 )
-def list_bands(request, event: str | None = None):
+def list_bands(request, event: Optional[str] = None):
     """List all bands, optionally filtered by event slug."""
     media_qs = BandMedia.objects.filter(
         media_type__in=_MEDIA_LIST_TYPES,
