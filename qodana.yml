@@ -18,7 +18,10 @@ profile:
 #  - name: <SomeEnabledInspectionId>
 
 #Disable inspections
-# exclude:
+exclude:
+  - name: PyAttributeOutsideInitInspection
+    paths:
+      - src/rockon/**/tests/**
 
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
 #bootstrap: sh ./prepare-qodana.sh
