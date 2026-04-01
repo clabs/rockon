@@ -25,5 +25,5 @@ class CommentOut(Schema):
 class CommentIn(Schema):
     band: str
     text: str
-    reason: str | None = None
-    mood: str | None = None
+    reason: Optional[str] = None
+    mood: Optional[str] = None

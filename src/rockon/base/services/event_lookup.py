@@ -161,7 +161,7 @@ def get_event_slug_for_path(event: Event, path: str) -> str:
     return event.slug
 
 
-def get_path_event_slug(path: str) -> str | None:
+def get_path_event_slug(path: str) -> Optional[str]:
     """Extract the event slug from an event-scoped path."""
     match = EVENT_PATH_RE.search(path)
     if match is None:
