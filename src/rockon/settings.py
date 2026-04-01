@@ -136,7 +136,7 @@ DATABASES = {
 }
 
 
-def _enable_wal_mode(sender, connection, **kwargs):
+def _enable_wal_mode(_sender, connection, **_kwargs):
     """Enable WAL mode for SQLite connections to allow concurrent reads during writes."""
     if connection.vendor == 'sqlite':
         cursor = connection.cursor()

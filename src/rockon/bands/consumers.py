@@ -35,11 +35,11 @@ class BandReactionConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
 
-    async def disconnect(self, close_code):
+    async def disconnect(self, _close_code):
         if hasattr(self, 'group_name'):
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
-    async def receive_json(self, content, **kwargs):
+    async def receive_json(self, content, **_kwargs):
         emoji = content.get('emoji')
         if emoji not in ALLOWED_EMOJIS:
             await self.send_json({'error': 'Invalid emoji'})

@@ -17,7 +17,7 @@ trackRouter = Router()
     url_name='track_list',
     auth=django_auth,
 )
-def list_tracks(request, event: Optional[str] = None):
+def list_tracks(_request, event: Optional[str] = None):
     """List active tracks, optionally filtered by event slug."""
     queryset = Track.objects.filter(active=True)
     if event:
