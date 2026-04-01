@@ -21,7 +21,13 @@ profile:
 exclude:
   - name: PyAttributeOutsideInitInspection
     paths:
-      - src/rockon/**/tests/**
+      - src/rockon/api/tests
+      - src/rockon/bands/tests
+      - src/rockon/base/tests
+      - src/rockon/crew/tests
+      - src/rockon/exhibitors/tests
+      - src/rockon/library/tests
+      - src/rockon/tools/tests
 
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
 #bootstrap: sh ./prepare-qodana.sh
