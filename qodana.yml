@@ -28,6 +28,11 @@ exclude:
       - src/rockon/exhibitors/tests
       - src/rockon/library/tests
       - src/rockon/tools/tests
+  - name: All
+    paths:
+      - src/rockon/bands/migrations
+      - src/rockon/base/migrations
+      - src/rockon/crew/migrations
 
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
 #bootstrap: sh ./prepare-qodana.sh
