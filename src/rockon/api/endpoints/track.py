@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 from ninja import Router
 from ninja.security import django_auth
 

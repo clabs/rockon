@@ -109,7 +109,10 @@ def bid_form(request, slug, guid):
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='crew').exists())
 def bid_vote(
-    request, bid: str | None = None, track: str | None = None, slug: str | None = None
+    request,
+    bid: str | None = None,
+    track: str | None = None,
+    slug: str | None = None,
 ):
     """Display band voting interface for crew members."""
     event = get_object_or_404(Event, slug=slug)
