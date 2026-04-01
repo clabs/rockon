@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 class BandReactionConsumer(AsyncJsonWebsocketConsumer):
     """WebSocket consumer for live emoji reactions on a band."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.band_id = ''
+        self.group_name = ''
+
     async def connect(self):
         self.band_id = self.scope['url_route']['kwargs']['band_id']
         self.group_name = f'band_reactions_{self.band_id}'
