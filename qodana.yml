@@ -1,0 +1,53 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+
+#################################################################################
+#              WARNING: Do not store sensitive information in this file,        #
+#               as its contents will be included in the Qodana report.          #
+#################################################################################
+version: "1.0"
+
+#Specify inspection profile for code analysis
+profile:
+  name: qodana.recommended
+
+#Enable inspections
+#include:
+#  - name: <SomeEnabledInspectionId>
+
+#Disable inspections
+exclude:
+  - name: PyAttributeOutsideInitInspection
+    paths:
+      - src/rockon/api/tests
+      - src/rockon/bands/tests
+      - src/rockon/base/tests
+      - src/rockon/crew/tests
+      - src/rockon/exhibitors/tests
+      - src/rockon/library/tests
+      - src/rockon/tools/tests
+  - name: All
+    paths:
+      - src/rockon/bands/migrations
+      - src/rockon/base/migrations
+      - src/rockon/crew/migrations
+
+#Execute shell command before Qodana execution (Applied in CI/CD pipeline)
+#bootstrap: sh ./prepare-qodana.sh
+
+#Install IDE plugins before Qodana execution (Applied in CI/CD pipeline)
+#plugins:
+#  - id: <plugin.id> #(plugin id can be found at https://plugins.jetbrains.com)
+
+# Quality gate. Will fail the CI/CD pipeline if any condition is not met
+# severityThresholds - configures maximum thresholds for different problem severities
+failureConditions:
+  severityThresholds:
+    any: 20
+    critical: 0
+    high: 5
+
+#Specify Qodana linter for analysis (Applied in CI/CD pipeline)
+linter: jetbrains/qodana-python:2026.1-eap

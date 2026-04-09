@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from uuid import UUID
+from typing import List, Optional
 
 from ninja import Schema
 
@@ -16,18 +17,18 @@ class AssetItem(Schema):
 
 
 class ExhibitorSignupIn(Schema):
-    org_id: UUID | None = None
-    organisation_name: str | None = None
-    organisation_address: str | None = None
-    organisation_address_housenumber: str | None = None
-    organisation_address_extension: str | None = None
-    organisation_zip: str | None = None
-    organisation_place: str | None = None
-    attendances: list[AttendanceItem]
-    assets: list[AssetItem] = []
-    offer_note: str | None = None
-    general_note: str | None = None
-    website: str | None = None
+    org_id: Optional[UUID] = None
+    organisation_name: Optional[str] = None
+    organisation_address: Optional[str] = None
+    organisation_address_housenumber: Optional[str] = None
+    organisation_address_extension: Optional[str] = None
+    organisation_zip: Optional[str] = None
+    organisation_place: Optional[str] = None
+    attendances: List[AttendanceItem]
+    assets: List[AssetItem] = []
+    offer_note: Optional[str] = None
+    general_note: Optional[str] = None
+    website: Optional[str] = None
     allow_contact: bool = False
     read_privacy: bool = False
 

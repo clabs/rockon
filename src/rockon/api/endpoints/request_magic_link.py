@@ -9,7 +9,7 @@ requestMagicLink = Router()
 
 
 @requestMagicLink.post('', response=RequestMagicLinkOut, url_name='request_magic_link')
-async def request_login(request, data: RequestMagicLinkIn):
+async def request_login(_request, data: RequestMagicLinkIn):
     email = data.email.strip().lower()
     user = await aget_object_or_404(User, email=email, is_active=True)
     await MagicLink.acreate_and_send(user)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from ninja import Schema
 
@@ -13,24 +14,24 @@ class TimeSlotOut(Schema):
     day_label: str
     start: str
     end: str
-    band_id: str | None = None
-    band_name: str | None = None
-    band_guid: str | None = None
-    band_genre: str | None = None
-    band_track: str | None = None
-    band_bid_status: str | None = None
+    band_id: Optional[str] = None
+    band_name: Optional[str] = None
+    band_guid: Optional[str] = None
+    band_genre: Optional[str] = None
+    band_track: Optional[str] = None
+    band_bid_status: Optional[str] = None
 
 
 class TimeSlotPatchIn(Schema):
-    band_id: str | None = None
+    band_id: Optional[str] = None
 
 
 class TimeSlotPatchOut(Schema):
     id: str
-    band_id: str | None = None
-    band_name: str | None = None
-    band_guid: str | None = None
-    band_genre: str | None = None
-    band_track: str | None = None
-    band_bid_status: str | None = None
+    band_id: Optional[str] = None
+    band_name: Optional[str] = None
+    band_guid: Optional[str] = None
+    band_genre: Optional[str] = None
+    band_track: Optional[str] = None
+    band_bid_status: Optional[str] = None
     updated_at: datetime

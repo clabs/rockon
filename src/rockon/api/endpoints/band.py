@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from ninja import Router
@@ -158,7 +160,7 @@ def _serialize_band_detail(band):
     url_name='band_list',
     auth=django_auth,
 )
-def list_bands(request, event: str | None = None):
+def list_bands(_request, event: Optional[str] = None):
     """List all bands, optionally filtered by event slug."""
     media_qs = BandMedia.objects.filter(
         media_type__in=_MEDIA_LIST_TYPES,
@@ -178,7 +180,7 @@ def list_bands(request, event: str | None = None):
     url_name='band_detail',
     auth=django_auth,
 )
-def get_band(request, band_id: str):
+def get_band(_request, band_id: str):
     """Get full details for a single band."""
     band = get_object_or_404(
         Band.objects.select_related('track', 'contact').prefetch_related('media'),

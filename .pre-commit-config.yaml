@@ -45,6 +45,7 @@ repos:
     rev: v3.21.2
     hooks:
       - id: pyupgrade
+        args: ["--keep-runtime-typing"]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
@@ -61,7 +62,7 @@ repos:
       - id: text-unicode-replacement-char
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.1
+    rev: v0.15.8
     hooks:
       - id: ruff-check
         args: [ --fix ]

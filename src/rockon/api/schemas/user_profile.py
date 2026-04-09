@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from ninja import Schema
 
 
@@ -13,4 +15,4 @@ class UserProfileIn(Schema):
     address_housenumber: str = ''
     zip_code: str = ''
     place: str = ''
-    user_birthday: str | None = None
+    user_birthday: Optional[str] = None

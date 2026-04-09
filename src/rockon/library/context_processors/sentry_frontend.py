@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.conf import settings
 
 
-def get_sentry_data(request):
+def get_sentry_data(_request):
     return {
         'SENTRY_FRONTEND_ENABLED': settings.SENTRY_FRONTEND_ENABLED,
         'SENTRY_DSN': settings.SENTRY_DSN,

@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 class BandReactionConsumer(AsyncJsonWebsocketConsumer):
     """WebSocket consumer for live emoji reactions on a band."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.band_id = ''
+        self.group_name = ''
+
     async def connect(self):
         self.band_id = self.scope['url_route']['kwargs']['band_id']
         self.group_name = f'band_reactions_{self.band_id}'
@@ -30,11 +35,11 @@ class BandReactionConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
 
-    async def disconnect(self, close_code):
+    async def disconnect(self, _close_code):
         if hasattr(self, 'group_name'):
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
-    async def receive_json(self, content, **kwargs):
+    async def receive_json(self, content, **_kwargs):
         emoji = content.get('emoji')
         if emoji not in ALLOWED_EMOJIS:
             await self.send_json({'error': 'Invalid emoji'})

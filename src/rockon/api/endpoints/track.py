@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from ninja import Router
 from ninja.security import django_auth
 
@@ -15,7 +17,7 @@ trackRouter = Router()
     url_name='track_list',
     auth=django_auth,
 )
-def list_tracks(request, event: str | None = None):
+def list_tracks(_request, event: Optional[str] = None):
     """List active tracks, optionally filtered by event slug."""
     queryset = Track.objects.filter(active=True)
     if event:

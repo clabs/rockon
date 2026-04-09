@@ -28,7 +28,8 @@ class LinkShortener(CustomModel):
             self.slug = self.base_encode(randbits(32))
         super().save(*args, **kwargs)
 
-    def base_encode(self, num):
+    @staticmethod
+    def base_encode(num):
         if not num:
             return None
 
@@ -38,7 +39,8 @@ class LinkShortener(CustomModel):
             encoding = BASE_ALPH[rem] + encoding
         return encoding
 
-    def base_decode(self, string):
+    @staticmethod
+    def base_decode(string):
         num = 0
         for char in string:
             num = num * BASE_LEN + BASE_DICT[char]

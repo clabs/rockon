@@ -232,7 +232,7 @@ def join(request, slug):
     return HttpResponse(template.render(extra_context, request))
 
 
-def join_submitted(request, slug):
+def join_submitted(request, _slug):
     template = loader.get_template('join_submitted.html')
     extra_context = {'site_title': 'Anmeldung abgeschlossen'}
     return HttpResponse(template.render(extra_context, request))

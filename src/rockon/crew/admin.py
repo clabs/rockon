@@ -31,13 +31,14 @@ class Over16Filter(admin.SimpleListFilter):
     title = 'over 16'
     parameter_name = 'over_16'
 
-    def lookups(self, request, model_admin):
+    @staticmethod
+    def lookups(_request, _model_admin):
         return (
             ('yes', 'Yes'),
             ('no', 'No'),
         )
 
-    def queryset(self, request, queryset):
+    def queryset(self, _request, queryset):
         value = self.value()
         cutoff = _age_cutoff_date(16)
         if value == 'yes':
@@ -55,13 +56,14 @@ class Over18Filter(admin.SimpleListFilter):
     title = 'over 18'
     parameter_name = 'over_18'
 
-    def lookups(self, request, model_admin):
+    @staticmethod
+    def lookups(_request, _model_admin):
         return (
             ('yes', 'Yes'),
             ('no', 'No'),
         )
 
-    def queryset(self, request, queryset):
+    def queryset(self, _request, queryset):
         value = self.value()
         cutoff = _age_cutoff_date(18)
         if value == 'yes':
@@ -92,27 +94,27 @@ class AttendanceAdditionAdmin(CustomAdminModel):
 
 
 @admin.action(description='Mark selected crew members as confirmed')
-def mark_confirmed(modeladmin, request, queryset):
+def mark_confirmed(_modeladmin, _request, queryset):
     queryset.update(state='confirmed')
 
 
 @admin.action(description='Mark selected crew members as rejected')
-def mark_rejected(modeladmin, request, queryset):
+def mark_rejected(_modeladmin, _request, queryset):
     queryset.update(state='rejected')
 
 
 @admin.action(description='Mark selected crew members as arrived')
-def mark_arrived(modeladmin, request, queryset):
+def mark_arrived(_modeladmin, _request, queryset):
     queryset.update(arrived=True)
 
 
 @admin.action(description='Mark selected crew members as not arrived')
-def mark_not_arrived(modeladmin, request, queryset):
+def mark_not_arrived(_modeladmin, _request, queryset):
     queryset.update(arrived=False)
 
 
 @admin.action(description='Mark selected crew members as unknown')
-def mark_unknown(modeladmin, request, queryset):
+def mark_unknown(_modeladmin, _request, queryset):
     queryset.update(state='unknown')
 
 
