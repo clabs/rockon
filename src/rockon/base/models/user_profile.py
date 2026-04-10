@@ -119,11 +119,11 @@ class UserProfile(CustomModel):
 
 
 @receiver(post_save, sender=User)
-def create_user_profile(_sender, instance, created, **_kwargs):
+def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)
-def save_user_profile(_sender, instance, **_kwargs):
+def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
