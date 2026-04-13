@@ -69,8 +69,7 @@ class OrganisationAdmin(CustomAdminModel):
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('members')
 
-    @staticmethod
-    def get_contact(obj):
+    def get_contact(self, obj):
         return next(iter(obj.members.all()), None)
 
 

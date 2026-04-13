@@ -15,7 +15,7 @@ bandTechriderRouter = Router()
     response={200: StatusOut, 404: StatusOut},
     url_name='band_techrider',
 )
-def band_techrider(_request, slug: str, data: Body[dict[str, Any]]):
+def band_techrider(request, slug: str, data: Body[dict[str, Any]]):
     """Save techrider data for a band."""
     try:
         band = Band.objects.get(slug=slug)

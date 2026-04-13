@@ -7,8 +7,7 @@ from rockon.base.models import MagicLink
 
 
 class MagicLinkAuth(BaseBackend):
-    @staticmethod
-    def authenticate(_request, token=None):
+    def authenticate(self, request, token=None):
         # Check the token and return a user.
         try:
             magic_link = MagicLink.objects.select_related('user').get(token=token)

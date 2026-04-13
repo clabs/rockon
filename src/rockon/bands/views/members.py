@@ -13,7 +13,7 @@ from rockon.bands.models import Band, BandMemberPosition
 from rockon.crew.models import CrewMemberNutrion
 
 
-def members(request, _slug, slug_guid):
+def members(request, slug, slug_guid):
     try:
         band_obj = Band.objects.get(slug=slug_guid)
     except Band.DoesNotExist, ValidationError:

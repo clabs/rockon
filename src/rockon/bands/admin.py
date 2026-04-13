@@ -74,8 +74,7 @@ class BandAdmin(CustomAdminModel):
             .prefetch_related('band_members__user')
         )
 
-    @staticmethod
-    def _band_members(obj):
+    def _band_members(self, obj):
         return ', '.join(
             [
                 f'{member.user.first_name} {member.user.last_name}'
@@ -102,8 +101,7 @@ class BandMemberAdmin(CustomAdminModel):
         'band',
     )
 
-    @staticmethod
-    def _user(obj):
+    def _user(self, obj):
         return f'{obj.user.first_name} {obj.user.last_name}'
 
 
@@ -147,12 +145,10 @@ class BandVoteAdmin(CustomAdminModel):
     list_filter = ('event',)
     search_fields = ('band__name', 'user__username')
 
-    @staticmethod
-    def has_add_permission(_request):
+    def has_add_permission(self, request):
         return False
 
-    @staticmethod
-    def has_change_permission(_request, _obj=None):
+    def has_change_permission(self, request, obj=None):
         return False
 
     def get_fields(self, request, obj=None):

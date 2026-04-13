@@ -16,7 +16,7 @@ accountCreate = Router()
     response={201: AccountCreateOut, 400: AccountCreateOut},
     url_name='account_create',
 )
-def create_account(_request, data: AccountCreateIn):
+def create_account(request, data: AccountCreateIn):
     email = data.email.strip().lower()
 
     if not email:

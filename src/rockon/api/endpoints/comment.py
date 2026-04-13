@@ -36,7 +36,7 @@ def _serialize_comment(comment: Comment) -> dict:
     url_name='comment_list',
     auth=django_auth,
 )
-def list_comments(_request, band: Optional[str] = None):
+def list_comments(request, band: Optional[str] = None):
     """List comments, optionally filtered by band UUID."""
     queryset = Comment.objects.select_related('user').all()
     if band:
