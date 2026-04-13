@@ -136,10 +136,13 @@ DATABASES = {
 }
 
 
-def _enable_wal_mode(sender, connection, **kwargs):
+def _enable_wal_mode(**kwargs):
     """Enable WAL mode for SQLite connections to allow concurrent reads during writes."""
-    if connection.vendor == 'sqlite':
-        cursor = connection.cursor()
+    connection = kwargs.get('connection')
+    if connection is None or connection.vendor != 'sqlite':
+        return
+
+    with connection.cursor() as cursor:
         cursor.execute('PRAGMA journal_mode=WAL;')
         cursor.execute('PRAGMA synchronous=NORMAL;')
 
