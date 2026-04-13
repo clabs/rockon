@@ -14,8 +14,7 @@ from rockon.crew.models.guestlist_entry import GuestListEntry
 class Command(BaseCommand):
     help = 'Imports vouchers from a CSV file with specified vouchertype and eventday'
 
-    @staticmethod
-    def add_arguments(parser):
+    def add_arguments(self, parser):
         parser.add_argument('--crew', type=uuid.UUID, help='Crew UUID', required=True)
         parser.add_argument(
             '--vouchertype', type=str, help='Type of the voucher', required=True
@@ -32,7 +31,7 @@ class Command(BaseCommand):
             help='Path to the CSV file containing vouchers',
         )
 
-    def handle(self, *_args, **options):
+    def handle(self, *args, **options):
         crew = options['crew']
         vouchertype = options['vouchertype']
         eventday = options['eventday']

@@ -8,7 +8,7 @@ from django.template import loader
 from rockon.tools.models import LinkShortener
 
 
-def link_shortener(_request, slug):
+def link_shortener(request, slug):
     """Forards to the long form url."""
     try:
         link = LinkShortener.objects.get(slug=slug)

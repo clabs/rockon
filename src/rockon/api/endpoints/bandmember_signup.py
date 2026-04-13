@@ -18,7 +18,7 @@ bandmemberSignupRouter = Router()
     response={200: StatusOut, 404: StatusOut},
     url_name='bandmember_signup',
 )
-def bandmember_signup(_request, data: BandMemberSignupIn):
+def bandmember_signup(request, data: BandMemberSignupIn):
     """Register band members for a band."""
     try:
         band = Band.objects.get(id=data.band)
