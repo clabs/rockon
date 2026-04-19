@@ -86,6 +86,7 @@ def exhibitor_list(request, slug):
     )
 
     extra_context = {
+        'site_title': 'Aussteller',
         'exhibitors': exhibitors,
         'exhibitor_states': exhibitor_states,
         'selected_state': selected_state,
