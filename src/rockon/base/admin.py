@@ -61,8 +61,18 @@ class EventAdmin(CustomAdminModel):
     search_fields = ('name', 'slug', 'location')
 
 
+class OrganisationMemberInline(admin.TabularInline):
+    model = Organisation.members.through
+    extra = 0
+    verbose_name = 'Mitglied'
+    verbose_name_plural = 'Mitglieder'
+    raw_id_fields = ('user',)
+
+
 @admin.register(Organisation)
 class OrganisationAdmin(CustomAdminModel):
+    inlines = (OrganisationMemberInline,)
+    exclude = ('members',)
     list_display = ('org_name', 'org_address', 'org_zip', 'org_place', 'get_contact')
     search_fields = ('org_name', 'org_address', 'org_zip', 'org_place')
 

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container-fluid">
+        <h2>Aussteller Infrastruktur</h2>
+
+        <p class="text-muted">{{ rows|length }} Aussteller gefunden.</p>
+
+        {% if rows %}
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Organisation</th>
+                        {% for day in days %}
+                            <th scope="col" class="text-center">{{ day.day|date:"D d.m." }}</th>
+                        {% endfor %}
+                        <th scope="col" class="text-center">Gesamt</th>
+                        {% for asset in assets %}
+                            <th scope="col" class="text-center">{{ asset.name }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ row.exhibitor.organisation.org_name }}</td>
+                            {% for cell in row.day_cells %}
+                                <td class="text-center">
+                                    {% if cell.selected %}
+                                        <span class="text-success">✓</span>
+                                    {% else %}
+                                        <span class="text-danger">✗</span>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                            <td class="text-center fw-semibold">{{ row.attendance_total }}</td>
+                            {% for cell in row.asset_cells %}
+                                <td class="text-center">
+                                    {% if cell.selected %}
+                                        {% if cell.is_bool %}
+                                            <span class="text-success">✓</span>
+                                        {% else %}
+                                            <span title="{{ cell.count }}×">{{ cell.count }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-light">–</span>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr class="fw-semibold">
+                        <td colspan="2">Summe</td>
+                        {% for total in day_totals %}
+                            <td class="text-center">{{ total }}</td>
+                        {% endfor %}
+                        <td class="text-center">{{ overall_total }}</td>
+                        {% for total in asset_totals %}
+                            <td class="text-center">{{ total }}</td>
+                        {% endfor %}
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary" role="alert">Keine Aussteller für dieses Event gefunden.</div>
+        {% endif %}
+    </div>
+{% endblock content %}
