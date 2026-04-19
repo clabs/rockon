@@ -47,6 +47,7 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Organisation</th>
+                        <th scope="col">Logo</th>
                         <th scope="col">Status</th>
                         <th scope="col">Status ändern</th>
                         <th scope="col">Markt-ID</th>
@@ -63,6 +64,19 @@
                                 <a href="{% url 'admin:rockonbase_organisation_change' exhibitor.organisation.id %}" class="text-white">
                                     {{ exhibitor.organisation.org_name }}
                                 </a>
+                            </td>
+                            <td>
+                                {% if exhibitor.logo %}
+                                    <a href="{{ exhibitor.logo.url }}" target="_blank" rel="noopener noreferrer">
+                                        <img
+                                            src="{{ exhibitor.logo.url }}"
+                                            alt="Logo von {{ exhibitor.organisation.org_name }}"
+                                            style="max-height: 48px; max-width: 120px; width: auto;"
+                                            loading="lazy">
+                                    </a>
+                                {% else %}
+                                    -
+                                {% endif %}
                             </td>
                             <td>{{ exhibitor.get_state_display }}</td>
                             <td>
@@ -103,7 +117,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="8">Keine Aussteller für dieses Event gefunden.</td>
+                            <td colspan="9">Keine Aussteller für dieses Event gefunden.</td>
                         </tr>
                     {% endfor %}
                     </tbody>
