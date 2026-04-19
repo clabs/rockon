@@ -98,7 +98,32 @@
                                     </div>
                                 </form>
                             </td>
-                            <td>{{ exhibitor.market_id|default:"-" }}</td>
+                            <td>
+                                <form method="post" class="row g-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update_market_id">
+                                    <input type="hidden" name="exhibitor_id" value="{{ exhibitor.id }}">
+                                    <input type="hidden" name="q" value="{{ search_query }}">
+                                    <input type="hidden" name="state_filter" value="{{ selected_state }}">
+                                    <div class="col-12">
+                                        <label class="visually-hidden" for="market_id_{{ exhibitor.id }}">Markt-ID</label>
+                                        <div class="input-group input-group-sm">
+                                            <input
+                                                id="market_id_{{ exhibitor.id }}"
+                                                name="market_id"
+                                                type="text"
+                                                inputmode="numeric"
+                                                pattern="[0-9]*"
+                                                maxlength="255"
+                                                class="form-control"
+                                                value="{{ exhibitor.market_id|default:'' }}">
+                                            <button class="btn btn-outline-light" type="submit" title="Speichern" aria-label="Markt-ID speichern">
+                                                <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
                             <td>
                                 {% if exhibitor.website %}
                                     <a href="{{ exhibitor.website }}" target="_blank" rel="noopener noreferrer" class="text-white">

@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
+from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template import loader
@@ -57,6 +58,35 @@ def exhibitor_list(request, slug):
                 exhibitor.state = state
                 exhibitor.save(update_fields=['state'])
                 messages.success(request, 'Ausstellerstatus wurde aktualisiert.')
+        elif action == 'update_market_id':
+            exhibitor_id = request.POST.get('exhibitor_id')
+            market_id = (request.POST.get('market_id') or '').strip()
+
+            exhibitor = (
+                Exhibitor.objects.filter(id=exhibitor_id, event=event)
+                .select_related('organisation')
+                .first()
+            )
+
+            if exhibitor is None:
+                messages.error(request, 'Ungültiger Aussteller für dieses Event.')
+            elif market_id and not market_id.isdigit():
+                messages.error(request, 'Markt-ID darf nur Ziffern enthalten.')
+            elif (
+                market_id
+                and Exhibitor.objects.filter(market_id=market_id)
+                .exclude(id=exhibitor.id)
+                .exists()
+            ):
+                messages.error(request, 'Diese Markt-ID ist bereits vergeben.')
+            else:
+                exhibitor.market_id = market_id or None
+                try:
+                    exhibitor.save(update_fields=['market_id'])
+                except IntegrityError:
+                    messages.error(request, 'Diese Markt-ID ist bereits vergeben.')
+                else:
+                    messages.success(request, 'Markt-ID wurde aktualisiert.')
         else:
             messages.error(request, 'Unbekannte Aktion.')
 

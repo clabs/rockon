@@ -189,3 +189,62 @@ class ExhibitorListViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn('q=Test', response.url)
         self.assertIn('state=contacted', response.url)
+
+    def test_post_updates_market_id_with_digits(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            self._url(),
+            {
+                'action': 'update_market_id',
+                'exhibitor_id': str(self.exhibitor.id),
+                'market_id': '12345',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.exhibitor.refresh_from_db()
+        self.assertEqual(self.exhibitor.market_id, '12345')
+
+    def test_post_rejects_market_id_with_non_digits(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            self._url(),
+            {
+                'action': 'update_market_id',
+                'exhibitor_id': str(self.exhibitor.id),
+                'market_id': 'A12',
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Markt-ID darf nur Ziffern enthalten.')
+        self.exhibitor.refresh_from_db()
+        self.assertIsNone(self.exhibitor.market_id)
+
+    def test_post_rejects_duplicate_market_id(self):
+        other_org = Organisation.objects.create(org_name='Other Org')
+        Exhibitor.objects.create(
+            event=self.event,
+            organisation=other_org,
+            state=ExhibitorStatus.UNKNOWN,
+            market_id='999',
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            self._url(),
+            {
+                'action': 'update_market_id',
+                'exhibitor_id': str(self.exhibitor.id),
+                'market_id': '999',
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Diese Markt-ID ist bereits vergeben.')
+        self.exhibitor.refresh_from_db()
+        self.assertIsNone(self.exhibitor.market_id)
