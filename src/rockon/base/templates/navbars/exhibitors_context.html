@@ -1,0 +1,13 @@
+{% load has_group %}
+{% if user|has_group:'exhibitor_admins' %}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Aussteller</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {% if current_event.sub_events.first.slug %}
+                <a class="dropdown-item" href="{% url 'exhibitors:exhibitor_list' slug=current_event.sub_events.first.slug %}">Ausstellerliste</a>
+            {% else %}
+                <a class="dropdown-item" href="{% url 'exhibitors:exhibitor_list' slug=current_event.slug %}">Ausstellerliste</a>
+            {% endif %}
+        </div>
+    </li>
+{% endif %}
