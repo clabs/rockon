@@ -12,6 +12,7 @@ from .endpoints import (
     bandmemberSignupRouter,
     commentRouter,
     crewSignupRouter,
+    exhibitorAdmin,
     exhibitorSignup,
     markVoucher,
     requestMagicLink,
@@ -32,6 +33,7 @@ api.add_router('band-votes/', bandVote)
 api.add_router('bandmember-signup', bandmemberSignupRouter)
 api.add_router('comments/', commentRouter)
 api.add_router('crew-signup/', crewSignupRouter)
+api.add_router('exhibitor-admin/', exhibitorAdmin)
 api.add_router('exhibitor-signup/', exhibitorSignup)
 api.add_router('timeslots/', timeslotRouter)
 api.add_router('mark-voucher', markVoucher)
