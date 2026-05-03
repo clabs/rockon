@@ -1,5 +1,6 @@
 from .account_create import accountCreate
 from .band import bandRouter
+from .exhibitor_admin import exhibitorAdmin
 from .band_media import bandMediaRouter
 from .band_techrider import bandTechriderRouter
 from .band_vote import bandVote
@@ -24,6 +25,7 @@ __all__ = [
     'bandmemberSignupRouter',
     'commentRouter',
     'crewSignupRouter',
+    'exhibitorAdmin',
     'exhibitorSignup',
     'markVoucher',
     'requestMagicLink',

@@ -34,6 +34,37 @@ class ExhibitorAdmin(CustomAdminModel):
     list_filter = ('event', 'state')
     search_fields = ('organisation', 'event')
     readonly_fields = ('logo_preview',)
+    fieldsets = (
+        (
+            None,
+            {
+                'fields': (
+                    'event',
+                    'organisation',
+                    'state',
+                    'market_id',
+                    'website',
+                ),
+            },
+        ),
+        (
+            'Logo',
+            {
+                'fields': ('logo_preview', 'logo'),
+            },
+        ),
+        (
+            'Anmerkungen',
+            {
+                'fields': (
+                    'general_note',
+                    'about_note',
+                    'offer_note',
+                    'internal_comment',
+                ),
+            },
+        ),
+    )
 
     @admin.display(description='Logo Vorschau')
     def logo_preview(self, obj):

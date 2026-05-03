@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -70,6 +72,10 @@ def _get_safe_next_path(request):
         allowed_hosts={request.get_host()},
         require_https=request.is_secure(),
     ):
+        return None
+
+    parsed = urlparse(next_path)
+    if parsed.scheme or parsed.netloc:
         return None
 
     return next_path
