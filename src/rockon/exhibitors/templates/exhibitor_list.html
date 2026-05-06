@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
+{% block container_class %}container-fluid{% endblock %}
 {% block content %}
-    <div class="container-fluid">
+    <div>
         <h2>Aussteller</h2>
         {% if messages %}
             {% for message in messages %}
@@ -51,14 +52,16 @@
             <div class="table-responsive">
                 <table class="table table-dark table-striped table-hover align-middle">
                     <thead>
-                        <tr>
+                        <tr style="white-space: nowrap">
                             <th scope="col">#</th>
                             <th scope="col">Organisation</th>
+                            <th scope="col">Über uns</th>
+                            <th scope="col">Angebot</th>
+                            <th scope="col">Allgemeine Anmerkung</th>
+                            <th scope="col">Website</th>
                             <th scope="col">Logo</th>
                             <th scope="col">Status</th>
-                            <th scope="col">Status ändern</th>
                             <th scope="col">Markt-ID</th>
-                            <th scope="col">Website</th>
                             <th scope="col">Erstellt</th>
                             <th scope="col">Backstage</th>
                         </tr>
@@ -67,9 +70,19 @@
                         {% for exhibitor in exhibitors %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
-                                <td>
-                                    <a href="{% url 'admin:rockonbase_organisation_change' exhibitor.organisation.id %}"
-                                       class="text-white">{{ exhibitor.organisation.org_name }}</a>
+                                <td>{{ exhibitor.organisation.org_name }}</td>
+                                <td style="min-width:180px;max-width:300px;word-break:break-word">{{ exhibitor.about_note|default:"-"|linebreaksbr }}</td>
+                                <td style="min-width:180px;max-width:300px;word-break:break-word">{{ exhibitor.offer_note|default:"-"|linebreaksbr }}</td>
+                                <td style="min-width:180px;max-width:300px;word-break:break-word">{{ exhibitor.general_note|default:"-"|linebreaksbr }}</td>
+                                <td style="white-space: nowrap">
+                                    {% if exhibitor.website %}
+                                        <a href="{{ exhibitor.website }}"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="text-white">{{ exhibitor.website|truncatechars:35 }}</a>
+                                    {% else %}
+                                        -
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if exhibitor.logo %}
@@ -87,7 +100,6 @@
                                         -
                                     {% endif %}
                                 </td>
-                                <td>{{ exhibitor.get_state_display }}</td>
                                 <td>
                                     <form method="post" class="row g-2">
                                         {% csrf_token %}
@@ -100,7 +112,8 @@
                                             <select class="form-select form-select-sm"
                                                     id="state_{{ exhibitor.id }}"
                                                     name="state"
-                                                    data-autosubmit-state>
+                                                    data-autosubmit-state
+                                                    style="border-left: 4px solid {% if exhibitor.state == 'confirmed' %}#198754{% elif exhibitor.state == 'contacted' %}#0d6efd{% elif exhibitor.state == 'rejected' %}#dc3545{% else %}#6c757d{% endif %}">
                                                 {% for state_value, state_label in exhibitor_states %}
                                                     <option value="{{ state_value }}"
                                                             {% if exhibitor.state == state_value %}selected{% endif %}>
@@ -120,14 +133,15 @@
                                         <input type="hidden" name="state_filter" value="{{ selected_state }}">
                                         <div class="col-12">
                                             <label class="visually-hidden" for="market_id_{{ exhibitor.id }}">Markt-ID</label>
-                                            <div class="input-group input-group-sm">
+                                            <div class="input-group input-group-sm" style="width: auto">
                                                 <input id="market_id_{{ exhibitor.id }}"
                                                        name="market_id"
                                                        type="text"
                                                        inputmode="numeric"
                                                        pattern="[0-9]*"
-                                                       maxlength="255"
+                                                       maxlength="3"
                                                        class="form-control"
+                                                       style="width: 4ch"
                                                        value="{{ exhibitor.market_id|default:'' }}">
                                                 <button class="btn btn-outline-light"
                                                         type="submit"
@@ -139,27 +153,24 @@
                                         </div>
                                     </form>
                                 </td>
-                                <td>
-                                    {% if exhibitor.website %}
-                                        <a href="{{ exhibitor.website }}"
-                                           target="_blank"
-                                           rel="noopener noreferrer"
-                                           class="text-white">{{ exhibitor.website|truncatechars:30 }}</a>
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                                <td>{{ exhibitor.created_at|date:"d.m.Y" }}</td>
+                                <td style="white-space: nowrap">{{ exhibitor.created_at|date:"d.m.Y" }}<br>{{ exhibitor.created_at|time:"H:i" }}</td>
                                 <td>
                                     <a class="btn btn-sm btn-outline-light"
                                        href="{% url 'admin:rockonexhibitors_exhibitor_change' exhibitor.id %}"
                                        target="_blank"
                                        rel="noopener noreferrer">Backstage</a>
+                                    {% with contact=exhibitor.organisation.members.first %}
+                                        {% if contact.email %}
+                                            <a href="mailto:{{ contact.email }}"
+                                               class="d-block mt-1 text-white small"
+                                               style="white-space: nowrap">{{ contact.email }}</a>
+                                        {% endif %}
+                                    {% endwith %}
                                 </td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="9">Keine Aussteller für dieses Event gefunden.</td>
+                                <td colspan="11">Keine Aussteller für dieses Event gefunden.</td>
                             </tr>
                         {% endfor %}
                     </tbody>

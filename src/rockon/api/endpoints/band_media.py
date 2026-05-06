@@ -73,7 +73,7 @@ def upload_media(
             band = body.get('band')
             media_type = body.get('media_type', 'unknown')
             url = body.get('url')
-        except json.JSONDecodeError, UnicodeDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             # Treat invalid or undecodable JSON as if no JSON body was provided;
             # the missing `band` will be handled by the validation below.
             logger.debug(

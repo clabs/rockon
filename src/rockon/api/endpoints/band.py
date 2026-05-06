@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from django.db.models import Prefetch
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.security import django_auth
@@ -186,6 +187,8 @@ def get_band(request, band_id: str):
         Band.objects.select_related('track', 'contact').prefetch_related('media'),
         id=band_id,
     )
+    if not request.user.is_staff and not request.user.bands.filter(id=band.id).exists():
+        return HttpResponse(status=403)
     return _serialize_band_detail(band)
 
 

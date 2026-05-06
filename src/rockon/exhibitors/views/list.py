@@ -110,9 +110,9 @@ def exhibitor_list(request, slug):
         )
 
     exhibitors = list(
-        exhibitor_qs.select_related('organisation').order_by(
-            'organisation__org_name',
-        )
+        exhibitor_qs.select_related('organisation')
+        .prefetch_related('organisation__members')
+        .order_by('organisation__org_name')
     )
 
     extra_context = {

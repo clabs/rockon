@@ -22,7 +22,7 @@
     {% include "navbars/base.html" %}
 </header>
 <main class="flex-shrink-0">
-    <div class="container pb-5" style="padding: 85px 15px 0;">
+    <div class="{% block container_class %}container{% endblock %} pb-5" style="padding: 85px 15px 0;">
         {% block content %}{% endblock content %}
     </div>
 </main>
