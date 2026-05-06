@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from rockon.base.models import Event
 from rockon.base.models.organisation import Organisation
 from rockon.library.custom_model import CustomModel, models
@@ -50,6 +52,13 @@ class Exhibitor(CustomModel):
         help_text='Logo oder Bild des Ausstellers (JPG, PNG, EPS oder PDF)',
     )
     internal_comment = models.TextField(null=True, default=None, blank=True)
+
+    @property
+    def logo_filename(self) -> str:
+        if not self.logo:
+            return ''
+        name = os.path.basename(self.logo.name)
+        return name[:19] + '…' if len(name) > 19 else name + '…'
 
     def __str__(self):
         return self.organisation.org_name
