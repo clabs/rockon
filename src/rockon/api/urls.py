@@ -7,7 +7,6 @@ from .endpoints import (
     accountCreate,
     bandMediaRouter,
     bandRouter,
-    bandTechriderRouter,
     bandVote,
     bandmemberSignupRouter,
     commentRouter,
@@ -28,7 +27,6 @@ api = NinjaAPI(urls_namespace='apiv2')
 api.add_router('account-create', accountCreate)
 api.add_router('bands/', bandRouter)
 api.add_router('band-media/', bandMediaRouter)
-api.add_router('band-techrider/', bandTechriderRouter)
 api.add_router('band-votes/', bandVote)
 api.add_router('bandmember-signup', bandmemberSignupRouter)
 api.add_router('comments/', commentRouter)

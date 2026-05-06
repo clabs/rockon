@@ -28,13 +28,9 @@ class MagicLink(CustomModel):
 
     @classmethod
     def create_and_send(cls, user: User) -> None:
-        # FIXME: this should be a setting
-        # MagicLink.objects.filter(user=user).delete()
+        MagicLink.objects.filter(user=user).delete()
 
-        _expires_at = make_aware(datetime.now() + timedelta(weeks=4))
-
-        # FIXME: this should be a setting
-        # FIXME: improve timedelta handling
+        _expires_at = make_aware(datetime.now() + timedelta(hours=24))
         magic_link = MagicLink.objects.create(user=user, expires_at=_expires_at)
 
         # FIXME: import the scheme, domain and rest of things from Django settings
@@ -66,7 +62,8 @@ class MagicLink(CustomModel):
     async def acreate_and_send(cls, user: User) -> None:
         import asyncio
 
-        _expires_at = make_aware(datetime.now() + timedelta(weeks=4))
+        await cls.objects.filter(user=user).adelete()
+        _expires_at = make_aware(datetime.now() + timedelta(hours=24))
         magic_link = await cls.objects.acreate(user=user, expires_at=_expires_at)
 
         template = loader.get_template('mail/magic_link.html')

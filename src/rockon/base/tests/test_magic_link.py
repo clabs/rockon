@@ -33,8 +33,8 @@ class MagicLinkTests(TestCase):
         MagicLink.create_and_send(self.user)
 
         magic_link = MagicLink.objects.get(user=self.user)
-        self.assertGreater(magic_link.expires_at, now() + timedelta(days=27))
-        self.assertLess(magic_link.expires_at, now() + timedelta(days=29))
+        self.assertGreater(magic_link.expires_at, now() + timedelta(hours=23))
+        self.assertLess(magic_link.expires_at, now() + timedelta(hours=25))
         send_mail_async.assert_called_once()
         self.assertEqual(
             send_mail_async.call_args.kwargs['recipient_list'],
@@ -78,12 +78,18 @@ class MagicLinkTests(TestCase):
         get_template.return_value.render.return_value = '<p>mail</p>'
         fake_link = SimpleNamespace(
             token='00000000-0000-0000-0000-000000000123',
-            expires_at=now() + timedelta(days=28),
+            expires_at=now() + timedelta(hours=24),
         )
         acreate.return_value = fake_link
 
         async def run_test():
-            await MagicLink.acreate_and_send(self.user)
+            # Patch the queryset's adelete so the delete-before-create doesn't hit DB.
+            from unittest.mock import MagicMock
+
+            qs_mock = MagicMock()
+            qs_mock.adelete = AsyncMock(return_value=(0, {}))
+            with patch.object(MagicLink.objects, 'filter', return_value=qs_mock):
+                await MagicLink.acreate_and_send(self.user)
 
         asyncio.run(run_test())
 

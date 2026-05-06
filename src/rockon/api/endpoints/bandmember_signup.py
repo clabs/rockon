@@ -5,6 +5,7 @@ from uuid import uuid4
 from django.contrib.auth.models import User
 from django.db import transaction
 from ninja import Router
+from ninja.security import django_auth
 
 from rockon.api.schemas.bandmember import BandMemberSignupIn
 from rockon.api.schemas.status import StatusOut
@@ -17,12 +18,16 @@ bandmemberSignupRouter = Router()
     '/',
     response={200: StatusOut, 404: StatusOut},
     url_name='bandmember_signup',
+    auth=django_auth,
 )
 def bandmember_signup(request, data: BandMemberSignupIn):
     """Register band members for a band."""
     try:
         band = Band.objects.get(id=data.band)
     except Band.DoesNotExist:
+        return 404, {'status': 'error', 'message': 'Band does not exist.'}
+
+    if not request.user.is_staff and not request.user.bands.filter(id=band.id).exists():
         return 404, {'status': 'error', 'message': 'Band does not exist.'}
 
     with transaction.atomic():

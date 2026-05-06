@@ -51,16 +51,18 @@ def _person_payload(**kwargs) -> dict:
 class BandMemberSignupEndpointTests(TestCase):
     def setUp(self):
         self.event = _make_event()
-        self.band = Band.objects.create(
-            event=self.event,
-            name='The Testers',
-            bid_status=BidStatus.PENDING,
-        )
         self.user = User.objects.create_user(
             username='bandlead',
             email='bandlead@example.com',
             password='secret',
         )
+        self.band = Band.objects.create(
+            event=self.event,
+            name='The Testers',
+            bid_status=BidStatus.PENDING,
+            contact=self.user,
+        )
+        self.client.force_login(self.user)
 
     def test_signup_creates_band_members(self):
         response = self.client.post(
@@ -152,49 +154,3 @@ class BandMemberSignupEndpointTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class BandTechriderEndpointTests(TestCase):
-    def setUp(self):
-        self.event = _make_event()
-        self.band = Band.objects.create(
-            event=self.event,
-            name='The Riders',
-            bid_status=BidStatus.PENDING,
-        )
-
-    def test_techrider_saves_data(self):
-        payload = {'pa_system': 'yes', 'monitor_count': 4}
-
-        response = self.client.post(
-            f'/api/v2/band-techrider/{self.band.slug}/',
-            data=json.dumps(payload),
-            content_type='application/json',
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(response.content, {'status': 'ok', 'message': ''})
-        self.band.refresh_from_db()
-        self.assertEqual(self.band.techrider['pa_system'], 'yes')
-        self.assertEqual(self.band.techrider['monitor_count'], 4)
-
-    def test_techrider_strips_csrf_token(self):
-        payload = {'csrfmiddlewaretoken': 'token123', 'pa_system': 'no'}
-
-        response = self.client.post(
-            f'/api/v2/band-techrider/{self.band.slug}/',
-            data=json.dumps(payload),
-            content_type='application/json',
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.band.refresh_from_db()
-        self.assertNotIn('csrfmiddlewaretoken', self.band.techrider)
-        self.assertIn('pa_system', self.band.techrider)
-
-    def test_techrider_returns_404_for_unknown_band(self):
-        response = self.client.post(
-            '/api/v2/band-techrider/no-such-band/',
-            data=json.dumps({'pa_system': 'yes'}),
-            content_type='application/json',
-        )
-
-        self.assertEqual(response.status_code, 404)

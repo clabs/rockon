@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
@@ -13,6 +14,7 @@ from rockon.bands.models import Band, BandMemberPosition
 from rockon.crew.models import CrewMemberNutrion
 
 
+@login_required
 def members(request, slug, slug_guid):
     try:
         band_obj = Band.objects.get(slug=slug_guid)
@@ -31,7 +33,16 @@ def members(request, slug, slug_guid):
         member['position'] = BandMemberPosition(member['position']).label
         member['nutrition'] = CrewMemberNutrion(member['nutrition']).label
         user = users_by_id.get(member['user_id'])
-        member['user'] = model_to_dict(user) if user else {}
+        member['user'] = (
+            {
+                'id': user.id,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+            }
+            if user
+            else {}
+        )
         member['profile'] = model_to_dict(user.profile) if user else {}
         members_values[idx] = member
 
