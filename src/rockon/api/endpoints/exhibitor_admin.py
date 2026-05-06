@@ -124,7 +124,7 @@ def exhibitor_export(request, slug: str):
         logo_filename = os.path.basename(ex.logo.name) if ex.logo else ''
         ws.append(
             [
-                ex.market_id or '',
+                ex.market_id or 'tbd.',
                 ex.state,
                 org.org_name,
                 *day_counts,
