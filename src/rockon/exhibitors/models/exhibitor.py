@@ -55,10 +55,7 @@ class Exhibitor(CustomModel):
 
     @property
     def logo_filename(self) -> str:
-        if not self.logo:
-            return ''
-        name = os.path.basename(self.logo.name)
-        return name[:19] + '…' if len(name) > 19 else name + '…'
+        return os.path.basename(self.logo.name) if self.logo else ''
 
     def __str__(self):
         return self.organisation.org_name

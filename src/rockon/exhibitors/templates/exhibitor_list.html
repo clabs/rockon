@@ -88,14 +88,14 @@
                                            target="_blank"
                                            rel="noopener noreferrer">
                                             <img src="{{ exhibitor.logo.url }}"
-                                                 alt="{{ exhibitor.logo_filename }}"
+                                                 alt="{{ exhibitor.logo_filename|slice:':18' }}…"
                                                  style="max-height: 48px;
                                                         max-width: 120px;
                                                         width: auto"
                                                  loading="lazy">
                                         </a>
                                     {% else %}
-                                        -
+                                        <span class="text-muted small">kein Logo hochgeladen</span>
                                     {% endif %}
                                 </td>
                                 <td>
