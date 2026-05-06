@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import io
 import math
-import os
 import tempfile
 import zipfile
 from datetime import datetime, timezone
@@ -72,7 +71,7 @@ def exhibitor_export(request, slug: str):
     logo_width = min(
         50,
         max(
-            (len(os.path.basename(ex.logo.name)) for ex in exhibitors if ex.logo),
+            (len(ex.logo_filename) for ex in exhibitors if ex.logo),
             default=20,
         )
         + 2,
@@ -87,7 +86,6 @@ def exhibitor_export(request, slug: str):
     static_after = [
         'Website',
         'Allgemeine Anmerkung',
-        'Über uns',
         'Angebot',
         'Logo-Dateiname',
     ]
@@ -106,12 +104,12 @@ def exhibitor_export(request, slug: str):
     ws.freeze_panes = 'A2'
     ws.auto_filter.ref = f'A1:{openpyxl.utils.get_column_letter(len(all_headers))}1'
 
-    widths = [12, 12, org_width] + [10] * len(days) + [28, 40, 40, 40, logo_width]
+    widths = [12, 12, org_width] + [10] * len(days) + [28, 40, 40, logo_width]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
-    # 1-based column indices for the three note fields
-    note_col_indices = {5 + len(days), 6 + len(days), 7 + len(days)}
+    # 1-based column indices for the two note fields
+    note_col_indices = {5 + len(days), 6 + len(days)}
 
     alt_fill = PatternFill(start_color='FFF566', end_color='FFF566', fill_type='solid')
     wrap_top = Alignment(wrap_text=True, vertical='top')
@@ -121,7 +119,7 @@ def exhibitor_export(request, slug: str):
         org = ex.organisation
         att_lookup = {ea.day_id: ea.count for ea in ex.attendances.all()}
         day_counts = ['✅' if att_lookup.get(d.id, 0) > 0 else '❌' for d in days]
-        logo_filename = os.path.basename(ex.logo.name) if ex.logo else ''
+        logo_filename = ex.logo_filename if ex.logo else ''
         ws.append(
             [
                 ex.market_id or 'tbd.',
@@ -130,14 +128,12 @@ def exhibitor_export(request, slug: str):
                 *day_counts,
                 ex.website or '',
                 ex.general_note or '',
-                ex.about_note or '',
                 ex.offer_note or '',
                 logo_filename,
             ]
         )
         lines = max(
             _estimate_lines(ex.general_note),
-            _estimate_lines(ex.about_note),
             _estimate_lines(ex.offer_note),
         )
         ws.row_dimensions[row_idx].height = min(max(20, lines * 16 + 8), 400)
@@ -163,7 +159,7 @@ def exhibitor_export(request, slug: str):
             try:
                 logo_path = ex.logo.path
                 org_slug = slugify(ex.organisation.org_name)
-                arcname = f'logos/{org_slug}-{os.path.basename(ex.logo.name)}'
+                arcname = f'logos/{org_slug}-{ex.logo_filename}'
                 zf.write(logo_path, arcname)
             except FileNotFoundError, NotImplementedError:
                 pass
