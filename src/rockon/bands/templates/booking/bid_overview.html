@@ -231,6 +231,12 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
                             </span>
+                            <span v-if="band.members_url" class="ms-2">
+                                <a href="#" @click.prevent="copyMembersUrl(band)"
+                                   :title="copiedId === band.id ? 'Kopiert!' : 'Crew-Link kopieren'">
+                                    <i :class="copiedId === band.id ? 'fas fa-check text-success' : 'fas fa-link'"></i>
+                                </a>
+                            </span>
                         </td>
                     </tr>
                     <tr v-if="paginatedBands.length === 0">
