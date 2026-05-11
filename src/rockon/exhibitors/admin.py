@@ -31,6 +31,9 @@ class ExhibitorAssetInline(admin.TabularInline):
 class ExhibitorAdmin(CustomAdminModel):
     inlines = (ExhibitorAssetInline,)
     list_display = ('organisation', 'event', 'state', 'website', 'created_at')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('organisation', 'event')
     list_filter = ('event', 'state')
     search_fields = ('organisation', 'event')
     readonly_fields = ('logo_preview',)

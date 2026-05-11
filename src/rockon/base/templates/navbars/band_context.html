@@ -1,0 +1,11 @@
+{% for band in user.bands.all %}
+    {% if band.event.slug == current_event.slug %}
+        {% if band.bid_status == 'lineup' or band.bid_status == 'replacement' %}
+            {% if band.slug %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'bands:bands_members' slug=current_event.slug slug_guid=band.slug %}">Personenmeldung</a>
+                </li>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endfor %}

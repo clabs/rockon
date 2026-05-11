@@ -44,6 +44,13 @@ def _can_vote_on_bands(user, event: Event) -> Tuple[bool, Optional[str]]:
 @login_required
 def bid_closed(request, slug):
     event = get_object_or_404(Event, slug=slug)
+    band = request.user.bands.filter(
+        event=event,
+        bid_status__in=[BidStatus.LINEUP, BidStatus.REPLACEMENT],
+        slug__isnull=False,
+    ).first()
+    if band:
+        return redirect('bands:bands_members', slug=slug, slug_guid=band.slug)
     return render(
         request,
         'bid_closed.html',

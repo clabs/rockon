@@ -92,7 +92,11 @@ class CrewSignupEndpointTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(
             response.content,
-            {'status': 'ok', 'message': 'signed up for crew successfully'},
+            {
+                'status': 'ok',
+                'message': 'signed up for crew successfully',
+                'crew_member_state': 'unknown',
+            },
         )
         self.assertTrue(
             CrewMember.objects.filter(user=self.user, crew=self.crew).exists()
@@ -136,6 +140,23 @@ class CrewSignupEndpointTests(TestCase):
             TeamMember.objects.filter(
                 crewmember=member, event_team=self.event_team
             ).exists()
+        )
+
+    def test_crew_signup_rejects_invalid_shirt_id(self):
+        """An unknown shirt UUID returns 400 and does not create a CrewMember."""
+        import uuid
+
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            f'/api/v2/crew-signup/{self.event.slug}/',
+            data=json.dumps(_base_payload(uuid.uuid4())),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(
+            CrewMember.objects.filter(user=self.user, crew=self.crew).exists()
         )
 
     def test_crew_signup_rejects_invalid_team_id(self):

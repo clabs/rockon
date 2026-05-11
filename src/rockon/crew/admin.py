@@ -265,6 +265,13 @@ class EventTeamAdmin(CustomAdminModel):
     )
     autocomplete_fields = ('event', 'team', 'lead', 'vize_lead')
 
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related('team', 'event', 'lead', 'vize_lead')
+        )
+
     @admin.display(boolean=True, description='Public')
     def is_public(self, obj):
         return obj.team.is_public
@@ -292,6 +299,13 @@ class TeamMemberAdmin(CustomAdminModel):
         'event_team__event',
         'state',
     )
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related('event_team__team', 'event_team__event', 'crewmember__user')
+        )
 
     @admin.display(ordering='event_team__team__name')
     def team(self, obj):

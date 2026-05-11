@@ -98,7 +98,7 @@ const CrewJoinApp = {
         const eventImageUrl = ref(window.rockon_data.event_image_url || '')
         const privacyUrl = ref(window.rockon_data.privacy_url || '')
         const allowOvernight = ref(Boolean(window.rockon_data.allow_overnight))
-        const crewMemberState = ref(window.rockon_data.crew_member_state || 'unknown')
+        const crewMemberState = ref(window.rockon_data.crew_member_state)
         const isReadOnly = ref(Boolean(window.rockon_data.form_is_readonly))
 
         const formData = reactive(
@@ -139,7 +139,7 @@ const CrewJoinApp = {
         })
 
         const stateAlert = computed(() => {
-            return CREW_STATE_ALERTS[crewMemberState.value] || CREW_STATE_ALERTS.unknown
+            return CREW_STATE_ALERTS[crewMemberState.value] || null
         })
 
         function syncSelectAllAttendance() {
@@ -273,18 +273,29 @@ const CrewJoinApp = {
                 })
 
                 if (!response.ok) {
-                    let apiMessage = 'Die Anmeldung konnte nicht gespeichert werden. Bitte versuche es erneut.'
+                    let apiMessage
                     try {
                         const body = await response.json()
-                        if (body && body.message) {
+                        if (response.status === 422) {
+                            apiMessage = 'Ungültige Eingabe. Bitte prüfe das Formular und versuche es erneut.'
+                        } else if (body && body.message) {
                             apiMessage = body.message
                         }
                     } catch (_error) {
-                        // Keep the fallback message if the response body is not JSON.
+                        // Non-JSON response body — fall through to default below.
+                    }
+                    if (!apiMessage) {
+                        apiMessage = response.status >= 500
+                            ? 'Server-Fehler. Bitte versuche es erneut oder kontaktiere den Support.'
+                            : 'Die Anmeldung konnte nicht gespeichert werden. Bitte versuche es erneut.'
                     }
                     throw new Error(apiMessage)
                 }
 
+                const body = await response.json()
+                if (body.crew_member_state) {
+                    crewMemberState.value = body.crew_member_state
+                }
                 formMessageClass.value = 'alert-success'
                 formMessage.value = 'Deine Anmeldung wurde gespeichert. Du kannst deine Angaben hier weiter einsehen und bei Bedarf erneut absenden.'
                 refreshInitialSnapshot()
@@ -293,7 +304,9 @@ const CrewJoinApp = {
             } catch (error) {
                 console.error(error)
                 formMessageClass.value = 'alert-danger'
-                formMessage.value = error.message || 'Die Anmeldung konnte nicht gespeichert werden.'
+                formMessage.value = error instanceof TypeError
+                    ? 'Keine Verbindung. Bitte prüfe deine Internetverbindung und versuche es erneut.'
+                    : (error.message || 'Die Anmeldung konnte nicht gespeichert werden.')
                 focusSubmitFeedback()
             } finally {
                 isSubmitting.value = false

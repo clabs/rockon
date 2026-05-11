@@ -290,6 +290,18 @@ const BidOverviewApp = {
       XLSX.writeFile(wb, 'bands_uebersicht.xlsx')
     }
 
+    // --- Copy members URL ---
+    const copiedId = ref(null)
+    async function copyMembersUrl(band) {
+      try {
+        await navigator.clipboard.writeText(band.members_url)
+        copiedId.value = band.id
+        setTimeout(() => { copiedId.value = null }, 1500)
+      } catch (err) {
+        console.error('Copy failed:', err)
+      }
+    }
+
     // --- Bootstrap tooltips ---
     function initTooltips() {
       document
@@ -345,6 +357,9 @@ const BidOverviewApp = {
       // Inline status editing
       statusChoices,
       updateBandStatus,
+      // Copy members URL
+      copiedId,
+      copyMembersUrl,
     }
   },
 }

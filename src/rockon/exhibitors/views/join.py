@@ -23,6 +23,14 @@ def join(request, slug):
         org = Organisation.objects.get(members__in=[request.user])
     except Organisation.DoesNotExist:
         org = None
+    except Organisation.MultipleObjectsReturned:
+        template = loader.get_template('exhibitor_join_multiple_orgs.html')
+        return HttpResponse(
+            template.render(
+                {'event': event, 'slug': slug, 'site_title': 'Anmeldung - Fehler'},
+                request,
+            )
+        )
 
     # Check if already submitted — show readonly view
     exhibitor = None
