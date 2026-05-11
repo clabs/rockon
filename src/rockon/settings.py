@@ -79,7 +79,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'rockon.library.session_current_event.SessionCurrentEventMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [
