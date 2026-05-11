@@ -337,10 +337,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'strip_permission_denied_traceback': {
+            '()': 'rockon.log_filters.StripPermissionDeniedTraceback',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'default',
+            'filters': ['strip_permission_denied_traceback'],
         },
     },
     'formatters': {
