@@ -21,21 +21,20 @@ def members(request, slug, slug_guid):
     except (Band.DoesNotExist, ValidationError):
         raise Http404('Band nicht gefunden...')
 
-    members = band_obj.band_members.all()
-    count = members.count()
+    queryset = band_obj.band_members.all()
+    count = queryset.count()
 
-    members_values = list(members.values())
+    members_values = list(queryset.values())
     user_ids = [m['user_id'] for m in members_values]
     users_by_id = {
         u.id: u for u in User.objects.filter(id__in=user_ids).select_related('profile')
     }
     for idx, member in enumerate(members_values):
-        member['position'] = BandMemberPosition(member['position']).label
-        member['nutrition'] = CrewMemberNutrion(member['nutrition']).label
+        member['position_label'] = BandMemberPosition(member['position']).label
+        member['nutrition_label'] = CrewMemberNutrion(member['nutrition']).label
         user = users_by_id.get(member['user_id'])
         member['user'] = (
             {
-                'id': user.id,
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'email': user.email,
@@ -46,13 +45,24 @@ def members(request, slug, slug_guid):
         member['profile'] = model_to_dict(user.profile) if user else {}
         members_values[idx] = member
 
+    rockon_data = {
+        'band_id': str(band_obj.id),
+        'api_signup': '/api/v2/bandmember-signup/',
+        'max_members': 10,
+        'current_members': members_values,
+        'slots': 10 - count,
+        'nutrition_choices': [
+            {'value': c.value, 'label': c.label} for c in CrewMemberNutrion
+        ],
+        'position_choices': [
+            {'value': c.value, 'label': c.label} for c in BandMemberPosition
+        ],
+    }
+
     template = loader.get_template('members.html')
     extra_context = {
         'site_title': 'Personenmeldung',
         'band': band_obj,
-        'current_members': json.dumps(members_values, cls=DjangoJSONEncoder),
-        'slots': 10 - count,
-        'nutrion_choices': CrewMemberNutrion,
-        'positions': BandMemberPosition,
+        'rockon_data_json': json.dumps(rockon_data, cls=DjangoJSONEncoder),
     }
     return HttpResponse(template.render(extra_context, request))
