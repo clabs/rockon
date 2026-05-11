@@ -1,0 +1,8 @@
+{% extends 'base.html' %} {% block content %}
+    {% load static %}
+    <h1>Aussteller Anmeldung - {{ event.name }}</h1>
+    <div class="alert alert-danger mt-3" role="alert">
+        Dein Account ist mehreren Organisationen zugeordnet. Bitte wende dich an
+        <a href="mailto:spielfest@cpye.de">spielfest@cpye.de</a>, damit wir das klären können.
+    </div>
+{% endblock %}
