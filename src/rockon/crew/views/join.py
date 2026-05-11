@@ -96,9 +96,7 @@ def join(request, slug):
         .prefetch_related('skills', 'attendance', 'interested_in', 'teams')
         .first()
     )
-    crew_member_state = (
-        crew_member.state if crew_member is not None else CrewMemberStatus.UNKNOWN
-    )
+    crew_member_state = crew_member.state if crew_member is not None else ''
     form_is_readonly = crew_member_state in READONLY_CREW_STATES
     initial_form_data = _build_initial_form_data(crew_member)
 

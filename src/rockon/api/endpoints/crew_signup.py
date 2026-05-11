@@ -9,7 +9,7 @@ from django.template import loader
 from ninja import Router
 from ninja.security import django_auth
 
-from rockon.api.schemas.crew_signup import CrewSignupIn
+from rockon.api.schemas.crew_signup import CrewSignupIn, CrewSignupOut
 from rockon.api.schemas.status import StatusOut
 from rockon.crew.models import (
     Crew,
@@ -28,7 +28,7 @@ crewSignupRouter = Router()
 
 @crewSignupRouter.post(
     '/{slug}/',
-    response={200: StatusOut, 400: StatusOut, 404: StatusOut},
+    response={200: CrewSignupOut, 400: StatusOut, 404: StatusOut},
     url_name='crew_signup',
     auth=django_auth,
 )
@@ -39,12 +39,15 @@ def crew_signup(request, slug: str, data: CrewSignupIn):
     except Crew.DoesNotExist:
         return 404, {'status': 'error', 'message': 'Crew not found'}
 
+    try:
+        shirt = Shirt.objects.get(id=data.crew_shirt)
+    except Shirt.DoesNotExist:
+        return 400, {'status': 'error', 'message': 'Invalid shirt selection'}
+
     with transaction.atomic():
         notification_type = 'updated'
         try:
             crew_member = CrewMember.objects.get(user=request.user, crew=crew)
-            shirt = Shirt.objects.get(id=data.crew_shirt)
-
             crew_member.shirt = shirt
             crew_member.nutrition = data.nutrition_type
             crew_member.nutrition_note = data.nutrition_note
@@ -56,7 +59,6 @@ def crew_signup(request, slug: str, data: CrewSignupIn):
             crew_member.leave_of_absence_note = data.leave_of_absence_note
         except CrewMember.DoesNotExist:
             notification_type = 'created'
-            shirt = Shirt.objects.get(id=data.crew_shirt)
             crew_member = CrewMember.objects.create(
                 user=request.user,
                 crew=crew,
@@ -106,7 +108,11 @@ def crew_signup(request, slug: str, data: CrewSignupIn):
         crew, crew_member, event_teams, notification_type=notification_type
     )
 
-    return 200, {'status': 'ok', 'message': 'signed up for crew successfully'}
+    return 200, {
+        'status': 'ok',
+        'message': 'signed up for crew successfully',
+        'crew_member_state': crew_member.state,
+    }
 
 
 def _send_crewcoord_notification(

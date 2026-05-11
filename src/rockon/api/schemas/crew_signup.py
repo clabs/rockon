@@ -19,3 +19,9 @@ class CrewSignupIn(Schema):
     attendance_ids: list[UUID] = []
     teamcategory_ids: list[UUID] = []
     team_ids: list[UUID] = []
+
+
+class CrewSignupOut(Schema):
+    status: str
+    message: str = ''
+    crew_member_state: str = ''
