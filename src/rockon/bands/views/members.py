@@ -18,7 +18,7 @@ from rockon.crew.models import CrewMemberNutrion
 def members(request, slug, slug_guid):
     try:
         band_obj = Band.objects.get(slug=slug_guid)
-    except (Band.DoesNotExist, ValidationError):
+    except Band.DoesNotExist, ValidationError:
         raise Http404('Band nicht gefunden...')
 
     queryset = band_obj.band_members.all()

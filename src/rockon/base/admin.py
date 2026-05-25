@@ -57,7 +57,14 @@ class MagicLinkAdmin(CustomAdminModel):
 
 @admin.register(PasskeyCredential)
 class PasskeyCredentialAdmin(CustomAdminModel):
-    list_display = ('user', 'name', 'aaguid', 'sign_count', 'created_at', 'last_used_at')
+    list_display = (
+        'user',
+        'name',
+        'aaguid',
+        'sign_count',
+        'created_at',
+        'last_used_at',
+    )
     search_fields = ('user__email', 'user__first_name', 'user__last_name', 'name')
     readonly_fields = ('credential_id', 'public_key', 'sign_count', 'aaguid')
 

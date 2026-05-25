@@ -75,7 +75,10 @@ def booking_bid_overview(request, slug):
                 'vote_url': f'{vote_url_base}#/bid/{band.guid}/',
                 'members_url': (
                     request.build_absolute_uri(
-                        reverse('bands:bands_members', kwargs={'slug': slug, 'slug_guid': band.slug})
+                        reverse(
+                            'bands:bands_members',
+                            kwargs={'slug': slug, 'slug_guid': band.slug},
+                        )
                     )
                     if band.bid_status in ('lineup', 'replacement') and band.slug
                     else None

@@ -87,7 +87,7 @@ def login_token(request, token):
         next_url = reverse('crm_user_home')
 
     if not PasskeyCredential.objects.filter(user=user).exists():
-        return redirect(f"{reverse('base:passkey_prompt')}?next={next_url}")
+        return redirect(f'{reverse("base:passkey_prompt")}?next={next_url}')
 
     return redirect(next_url)
 

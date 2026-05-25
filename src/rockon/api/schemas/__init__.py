@@ -15,7 +15,13 @@ from .comment import CommentIn, CommentOut, CommentUserOut
 from .crew_signup import CrewSignupIn
 from .exhibitor_signup import ExhibitorSignupIn, ExhibitorSignupOut
 from .mark_voucher import MarkVoucherIn
-from .passkey import PasskeyAuthCompleteIn, PasskeyListOut, PasskeyOut, PasskeyRegisterCompleteIn, PasskeyRenameIn
+from .passkey import (
+    PasskeyAuthCompleteIn,
+    PasskeyListOut,
+    PasskeyOut,
+    PasskeyRegisterCompleteIn,
+    PasskeyRenameIn,
+)
 from .request_magic_link import RequestMagicLinkIn, RequestMagicLinkOut
 from .status import StatusOut
 from .track import TrackOut

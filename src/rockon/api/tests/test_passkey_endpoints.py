@@ -47,7 +47,9 @@ class PasskeyRegisterTests(TestCase):
         self.client.force_login(self.user)
         # Set up a fake challenge in the session
         session = self.client.session
-        session['_webauthn_registration_challenge'] = 'dGVzdGNoYWxsZW5nZQ'  # base64url "testchallenge"
+        session['_webauthn_registration_challenge'] = (
+            'dGVzdGNoYWxsZW5nZQ'  # base64url "testchallenge"
+        )
         session.save()
 
         mock_result = MagicMock()
@@ -82,6 +84,7 @@ class PasskeyRegisterTests(TestCase):
 
         # Pre-create a credential with the same ID that mock will return
         import base64
+
         cred_id = base64.urlsafe_b64encode(b'dupe-credential-id').decode().rstrip('=')
         PasskeyCredential.objects.create(
             user=self.user,
@@ -158,7 +161,9 @@ class PasskeyAuthTests(TestCase):
 
         response = self.client.post(
             '/api/v2/passkey/auth/complete/',
-            data=json.dumps({'credential': {'id': self.credential_id, 'rawId': self.credential_id}}),
+            data=json.dumps(
+                {'credential': {'id': self.credential_id, 'rawId': self.credential_id}}
+            ),
             content_type='application/json',
         )
         self.assertEqual(response.status_code, 200)
@@ -216,10 +221,14 @@ class PasskeyManagementTests(TestCase):
         self.client.force_login(self.user)
         response = self.client.delete(f'/api/v2/passkey/{self.credential.id}/')
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(PasskeyCredential.objects.filter(id=self.credential.id).exists())
+        self.assertFalse(
+            PasskeyCredential.objects.filter(id=self.credential.id).exists()
+        )
 
     def test_delete_other_users_passkey_returns_404(self):
         self.client.force_login(self.user)
         response = self.client.delete(f'/api/v2/passkey/{self.other_credential.id}/')
         self.assertEqual(response.status_code, 404)
-        self.assertTrue(PasskeyCredential.objects.filter(id=self.other_credential.id).exists())
+        self.assertTrue(
+            PasskeyCredential.objects.filter(id=self.other_credential.id).exists()
+        )
