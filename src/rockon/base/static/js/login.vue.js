@@ -169,6 +169,135 @@ const LoginApp = {
         // --- Privacy URL (from Django) ---
         const privacyUrl = window.rockon_api.privacyUrl || '#'
 
+        // --- Passkey ---
+        const passkeySupported = ref(typeof window !== 'undefined' && !!window.PublicKeyCredential)
+        const passkeyLoading = ref(false)
+        const passkeyError = ref('')
+        // True when browser handles passkey via autofill — explicit button becomes redundant
+        const passkeyConditional = ref(false)
+
+        const _b64urlToBuffer = (b64url) => {
+            const padded = b64url.replace(/-/g, '+').replace(/_/g, '/')
+            const bin = atob(padded.padEnd(padded.length + (4 - padded.length % 4) % 4, '='))
+            return Uint8Array.from(bin, c => c.charCodeAt(0)).buffer
+        }
+
+        const _bufferToB64url = (buf) => {
+            return btoa(String.fromCharCode(...new Uint8Array(buf)))
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+        }
+
+        // Shared: serialize a PublicKeyCredential assertion and call auth/complete
+        const _completeAuth = async (credential) => {
+            const credJson = {
+                id: credential.id,
+                rawId: credential.id,
+                type: credential.type,
+                response: {
+                    authenticatorData: _bufferToB64url(credential.response.authenticatorData),
+                    clientDataJSON: _bufferToB64url(credential.response.clientDataJSON),
+                    signature: _bufferToB64url(credential.response.signature),
+                    userHandle: credential.response.userHandle
+                        ? _bufferToB64url(credential.response.userHandle)
+                        : null,
+                },
+            }
+            const resp = await fetch(window.rockon_api.passkeyAuthComplete, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.rockon_api.csrfToken,
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ credential: credJson }),
+            })
+            return resp.ok
+        }
+
+        // Fetch a fresh challenge from the server
+        const _fetchAuthOptions = async () => {
+            const resp = await fetch(window.rockon_api.passkeyAuthBegin, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': window.rockon_api.csrfToken },
+                credentials: 'same-origin',
+            })
+            if (!resp.ok) return null
+            const { options } = await resp.json()
+            return {
+                ...options,
+                challenge: _b64urlToBuffer(options.challenge),
+                allowCredentials: (options.allowCredentials || []).map(c => ({
+                    ...c, id: _b64urlToBuffer(c.id),
+                })),
+            }
+        }
+
+        // Abort controller for the conditional (autofill) request
+        let _conditionalAbort = null
+
+        // Start conditional UI: browser shows passkey suggestion in email autofill
+        const startConditionalPasskey = async () => {
+            if (!window.PublicKeyCredential) return
+            const available = await PublicKeyCredential.isConditionalMediationAvailable?.()
+            if (!available) return
+
+            passkeyConditional.value = true
+            _conditionalAbort = new AbortController()
+
+            try {
+                const publicKey = await _fetchAuthOptions()
+                if (!publicKey) return
+
+                const credential = await navigator.credentials.get({
+                    publicKey,
+                    mediation: 'conditional',
+                    signal: _conditionalAbort.signal,
+                })
+                if (!credential) return
+
+                const ok = await _completeAuth(credential)
+                if (ok) window.location.href = window.rockon_api.passkeyLoginRedirect
+                else passkeyError.value = 'auth_failed'
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('Conditional passkey failed:', err)
+                }
+            }
+        }
+
+        // Explicit button: abort conditional flow, show native modal picker
+        const signInWithPasskey = async () => {
+            _conditionalAbort?.abort()
+            _conditionalAbort = null
+
+            passkeyLoading.value = true
+            passkeyError.value = ''
+            try {
+                const publicKey = await _fetchAuthOptions()
+                if (!publicKey) throw new Error('begin failed')
+
+                const credential = await navigator.credentials.get({ publicKey })
+                if (!credential) throw new Error('No credential returned')
+
+                const ok = await _completeAuth(credential)
+                if (ok) {
+                    window.location.href = window.rockon_api.passkeyLoginRedirect
+                } else {
+                    passkeyError.value = 'auth_failed'
+                }
+            } catch (err) {
+                if (err.name === 'NotAllowedError') {
+                    // User cancelled — restart conditional UI for next autofill attempt
+                    startConditionalPasskey()
+                } else {
+                    console.error('Passkey sign-in failed:', err)
+                    passkeyError.value = 'network'
+                }
+            } finally {
+                passkeyLoading.value = false
+            }
+        }
+
         return {
             activePanel,
             setPanel,
@@ -188,10 +317,19 @@ const LoginApp = {
             touchSignup,
             createAccount,
             privacyUrl,
+            // Passkey
+            passkeySupported,
+            passkeyLoading,
+            passkeyError,
+            passkeyConditional,
+            signInWithPasskey,
+            startConditionalPasskey,
         }
     },
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    createApp(LoginApp).mount('#app')
+    const app = createApp(LoginApp)
+    const instance = app.mount('#app')
+    instance.startConditionalPasskey()
 })

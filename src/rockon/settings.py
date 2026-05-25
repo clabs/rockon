@@ -98,6 +98,7 @@ MIDDLEWARE = [
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'rockon.base.magic_link_auth.MagicLinkAuth',
+    'rockon.base.passkey_auth.PasskeyAuth',
 ]
 
 if DEBUG:
@@ -316,6 +317,10 @@ with env.prefixed('DJANGO_MEDIA_'):
 DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400
 
 DOMAIN = env.str('DJANGO_DOMAIN', default='http://localhost:8000')
+
+WEBAUTHN_RP_ID = env.str('WEBAUTHN_RP_ID', default=urlparse(DOMAIN).hostname)
+WEBAUTHN_RP_NAME = env.str('WEBAUTHN_RP_NAME', default='rockon')
+WEBAUTHN_ORIGIN = env.str('WEBAUTHN_ORIGIN', default=DOMAIN)
 
 CSRF_TRUSTED_ORIGINS = [DOMAIN]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
