@@ -6,6 +6,8 @@ from .account import (
     login_request,
     login_token,
     logout,
+    passkey_login_redirect,
+    passkey_prompt,
     select_context,
     verify_email,
 )
@@ -19,6 +21,8 @@ __all__ = [
     'login_request',
     'login_token',
     'logout',
+    'passkey_login_redirect',
+    'passkey_prompt',
     'select_context',
     'verify_email',
     'switch_event',

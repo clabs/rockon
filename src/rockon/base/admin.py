@@ -9,6 +9,7 @@ from .models import (
     Event,
     MagicLink,
     Organisation,
+    PasskeyCredential,
     Sponsoring,
     Task,
     Timeline,
@@ -52,6 +53,13 @@ class EmailVerificationAdmin(CustomAdminModel):
 @admin.register(MagicLink)
 class MagicLinkAdmin(CustomAdminModel):
     list_display = ('user', 'id', 'created_at', 'expires_at')
+
+
+@admin.register(PasskeyCredential)
+class PasskeyCredentialAdmin(CustomAdminModel):
+    list_display = ('user', 'name', 'aaguid', 'sign_count', 'created_at', 'last_used_at')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'name')
+    readonly_fields = ('credential_id', 'public_key', 'sign_count', 'aaguid')
 
 
 @admin.register(Event)

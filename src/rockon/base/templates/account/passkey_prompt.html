@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-3">Passkey speichern</h4>
+                <p>
+                    Speichere einen Passkey auf diesem Gerät und melde dich beim nächsten Mal
+                    mit einem Klick an — ganz ohne Magic-Link-E-Mail.
+                </p>
+                <p class="text-muted small">
+                    Passkeys nutzen den eingebauten Entsperrmechanismus deines Geräts
+                    (Touch ID, Face ID, Windows Hello o.&nbsp;ä.).
+                </p>
+
+                <div id="passkey-error" class="alert alert-danger d-none" role="alert">
+                    Registrierung fehlgeschlagen. Bitte versuche es erneut.
+                </div>
+                <div id="passkey-success" class="alert alert-success d-none" role="alert">
+                    Passkey gespeichert! Du wirst weitergeleitet…
+                </div>
+
+                <div class="d-grid gap-2 mt-3" id="passkey-section">
+                    <button type="button" class="btn btn-primary btn-lg" id="btn-register-passkey">
+                        Passkey jetzt speichern
+                    </button>
+                    <a href="{{ next_url }}" class="btn btn-outline-secondary">
+                        Überspringen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% csrf_token %}
+
+<script nonce="{{ csp_nonce }}">
+(function () {
+    const nextUrl = '{{ next_url }}';
+    const registerBeginUrl = '{% url "apiv2:passkey_register_begin" %}';
+    const registerCompleteUrl = '{% url "apiv2:passkey_register_complete" %}';
+
+    function b64urlToBuffer(b64url) {
+        const padded = b64url.replace(/-/g, '+').replace(/_/g, '/');
+        const bin = atob(padded.padEnd(padded.length + (4 - padded.length % 4) % 4, '='));
+        return Uint8Array.from(bin, c => c.charCodeAt(0)).buffer;
+    }
+
+    function bufferToB64url(buf) {
+        return btoa(String.fromCharCode(...new Uint8Array(buf)))
+            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    }
+
+    function csrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    async function registerPasskey() {
+        const btn = document.getElementById('btn-register-passkey');
+        btn.disabled = true;
+
+        const beginResp = await fetch(registerBeginUrl, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken() },
+            credentials: 'same-origin',
+        });
+        if (!beginResp.ok) {
+            showError();
+            btn.disabled = false;
+            return;
+        }
+        const { options } = await beginResp.json();
+
+        const publicKey = {
+            ...options,
+            challenge: b64urlToBuffer(options.challenge),
+            user: { ...options.user, id: b64urlToBuffer(options.user.id) },
+            excludeCredentials: (options.excludeCredentials || []).map(c => ({
+                ...c, id: b64urlToBuffer(c.id),
+            })),
+        };
+
+        let credential;
+        try {
+            credential = await navigator.credentials.create({ publicKey });
+        } catch (err) {
+            if (err.name !== 'NotAllowedError') console.error(err);
+            btn.disabled = false;
+            return;
+        }
+
+        const credJson = {
+            id: credential.id,
+            rawId: credential.id,
+            type: credential.type,
+            response: {
+                attestationObject: bufferToB64url(credential.response.attestationObject),
+                clientDataJSON: bufferToB64url(credential.response.clientDataJSON),
+            },
+        };
+
+        const completeResp = await fetch(registerCompleteUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken(),
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ name: '', credential: credJson }),
+        });
+
+        if (completeResp.ok) {
+            document.getElementById('passkey-section').classList.add('d-none');
+            document.getElementById('passkey-success').classList.remove('d-none');
+            setTimeout(() => { window.location.href = nextUrl; }, 1200);
+        } else {
+            showError();
+            btn.disabled = false;
+        }
+    }
+
+    function showError() {
+        document.getElementById('passkey-error').classList.remove('d-none');
+    }
+
+    if (!window.PublicKeyCredential) {
+        window.location.href = nextUrl;
+        return;
+    }
+
+    document.getElementById('btn-register-passkey').addEventListener('click', registerPasskey);
+})();
+</script>
+
+{% endblock content %}

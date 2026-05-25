@@ -7,6 +7,155 @@
                     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
                 )
         }
+        // ── Passkey management ────────────────────────────────────────────────
+        const passkeySupported = !!window.PublicKeyCredential
+
+        function _b64urlToBuffer(b64url) {
+            const padded = b64url.replace(/-/g, '+').replace(/_/g, '/')
+            const bin = atob(padded.padEnd(padded.length + (4 - padded.length % 4) % 4, '='))
+            return Uint8Array.from(bin, c => c.charCodeAt(0)).buffer
+        }
+
+        function _bufferToB64url(buf) {
+            return btoa(String.fromCharCode(...new Uint8Array(buf)))
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+        }
+
+        async function loadPasskeys() {
+            const resp = await fetch('/api/v2/passkey/', { credentials: 'same-origin' })
+            if (!resp.ok) return
+            const data = await resp.json()
+            const list = $('#passkey-list')
+            list.empty()
+            if (!data.passkeys.length) {
+                list.html('<p class="text-muted">Keine Passkeys registriert.</p>')
+                return
+            }
+            data.passkeys.forEach(pk => {
+                const created = new Date(pk.created_at).toLocaleDateString('de-DE')
+                const lastUsed = pk.last_used_at
+                    ? new Date(pk.last_used_at).toLocaleDateString('de-DE')
+                    : '–'
+                const displayName = pk.name || 'Passkey'
+                list.append(`
+                    <div class="border rounded p-3 mb-3" id="pk-${pk.id}" data-pk-id="${pk.id}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1 me-3">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <strong class="pk-name-display">${displayName}</strong>
+                                    <button class="btn btn-link btn-sm p-0 text-muted pk-rename-btn" title="Umbenennen">
+                                        <i class="fa-solid fa-pencil fa-xs"></i>
+                                    </button>
+                                </div>
+                                <div class="pk-rename-form d-none mb-2">
+                                    <div class="input-group input-group-sm" style="max-width:300px">
+                                        <input type="text" class="form-control pk-name-input"
+                                               value="${displayName}" maxlength="255">
+                                        <button class="btn btn-outline-primary pk-save-btn">OK</button>
+                                        <button class="btn btn-outline-secondary pk-cancel-btn">✕</button>
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block">${pk.device_info || ''}</small>
+                                <small class="text-muted d-block">Erstellt: ${created} · Zuletzt verwendet: ${lastUsed}</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger flex-shrink-0 pk-delete-btn">
+                                Löschen
+                            </button>
+                        </div>
+                    </div>
+                `)
+            })
+        }
+
+        function pkCard(el) { return $(el).closest('[data-pk-id]') }
+        function pkId(el) { return pkCard(el).data('pkId') }
+
+        async function saveRename(card) {
+            const id = card.data('pkId')
+            const name = card.find('.pk-name-input').val().trim()
+            const resp = await fetch(`/api/v2/passkey/${id}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ name }),
+            })
+            if (resp.ok) {
+                card.find('.pk-name-display').text(name || 'Passkey').removeClass('d-none')
+                card.find('.pk-rename-form').addClass('d-none')
+            }
+        }
+
+        async function deletePasskey(id) {
+            if (!confirm('Diesen Passkey wirklich löschen?')) return
+            const resp = await fetch(`/api/v2/passkey/${id}/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val() },
+                credentials: 'same-origin',
+            })
+            if (resp.ok) {
+                $(`#pk-${id}`).remove()
+                const list = $('#passkey-list')
+                if (!list.children().length) {
+                    list.html('<p class="text-muted">Keine Passkeys registriert.</p>')
+                }
+            }
+        }
+
+        async function registerPasskey() {
+            const beginResp = await fetch('/api/v2/passkey/register/begin/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val() },
+                credentials: 'same-origin',
+            })
+            if (!beginResp.ok) { alert('Fehler beim Starten der Registrierung.'); return }
+            const { options } = await beginResp.json()
+
+            const publicKey = {
+                ...options,
+                challenge: _b64urlToBuffer(options.challenge),
+                user: { ...options.user, id: _b64urlToBuffer(options.user.id) },
+                excludeCredentials: (options.excludeCredentials || []).map(c => ({
+                    ...c, id: _b64urlToBuffer(c.id),
+                })),
+            }
+
+            let credential
+            try {
+                credential = await navigator.credentials.create({ publicKey })
+            } catch (err) {
+                if (err.name !== 'NotAllowedError') console.error(err)
+                return
+            }
+
+            const name = prompt('Name für diesen Passkey (z.B. "MacBook Touch ID"):') || ''
+            const credJson = {
+                id: credential.id,
+                rawId: credential.id,
+                type: credential.type,
+                response: {
+                    attestationObject: _bufferToB64url(credential.response.attestationObject),
+                    clientDataJSON: _bufferToB64url(credential.response.clientDataJSON),
+                },
+            }
+            const completeResp = await fetch('/api/v2/passkey/register/complete/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ name, credential: credJson }),
+            })
+            if (completeResp.ok) {
+                loadPasskeys()
+            } else {
+                alert('Registrierung fehlgeschlagen.')
+            }
+        }
+
         $(document).ready(() => {
             const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
             const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
@@ -123,6 +272,36 @@
                     submitButton.prop('disabled', true)
                 }
             })
+
+            if (passkeySupported) {
+                loadPasskeys()
+
+                // delegated handlers — work on dynamically added passkey cards
+                $('#passkey-list').on('click', '.pk-rename-btn', function () {
+                    const card = pkCard(this)
+                    card.find('.pk-name-display').addClass('d-none')
+                    card.find('.pk-rename-form').removeClass('d-none')
+                    card.find('.pk-name-input').focus().select()
+                })
+                $('#passkey-list').on('click', '.pk-cancel-btn', function () {
+                    const card = pkCard(this)
+                    card.find('.pk-rename-form').addClass('d-none')
+                    card.find('.pk-name-display').removeClass('d-none')
+                })
+                $('#passkey-list').on('click', '.pk-save-btn', function () {
+                    saveRename(pkCard(this))
+                })
+                $('#passkey-list').on('keydown', '.pk-name-input', function (e) {
+                    if (e.key === 'Enter') saveRename(pkCard(this))
+                    if (e.key === 'Escape') pkCard(this).find('.pk-cancel-btn').trigger('click')
+                })
+                $('#passkey-list').on('click', '.pk-delete-btn', function () {
+                    deletePasskey(pkId(this))
+                })
+                $('#passkey-add-btn').on('click', registerPasskey)
+            } else {
+                $('#passkey-section').hide()
+            }
         })
     </script>
 
@@ -295,6 +474,31 @@
             </div>
         </div>
     </form>
+
+    <!-- Passkey management -->
+    <section class="row p-4 form-section mt-4" id="passkey-section">
+        <h3>Passkeys</h3>
+        <div class="col-lg-8">
+            <p class="text-muted">
+                Mit einem Passkey kannst du dich ohne Magic-Link per Touch ID,
+                Face ID oder Windows Hello anmelden.
+            </p>
+            <div id="passkey-list">
+                <p class="text-muted">Passkeys werden geladen…</p>
+            </div>
+            <button type="button" class="btn btn-outline-primary mt-3" id="passkey-add-btn">
+                Neuen Passkey hinzufügen
+            </button>
+        </div>
+        <div class="col-lg-4">
+            <h4>Was sind Passkeys?</h4>
+            <p>
+                Passkeys sind gerätgebundene Anmeldeschlüssel, die lokal auf deinem
+                Gerät gespeichert werden. Sie sind sicherer als Passwörter und
+                funktionieren mit Touch ID, Face ID oder Windows Hello.
+            </p>
+        </div>
+    </section>
 
     <!-- Modal changeMailAddress -->
     <div class="modal fade" id="changeMailAddress" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"

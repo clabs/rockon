@@ -8,6 +8,7 @@ from .comment import commentRouter
 from .crew_signup import crewSignupRouter
 from .exhibitor_signup import exhibitorSignup
 from .mark_voucher import markVoucher
+from .passkey import passkeyRouter
 from .request_magic_link import requestMagicLink
 from .timeslot import timeslotRouter
 from .track import trackRouter
@@ -26,6 +27,7 @@ __all__ = [
     'exhibitorAdmin',
     'exhibitorSignup',
     'markVoucher',
+    'passkeyRouter',
     'requestMagicLink',
     'trackRouter',
     'userEmailRouter',
