@@ -6,7 +6,9 @@ from rockon.library.custom_model import CustomModel, models
 
 
 class PasskeyCredential(CustomModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='passkey_credentials')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='passkey_credentials'
+    )
     # base64url-encoded credential ID — lookup key during authentication
     credential_id = models.TextField(unique=True)
     # CBOR-encoded COSE public key blob returned by py_webauthn

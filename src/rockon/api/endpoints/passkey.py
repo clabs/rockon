@@ -67,6 +67,7 @@ def _b64url_decode(s: str) -> bytes:
 
 # ── Registration (requires existing session / magic-link login) ───────────────
 
+
 @passkeyRouter.post(
     '/register/begin/',
     response=dict,
@@ -89,7 +90,9 @@ def register_begin(request):
         user_display_name=user.get_full_name() or user.email,
         exclude_credentials=existing,
     )
-    request.session['_webauthn_registration_challenge'] = _b64url_encode(options.challenge)
+    request.session['_webauthn_registration_challenge'] = _b64url_encode(
+        options.challenge
+    )
     return {'options': json.loads(webauthn.options_to_json(options))}
 
 
@@ -134,6 +137,7 @@ def register_complete(request, data: PasskeyRegisterCompleteIn):
 
 # ── Authentication (no session required — this IS the login flow) ─────────────
 
+
 @passkeyRouter.post(
     '/auth/begin/',
     response=dict,
@@ -145,7 +149,9 @@ def auth_begin(request):
         rp_id=settings.WEBAUTHN_RP_ID,
         allow_credentials=[],
     )
-    request.session['_webauthn_authentication_challenge'] = _b64url_encode(options.challenge)
+    request.session['_webauthn_authentication_challenge'] = _b64url_encode(
+        options.challenge
+    )
     return {'options': json.loads(webauthn.options_to_json(options))}
 
 
@@ -157,14 +163,19 @@ def auth_begin(request):
 def auth_complete(request, data: PasskeyAuthCompleteIn):
     challenge_b64 = request.session.pop('_webauthn_authentication_challenge', None)
     if not challenge_b64:
-        return 400, {'status': 'error', 'message': 'No pending authentication challenge.'}
+        return 400, {
+            'status': 'error',
+            'message': 'No pending authentication challenge.',
+        }
 
     challenge = _b64url_decode(challenge_b64)
 
     raw_id = data.credential.get('rawId') or data.credential.get('id', '')
     credential_id = raw_id.rstrip('=')
     try:
-        stored = PasskeyCredential.objects.select_related('user').get(credential_id=credential_id)
+        stored = PasskeyCredential.objects.select_related('user').get(
+            credential_id=credential_id
+        )
     except PasskeyCredential.DoesNotExist:
         return 403, {'status': 'error', 'message': 'Unknown credential.'}
 
@@ -179,7 +190,10 @@ def auth_complete(request, data: PasskeyAuthCompleteIn):
         )
     except Exception:
         logger.exception('Passkey authentication verification failed')
-        return 400, {'status': 'error', 'message': 'Authentication verification failed.'}
+        return 400, {
+            'status': 'error',
+            'message': 'Authentication verification failed.',
+        }
 
     stored.sign_count = verification.new_sign_count
     stored.last_used_at = datetime.now(tz=timezone.utc)
@@ -194,6 +208,7 @@ def auth_complete(request, data: PasskeyAuthCompleteIn):
 
 # ── Credential management ─────────────────────────────────────────────────────
 
+
 @passkeyRouter.get(
     '/',
     response=PasskeyListOut,
@@ -201,7 +216,9 @@ def auth_complete(request, data: PasskeyAuthCompleteIn):
     auth=django_auth,
 )
 def list_passkeys(request):
-    passkeys = PasskeyCredential.objects.filter(user=request.user).order_by('created_at')
+    passkeys = PasskeyCredential.objects.filter(user=request.user).order_by(
+        'created_at'
+    )
     return {
         'passkeys': [
             {

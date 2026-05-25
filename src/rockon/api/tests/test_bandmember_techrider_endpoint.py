@@ -152,5 +152,3 @@ class BandMemberSignupEndpointTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
-
-

@@ -14,6 +14,7 @@ class BandMemberPosition(models.TextChoices):
     HAND = 'hand', 'Stagehand'
     TECHNICAN = 'technican', 'Techniker'
     SUPPORT = 'support', 'Support'
+    MEDIA = 'media', 'Foto/Video'
 
 
 class BandMember(CustomModel):

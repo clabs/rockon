@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('rockonbase', '0014_normalize_all_usernames_to_lowercase'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -17,7 +16,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PasskeyCredential',
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                (
+                    'id',
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('credential_id', models.TextField(unique=True)),
@@ -25,8 +32,18 @@ class Migration(migrations.Migration):
                 ('sign_count', models.PositiveBigIntegerField(default=0)),
                 ('aaguid', models.TextField(blank=True, default='')),
                 ('name', models.CharField(blank=True, default='', max_length=255)),
-                ('last_used_at', models.DateTimeField(blank=True, default=None, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='passkey_credentials', to=settings.AUTH_USER_MODEL)),
+                (
+                    'last_used_at',
+                    models.DateTimeField(blank=True, default=None, null=True),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='passkey_credentials',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'ordering': ['user', 'created_at'],

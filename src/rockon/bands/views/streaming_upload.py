@@ -55,7 +55,9 @@ def streaming_download(request, band, filename):
                     if start < 0 or start >= file_size or start > end:
                         file.close()
                         file = None
-                        response = JsonResponse({'message': 'Range Not Satisfiable'}, status=416)
+                        response = JsonResponse(
+                            {'message': 'Range Not Satisfiable'}, status=416
+                        )
                         response['Content-Range'] = f'bytes */{file_size}'
                         return response
                     length = end - start + 1

@@ -162,7 +162,7 @@ def crew_team_management(request, slug):
                     vize_lead_id = (
                         int(vize_lead_raw) if vize_lead_raw is not None else None
                     )
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     messages.error(
                         request,
                         'Ungültige Auswahl für Teamleitung oder Stellvertretung.',
