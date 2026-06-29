@@ -14,6 +14,7 @@ class CrewMemberStatus(models.TextChoices):
     UNKNOWN = 'unknown', 'Unbekannt'
     CONFIRMED = 'confirmed', 'Bestätigt'
     REJECTED = 'rejected', 'Abgelehnt'
+    DECLINED = 'declined', 'Abgesagt'
 
 
 class CrewMemberNutrion(models.TextChoices):
