@@ -78,19 +78,11 @@ def merge_duplicate_users(apps, schema_editor):
 
         # Most recently updated non-empty profile value wins.
         for field_name in PROFILE_VALUE_FIELDS:
-            value_set = False
             for profile in profiles:
                 value = getattr(profile, field_name)
                 if has_value(value):
                     setattr(canonical_profile, field_name, value)
-                    value_set = True
                     break
-            if not value_set and hasattr(canonical_profile, field_name):
-                setattr(
-                    canonical_profile,
-                    field_name,
-                    getattr(canonical_profile, field_name),
-                )
 
         # Verification state follows the most recently updated profile.
         if profiles:
