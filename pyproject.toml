@@ -25,8 +25,6 @@ dependencies = [
     "gunicorn",
     "markdown",
     "pillow",
-    "psycopg[binary, pool]",
-    "psycopg-binary",
     "python-magic",
     "redis[hiredis]",
     "sentry-sdk[django]",

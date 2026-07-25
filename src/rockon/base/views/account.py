@@ -1,11 +1,6 @@
 from __future__ import annotations
 
 from django.contrib.auth import authenticate, login
-from django.contrib.auth import (
-    BACKEND_SESSION_KEY,
-    HASH_SESSION_KEY,
-    SESSION_KEY,
-)
 from django.contrib.auth import logout as django_auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -123,13 +118,7 @@ def passkey_login_redirect(request):
     except User.DoesNotExist:
         return redirect(reverse('base:login_request'))
 
-    # Avoid login() / cycle_key(): the browser already holds the session cookie
-    # from auth/begin. Writing auth keys directly keeps the session ID stable.
-    # WebAuthn ceremony prevents fixation so skipping cycle_key() is safe.
-    request.session[SESSION_KEY] = str(user.pk)
-    request.session[BACKEND_SESSION_KEY] = 'rockon.base.passkey_auth.PasskeyAuth'
-    request.session[HASH_SESSION_KEY] = user.get_session_auth_hash()
-    request.user = user
+    login(request, user, backend='rockon.base.passkey_auth.PasskeyAuth')
 
     current_event = Event.get_current_event()
     if not current_event:
