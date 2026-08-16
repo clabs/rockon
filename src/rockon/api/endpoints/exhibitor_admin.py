@@ -149,7 +149,7 @@ def exhibitor_export(request, slug: str):
     xlsx_buf = io.BytesIO()
     wb.save(xlsx_buf)
 
-    tmp = tempfile.TemporaryFile()
+    tmp = tempfile.TemporaryFile()  # noqa: SIM115 - stays open for FileResponse, closed by Django after streaming
     with zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.writestr('exhibitors.xlsx', xlsx_buf.getvalue())
         zf.writestr(f'export-{ts}.txt', '')

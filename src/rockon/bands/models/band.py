@@ -96,10 +96,7 @@ class Band(CustomModel):
 
         conditions = [*fields, audio_count, sites, press]
 
-        if all(conditions):
-            return True
-
-        return False
+        return all(conditions)
 
     def get_logo(self):
         return self.media.filter(media_type='logo').first()

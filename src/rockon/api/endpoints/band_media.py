@@ -136,10 +136,9 @@ def delete_media(request, media_id: str):
     """Delete a media entry."""
     media = get_object_or_404(BandMedia, id=media_id)
     user = request.user
-    if not user.is_staff:
-        if not user.bands.filter(id=media.band_id).exists():
-            return HttpResponse(
-                status=403, content='You can only delete media for your own band.'
-            )
+    if not user.is_staff and not user.bands.filter(id=media.band_id).exists():
+        return HttpResponse(
+            status=403, content='You can only delete media for your own band.'
+        )
     media.delete()
     return 204, None

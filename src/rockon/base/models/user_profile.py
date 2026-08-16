@@ -83,10 +83,7 @@ class UserProfile(CustomModel):
             self.birthday,
         ]
 
-        if all(data_required):
-            return True
-
-        return False
+        return all(data_required)
 
     def is_profile_complete_band(self) -> bool:
         """Check if user profile is complete for band application."""
@@ -97,10 +94,7 @@ class UserProfile(CustomModel):
             self.phone,
         ]
 
-        if all(data_required):
-            return True
-
-        return False
+        return all(data_required)
 
     def is_profile_complete_exhibitor(self) -> bool:
         """Check if user profile is complete for exhibitor application."""
@@ -111,10 +105,7 @@ class UserProfile(CustomModel):
             self.phone,
         ]
 
-        if all(data_required):
-            return True
-
-        return False
+        return all(data_required)
 
 
 @receiver(post_save, sender=User)

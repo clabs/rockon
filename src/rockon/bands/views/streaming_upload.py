@@ -35,7 +35,7 @@ def streaming_download(request, band, filename):
 
     try:
         file_size = os.path.getsize(file_path)
-        file = open(file_path, 'rb')  # FileResponse takes ownership and closes the file
+        file = open(file_path, 'rb')  # noqa: SIM115 - FileResponse takes ownership and closes the file
     except FileNotFoundError:
         return JsonResponse({'message': 'File not found'}, status=404)
     except OSError:
