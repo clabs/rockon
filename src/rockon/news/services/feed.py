@@ -5,9 +5,6 @@ from django.utils import timezone
 
 from rockon.news.models import NewsPost, PostStatus
 
-_NO_AUDIENCE_SELECTED = Q(
-    audience_crew=False, audience_bands=False, audience_exhibitors=False
-)
 _AUDIENCE_FIELD = {
     'crew': 'audience_crew',
     'bands': 'audience_bands',
@@ -16,18 +13,22 @@ _AUDIENCE_FIELD = {
 
 
 def visible_posts_for_user(user, event, account_context: str | None, limit: int = 20):
-    """Return published, due, event- and audience-matching posts, newest first."""
-    audience_q = _NO_AUDIENCE_SELECTED
+    """Return published, due, event- and audience-matching posts, newest first.
+
+    Every post must explicitly target at least one audience (enforced by a DB
+    constraint), so a user with no resolvable account-context never matches.
+    """
     field = _AUDIENCE_FIELD.get(account_context)
-    if field:
-        audience_q |= Q(**{field: True})
+    if not field:
+        return []
 
     qs = (
         NewsPost.objects.filter(
-            status=PostStatus.PUBLISHED, publish_at__lte=timezone.now()
+            status=PostStatus.PUBLISHED,
+            publish_at__lte=timezone.now(),
+            **{field: True},
         )
         .filter(Q(event__isnull=True) | Q(event=event))
-        .filter(audience_q)
         .select_related('event', 'author')
         .order_by('-publish_at')[:limit]
     )

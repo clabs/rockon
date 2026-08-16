@@ -12,11 +12,17 @@ from rockon.api.schemas.news import (
     NewsPreviewIn,
     NewsPreviewOut,
 )
+from rockon.api.schemas.status import StatusOut
 from rockon.base.models import Event
 from rockon.news.models import NewsPost, PostStatus
 from rockon.news.services.rendering import render_markdown_to_html
 
 newsRouter = Router()
+
+_NO_AUDIENCE_ERROR = {
+    'status': 'error',
+    'message': 'Mindestens eine Zielgruppe muss ausgewählt werden.',
+}
 
 
 def _check_news_editor(request):
@@ -24,6 +30,10 @@ def _check_news_editor(request):
         request.user.is_staff
         or request.user.groups.filter(name='news_editors').exists()
     )
+
+
+def _has_explicit_audience(post: NewsPost) -> bool:
+    return post.audience_crew or post.audience_bands or post.audience_exhibitors
 
 
 def _serialize_news_post(post: NewsPost) -> dict:
@@ -102,7 +112,7 @@ def get_news_post(request, post_id: str):
 
 @newsRouter.post(
     '/',
-    response={201: NewsPostOut, 403: None},
+    response={201: NewsPostOut, 400: StatusOut, 403: None},
     url_name='news_create',
     auth=django_auth,
 )
@@ -120,6 +130,8 @@ def create_news_post(request, data: NewsPostCreateIn):
         audience_bands=data.audience_bands,
         audience_exhibitors=data.audience_exhibitors,
     )
+    if not _has_explicit_audience(post):
+        return 400, _NO_AUDIENCE_ERROR
     _finalize_post(post)
     post.save()
     return 201, _serialize_news_post(post)
@@ -127,7 +139,7 @@ def create_news_post(request, data: NewsPostCreateIn):
 
 @newsRouter.patch(
     '/{post_id}/',
-    response={200: NewsPostOut, 403: None, 404: None},
+    response={200: NewsPostOut, 400: StatusOut, 403: None, 404: None},
     url_name='news_patch',
     auth=django_auth,
 )
@@ -153,6 +165,8 @@ def patch_news_post(request, post_id: str, data: NewsPostPatchIn):
     if data.audience_exhibitors is not None:
         post.audience_exhibitors = data.audience_exhibitors
 
+    if not _has_explicit_audience(post):
+        return 400, _NO_AUDIENCE_ERROR
     _finalize_post(post)
     post.save()
     post = NewsPost.objects.select_related('event', 'author').get(id=post.id)

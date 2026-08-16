@@ -51,6 +51,14 @@ class NewsPost(CustomModel):
 
     class Meta(CustomModel.Meta):
         ordering = ('-created_at',)
+        constraints = (
+            models.CheckConstraint(
+                condition=models.Q(audience_crew=True)
+                | models.Q(audience_bands=True)
+                | models.Q(audience_exhibitors=True),
+                name='newspost_audience_explicit',
+            ),
+        )
 
     def __str__(self):
         return self.title
@@ -63,12 +71,10 @@ class NewsPost(CustomModel):
         super().save(*args, **kwargs)
 
     def targets_audience(self, context: str | None) -> bool:
-        """True if this post targets the given account-context, or targets everyone."""
+        """True if this post explicitly targets the given account-context."""
         flags = {
             NewsAudience.CREW: self.audience_crew,
             NewsAudience.BANDS: self.audience_bands,
             NewsAudience.EXHIBITORS: self.audience_exhibitors,
         }
-        if not any(flags.values()):
-            return True
         return flags.get(context, False)

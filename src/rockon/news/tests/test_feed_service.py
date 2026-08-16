@@ -42,6 +42,7 @@ class VisiblePostsForUserTests(TestCase):
             'body_markdown': 'body',
             'status': PostStatus.PUBLISHED,
             'publish_at': self.now - timedelta(hours=1),
+            'audience_crew': True,
         }
         defaults.update(kwargs)
         return NewsPost.objects.create(**defaults)
@@ -83,9 +84,18 @@ class VisiblePostsForUserTests(TestCase):
         self.assertEqual(visible_posts_for_user(None, self.event, 'exhibitors'), [])
         self.assertEqual(visible_posts_for_user(None, self.event, None), [])
 
-    def test_empty_audience_is_visible_to_every_context(self):
-        post = self._create_post()
+    def test_post_targeting_every_audience_is_visible_to_every_context(self):
+        post = self._create_post(
+            audience_crew=True, audience_bands=True, audience_exhibitors=True
+        )
 
         self.assertEqual(visible_posts_for_user(None, self.event, 'crew'), [post])
+        self.assertEqual(visible_posts_for_user(None, self.event, 'bands'), [post])
         self.assertEqual(visible_posts_for_user(None, self.event, 'exhibitors'), [post])
-        self.assertEqual(visible_posts_for_user(None, self.event, None), [post])
+
+    def test_no_resolvable_account_context_sees_nothing(self):
+        self._create_post(
+            audience_crew=True, audience_bands=True, audience_exhibitors=True
+        )
+
+        self.assertEqual(visible_posts_for_user(None, self.event, None), [])

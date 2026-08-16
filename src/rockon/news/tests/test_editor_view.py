@@ -32,7 +32,7 @@ class EditorViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_editor_can_access_and_sees_posts(self):
-        NewsPost.objects.create(title='Hi', body_markdown='hi')
+        NewsPost.objects.create(title='Hi', body_markdown='hi', audience_crew=True)
         self.client.force_login(self.editor)
 
         response = self.client.get(reverse('news:editor'))

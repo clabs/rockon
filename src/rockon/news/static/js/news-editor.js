@@ -25,6 +25,10 @@ const NewsEditorApp = {
     })
     const form = ref(emptyForm())
 
+    const hasAudience = computed(
+      () => form.value.audience_crew || form.value.audience_bands || form.value.audience_exhibitors
+    )
+
     function statusLabel(status) {
       return status === 'published' ? 'Veröffentlicht' : 'Entwurf'
     }
@@ -161,6 +165,7 @@ const NewsEditorApp = {
       error,
       previewHtml,
       form,
+      hasAudience,
       statusLabel,
       formatDate,
       startCreate,

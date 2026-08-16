@@ -45,6 +45,15 @@ class NewsEndpointTests(TestCase):
             signup_is_open=True,
         )
 
+    def _create_post(self, **kwargs) -> NewsPost:
+        defaults = {
+            'title': 'Hi',
+            'body_markdown': 'old',
+            'audience_crew': True,
+        }
+        defaults.update(kwargs)
+        return NewsPost.objects.create(**defaults)
+
     def test_list_requires_news_editor_group(self):
         self.client.force_login(self.regular_user)
 
@@ -57,7 +66,9 @@ class NewsEndpointTests(TestCase):
 
         response = self.client.post(
             '/api/v2/news/',
-            data=json.dumps({'title': 'Hi', 'body_markdown': 'hi'}),
+            data=json.dumps(
+                {'title': 'Hi', 'body_markdown': 'hi', 'audience_crew': True}
+            ),
             content_type='application/json',
         )
 
@@ -69,7 +80,11 @@ class NewsEndpointTests(TestCase):
         response = self.client.post(
             '/api/v2/news/',
             data=json.dumps(
-                {'title': 'Hi', 'body_markdown': '# Hi\n\n<script>alert(1)</script>'}
+                {
+                    'title': 'Hi',
+                    'body_markdown': '# Hi\n\n<script>alert(1)</script>',
+                    'audience_crew': True,
+                }
             ),
             content_type='application/json',
         )
@@ -81,13 +96,30 @@ class NewsEndpointTests(TestCase):
         self.assertEqual(payload['status'], 'draft')
         self.assertIsNone(payload['publish_at'])
 
+    def test_create_without_audience_is_rejected(self):
+        self.client.force_login(self.editor)
+
+        response = self.client.post(
+            '/api/v2/news/',
+            data=json.dumps({'title': 'Hi', 'body_markdown': 'hi'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(NewsPost.objects.exists())
+
     def test_publishing_without_publish_at_sets_it_to_now(self):
         self.client.force_login(self.editor)
 
         response = self.client.post(
             '/api/v2/news/',
             data=json.dumps(
-                {'title': 'Hi', 'body_markdown': 'hi', 'status': 'published'}
+                {
+                    'title': 'Hi',
+                    'body_markdown': 'hi',
+                    'status': 'published',
+                    'audience_crew': True,
+                }
             ),
             content_type='application/json',
         )
@@ -98,7 +130,7 @@ class NewsEndpointTests(TestCase):
 
     def test_patch_updates_rendered_html(self):
         self.client.force_login(self.editor)
-        post = NewsPost.objects.create(title='Hi', body_markdown='old')
+        post = self._create_post()
 
         response = self.client.patch(
             f'/api/v2/news/{post.id}/',
@@ -110,9 +142,23 @@ class NewsEndpointTests(TestCase):
         payload = response.json()
         self.assertIn('<strong>content</strong>', payload['body_html'])
 
+    def test_patch_clearing_all_audience_flags_is_rejected(self):
+        self.client.force_login(self.editor)
+        post = self._create_post()
+
+        response = self.client.patch(
+            f'/api/v2/news/{post.id}/',
+            data=json.dumps({'audience_crew': False}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        post.refresh_from_db()
+        self.assertTrue(post.audience_crew)
+
     def test_patch_requires_news_editor_group(self):
         self.client.force_login(self.regular_user)
-        post = NewsPost.objects.create(title='Hi', body_markdown='old')
+        post = self._create_post()
 
         response = self.client.patch(
             f'/api/v2/news/{post.id}/',
@@ -124,7 +170,7 @@ class NewsEndpointTests(TestCase):
 
     def test_delete_removes_post(self):
         self.client.force_login(self.editor)
-        post = NewsPost.objects.create(title='Hi', body_markdown='old')
+        post = self._create_post()
 
         response = self.client.delete(f'/api/v2/news/{post.id}/')
 
@@ -133,7 +179,7 @@ class NewsEndpointTests(TestCase):
 
     def test_delete_requires_news_editor_group(self):
         self.client.force_login(self.regular_user)
-        post = NewsPost.objects.create(title='Hi', body_markdown='old')
+        post = self._create_post()
 
         response = self.client.delete(f'/api/v2/news/{post.id}/')
 
@@ -166,15 +212,12 @@ class NewsEndpointTests(TestCase):
 
     def test_list_filters_by_event_and_status(self):
         self.client.force_login(self.editor)
-        NewsPost.objects.create(
-            title='Draft', body_markdown='x', event=self.event, status=PostStatus.DRAFT
-        )
-        NewsPost.objects.create(
-            title='Published',
-            body_markdown='x',
+        self._create_post(event=self.event, status=PostStatus.DRAFT, title='Draft')
+        self._create_post(
             event=self.event,
             status=PostStatus.PUBLISHED,
             publish_at=timezone.now(),
+            title='Published',
         )
 
         response = self.client.get(

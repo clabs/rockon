@@ -70,7 +70,10 @@ class HomeViewNewsFeedTests(TestCase):
 
     def test_feed_hides_draft_posts(self):
         NewsPost.objects.create(
-            title='Draft news', body_markdown='hi', status=PostStatus.DRAFT
+            title='Draft news',
+            body_markdown='hi',
+            status=PostStatus.DRAFT,
+            audience_crew=True,
         )
         self.client.force_login(self.crew_user)
 
@@ -84,6 +87,7 @@ class HomeViewNewsFeedTests(TestCase):
             body_markdown='hi',
             status=PostStatus.PUBLISHED,
             publish_at=timezone.now() + timedelta(hours=1),
+            audience_crew=True,
         )
         self.client.force_login(self.crew_user)
 
