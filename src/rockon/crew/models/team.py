@@ -41,7 +41,7 @@ class Team(CustomModel):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
 
     def get_image_url(self):
         if self.image:

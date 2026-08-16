@@ -24,7 +24,7 @@ class MagicLink(CustomModel):
         return str(self.id)
 
     class Meta:
-        ordering = ['user', 'expires_at']
+        ordering = ('user', 'expires_at')
 
     @classmethod
     def create_and_send(cls, user: User) -> None:

@@ -50,7 +50,7 @@ class BandMedia(CustomModel):
     )
 
     class Meta:
-        ordering = ['band', 'media_type', 'created_at']
+        ordering = ('band', 'media_type', 'created_at')
 
     def __str__(self):
         return str(self.id)

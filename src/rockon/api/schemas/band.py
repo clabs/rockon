@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from ninja import Schema
+from ninja import Field, Schema
 
 
 class BandMediaFileOut(Schema):
@@ -34,7 +34,7 @@ class BandListOut(Schema):
     guid: str
     name: str | None = None
     track: str | None = None
-    songs: list[BandMediaOut] = []
+    songs: list[BandMediaOut] = Field(default_factory=list)
     bid_status: str
     federal_state: str | None = None
     are_students: bool
@@ -65,10 +65,10 @@ class BandDetailOut(Schema):
     genre: str | None = None
     cover_letter: str | None = None
     contact: UserOut | None = None
-    songs: list[BandMediaOut] = []
-    links: list[BandMediaOut] = []
-    web_links: list[BandMediaOut] = []
-    documents: list[BandMediaOut] = []
+    songs: list[BandMediaOut] = Field(default_factory=list)
+    links: list[BandMediaOut] = Field(default_factory=list)
+    web_links: list[BandMediaOut] = Field(default_factory=list)
+    documents: list[BandMediaOut] = Field(default_factory=list)
     press_photo: BandMediaFileOut | None = None
     logo: BandMediaFileOut | None = None
     created_at: datetime

@@ -18,4 +18,4 @@ class ExhibitorAsset(CustomModel):
         return self.asset.name
 
     class Meta:
-        ordering = ['asset']
+        ordering = ('asset',)

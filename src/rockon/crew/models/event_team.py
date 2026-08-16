@@ -36,12 +36,12 @@ class EventTeam(CustomModel):
 
     class Meta:
         ordering = ('event__start', 'team__name')
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=('event', 'team'),
                 name='crew_event_team_unique_assignment',
-            )
-        ]
+            ),
+        )
 
     def __str__(self) -> str:
         return f'{self.team.name} ({self.event.name})'

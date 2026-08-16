@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from ninja import Schema
+from ninja import Field, Schema
 
 
 class CrewSignupIn(Schema):
@@ -15,10 +15,10 @@ class CrewSignupIn(Schema):
     general_note: str = ''
     needs_leave_of_absence: bool = False
     leave_of_absence_note: str = ''
-    skill_ids: list[UUID] = []
-    attendance_ids: list[UUID] = []
-    teamcategory_ids: list[UUID] = []
-    team_ids: list[UUID] = []
+    skill_ids: list[UUID] = Field(default_factory=list)
+    attendance_ids: list[UUID] = Field(default_factory=list)
+    teamcategory_ids: list[UUID] = Field(default_factory=list)
+    team_ids: list[UUID] = Field(default_factory=list)
 
 
 class CrewSignupOut(Schema):

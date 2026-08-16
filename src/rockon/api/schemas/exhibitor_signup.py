@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from ninja import Schema
+from ninja import Field, Schema
 
 
 class AttendanceItem(Schema):
@@ -24,7 +24,7 @@ class ExhibitorSignupIn(Schema):
     organisation_zip: str | None = None
     organisation_place: str | None = None
     attendances: list[AttendanceItem]
-    assets: list[AssetItem] = []
+    assets: list[AssetItem] = Field(default_factory=list)
     offer_note: str | None = None
     general_note: str | None = None
     website: str | None = None

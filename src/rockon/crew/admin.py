@@ -147,13 +147,13 @@ class CrewMemberAdmin(CustomAdminModel):
         'created_at',
         'updated_at',
     )
-    actions = [
+    actions = (
         mark_confirmed,
         mark_rejected,
         mark_arrived,
         mark_not_arrived,
         mark_unknown,
-    ]
+    )
     show_facets = admin.ShowFacets.ALWAYS
 
     @admin.display(boolean=True, description='Over 16')

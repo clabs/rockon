@@ -66,7 +66,7 @@ class Band(CustomModel):
     bid_complete = models.BooleanField(default=False, db_default=False)
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         if self.name:

@@ -79,7 +79,7 @@ class Event(CustomModel):
         return self.name
 
     class Meta:
-        ordering = ['start']
+        ordering = ('start',)
 
     def save(self, *args, **kwargs):
         if not self.slug:
