@@ -1,21 +1,18 @@
 {% extends "base.html" %} {% block content %}
     <h1>Home</h1>
-    <p>Hallo {{ user.first_name }}, hier entsteht dein Homeview.</p>
 
     <div class="row">
         <h3>News</h3>
     </div>
-    <div class="row row-cols-1 row-cols-md-2 g-3 pb-3">
+    <div class="list-group pb-3">
         {% for post in news_posts %}
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ post.title }}</h5>
-                        {# body_html is rendered from Markdown and sanitized via nh3 at write time, so it's safe to output unescaped here. #}
-                        <div class="card-text">{{ post.body_html|safe }}</div>
-                        <p class="card-text text-end"><small class="text-muted">{{ post.publish_at|date:"d.m.Y, H:i" }}</small></p>
-                    </div>
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="mb-1">{{ post.title }}</h5>
+                    <small class="text-muted ms-2 text-nowrap">{{ post.publish_at|date:"d.m.Y, H:i" }}</small>
                 </div>
+                {# body_html is rendered from Markdown and sanitized via nh3 at write time, so it's safe to output unescaped here. #}
+                <div>{{ post.body_html|safe }}</div>
             </div>
         {% empty %}
             <p class="text-muted">Keine News.</p>
