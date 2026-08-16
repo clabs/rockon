@@ -18,6 +18,7 @@ from .endpoints import (
     newsRouter,
     passkeyRouter,
     requestMagicLink,
+    teamMemberState,
     timeslotRouter,
     trackRouter,
     userEmailRouter,
@@ -37,6 +38,7 @@ api.add_router('crew-date-responses/', crewDateResponse)
 api.add_router('crew-signup/', crewSignupRouter)
 api.add_router('exhibitor-admin/', exhibitorAdmin)
 api.add_router('exhibitor-signup/', exhibitorSignup)
+api.add_router('team-members/', teamMemberState)
 api.add_router('timeslots/', timeslotRouter)
 api.add_router('mark-voucher', markVoucher)
 api.add_router('news/', newsRouter)

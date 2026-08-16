@@ -1,6 +1,78 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     <div class="container-fluid">
+        <style nonce="{{ csp_nonce }}">
+            .crewcoord-teams-scroll {
+                overflow-x: auto;
+            }
+
+            .crewcoord-teams-table {
+                min-width: max-content;
+                font-size: 0.875rem;
+            }
+
+            .crewcoord-teams-table th,
+            .crewcoord-teams-table td {
+                white-space: nowrap;
+                min-width: 4.25rem;
+                padding: 0.4rem 0.45rem;
+                line-height: 1.2;
+            }
+
+            .crewcoord-teams-table .sticky-name {
+                position: sticky;
+                left: 0;
+                min-width: 10.5rem;
+                z-index: 4;
+            }
+
+            .crewcoord-teams-table thead .sticky-name {
+                background-color: var(--bs-table-bg, #212529);
+            }
+
+            .crewcoord-teams-table tbody .sticky-name {
+                background-color: var(--bs-table-striped-bg, #2c3034);
+            }
+
+            .crewcoord-teams-table tbody tr:nth-of-type(odd) .sticky-name {
+                background-color: var(--bs-table-bg, #212529);
+            }
+
+            .crewcoord-teams-table .team-column {
+                min-width: 4.5rem;
+            }
+
+            .crewcoord-teams-table small {
+                font-size: 0.68rem;
+                line-height: 1.1;
+            }
+
+            .crewcoord-teams-table .team-cell-btn {
+                width: 2.25rem;
+            }
+
+            @media (max-width: 991.98px) {
+                .crewcoord-teams-table th,
+                .crewcoord-teams-table td {
+                    min-width: 3.75rem;
+                    padding: 0.3rem 0.35rem;
+                }
+
+                .crewcoord-teams-table .sticky-name {
+                    min-width: 9rem;
+                }
+
+                .crewcoord-teams-table .team-column {
+                    min-width: 4rem;
+                }
+
+                .crewcoord-teams-mobile-hint {
+                    font-size: 0.875rem;
+                }
+            }
+        </style>
+
         <h2>Teamverwaltung</h2>
 
         {% if messages %}
@@ -9,97 +81,91 @@
             {% endfor %}
         {% endif %}
 
-        {% if teams %}
-            {% for item in teams %}
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h3 class="h5 mb-0">{{ item.event_team.team.name }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-4">
-                            <h4 class="h6">Teamleitung setzen</h4>
-                            <form method="post" class="row g-2 align-items-end">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="set_team_roles">
-                                <input type="hidden" name="event_team_id" value="{{ item.event_team.id }}">
-                                <div class="col-md-5">
-                                    <label class="form-label" for="lead_{{ item.event_team.id }}">Leitung</label>
-                                    <select class="form-select" id="lead_{{ item.event_team.id }}" name="lead_id">
-                                        <option value="">Keine</option>
-                                        {% for member in item.confirmed_members %}
-                                            <option value="{{ member.crewmember.user.id }}" {% if item.event_team.lead_id == member.crewmember.user.id %}selected{% endif %}>
-                                                {{ member.crewmember.user.first_name }} {{ member.crewmember.user.last_name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-5">
-                                    <label class="form-label" for="vize_{{ item.event_team.id }}">Stellvertretung</label>
-                                    <select class="form-select" id="vize_{{ item.event_team.id }}" name="vize_lead_id">
-                                        <option value="">Keine</option>
-                                        {% for member in item.confirmed_members %}
-                                            <option value="{{ member.crewmember.user.id }}" {% if item.event_team.vize_lead_id == member.crewmember.user.id %}selected{% endif %}>
-                                                {{ member.crewmember.user.first_name }} {{ member.crewmember.user.last_name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-2 d-grid">
-                                    <button class="btn btn-primary" type="submit">Speichern</button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-dark table-striped table-hover align-middle">
-                                <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Mitglied</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Status ändern</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for member in item.members %}
-                                    <tr>
-                                        <th scope="row">{{ forloop.counter }}</th>
-                                        <td>{{ member.crewmember.user.first_name }} {{ member.crewmember.user.last_name }}</td>
-                                        <td>{{ member.get_state_display }}</td>
-                                        <td>
-                                            <form method="post" class="row g-2">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="action" value="update_member_state">
-                                                <input type="hidden" name="team_member_id" value="{{ member.id }}">
-                                                <div class="col-lg-8">
-                                                    <label class="visually-hidden" for="state_{{ member.id }}">Status</label>
-                                                    <select class="form-select form-select-sm" id="state_{{ member.id }}" name="state">
-                                                        {% for state_value, state_label in member_states %}
-                                                            <option value="{{ state_value }}" {% if member.state == state_value %}selected{% endif %}>
-                                                                {{ state_label }}
-                                                            </option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                                <div class="col-lg-4 d-grid">
-                                                    <button class="btn btn-sm btn-outline-light" type="submit">Setzen</button>
-                                                </div>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="4">Keine Teammitglieder vorhanden.</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+        {% if event_teams %}
+            <p class="text-muted crewcoord-teams-mobile-hint d-lg-none">Seitlich scrollen, um alle Teams zu sehen.</p>
+            <p class="text-muted">Symbol anklicken, um den Status zu setzen: Unbekannt → Bestätigt → Abgelehnt.</p>
+            <div id="crewcoord-teams-matrix" class="table-responsive crewcoord-teams-scroll mb-4" data-event-slug="{{ event.slug }}">
+                <div class="alert alert-danger d-none crewcoord-teams-matrix-error" role="alert"></div>
+                <table class="table table-dark table-striped table-hover align-middle crewcoord-teams-table">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="sticky-name">Name</th>
+                        {% for event_team in event_teams %}
+                            <th scope="col" class="text-center team-column">
+                                {{ event_team.team.name }}
+                                <small class="d-block text-body-secondary">{{ event_team.team.category.name }}</small>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in matrix_rows %}
+                        <tr>
+                            <th scope="row" class="sticky-name">{{ row.crew_member.user.first_name }} {{ row.crew_member.user.last_name }}</th>
+                            {% for cell in row.cells %}
+                                <td class="text-center team-column">
+                                    <button type="button" class="btn btn-sm {{ cell.button_class }} team-cell-btn" data-event-team-id="{{ cell.event_team_id }}" data-crewmember-id="{{ cell.crewmember_id }}" data-state="{{ cell.state }}" data-member-name="{{ row.crew_member.user.first_name }} {{ row.crew_member.user.last_name }}" data-team-name="{{ cell.team_name }}" title="{{ cell.state_label }}" aria-label="{{ row.crew_member.user.first_name }} {{ row.crew_member.user.last_name }} – {{ cell.state_label }}"><i class="fa-solid {{ cell.icon_class }}"></i></button>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="{{ event_teams|length|add:1 }}">Keine Crewmitglieder vorhanden.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
             <div class="alert alert-secondary" role="alert">Keine Teams für dieses Event gefunden.</div>
         {% endif %}
+
+        {% if teams %}
+            <h3 class="h5">Teamleitung</h3>
+            <div class="row g-3">
+                {% for item in teams %}
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h4 class="h6 mb-0">{{ item.event_team.team.name }}</h4>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" class="row g-2 align-items-end">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="set_team_roles">
+                                    <input type="hidden" name="event_team_id" value="{{ item.event_team.id }}">
+                                    <div class="col-12">
+                                        <label class="form-label" for="lead_{{ item.event_team.id }}">Leitung</label>
+                                        <select class="form-select" id="lead_{{ item.event_team.id }}" name="lead_id">
+                                            <option value="">Keine</option>
+                                            {% for member in item.confirmed_members %}
+                                                <option value="{{ member.crewmember.user.id }}" {% if item.event_team.lead_id == member.crewmember.user.id %}selected{% endif %}>
+                                                    {{ member.crewmember.user.first_name }} {{ member.crewmember.user.last_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="vize_{{ item.event_team.id }}">Stellvertretung</label>
+                                        <select class="form-select" id="vize_{{ item.event_team.id }}" name="vize_lead_id">
+                                            <option value="">Keine</option>
+                                            {% for member in item.confirmed_members %}
+                                                <option value="{{ member.crewmember.user.id }}" {% if item.event_team.vize_lead_id == member.crewmember.user.id %}selected{% endif %}>
+                                                    {{ member.crewmember.user.first_name }} {{ member.crewmember.user.last_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12 d-grid">
+                                        <button class="btn btn-primary" type="submit">Speichern</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
+    <script src="{% static 'js/crewcoord-teams-matrix.js' %}" nonce="{{ csp_nonce }}"></script>
 {% endblock content %}

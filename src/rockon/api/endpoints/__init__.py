@@ -12,6 +12,7 @@ from .mark_voucher import markVoucher
 from .news import newsRouter
 from .passkey import passkeyRouter
 from .request_magic_link import requestMagicLink
+from .team_member_state import teamMemberState
 from .timeslot import timeslotRouter
 from .track import trackRouter
 from .user_email import userEmailRouter
@@ -33,6 +34,7 @@ __all__ = [
     'newsRouter',
     'passkeyRouter',
     'requestMagicLink',
+    'teamMemberState',
     'timeslotRouter',
     'trackRouter',
     'userEmailRouter',
