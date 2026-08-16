@@ -202,36 +202,6 @@ class CrewCoordTeamManagementTests(TestCase):
         response = self.client.get(self._tshirts_url('unknown-event'))
         self.assertEqual(response.status_code, 200)
 
-    def test_update_member_state_success_and_cross_event_rejection(self):
-        self.client.force_login(self.crewcoord_user)
-
-        response = self.client.post(
-            self._url(self.event_one.slug),
-            {
-                'action': 'update_member_state',
-                'team_member_id': str(self.team_member_one.id),
-                'state': TeamMemberState.CONFIRMED,
-            },
-        )
-        self.assertRedirects(response, self._url(self.event_one.slug))
-
-        self.team_member_one.refresh_from_db()
-        self.assertEqual(self.team_member_one.state, TeamMemberState.CONFIRMED)
-
-        other_before = self.team_member_other_event.state
-        response = self.client.post(
-            self._url(self.event_one.slug),
-            {
-                'action': 'update_member_state',
-                'team_member_id': str(self.team_member_other_event.id),
-                'state': TeamMemberState.REJECTED,
-            },
-        )
-        self.assertRedirects(response, self._url(self.event_one.slug))
-
-        self.team_member_other_event.refresh_from_db()
-        self.assertEqual(self.team_member_other_event.state, other_before)
-
     def test_modifying_team_membership_is_not_supported(self):
         self.client.force_login(self.crewcoord_user)
 
@@ -254,6 +224,54 @@ class CrewCoordTeamManagementTests(TestCase):
                 event_team=self.event_two_team,
                 crewmember=self.crew_member_one,
             ).exists()
+        )
+
+    def test_update_member_state_action_is_no_longer_supported(self):
+        """State changes moved to the team-members API endpoint; the old POST
+        action is now unknown and must not touch the database."""
+        self.client.force_login(self.crewcoord_user)
+
+        response = self.client.post(
+            self._url(self.event_one.slug),
+            {
+                'action': 'update_member_state',
+                'team_member_id': str(self.team_member_one.id),
+                'state': TeamMemberState.CONFIRMED,
+            },
+            follow=True,
+        )
+        self.assertRedirects(response, self._url(self.event_one.slug))
+        self.assertContains(response, 'Unbekannte Aktion.')
+
+        self.team_member_one.refresh_from_db()
+        self.assertEqual(self.team_member_one.state, TeamMemberState.UNKNOWN)
+
+    def test_matrix_shows_all_crew_members_and_teams_including_unassigned(self):
+        self.client.force_login(self.crewcoord_user)
+
+        response = self.client.get(self._url(self.event_one.slug))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Alice Member')
+        self.assertContains(response, 'Bob Member')
+        self.assertContains(response, self.team_a.name)
+        self.assertContains(response, self.team_b.name)
+
+        # team_member_two is confirmed for team_a.
+        self.assertContains(
+            response,
+            f'data-event-team-id="{self.event_one_team_a.id}" '
+            f'data-crewmember-id="{self.crew_member_two.id}" '
+            f'data-state="confirmed"',
+        )
+
+        # crew_member_two has no TeamMember row for team_b, but the cell
+        # must still be rendered and clickable so a membership can be created.
+        self.assertContains(
+            response,
+            f'data-event-team-id="{self.event_one_team_b.id}" '
+            f'data-crewmember-id="{self.crew_member_two.id}" '
+            f'data-state="unknown"',
         )
 
     def test_set_team_roles_requires_confirmed_members(self):
