@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import date
 
+from django.utils import timezone
+
 from rockon.library.custom_admin import CustomAdminModel, admin
 
 from .models import (
@@ -20,7 +22,7 @@ from .models import (
 
 
 def _age_cutoff_date(years: int) -> date:
-    today = date.today()
+    today = timezone.localdate()
     try:
         return today.replace(year=today.year - years)
     except ValueError:
