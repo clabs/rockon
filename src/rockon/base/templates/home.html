@@ -4,16 +4,15 @@
     <div class="row">
         <h3>News</h3>
     </div>
-    <div class="list-group pb-3">
+    <div class="pb-3" style="max-width: 50rem;">
         {% for post in news_posts %}
-            <div class="list-group-item">
-                <div class="d-flex justify-content-between align-items-start">
-                    <h5 class="mb-1">{{ post.title }}</h5>
-                    <small class="text-muted ms-2 text-nowrap">{{ post.publish_at|date:"d.m.Y, H:i" }}</small>
-                </div>
+            <article class="mb-5">
+                <h4 class="mb-1">{{ post.title }}</h4>
+                <p class="text-muted small mb-3">{{ post.publish_at|date:"d.m.Y, H:i" }}</p>
                 {# body_html is rendered from Markdown and sanitized via nh3 at write time, so it's safe to output unescaped here. #}
                 <div>{{ post.body_html|safe }}</div>
-            </div>
+            </article>
+            {% if not forloop.last %}<hr class="my-4">{% endif %}
         {% empty %}
             <p class="text-muted">Keine News.</p>
         {% endfor %}
