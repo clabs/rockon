@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.template import loader
 
 from rockon.base.services import get_event_by_slug
 from rockon.crew.models import Attendance, CrewMember, CrewMemberStatus
+from rockon.library.decorators import require_group
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
+@require_group('crewcoord')
 def crew_availability_matrix(request, slug):
     template = loader.get_template('crewcoord_availability.html')
     event = get_event_by_slug(slug)

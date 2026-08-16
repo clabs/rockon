@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -9,6 +8,7 @@ from django.template import loader
 
 from rockon.base.services import get_event_by_slug
 from rockon.crew.models import EventTeam, TeamMember, TeamMemberState
+from rockon.library.decorators import require_group
 
 
 def _clear_invalid_team_roles(event_team: EventTeam) -> None:
@@ -31,8 +31,7 @@ def _clear_invalid_team_roles(event_team: EventTeam) -> None:
         event_team.save(update_fields=update_fields)
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
+@require_group('crewcoord')
 def crew_team_management(request, slug):
     template = loader.get_template('crewcoord_teams.html')
     event = get_event_by_slug(slug)

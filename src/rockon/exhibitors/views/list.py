@@ -3,7 +3,6 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
@@ -13,10 +12,10 @@ from django.urls import reverse
 
 from rockon.base.services import get_event_by_slug
 from rockon.exhibitors.models import Exhibitor, ExhibitorStatus
+from rockon.library.decorators import require_group
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='exhibitor_admins').exists())
+@require_group('exhibitor_admins')
 def exhibitor_list(request, slug):
     template = loader.get_template('exhibitor_list.html')
     event = get_event_by_slug(slug)

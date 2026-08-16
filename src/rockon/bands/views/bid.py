@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import Optional, Tuple
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -12,7 +12,7 @@ from django.urls import reverse
 from rockon.bands.models import Band, BandMedia, Track
 from rockon.bands.models.band import BidStatus
 from rockon.base.models import Event
-from rockon.library.decorators import check_band_application_open
+from rockon.library.decorators import check_band_application_open, require_group
 from rockon.library.federal_states import FederalState
 from rockon.library.template_json import template_json
 
@@ -114,8 +114,7 @@ def bid_form(request, slug, guid):
     )
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='crew').exists())
+@require_group('crew')
 def bid_vote(
     request,
     bid: Optional[str] = None,

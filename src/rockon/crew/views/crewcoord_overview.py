@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count
 from django.http import HttpResponse
 from django.template import loader
 
 from rockon.base.services import get_event_by_slug
 from rockon.crew.models import Attendance, Crew, CrewMember, CrewMemberStatus, Shirt
+from rockon.library.decorators import require_group
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
+@require_group('crewcoord')
 def crew_chart(request, slug):
     template = loader.get_template('crew_overview.html')
     event = get_event_by_slug(slug)
@@ -46,8 +45,7 @@ def crew_chart(request, slug):
     return HttpResponse(template.render(extra_context, request))
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='crewcoord').exists())
+@require_group('crewcoord')
 def crew_shirts(request, slug):
     template = loader.get_template('crewcoord_tshirts.html')
     event = get_event_by_slug(slug)
