@@ -4,6 +4,7 @@ from .band_media import bandMediaRouter
 from .band_vote import bandVote
 from .bandmember_signup import bandmemberSignupRouter
 from .comment import commentRouter
+from .crew_date_response import crewDateResponse
 from .crew_signup import crewSignupRouter
 from .exhibitor_admin import exhibitorAdmin
 from .exhibitor_signup import exhibitorSignup
@@ -23,6 +24,7 @@ __all__ = [
     'bandVote',
     'bandmemberSignupRouter',
     'commentRouter',
+    'crewDateResponse',
     'crewSignupRouter',
     'exhibitorAdmin',
     'exhibitorSignup',
