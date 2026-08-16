@@ -15,6 +15,7 @@ from .endpoints import (
     exhibitorAdmin,
     exhibitorSignup,
     markVoucher,
+    newsRouter,
     passkeyRouter,
     requestMagicLink,
     timeslotRouter,
@@ -38,6 +39,7 @@ api.add_router('exhibitor-admin/', exhibitorAdmin)
 api.add_router('exhibitor-signup/', exhibitorSignup)
 api.add_router('timeslots/', timeslotRouter)
 api.add_router('mark-voucher', markVoucher)
+api.add_router('news/', newsRouter)
 api.add_router('passkey/', passkeyRouter)
 api.add_router('request-magic-link', requestMagicLink)
 api.add_router('tracks/', trackRouter)

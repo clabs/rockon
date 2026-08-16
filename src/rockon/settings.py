@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'rockon.bands',
     'rockon.crew',
     'rockon.exhibitors',
+    'rockon.news',
     'rockon.tools',
     'compressor',
 ]

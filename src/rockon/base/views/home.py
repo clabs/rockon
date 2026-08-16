@@ -6,8 +6,12 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils import timezone
 
-from rockon.base.services import get_current_event_for_request
+from rockon.base.services import (
+    get_current_event_for_request,
+    get_request_account_context,
+)
 from rockon.crew.models import Crew, CrewDate, CrewDateResponse
+from rockon.news.services.feed import visible_posts_for_user
 
 
 def _crew_dates_for_sidebar(request, event):
@@ -39,8 +43,14 @@ def _crew_dates_for_sidebar(request, event):
 def home(request):
     """A view that returns the user homeview for logged in users."""
     event = get_current_event_for_request(request)
+    account_context = get_request_account_context(request)
+    news_posts = visible_posts_for_user(request.user, event, account_context)
     crew_dates = _crew_dates_for_sidebar(request, event)
 
     template = loader.get_template('home.html')
-    extra_context = {'site_title': 'Home', 'crew_dates': crew_dates}
+    extra_context = {
+        'site_title': 'Home',
+        'news_posts': news_posts,
+        'crew_dates': crew_dates,
+    }
     return HttpResponse(template.render(extra_context, request))
