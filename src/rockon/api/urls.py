@@ -10,6 +10,7 @@ from .endpoints import (
     bandRouter,
     bandVote,
     commentRouter,
+    crewDateResponse,
     crewSignupRouter,
     exhibitorAdmin,
     exhibitorSignup,
@@ -31,6 +32,7 @@ api.add_router('band-media/', bandMediaRouter)
 api.add_router('band-votes/', bandVote)
 api.add_router('bandmember-signup', bandmemberSignupRouter)
 api.add_router('comments/', commentRouter)
+api.add_router('crew-date-responses/', crewDateResponse)
 api.add_router('crew-signup/', crewSignupRouter)
 api.add_router('exhibitor-admin/', exhibitorAdmin)
 api.add_router('exhibitor-signup/', exhibitorSignup)

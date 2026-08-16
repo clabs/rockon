@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .crewcoord_availability import crew_availability_matrix
+from .crewcoord_dates import crew_dates_management
 from .crewcoord_members import crew_member_management
 from .crewcoord_overview import crew_chart, crew_shirts
 from .crewcoord_teams import crew_team_management
@@ -12,6 +13,7 @@ __all__ = [
     'attendance_table',
     'crew_availability_matrix',
     'crew_chart',
+    'crew_dates_management',
     'crew_member_management',
     'crew_shirts',
     'crew_team_management',

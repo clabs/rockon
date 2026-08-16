@@ -1,4 +1,40 @@
-{% extends "base.html" %} {% block content %}
-    <h1>Home</h1>
-    <p>Hallo {{ user.first_name }}, hier entsteht dein Homeview.</p>
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <div class="row">
+        <div class="{% if crew_dates %}col-lg-8{% else %}col-lg-12{% endif %}">
+            <h1>Home</h1>
+            <p>Hallo {{ user.first_name }}, hier entsteht dein Homeview.</p>
+        </div>
+
+        {% if crew_dates %}
+            <div class="col-lg-4">
+                <h3 class="h5">Termine</h3>
+                {% csrf_token %}
+                <div id="crew-dates-sidebar">
+                    {% for crew_date in crew_dates %}
+                        <div class="card mb-3 crew-date-rsvp" data-crew-date-id="{{ crew_date.id }}" data-status="{{ crew_date.my_status }}">
+                            <div class="card-body">
+                                <h4 class="h6 mb-1">{{ crew_date.title }}</h4>
+                                {% if crew_date.description %}
+                                    <p class="small text-muted mb-2">{{ crew_date.description }}</p>
+                                {% endif %}
+                                <p class="small mb-2">
+                                    {{ crew_date.date|date:"d.m.Y" }},
+                                    {{ crew_date.start_time|time:"H:i" }}–{{ crew_date.end_time|time:"H:i" }}
+                                </p>
+                                <div class="btn-group" role="group" aria-label="Rückmeldung">
+                                    <button type="button" class="btn btn-sm btn-outline-success rsvp-btn" data-status="attending" title="Zusage">✅</button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning rsvp-btn" data-status="tentative" title="Unsicher">🤔</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rsvp-btn" data-status="unavailable" title="Absage">❌</button>
+                                </div>
+                                <p class="small text-danger crew-date-rsvp-error mt-2 mb-0 d-none"></p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <script src="{% static 'js/crew_dates.js' %}"></script>
 {% endblock content %}
