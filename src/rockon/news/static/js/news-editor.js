@@ -1,4 +1,4 @@
-const { ref, computed } = Vue
+const { ref, computed, nextTick } = Vue
 
 const NewsEditorApp = {
   setup() {
@@ -10,6 +10,7 @@ const NewsEditorApp = {
     const saving = ref(false)
     const error = ref(null)
     const previewHtml = ref('')
+    const bodyTextarea = ref(null)
     let previewTimer = null
 
     const emptyForm = () => ({
@@ -96,6 +97,63 @@ const NewsEditorApp = {
       previewTimer = setTimeout(fetchPreview, 400)
     }
 
+    // ── Markdown toolbar ────────────────────────────────────
+    // Inserts Markdown syntax around the current textarea selection, then
+    // restores focus/selection so typing continues naturally.
+    function setSelectionAndRefresh(newValue, selectionStart, selectionEnd) {
+      form.value.body_markdown = newValue
+      schedulePreview()
+      nextTick(() => {
+        const el = bodyTextarea.value
+        if (!el) return
+        el.focus()
+        el.selectionStart = selectionStart
+        el.selectionEnd = selectionEnd
+      })
+    }
+
+    function wrapSelection(before, after) {
+      const el = bodyTextarea.value
+      if (!el) return
+      const start = el.selectionStart
+      const end = el.selectionEnd
+      const value = form.value.body_markdown
+      const selected = value.slice(start, end) || 'Text'
+      const newValue = value.slice(0, start) + before + selected + after + value.slice(end)
+      setSelectionAndRefresh(newValue, start + before.length, start + before.length + selected.length)
+    }
+
+    function prefixLines(prefix) {
+      const el = bodyTextarea.value
+      if (!el) return
+      const start = el.selectionStart
+      const end = el.selectionEnd
+      const value = form.value.body_markdown
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1
+      const lineEndIdx = value.indexOf('\n', end)
+      const lineEnd = lineEndIdx === -1 ? value.length : lineEndIdx
+      const block = value.slice(lineStart, lineEnd)
+      const prefixed = block
+        .split('\n')
+        .map((line) => prefix + line)
+        .join('\n')
+      const newValue = value.slice(0, lineStart) + prefixed + value.slice(lineEnd)
+      setSelectionAndRefresh(newValue, lineStart, lineStart + prefixed.length)
+    }
+
+    function insertLink() {
+      const el = bodyTextarea.value
+      if (!el) return
+      const start = el.selectionStart
+      const end = el.selectionEnd
+      const value = form.value.body_markdown
+      const selected = value.slice(start, end) || 'Linktext'
+      const markdown = `[${selected}](https://)`
+      const newValue = value.slice(0, start) + markdown + value.slice(end)
+      const urlStart = start + selected.length + 3
+      setSelectionAndRefresh(newValue, urlStart, urlStart + 'https://'.length)
+    }
+
     function publishAtPayload() {
       return form.value.publish_at ? new Date(form.value.publish_at).toISOString() : null
     }
@@ -164,6 +222,7 @@ const NewsEditorApp = {
       saving,
       error,
       previewHtml,
+      bodyTextarea,
       form,
       hasAudience,
       statusLabel,
@@ -172,6 +231,9 @@ const NewsEditorApp = {
       startEdit,
       cancelEdit,
       schedulePreview,
+      wrapSelection,
+      prefixLines,
+      insertLink,
       save,
       removePost,
     }
