@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block content %}
     <h1>Home</h1>
 
-    <div class="row">
+    <div class="row mb-4">
         <h3>News</h3>
     </div>
     <div class="pb-3" style="max-width: 50rem;">
@@ -10,7 +10,7 @@
                 <h4 class="mb-1">{{ post.title }}</h4>
                 <p class="text-muted small mb-3">{{ post.publish_at|date:"d.m.Y, H:i" }}</p>
                 {# body_html is rendered from Markdown and sanitized via nh3 at write time, so it's safe to output unescaped here. #}
-                <div>{{ post.body_html|safe }}</div>
+                <div class="news-body">{{ post.body_html|safe }}</div>
             </article>
             {% if not forloop.last %}<hr class="my-4">{% endif %}
         {% empty %}
