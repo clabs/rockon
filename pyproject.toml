@@ -25,7 +25,6 @@ dependencies = [
     "gunicorn",
     "markdown",
     "pillow",
-    "python-magic",
     "redis[hiredis]",
     "sentry-sdk[django]",
     "tzdata",

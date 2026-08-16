@@ -5,12 +5,13 @@ from datetime import date, timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from rockon.base.models import Event
-from rockon.base.models.organisation import Organisation
 from rockon.base.models.event import SignUpType
-from rockon.exhibitors.models import Attendance, Asset, Exhibitor
+from rockon.base.models.organisation import Organisation
+from rockon.exhibitors.models import Asset, Attendance, Exhibitor
 
 
 def _make_event(slug: str = 'rocktreff-2026') -> Event:
@@ -126,6 +127,40 @@ class ExhibitorSignupEndpointTests(TestCase):
         self.assertTrue(Exhibitor.objects.filter(event=self.event).exists())
         org = Organisation.objects.get(org_name='Testverein')
         self.assertIn(self.user, org.members.all())
+
+    def test_signup_rejects_logo_content_not_matching_extension(self):
+        self.client.force_login(self.user)
+        # PDF magic bytes, but with a .png extension.
+        fake_logo = SimpleUploadedFile(
+            'logo.png', b'%PDF-1.4\n' + b'\x00' * 32, content_type='image/png'
+        )
+
+        response = self.client.post(
+            f'/api/v2/exhibitor-signup/{self.event.slug}/',
+            data={'data': json.dumps(_base_payload()), 'logo': fake_logo},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload['status'], 'error')
+        self.assertFalse(Exhibitor.objects.filter(event=self.event).exists())
+
+    def test_signup_accepts_matching_logo(self):
+        self.client.force_login(self.user)
+        real_logo = SimpleUploadedFile(
+            'logo.png', b'\x89PNG\r\n\x1a\n' + b'\x00' * 32, content_type='image/png'
+        )
+
+        response = self.client.post(
+            f'/api/v2/exhibitor-signup/{self.event.slug}/',
+            data={'data': json.dumps(_base_payload()), 'logo': real_logo},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload['status'], 'created')
+        exhibitor = Exhibitor.objects.get(event=self.event)
+        self.assertTrue(exhibitor.logo.name.endswith('.png'))
 
     def test_signup_with_attendances_and_assets(self):
         self.client.force_login(self.user)

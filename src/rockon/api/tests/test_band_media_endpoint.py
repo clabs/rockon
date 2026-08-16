@@ -4,6 +4,7 @@ import json
 from datetime import date, timedelta
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from rockon.bands.models import Band, BandMedia
@@ -227,6 +228,55 @@ class BandMediaUploadEndpointTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 201)
+
+    def test_upload_rejects_file_content_not_matching_media_type(self):
+        self.client.force_login(self.owner)
+        # PNG magic bytes, but claimed as an mp3 audio upload.
+        fake_audio = SimpleUploadedFile(
+            'track.mp3', b'\x89PNG\r\n\x1a\n' + b'\x00' * 32, content_type='audio/mpeg'
+        )
+
+        response = self.client.post(
+            '/api/v2/band-media/upload/',
+            data={'band': str(self.band.id), 'media_type': 'audio', 'file': fake_audio},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(BandMedia.objects.filter(band=self.band).exists())
+
+    def test_upload_rejects_extension_mismatching_sniffed_content(self):
+        self.client.force_login(self.owner)
+        # Real PNG bytes, but with a .jpg extension and claimed as a logo.
+        mislabeled_logo = SimpleUploadedFile(
+            'logo.jpg', b'\x89PNG\r\n\x1a\n' + b'\x00' * 32, content_type='image/jpeg'
+        )
+
+        response = self.client.post(
+            '/api/v2/band-media/upload/',
+            data={
+                'band': str(self.band.id),
+                'media_type': 'logo',
+                'file': mislabeled_logo,
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_upload_accepts_file_matching_media_type(self):
+        self.client.force_login(self.owner)
+        real_logo = SimpleUploadedFile(
+            'logo.png', b'\x89PNG\r\n\x1a\n' + b'\x00' * 32, content_type='image/png'
+        )
+
+        response = self.client.post(
+            '/api/v2/band-media/upload/',
+            data={'band': str(self.band.id), 'media_type': 'logo', 'file': real_logo},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(
+            BandMedia.objects.filter(band=self.band, media_type='logo').exists()
+        )
 
 
 class BandMediaDeleteEndpointTests(TestCase):
