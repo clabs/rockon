@@ -8,6 +8,7 @@ from .crew_signup import crewSignupRouter
 from .exhibitor_admin import exhibitorAdmin
 from .exhibitor_signup import exhibitorSignup
 from .mark_voucher import markVoucher
+from .news import newsRouter
 from .passkey import passkeyRouter
 from .request_magic_link import requestMagicLink
 from .timeslot import timeslotRouter
@@ -27,6 +28,7 @@ __all__ = [
     'exhibitorAdmin',
     'exhibitorSignup',
     'markVoucher',
+    'newsRouter',
     'passkeyRouter',
     'requestMagicLink',
     'timeslotRouter',
