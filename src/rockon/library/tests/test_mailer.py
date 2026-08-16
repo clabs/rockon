@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from rockon.tools.models import LinkShortener
 from rockon.library.mailer import get_admin_url, send_mail_async
+from rockon.tools.models import LinkShortener
 
 
 class MailerTests(TestCase):

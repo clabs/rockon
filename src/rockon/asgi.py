@@ -21,7 +21,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rockon.settings')
 # before importing consumers.
 django_asgi_app = get_asgi_application()
 
-from rockon.bands.routing import websocket_urlpatterns  # noqa: E402
+from rockon.bands.routing import websocket_urlpatterns
 
 application = ProtocolTypeRouter(
     {

@@ -9,6 +9,7 @@ from django.core.serializers import serialize
 from django_q.tasks import AsyncTask
 
 from rockon.library.custom_model import CustomModel, models
+
 from .band import Band
 
 

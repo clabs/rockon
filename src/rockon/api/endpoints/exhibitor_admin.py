@@ -4,7 +4,7 @@ import io
 import math
 import tempfile
 import zipfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import openpyxl
 import openpyxl.utils
@@ -61,7 +61,7 @@ def exhibitor_export(request, slug: str):
         .order_by('organisation__org_name')
     )
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     ts = now.strftime('%Y%m%d-%H%M%S')
 
     org_width = min(

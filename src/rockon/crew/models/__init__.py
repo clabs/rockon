@@ -14,8 +14,8 @@ from .team_member import TeamMember, TeamMemberState
 
 __all__ = [
     'Attendance',
-    'AttendancePhase',
     'AttendanceAddition',
+    'AttendancePhase',
     'Crew',
     'CrewMember',
     'CrewMemberNutrion',

@@ -8,7 +8,8 @@ from .band import (
     BandPatchOut,
     UserOut,
 )
-from .band_media import BandMediaIn, BandMediaOut as BandMediaFullOut
+from .band_media import BandMediaIn
+from .band_media import BandMediaOut as BandMediaFullOut
 from .band_vote import BandVoteIn, BandVoteOut
 from .bandmember import BandMemberSignupIn, PersonIn
 from .comment import CommentIn, CommentOut, CommentUserOut

@@ -9,6 +9,7 @@ from .join import join, join_submitted
 from .kitchen import attendance_table
 
 __all__ = [
+    'attendance_table',
     'crew_availability_matrix',
     'crew_chart',
     'crew_member_management',
@@ -17,5 +18,4 @@ __all__ = [
     'guestlist_entries',
     'join',
     'join_submitted',
-    'attendance_table',
 ]

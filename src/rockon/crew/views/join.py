@@ -16,7 +16,6 @@ from rockon.crew.models.crew_member import (
 )
 from rockon.library.template_json import template_json
 
-
 READONLY_CREW_STATES = {
     CrewMemberStatus.CONFIRMED,
 }
@@ -197,7 +196,7 @@ def join(request, slug):
                         'id': str(team.join_event_links[0].id),
                         'name': team.name,
                     }
-                    for team in getattr(team_category, 'teams').all()
+                    for team in team_category.teams.all()
                     if team.join_event_links
                 ],
             }

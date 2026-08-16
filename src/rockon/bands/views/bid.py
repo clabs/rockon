@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Optional, Tuple
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -17,7 +16,7 @@ from rockon.library.federal_states import FederalState
 from rockon.library.template_json import template_json
 
 
-def _can_vote_on_bands(user, event: Event) -> Tuple[bool, Optional[str]]:
+def _can_vote_on_bands(user, event: Event) -> tuple[bool, str | None]:
     """Check if user can vote on bands for an event.
 
     Returns:
@@ -117,9 +116,9 @@ def bid_form(request, slug, guid):
 @require_group('crew')
 def bid_vote(
     request,
-    bid: Optional[str] = None,
-    track: Optional[str] = None,
-    slug: Optional[str] = None,
+    bid: str | None = None,
+    track: str | None = None,
+    slug: str | None = None,
 ):
     """Display band voting interface for crew members."""
     event = get_object_or_404(Event, slug=slug)

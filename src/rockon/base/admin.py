@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
 from rockon.library.custom_admin import CustomAdminModel, admin
+
 from .models import (
     EmailVerification,
     Event,

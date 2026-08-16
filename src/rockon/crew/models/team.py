@@ -5,6 +5,7 @@ from django.templatetags.static import static
 from rockon.base.models import Event
 from rockon.library import UploadToPathAndRename
 from rockon.library.custom_model import CustomModel, models
+
 from .team_category import TeamCategory
 
 

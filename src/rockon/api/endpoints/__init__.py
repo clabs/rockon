@@ -1,11 +1,11 @@
 from .account_create import accountCreate
 from .band import bandRouter
-from .exhibitor_admin import exhibitorAdmin
 from .band_media import bandMediaRouter
 from .band_vote import bandVote
 from .bandmember_signup import bandmemberSignupRouter
 from .comment import commentRouter
 from .crew_signup import crewSignupRouter
+from .exhibitor_admin import exhibitorAdmin
 from .exhibitor_signup import exhibitorSignup
 from .mark_voucher import markVoucher
 from .passkey import passkeyRouter
@@ -29,9 +29,9 @@ __all__ = [
     'markVoucher',
     'passkeyRouter',
     'requestMagicLink',
+    'timeslotRouter',
     'trackRouter',
     'userEmailRouter',
     'userProfileRouter',
     'verifyEmailRouter',
-    'timeslotRouter',
 ]

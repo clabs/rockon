@@ -6,9 +6,9 @@ from ninja import NinjaAPI
 from .endpoints import (
     accountCreate,
     bandMediaRouter,
+    bandmemberSignupRouter,
     bandRouter,
     bandVote,
-    bandmemberSignupRouter,
     commentRouter,
     crewSignupRouter,
     exhibitorAdmin,

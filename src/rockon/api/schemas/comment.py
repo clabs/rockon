@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from ninja import Schema
 
@@ -16,8 +15,8 @@ class CommentOut(Schema):
     band: str
     user: CommentUserOut
     text: str
-    reason: Optional[str] = None
-    mood: Optional[str] = None
+    reason: str | None = None
+    mood: str | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -25,5 +24,5 @@ class CommentOut(Schema):
 class CommentIn(Schema):
     band: str
     text: str
-    reason: Optional[str] = None
-    mood: Optional[str] = None
+    reason: str | None = None
+    mood: str | None = None
