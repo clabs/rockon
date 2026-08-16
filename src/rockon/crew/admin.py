@@ -10,6 +10,8 @@ from .models import (
     Attendance,
     AttendanceAddition,
     Crew,
+    CrewDate,
+    CrewDateResponse,
     CrewMember,
     EventTeam,
     GuestListEntry,
@@ -180,6 +182,23 @@ class CrewAdmin(CustomAdminModel):
     search_fields = ('name',)
     ordering = ('name', 'event', 'created_at', 'updated_at')
     list_filter = ('event__name',)
+
+
+class CrewDateResponseInline(admin.TabularInline):
+    model = CrewDateResponse
+    extra = 0
+    readonly_fields = ('created_at', 'updated_at')
+    fields = ('user', 'status', 'created_at', 'updated_at')
+    autocomplete_fields = ('user',)
+
+
+@admin.register(CrewDate)
+class CrewDateAdmin(CustomAdminModel):
+    inlines = (CrewDateResponseInline,)
+    list_display = ('title', 'crew', 'date', 'start_time', 'end_time', 'updated_at')
+    search_fields = ('title', 'description', 'crew__name')
+    ordering = ('date', 'start_time', 'crew')
+    list_filter = ('crew__name', 'date')
 
 
 @admin.register(GuestListEntry)
