@@ -1,8 +1,8 @@
+from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.security import django_auth
-from rockon.api.schemas.mark_voucher import MarkVoucherIn
 
-from django.shortcuts import get_object_or_404
+from rockon.api.schemas.mark_voucher import MarkVoucherIn
 from rockon.crew.models import GuestListEntry
 
 markVoucher = Router()

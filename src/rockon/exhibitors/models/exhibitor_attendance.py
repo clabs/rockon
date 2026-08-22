@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from rockon.library.custom_model import CustomModel, models
+
 from .attendance import Attendance
 
 

@@ -4,6 +4,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.template import loader
@@ -13,7 +14,6 @@ from ninja.security import django_auth
 
 from rockon.api.schemas.exhibitor_signup import ExhibitorSignupIn, ExhibitorSignupOut
 from rockon.base.models import Event, Organisation
-from rockon.library.mailer import get_admin_url, send_mail_async
 from rockon.exhibitors.models import (
     Asset,
     Attendance,
@@ -21,10 +21,20 @@ from rockon.exhibitors.models import (
     ExhibitorAsset,
     ExhibitorAttendance,
 )
+from rockon.library.file_validation import validate_upload
+from rockon.library.mailer import get_admin_url, send_mail_async
 
 logger = logging.getLogger(__name__)
 
 exhibitorSignup = Router()
+
+_ALLOWED_LOGO_CONTENT_TYPES = {
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'application/pdf',
+    'application/postscript',
+}
 
 
 @exhibitorSignup.post(
@@ -44,6 +54,12 @@ def exhibitor_signup(
     # Check group membership
     if not request.user.groups.filter(name='exhibitors').exists():
         return 403, {'status': 'error', 'message': 'Keine Berechtigung.'}
+
+    if logo:
+        try:
+            validate_upload(logo, _ALLOWED_LOGO_CONTENT_TYPES)
+        except ValidationError as exc:
+            return ExhibitorSignupOut(status='error', message=str(exc))
 
     event = get_object_or_404(Event, slug=slug)
 

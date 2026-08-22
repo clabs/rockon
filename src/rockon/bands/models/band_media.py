@@ -9,6 +9,7 @@ from django.core.serializers import serialize
 from django_q.tasks import AsyncTask
 
 from rockon.library.custom_model import CustomModel, models
+
 from .band import Band
 
 
@@ -49,7 +50,7 @@ class BandMedia(CustomModel):
     )
 
     class Meta:
-        ordering = ['band', 'media_type', 'created_at']
+        ordering = ('band', 'media_type', 'created_at')
 
     def __str__(self):
         return str(self.id)

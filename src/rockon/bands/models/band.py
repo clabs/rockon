@@ -66,7 +66,7 @@ class Band(CustomModel):
     bid_complete = models.BooleanField(default=False, db_default=False)
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         if self.name:
@@ -96,10 +96,7 @@ class Band(CustomModel):
 
         conditions = [*fields, audio_count, sites, press]
 
-        if all(conditions):
-            return True
-
-        return False
+        return all(conditions)
 
     def get_logo(self):
         return self.media.filter(media_type='logo').first()

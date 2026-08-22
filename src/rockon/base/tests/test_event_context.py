@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group, User
 from django.test import RequestFactory, TestCase
 from django.urls import resolve, reverse
 
-from rockon.base.models import Event
+from rockon.base.models import Event, PasskeyCredential
 from rockon.base.models.event import SignUpType
 from rockon.base.services import get_current_event_for_request
 
@@ -52,6 +52,12 @@ class EventContextTests(TestCase):
         )
         self.band_group = Group.objects.create(name='bands')
         self.band_user.groups.add(self.band_group)
+        # login_token redirects to the passkey prompt for users without a
+        # registered passkey; give band_user one so the login_token test can
+        # assert on the post-login destination instead.
+        PasskeyCredential.objects.create(
+            user=self.band_user, credential_id='cred-band-user', public_key=b''
+        )
 
     def _create_event(
         self,

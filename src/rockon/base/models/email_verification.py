@@ -25,10 +25,10 @@ class EmailVerification(CustomModel):
         return str(self.id)
 
     class Meta:
-        ordering = ['user']
+        ordering = ('user',)
 
     @classmethod
-    def create_and_send(cls, user: User, new_email: str = None) -> None:
+    def create_and_send(cls, user: User, new_email: str | None = None) -> None:
         """Creates a verification link and sends email to the user."""
 
         email_verifcation = cls.objects.create(user=user, new_email=new_email)

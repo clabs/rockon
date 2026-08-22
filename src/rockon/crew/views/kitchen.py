@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.template import loader
@@ -18,10 +17,10 @@ from rockon.crew.models import (
     CrewMemberStatus,
 )
 from rockon.exhibitors.models import Exhibitor, ExhibitorAttendance, ExhibitorStatus
+from rockon.library.decorators import require_group
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='catering_food').exists())
+@require_group('catering_food')
 @cache_page(60 * 5)
 @vary_on_cookie
 def attendance_table(request, slug):

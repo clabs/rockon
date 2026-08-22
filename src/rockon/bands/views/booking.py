@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Avg, Count, OuterRef, Subquery, Sum
 from django.http import HttpResponse
 from django.template import loader
@@ -12,10 +11,10 @@ from django.utils.safestring import mark_safe
 
 from rockon.bands.models import Band, BandVote, TimeSlot
 from rockon.bands.models.band import BidStatus
+from rockon.library.decorators import require_group
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='booking').exists())
+@require_group('booking')
 def booking_bid_overview(request, slug):
     # Use subquery annotations to avoid wide GROUP BY from select_related
     votes_qs = BandVote.objects.filter(band=OuterRef('pk'))
@@ -99,8 +98,7 @@ def booking_bid_overview(request, slug):
     return HttpResponse(template.render(extra_context, request))
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='booking').exists())
+@require_group('booking')
 def booking_lineup(request, slug):
     timeslots = (
         TimeSlot.objects.filter(stage__event__slug=slug)

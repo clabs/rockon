@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.urls import reverse
 
-from rockon.base.models import Event
+from rockon.base.models import Event, PasskeyCredential
 from rockon.base.models.event import SignUpType
 
 
@@ -32,6 +32,15 @@ class AccountViewTests(TestCase):
         )
         self.crew_group = Group.objects.create(name='crew')
         self.crew_user.groups.add(self.crew_group)
+        # login_token redirects to the passkey prompt for users without a
+        # registered passkey; give the login-routing test users one so the
+        # tests can assert on the post-login destination instead.
+        for user in (self.user, self.band_user, self.crew_user):
+            PasskeyCredential.objects.create(
+                user=user,
+                credential_id=f'cred-{user.username}',
+                public_key=b'',
+            )
         self.current_event = self._create_event(
             name='Rocktreff 2026',
             slug='rocktreff-2026',

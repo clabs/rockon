@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from datetime import date
-
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
@@ -56,7 +55,7 @@ class UserProfile(CustomModel):
         if self.birthday is None:
             return False
 
-        today = date.today()
+        today = timezone.localdate()
         age = today.year - self.birthday.year
         if (today.month, today.day) < (self.birthday.month, self.birthday.day):
             age -= 1
@@ -84,10 +83,7 @@ class UserProfile(CustomModel):
             self.birthday,
         ]
 
-        if all(data_required):
-            return True
-
-        return False
+        return all(data_required)
 
     def is_profile_complete_band(self) -> bool:
         """Check if user profile is complete for band application."""
@@ -98,10 +94,7 @@ class UserProfile(CustomModel):
             self.phone,
         ]
 
-        if all(data_required):
-            return True
-
-        return False
+        return all(data_required)
 
     def is_profile_complete_exhibitor(self) -> bool:
         """Check if user profile is complete for exhibitor application."""
@@ -112,10 +105,7 @@ class UserProfile(CustomModel):
             self.phone,
         ]
 
-        if all(data_required):
-            return True
-
-        return False
+        return all(data_required)
 
 
 @receiver(post_save, sender=User)

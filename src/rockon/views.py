@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import ClassVar
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
@@ -30,12 +32,12 @@ def custom_error_view(request, exception=None):
 
 class ImprintView(TemplateView):
     template_name = 'rockon/imprint.html'
-    extra_context = {'site_title': 'Impressum'}
+    extra_context: ClassVar = {'site_title': 'Impressum'}
 
 
 class PrivacyView(TemplateView):
     template_name = 'rockon/privacy.html'
-    extra_context = {'site_title': 'Privacy Policy'}
+    extra_context: ClassVar = {'site_title': 'Privacy Policy'}
 
 
 def index_view(request):

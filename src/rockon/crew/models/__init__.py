@@ -3,6 +3,8 @@ from __future__ import annotations
 from .attendance import Attendance, AttendancePhase
 from .attendance_addition import AttendanceAddition
 from .crew import Crew
+from .crew_date import CrewDate
+from .crew_date_response import CrewDateResponse, CrewDateResponseStatus
 from .crew_member import CrewMember, CrewMemberNutrion, CrewMemberStatus
 from .event_team import EventTeam
 from .guestlist_entry import GuestListEntry
@@ -14,9 +16,12 @@ from .team_member import TeamMember, TeamMemberState
 
 __all__ = [
     'Attendance',
-    'AttendancePhase',
     'AttendanceAddition',
+    'AttendancePhase',
     'Crew',
+    'CrewDate',
+    'CrewDateResponse',
+    'CrewDateResponseStatus',
     'CrewMember',
     'CrewMemberNutrion',
     'CrewMemberStatus',

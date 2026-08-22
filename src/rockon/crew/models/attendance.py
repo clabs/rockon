@@ -34,4 +34,4 @@ class Attendance(CustomModel):
         return list_of_phases
 
     class Meta:
-        ordering = ['day']
+        ordering = ('day',)

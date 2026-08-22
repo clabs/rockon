@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound
 from django.template import loader
 
@@ -8,10 +7,10 @@ from rockon.base.services import get_event_by_slug
 from rockon.crew.models import (
     CrewMember,
 )
+from rockon.library.decorators import require_group
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='crew').exists())
+@require_group('crew')
 def guestlist_entries(request, slug) -> HttpResponse:
     template = loader.get_template('crew_guestlist_entries.html')
     event = get_event_by_slug(slug)

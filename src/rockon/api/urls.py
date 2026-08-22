@@ -6,16 +6,19 @@ from ninja import NinjaAPI
 from .endpoints import (
     accountCreate,
     bandMediaRouter,
+    bandmemberSignupRouter,
     bandRouter,
     bandVote,
-    bandmemberSignupRouter,
     commentRouter,
+    crewDateResponse,
     crewSignupRouter,
     exhibitorAdmin,
     exhibitorSignup,
     markVoucher,
+    newsRouter,
     passkeyRouter,
     requestMagicLink,
+    teamMemberState,
     timeslotRouter,
     trackRouter,
     userEmailRouter,
@@ -31,11 +34,14 @@ api.add_router('band-media/', bandMediaRouter)
 api.add_router('band-votes/', bandVote)
 api.add_router('bandmember-signup', bandmemberSignupRouter)
 api.add_router('comments/', commentRouter)
+api.add_router('crew-date-responses/', crewDateResponse)
 api.add_router('crew-signup/', crewSignupRouter)
 api.add_router('exhibitor-admin/', exhibitorAdmin)
 api.add_router('exhibitor-signup/', exhibitorSignup)
+api.add_router('team-members/', teamMemberState)
 api.add_router('timeslots/', timeslotRouter)
 api.add_router('mark-voucher', markVoucher)
+api.add_router('news/', newsRouter)
 api.add_router('passkey/', passkeyRouter)
 api.add_router('request-magic-link', requestMagicLink)
 api.add_router('tracks/', trackRouter)

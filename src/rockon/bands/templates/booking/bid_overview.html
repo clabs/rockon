@@ -14,7 +14,7 @@
             statusChoices: {{ status_choices_json }}
         }
     </script>
-    <style>
+    <style nonce="{{ csp_nonce }}">
         .no-wrap { white-space: nowrap; }
         .sortable { cursor: pointer; user-select: none; }
         .sortable:hover { color: #fff300; }

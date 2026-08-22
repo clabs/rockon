@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Optional, Tuple
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -12,12 +11,12 @@ from django.urls import reverse
 from rockon.bands.models import Band, BandMedia, Track
 from rockon.bands.models.band import BidStatus
 from rockon.base.models import Event
-from rockon.library.decorators import check_band_application_open
+from rockon.library.decorators import check_band_application_open, require_group
 from rockon.library.federal_states import FederalState
 from rockon.library.template_json import template_json
 
 
-def _can_vote_on_bands(user, event: Event) -> Tuple[bool, Optional[str]]:
+def _can_vote_on_bands(user, event: Event) -> tuple[bool, str | None]:
     """Check if user can vote on bands for an event.
 
     Returns:
@@ -114,13 +113,12 @@ def bid_form(request, slug, guid):
     )
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='crew').exists())
+@require_group('crew')
 def bid_vote(
     request,
-    bid: Optional[str] = None,
-    track: Optional[str] = None,
-    slug: Optional[str] = None,
+    bid: str | None = None,
+    track: str | None = None,
+    slug: str | None = None,
 ):
     """Display band voting interface for crew members."""
     event = get_object_or_404(Event, slug=slug)

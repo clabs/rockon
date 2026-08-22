@@ -2,11 +2,16 @@ from __future__ import annotations
 
 from datetime import date
 
+from django.utils import timezone
+
 from rockon.library.custom_admin import CustomAdminModel, admin
+
 from .models import (
     Attendance,
     AttendanceAddition,
     Crew,
+    CrewDate,
+    CrewDateResponse,
     CrewMember,
     EventTeam,
     GuestListEntry,
@@ -19,7 +24,7 @@ from .models import (
 
 
 def _age_cutoff_date(years: int) -> date:
-    today = date.today()
+    today = timezone.localdate()
     try:
         return today.replace(year=today.year - years)
     except ValueError:
@@ -146,13 +151,13 @@ class CrewMemberAdmin(CustomAdminModel):
         'created_at',
         'updated_at',
     )
-    actions = [
+    actions = (
         mark_confirmed,
         mark_rejected,
         mark_arrived,
         mark_not_arrived,
         mark_unknown,
-    ]
+    )
     show_facets = admin.ShowFacets.ALWAYS
 
     @admin.display(boolean=True, description='Over 16')
@@ -177,6 +182,23 @@ class CrewAdmin(CustomAdminModel):
     search_fields = ('name',)
     ordering = ('name', 'event', 'created_at', 'updated_at')
     list_filter = ('event__name',)
+
+
+class CrewDateResponseInline(admin.TabularInline):
+    model = CrewDateResponse
+    extra = 0
+    readonly_fields = ('created_at', 'updated_at')
+    fields = ('user', 'status', 'created_at', 'updated_at')
+    autocomplete_fields = ('user',)
+
+
+@admin.register(CrewDate)
+class CrewDateAdmin(CustomAdminModel):
+    inlines = (CrewDateResponseInline,)
+    list_display = ('title', 'crew', 'date', 'start_time', 'end_time', 'updated_at')
+    search_fields = ('title', 'description', 'crew__name')
+    ordering = ('date', 'start_time', 'crew')
+    list_filter = ('crew__name', 'date')
 
 
 @admin.register(GuestListEntry)

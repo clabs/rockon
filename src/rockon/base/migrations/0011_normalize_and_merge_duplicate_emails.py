@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Dict, List, Optional
 
 from django.conf import settings
 from django.db import migrations, transaction
@@ -22,7 +21,7 @@ PROFILE_VALUE_FIELDS = [
 ]
 
 
-def normalize_email(value: Optional[str]) -> str:
+def normalize_email(value: str | None) -> str:
     if value is None:
         return ''
     return value.strip().lower()
@@ -46,7 +45,7 @@ def merge_duplicate_users(apps, schema_editor):
     Organisation = apps.get_model('rockonbase', 'Organisation')
     UserProfile = apps.get_model('rockonbase', 'UserProfile')
 
-    grouped_user_ids: Dict[str, List[int]] = defaultdict(list)
+    grouped_user_ids: dict[str, list[int]] = defaultdict(list)
     users = (
         User.objects.exclude(email__isnull=True).exclude(email='').only('id', 'email')
     )
@@ -78,19 +77,11 @@ def merge_duplicate_users(apps, schema_editor):
 
         # Most recently updated non-empty profile value wins.
         for field_name in PROFILE_VALUE_FIELDS:
-            value_set = False
             for profile in profiles:
                 value = getattr(profile, field_name)
                 if has_value(value):
                     setattr(canonical_profile, field_name, value)
-                    value_set = True
                     break
-            if not value_set and hasattr(canonical_profile, field_name):
-                setattr(
-                    canonical_profile,
-                    field_name,
-                    getattr(canonical_profile, field_name),
-                )
 
         # Verification state follows the most recently updated profile.
         if profiles:

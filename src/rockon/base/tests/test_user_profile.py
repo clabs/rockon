@@ -66,19 +66,19 @@ class UserProfileTests(TestCase):
     def test_age_helpers_respect_birthdays(self):
         self.profile.birthday = real_date(2009, 3, 22)
 
-        with patch('rockon.base.models.user_profile.date') as mock_date:
-            mock_date.today.return_value = real_date(2026, 3, 22)
+        with patch('rockon.base.models.user_profile.timezone') as mock_timezone:
+            mock_timezone.localdate.return_value = real_date(2026, 3, 22)
             self.assertTrue(self.profile.over_16())
             self.assertFalse(self.profile.over_18())
 
         self.profile.birthday = real_date(2008, 3, 23)
 
-        with patch('rockon.base.models.user_profile.date') as mock_date:
-            mock_date.today.return_value = real_date(2026, 3, 22)
+        with patch('rockon.base.models.user_profile.timezone') as mock_timezone:
+            mock_timezone.localdate.return_value = real_date(2026, 3, 22)
             self.assertFalse(self.profile.over_18())
 
         self.profile.birthday = real_date(2008, 3, 22)
 
-        with patch('rockon.base.models.user_profile.date') as mock_date:
-            mock_date.today.return_value = real_date(2026, 3, 22)
+        with patch('rockon.base.models.user_profile.timezone') as mock_timezone:
+            mock_timezone.localdate.return_value = real_date(2026, 3, 22)
             self.assertTrue(self.profile.over_18())
