@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+import sentry_sdk
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -123,6 +124,12 @@ def upload_media(
     media.save()
 
     if file:
+        sentry_sdk.metrics.distribution(
+            'media.upload.size',
+            file.size,
+            unit='byte',
+            attributes={'media_type': media.media_type},
+        )
         media.encode_file()
 
     return 201, _serialize_media(media)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
+import sentry_sdk
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -73,6 +74,7 @@ def bid_router(request, slug):
 
     event = get_object_or_404(Event, slug=slug)
     new_band = Band.objects.create(event=event, contact=request.user)
+    sentry_sdk.metrics.count('bid.started', 1, attributes={'event': event.slug})
     return redirect('bands:bid_form', slug=slug, guid=new_band.guid)
 
 

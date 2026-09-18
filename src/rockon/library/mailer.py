@@ -51,7 +51,7 @@ def send_mail_async(
             if timeout is not None:
                 kwargs['timeout'] = timeout
 
-            async_task(send_mail, **kwargs)
+            async_task(send_mail, group='send_mail', **kwargs)
     except Exception:
         logger.exception(
             'Failed to enqueue email (subject=%r, recipients=%r). '
