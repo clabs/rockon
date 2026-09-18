@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import json
-import os
-import subprocess
+import logging
 
-from django.conf import settings
 from django.core.serializers import serialize
 from django_q.tasks import AsyncTask
 
 from rockon.library.custom_model import CustomModel, models
 
 from .band import Band
+
+logger = logging.getLogger(__name__)
 
 
 def band_media_path(instance, filename):
@@ -28,6 +28,14 @@ class MediaType(models.TextChoices):
     LOGO = 'logo', 'Logo'
     PRESS_PHOTO = 'press_photo', 'Pressefoto'
     WEB = 'web', 'Webseite'
+
+
+class EncodeStatus(models.TextChoices):
+    """Encode status."""
+
+    PENDING = 'pending', 'Ausstehend'
+    DONE = 'done', 'Fertig'
+    FAILED = 'failed', 'Fehlgeschlagen'
 
 
 class BandMedia(CustomModel):
@@ -48,6 +56,13 @@ class BandMedia(CustomModel):
     file_name_original = models.CharField(
         max_length=512, default=None, blank=True, null=True
     )
+    encode_status = models.CharField(
+        max_length=16,
+        default=EncodeStatus.PENDING,
+        db_default=EncodeStatus.PENDING,
+        choices=EncodeStatus.choices,
+    )
+    encode_error = models.CharField(max_length=255, default=None, blank=True, null=True)
 
     class Meta:
         ordering = ('band', 'media_type', 'created_at')
@@ -72,22 +87,20 @@ class BandMedia(CustomModel):
         try:
             if self.media_type == MediaType.AUDIO:
                 _task = AsyncTask(
-                    'rockon.bands.models.band_media.BandMedia.encode_audio_file',
+                    'rockon.bands.services.media_encoding.encode_audio_file',
                     self.id,
                     group='encode_audio_file',
                 )
                 _task.run()
             elif self.media_type in (MediaType.PRESS_PHOTO, MediaType.LOGO):
                 _task = AsyncTask(
-                    'rockon.bands.models.band_media.BandMedia.encode_image_file',
+                    'rockon.bands.services.media_encoding.encode_image_file',
                     self.id,
                     group='encode_image_file',
                 )
                 _task.run()
         except Exception:
-            import logging
-
-            logging.getLogger(__name__).exception(
+            logger.exception(
                 'Failed to enqueue encode task for BandMedia %s. '
                 'The broker may be unavailable.',
                 self.id,
@@ -103,96 +116,3 @@ class BandMedia(CustomModel):
         _instance.update(instance_json['fields'])
 
         return _instance
-
-    @classmethod
-    def encode_audio_file(cls, id) -> BandMedia:
-        """Encode audio file."""
-        _file = cls.objects.get(id=id)
-        if not _file.file:
-            return
-        file_name = os.path.basename(_file.file.name)
-        file_name_without_extension = ''.join(file_name.split('.')[:-1])
-
-        new_file_name = f'{file_name_without_extension}-encoded.mp3'
-        new_absolute_path = os.path.abspath(
-            os.path.join(os.path.dirname(_file.file.path), new_file_name)
-        )
-
-        new_relative_path = os.path.join(
-            os.path.dirname(
-                os.path.relpath(_file.file.path, start=settings.MEDIA_ROOT)
-            ),
-            new_file_name,
-        )
-
-        ffmpeg_bin = settings.FFMPEG_BIN
-        ffmpeg_cmd = [
-            ffmpeg_bin,
-            '-y',
-            '-hide_banner',
-            '-i',
-            _file.file.path,
-            '-vn',
-            '-c:a',
-            'libmp3lame',
-            '-b:a',
-            '128k',
-            '-ar',
-            '44100',
-            new_absolute_path,
-        ]
-        return_code = subprocess.call(ffmpeg_cmd)
-
-        if return_code != 0:
-            raise RuntimeError('Encoding failed')
-
-        _file.encoded_file = new_relative_path
-        _file.save()
-
-        return _file
-
-    @classmethod
-    def encode_image_file(cls, id) -> BandMedia:
-        """ "Encode image file."""
-        _file = cls.objects.get(id=id)
-        if not _file.file:
-            return
-        file_name = os.path.basename(_file.file.name)
-        file_name_without_extension = ''.join(file_name.split('.')[:-1])
-
-        new_file_name = f'{file_name_without_extension}-thumbnail.webp'
-        new_absolute_path = os.path.abspath(
-            os.path.join(os.path.dirname(_file.file.path), new_file_name)
-        )
-
-        new_relative_path = os.path.join(
-            os.path.dirname(
-                os.path.relpath(_file.file.path, start=settings.MEDIA_ROOT)
-            ),
-            new_file_name,
-        )
-
-        convert_bin = settings.CONVERT_BIN
-        convert_cmd = [
-            convert_bin,
-            _file.file.path,
-            '-quality',
-            '70%',
-            '-resize',
-            '310x',
-            new_absolute_path,
-        ]
-        try:
-            return_code = subprocess.call(convert_cmd)
-
-            if return_code != 0:
-                raise RuntimeError('Encoding failed')
-
-            _file.encoded_file = new_relative_path
-            _file.save()
-
-            return _file
-
-        except RuntimeError:
-            # FIXME: placeholder logic
-            return

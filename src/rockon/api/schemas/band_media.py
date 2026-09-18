@@ -20,5 +20,7 @@ class BandMediaOut(Schema):
     encoded_file: str | None = None
     file_name_original: str | None = None
     thumbnail: str | None = None
+    encode_status: str
+    encode_error: str | None = None
     created_at: datetime
     updated_at: datetime

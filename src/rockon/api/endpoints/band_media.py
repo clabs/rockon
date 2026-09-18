@@ -38,6 +38,8 @@ def _serialize_media(media: BandMedia) -> dict:
         'encoded_file': media.encoded_file.url if media.encoded_file else None,
         'file_name_original': media.file_name_original,
         'thumbnail': media.thumbnail.url if media.thumbnail else None,
+        'encode_status': media.encode_status,
+        'encode_error': media.encode_error,
         'created_at': media.created_at,
         'updated_at': media.updated_at,
     }
