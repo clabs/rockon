@@ -31,9 +31,7 @@ class Band(CustomModel):
     has_management = models.BooleanField(default=False, db_default=False)
     are_students = models.BooleanField(default=False, db_default=False)
     mean_age_under_27 = models.BooleanField(default=False, db_default=False)
-    average_age = models.PositiveSmallIntegerField(
-        default=None, blank=True, null=True
-    )
+    average_age = models.PositiveSmallIntegerField(default=None, blank=True, null=True)
     is_coverband = models.BooleanField(default=False, db_default=False)
     is_flinta = models.BooleanField(default=False, db_default=False)
     genre = models.CharField(max_length=128, default=None, blank=True, null=True)

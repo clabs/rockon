@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('rockonbands', '0001_initial_squashed_0027_alter_bandmember_position'),
     ]
