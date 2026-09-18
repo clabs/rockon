@@ -40,6 +40,7 @@ class BandListOut(Schema):
     are_students: bool
     mean_age_under_27: bool
     is_coverband: bool
+    is_flinta: bool
     bid_complete: bool
     press_photo: BandMediaFileOut | None = None
     logo: BandMediaFileOut | None = None
@@ -58,8 +59,9 @@ class BandDetailOut(Schema):
     federal_state: str | None = None
     are_students: bool
     mean_age_under_27: bool
+    average_age: int | None = None
     is_coverband: bool
-    has_management: bool
+    is_flinta: bool
     repeated: bool
     bid_complete: bool
     genre: str | None = None
@@ -81,9 +83,10 @@ class BandPatchIn(Schema):
     federal_state: str | None = None
     cover_letter: str | None = None
     are_students: bool | None = None
-    has_management: bool | None = None
     mean_age_under_27: bool | None = None
+    average_age: int | None = None
     is_coverband: bool | None = None
+    is_flinta: bool | None = None
     track: str | None = None
     bid_status: str | None = None
 

@@ -153,9 +153,10 @@ class BandEndpointTests(TestCase):
                     'federal_state': 'berlin',
                     'cover_letter': 'Hello',
                     'are_students': True,
-                    'has_management': True,
                     'mean_age_under_27': True,
+                    'average_age': 24,
                     'is_coverband': False,
+                    'is_flinta': True,
                     'track': str(self.track.id),
                 }
             ),
@@ -168,8 +169,9 @@ class BandEndpointTests(TestCase):
         self.assertEqual(self.band.genre, 'Rock')
         self.assertEqual(self.band.track_id, self.track.id)
         self.assertTrue(self.band.are_students)
-        self.assertTrue(self.band.has_management)
         self.assertTrue(self.band.mean_age_under_27)
+        self.assertEqual(self.band.average_age, 24)
+        self.assertTrue(self.band.is_flinta)
 
     def test_patch_bid_status_requires_booking_group(self):
         self.client.force_login(self.owner)

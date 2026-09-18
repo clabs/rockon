@@ -242,9 +242,9 @@ const send_form = () => {
         form_obj[el.name] = el.value
     }
     form_obj['are_students'] = form_obj['are_students'] || false
-    form_obj['has_management'] = form_obj['has_management'] || false
     form_obj['mean_age_under_27'] = form_obj['mean_age_under_27'] || false
     form_obj['is_coverband'] = form_obj['is_coverband'] || false
+    form_obj['is_flinta'] = form_obj['is_flinta'] || false
     form_obj['federal_state'] = $('#federal_state').val() || null
     form_obj['track'] = $('#track').val() || null
 

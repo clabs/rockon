@@ -27,6 +27,7 @@ _BAND_LIST_FIELDS = (
     'are_students',
     'mean_age_under_27',
     'is_coverband',
+    'is_flinta',
     'bid_complete',
     'created_at',
     'updated_at',
@@ -94,6 +95,7 @@ def _serialize_band_list(band):
         'are_students': band.are_students,
         'mean_age_under_27': band.mean_age_under_27,
         'is_coverband': band.is_coverband,
+        'is_flinta': band.is_flinta,
         'bid_complete': band.bid_complete,
         'press_photo': _serialize_media_file(press_photo),
         'logo': _serialize_media_file(logo),
@@ -135,8 +137,9 @@ def _serialize_band_detail(band):
         'federal_state': band.federal_state,
         'are_students': band.are_students,
         'mean_age_under_27': band.mean_age_under_27,
+        'average_age': band.average_age,
         'is_coverband': band.is_coverband,
-        'has_management': band.has_management,
+        'is_flinta': band.is_flinta,
         'repeated': band.repeated,
         'bid_complete': band.bid_complete,
         'genre': band.genre,
@@ -229,12 +232,14 @@ def patch_band(request, band_id: str, data: BandPatchIn):
         band.cover_letter = data.cover_letter
     if data.are_students is not None:
         band.are_students = data.are_students
-    if data.has_management is not None:
-        band.has_management = data.has_management
     if data.mean_age_under_27 is not None:
         band.mean_age_under_27 = data.mean_age_under_27
+    if data.average_age is not None:
+        band.average_age = data.average_age
     if data.is_coverband is not None:
         band.is_coverband = data.is_coverband
+    if data.is_flinta is not None:
+        band.is_flinta = data.is_flinta
 
     band.save()
 
