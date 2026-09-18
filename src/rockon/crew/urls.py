@@ -6,6 +6,7 @@ from .views import (
     attendance_table,
     crew_availability_matrix,
     crew_chart,
+    crew_dates_management,
     crew_member_management,
     crew_shirts,
     crew_team_management,
@@ -33,4 +34,5 @@ urlpatterns = [
     path('coord/members/', crew_member_management, name='coord_members'),
     path('coord/tshirts/', crew_shirts, name='coord_tshirts'),
     path('coord/teams/', crew_team_management, name='coord_teams'),
+    path('coord/dates/', crew_dates_management, name='coord_dates'),
 ]

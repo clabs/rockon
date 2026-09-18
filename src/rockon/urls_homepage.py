@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.urls import path
 
 from rockon.base.views import home
+
 from .views import ImprintView, PrivacyView, index_view
 
 urlpatterns = [

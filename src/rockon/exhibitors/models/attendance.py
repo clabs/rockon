@@ -16,4 +16,4 @@ class Attendance(CustomModel):
         return self.day.strftime('%d.%m.%Y')
 
     class Meta:
-        ordering = ['day']
+        ordering = ('day',)

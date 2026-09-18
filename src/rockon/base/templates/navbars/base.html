@@ -1,3 +1,4 @@
+{% load has_group %}
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top"
      aria-label=""
      style="color: white">
@@ -55,6 +56,11 @@
                     {% if not user.groups.all %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'base:select_context' %}">Kontoart wählen</a>
+                        </li>
+                    {% endif %}
+                    {% if user|has_group:'news_editors' or user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'news:editor' %}">News-Editor</a>
                         </li>
                     {% endif %}
                 {% endif %}

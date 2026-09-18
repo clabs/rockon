@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
+
 from .band import Band
 
 
@@ -18,8 +19,8 @@ class BandVote(CustomModel):
     vote = models.IntegerField()
 
     class Meta:
-        ordering = ['band', 'user', 'created_at']
-        unique_together = [('band', 'user')]
+        ordering = ('band', 'user', 'created_at')
+        unique_together = (('band', 'user'),)
 
     def __str__(self):
         return f'vote:{self.user}:{self.band}'

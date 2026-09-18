@@ -9,7 +9,6 @@ All email dispatch goes through `send_mail_async` so that:
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -22,11 +21,11 @@ def send_mail_async(
     *,
     subject: str,
     message: str,
-    recipient_list: List[str],
-    html_message: Optional[str] = None,
-    from_email: Optional[str] = None,
+    recipient_list: list[str],
+    html_message: str | None = None,
+    from_email: str | None = None,
     fail_silently: bool = False,
-    timeout: Optional[int] = None,
+    timeout: int | None = None,
 ) -> None:
     """Enqueue one email **per recipient** via django-q2.
 
@@ -52,7 +51,7 @@ def send_mail_async(
             if timeout is not None:
                 kwargs['timeout'] = timeout
 
-            async_task(send_mail, **kwargs)
+            async_task(send_mail, group='send_mail', **kwargs)
     except Exception:
         logger.exception(
             'Failed to enqueue email (subject=%r, recipients=%r). '

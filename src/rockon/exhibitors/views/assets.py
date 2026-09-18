@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.template import loader
 
 from rockon.base.services import get_event_by_slug
 from rockon.exhibitors.models import Asset, Attendance, Exhibitor
+from rockon.library.decorators import require_group
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='exhibitor_admins').exists())
+@require_group('exhibitor_admins')
 def exhibitor_assets(request, slug):
     template = loader.get_template('exhibitor_assets.html')
     event = get_event_by_slug(slug)

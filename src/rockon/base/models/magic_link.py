@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template import loader
 from django.urls import reverse
-from django.utils.timezone import make_aware
+from django.utils import timezone
 
 from rockon.library.custom_model import CustomModel, models
 from rockon.library.mailer import send_mail_async
@@ -24,13 +24,13 @@ class MagicLink(CustomModel):
         return str(self.id)
 
     class Meta:
-        ordering = ['user', 'expires_at']
+        ordering = ('user', 'expires_at')
 
     @classmethod
     def create_and_send(cls, user: User) -> None:
         MagicLink.objects.filter(user=user).delete()
 
-        _expires_at = make_aware(datetime.now() + timedelta(hours=24))
+        _expires_at = timezone.now() + timedelta(hours=24)
         magic_link = MagicLink.objects.create(user=user, expires_at=_expires_at)
 
         # FIXME: import the scheme, domain and rest of things from Django settings
@@ -63,7 +63,7 @@ class MagicLink(CustomModel):
         import asyncio
 
         await cls.objects.filter(user=user).adelete()
-        _expires_at = make_aware(datetime.now() + timedelta(hours=24))
+        _expires_at = timezone.now() + timedelta(hours=24)
         magic_link = await cls.objects.acreate(user=user, expires_at=_expires_at)
 
         template = loader.get_template('mail/magic_link.html')

@@ -14,7 +14,7 @@ from rockon.tools.models import LinkShortener
 def _is_safe_redirect_url(url: str) -> bool:
     try:
         parsed = urlparse(url)
-    except Exception:
+    except ValueError:
         return False
     if parsed.scheme not in ('http', 'https'):
         return False

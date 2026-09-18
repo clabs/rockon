@@ -19,7 +19,7 @@ class BandReaction(CustomModel):
     emoji = models.CharField(max_length=8)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ('-created_at',)
 
     def __str__(self):
         return f'{self.emoji} by {self.user} on {self.band}'

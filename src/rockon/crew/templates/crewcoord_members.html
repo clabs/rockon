@@ -10,6 +10,21 @@
             {% endfor %}
         {% endif %}
 
+        {% if emergency_contact_missing %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert" id="emergency-contact-reminder">
+                Bitte hinterlege einen <a href="{% url 'base:account' %}">Notfallkontakt in deinem Profil</a>.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                        onclick="try{localStorage.setItem('rockon_dismiss_emergency_contact_reminder','1')}catch(e){}"></button>
+            </div>
+            <script nonce="{{ csp_nonce }}">
+                try {
+                    if (localStorage.getItem('rockon_dismiss_emergency_contact_reminder')) {
+                        document.getElementById('emergency-contact-reminder').classList.add('d-none')
+                    }
+                } catch (e) {}
+            </script>
+        {% endif %}
+
         <form method="get" class="card card-body mb-3">
             <div class="row g-2 align-items-end">
                 <div class="col-md-5">

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from ninja import Router
@@ -41,7 +39,7 @@ def _serialize_timeslot(ts):
     url_name='timeslot_list',
     auth=django_auth,
 )
-def list_timeslots(request, event: Optional[str] = None):
+def list_timeslots(request, event: str | None = None):
     if not _check_booking(request):
         return 403, []
     qs = TimeSlot.objects.select_related('stage', 'day', 'band__track').order_by(

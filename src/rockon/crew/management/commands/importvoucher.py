@@ -43,10 +43,8 @@ class Command(BaseCommand):
         print(f'Event day: {eventday}')
         print(f'File: {file.name}')
 
-        vouchers_list = []
         reader = csv.DictReader(file)
-        for row in reader:
-            vouchers_list.append(row)
+        vouchers_list = list(reader)
 
         eventday = Attendance.objects.get(pk=eventday)
 

@@ -1,19 +1,32 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
+import sentry_sdk
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import File, Router, UploadedFile
 from ninja.security import django_auth
 
 from rockon.api.schemas.band_media import BandMediaOut
-from rockon.bands.models import Band, BandMedia
+from rockon.bands.models import Band, BandMedia, MediaType
+from rockon.library.file_validation import validate_upload
 
 logger = logging.getLogger(__name__)
 
 bandMediaRouter = Router()
+
+_AUDIO_TYPES = {'audio/mpeg', 'audio/wav', 'audio/flac', 'audio/ogg'}
+_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
+_DOCUMENT_TYPES = {'application/pdf'}
+
+_ALLOWED_CONTENT_TYPES_BY_MEDIA_TYPE = {
+    MediaType.AUDIO: _AUDIO_TYPES,
+    MediaType.LOGO: _IMAGE_TYPES,
+    MediaType.PRESS_PHOTO: _IMAGE_TYPES,
+    MediaType.DOCUMENT: _DOCUMENT_TYPES,
+}
 
 
 def _serialize_media(media: BandMedia) -> dict:
@@ -26,6 +39,8 @@ def _serialize_media(media: BandMedia) -> dict:
         'encoded_file': media.encoded_file.url if media.encoded_file else None,
         'file_name_original': media.file_name_original,
         'thumbnail': media.thumbnail.url if media.thumbnail else None,
+        'encode_status': media.encode_status,
+        'encode_error': media.encode_error,
         'created_at': media.created_at,
         'updated_at': media.updated_at,
     }
@@ -37,7 +52,7 @@ def _serialize_media(media: BandMedia) -> dict:
     url_name='band_media_list',
     auth=django_auth,
 )
-def list_media(request, band_id: Optional[str] = None):
+def list_media(request, band_id: str | None = None):
     """List media, optionally filtered by band_id."""
     queryset = BandMedia.objects.all()
     if band_id:
@@ -56,7 +71,7 @@ def list_media(request, band_id: Optional[str] = None):
 )
 def upload_media(
     request,
-    file: Optional[UploadedFile] = File(None),
+    file: UploadedFile | None = File(None),
 ):
     """Create a media entry with optional file upload (multipart) or URL (JSON)."""
     import json
@@ -90,6 +105,14 @@ def upload_media(
             status=403, content='You can only upload media for your own band.'
         )
 
+    if file:
+        allowed_content_types = _ALLOWED_CONTENT_TYPES_BY_MEDIA_TYPE.get(media_type)
+        if allowed_content_types:
+            try:
+                validate_upload(file, allowed_content_types)
+            except ValidationError as exc:
+                return HttpResponse(status=400, content=str(exc))
+
     media = BandMedia(
         band=band_obj,
         media_type=media_type or 'unknown',
@@ -101,6 +124,12 @@ def upload_media(
     media.save()
 
     if file:
+        sentry_sdk.metrics.distribution(
+            'media.upload.size',
+            file.size,
+            unit='byte',
+            attributes={'media_type': media.media_type},
+        )
         media.encode_file()
 
     return 201, _serialize_media(media)
@@ -116,10 +145,9 @@ def delete_media(request, media_id: str):
     """Delete a media entry."""
     media = get_object_or_404(BandMedia, id=media_id)
     user = request.user
-    if not user.is_staff:
-        if not user.bands.filter(id=media.band_id).exists():
-            return HttpResponse(
-                status=403, content='You can only delete media for your own band.'
-            )
+    if not user.is_staff and not user.bands.filter(id=media.band_id).exists():
+        return HttpResponse(
+            status=403, content='You can only delete media for your own band.'
+        )
     media.delete()
     return 204, None

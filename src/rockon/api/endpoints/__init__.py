@@ -1,15 +1,18 @@
 from .account_create import accountCreate
 from .band import bandRouter
-from .exhibitor_admin import exhibitorAdmin
 from .band_media import bandMediaRouter
 from .band_vote import bandVote
 from .bandmember_signup import bandmemberSignupRouter
 from .comment import commentRouter
+from .crew_date_response import crewDateResponse
 from .crew_signup import crewSignupRouter
+from .exhibitor_admin import exhibitorAdmin
 from .exhibitor_signup import exhibitorSignup
 from .mark_voucher import markVoucher
+from .news import newsRouter
 from .passkey import passkeyRouter
 from .request_magic_link import requestMagicLink
+from .team_member_state import teamMemberState
 from .timeslot import timeslotRouter
 from .track import trackRouter
 from .user_email import userEmailRouter
@@ -23,15 +26,18 @@ __all__ = [
     'bandVote',
     'bandmemberSignupRouter',
     'commentRouter',
+    'crewDateResponse',
     'crewSignupRouter',
     'exhibitorAdmin',
     'exhibitorSignup',
     'markVoucher',
+    'newsRouter',
     'passkeyRouter',
     'requestMagicLink',
+    'teamMemberState',
+    'timeslotRouter',
     'trackRouter',
     'userEmailRouter',
     'userProfileRouter',
     'verifyEmailRouter',
-    'timeslotRouter',
 ]

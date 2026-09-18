@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from rockon.base.models import Event
 from rockon.library.custom_model import CustomModel, models
+
 from .team import Team
 
 
@@ -35,12 +36,12 @@ class EventTeam(CustomModel):
 
     class Meta:
         ordering = ('event__start', 'team__name')
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=('event', 'team'),
                 name='crew_event_team_unique_assignment',
-            )
-        ]
+            ),
+        )
 
     def __str__(self) -> str:
         return f'{self.team.name} ({self.event.name})'

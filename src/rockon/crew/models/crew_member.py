@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 
 from rockon.library.custom_model import CustomModel, models
+
 from .attendance import Attendance
 from .crew import Crew
 from .shirt import Shirt
@@ -14,6 +15,7 @@ class CrewMemberStatus(models.TextChoices):
     UNKNOWN = 'unknown', 'Unbekannt'
     CONFIRMED = 'confirmed', 'Bestätigt'
     REJECTED = 'rejected', 'Abgelehnt'
+    DECLINED = 'declined', 'Abgesagt'
 
 
 class CrewMemberNutrion(models.TextChoices):

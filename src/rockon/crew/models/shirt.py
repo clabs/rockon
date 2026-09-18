@@ -28,4 +28,4 @@ class Shirt(CustomModel):
         return f'{self.cut} - {self.size}'
 
     class Meta:
-        ordering = ['cut', 'size']
+        ordering = ('cut', 'size')

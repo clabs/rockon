@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from rockon.library.custom_admin import CustomAdminModel, admin
+
 from .models import Asset, Attendance, Exhibitor, ExhibitorAsset, ExhibitorAttendance
 
 

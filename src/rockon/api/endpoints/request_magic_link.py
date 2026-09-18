@@ -1,5 +1,5 @@
-from ninja import Router
 from django.contrib.auth.models import User
+from ninja import Router
 
 from rockon.api.schemas import RequestMagicLinkIn, RequestMagicLinkOut
 from rockon.base.models import MagicLink

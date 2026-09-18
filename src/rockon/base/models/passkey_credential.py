@@ -24,4 +24,4 @@ class PasskeyCredential(CustomModel):
         return f'{self.user} — {self.name or self.credential_id[:12]}'
 
     class Meta:
-        ordering = ['user', 'created_at']
+        ordering = ('user', 'created_at')

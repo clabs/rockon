@@ -194,3 +194,44 @@
     margin-left: -45vw;
     padding: 0 1rem;
 }
+
+/* ── News feed content ───────────────────────────────────── */
+/* Reset the site's page-chrome heading treatment (brush smear on h1/h2,
+   yellow "__" tag on h3-h6) so headings a news editor types into Markdown
+   read as modest in-article subheadings instead of duplicate page banners. */
+.news-body h1,
+.news-body h2,
+.news-body h3,
+.news-body h4,
+.news-body h5,
+.news-body h6 {
+    display: block;
+    padding: 0;
+    text-shadow: none;
+    font-weight: 700;
+    margin: 1.25rem 0 0.5rem;
+}
+.news-body h1::before,
+.news-body h2::before,
+.news-body h3::after,
+.news-body h4::after,
+.news-body h5::after,
+.news-body h6::after {
+    content: none;
+}
+.news-body h1,
+.news-body h2 {
+    font-size: 1.3rem;
+}
+.news-body h3 {
+    font-size: 1.2rem;
+}
+.news-body h4,
+.news-body h5,
+.news-body h6 {
+    font-size: 1.05rem;
+}
+.news-body img {
+    max-width: 100%;
+    height: auto;
+}

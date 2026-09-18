@@ -25,4 +25,4 @@ class Organisation(CustomModel):
         return self.org_name
 
     class Meta:
-        ordering = ['org_name']
+        ordering = ('org_name',)

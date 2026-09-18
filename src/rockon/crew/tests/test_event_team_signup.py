@@ -4,8 +4,7 @@ import json
 from datetime import date, timedelta
 from unittest.mock import patch
 
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.urls import reverse
 

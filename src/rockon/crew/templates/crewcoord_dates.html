@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container-fluid">
+        <h2>Termine</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.level_tag == 'error' %}danger{% else %}{{ message.tags|default:'secondary' }}{% endif %}" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% if not has_crew %}
+            <div class="alert alert-secondary" role="alert">Keine Crew für dieses Event konfiguriert.</div>
+        {% else %}
+            {% for crew_date in dates %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <form method="post" class="row g-2 align-items-end">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update">
+                            <input type="hidden" name="crew_date_id" value="{{ crew_date.id }}">
+                            <div class="col-md-3">
+                                <label class="form-label" for="title_{{ crew_date.id }}">Titel</label>
+                                <input type="text" class="form-control" id="title_{{ crew_date.id }}" name="title" value="{{ crew_date.title }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="description_{{ crew_date.id }}">Beschreibung</label>
+                                <input type="text" class="form-control" id="description_{{ crew_date.id }}" name="description" value="{{ crew_date.description }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label" for="date_{{ crew_date.id }}">Datum</label>
+                                <input type="date" class="form-control" id="date_{{ crew_date.id }}" name="date" value="{{ crew_date.date|date:'Y-m-d' }}" required>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label" for="start_time_{{ crew_date.id }}">Von</label>
+                                <input type="time" class="form-control" id="start_time_{{ crew_date.id }}" name="start_time" value="{{ crew_date.start_time|time:'H:i' }}" required>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label" for="end_time_{{ crew_date.id }}">Bis</label>
+                                <input type="time" class="form-control" id="end_time_{{ crew_date.id }}" name="end_time" value="{{ crew_date.end_time|time:'H:i' }}" required>
+                            </div>
+                            <div class="col-md-2 d-flex gap-2">
+                                <button class="btn btn-primary" type="submit">Speichern</button>
+                            </div>
+                        </form>
+                        <form method="post" class="mt-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="crew_date_id" value="{{ crew_date.id }}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Termin löschen</button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-secondary" role="alert">Noch keine Termine angelegt.</div>
+            {% endfor %}
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Neuen Termin anlegen</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="row g-2 align-items-end">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="create">
+                        <div class="col-md-3">
+                            <label class="form-label" for="new_title">Titel</label>
+                            <input type="text" class="form-control" id="new_title" name="title" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="new_description">Beschreibung</label>
+                            <input type="text" class="form-control" id="new_description" name="description">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" for="new_date">Datum</label>
+                            <input type="date" class="form-control" id="new_date" name="date" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label" for="new_start_time">Von</label>
+                            <input type="time" class="form-control" id="new_start_time" name="start_time" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label" for="new_end_time">Bis</label>
+                            <input type="time" class="form-control" id="new_end_time" name="end_time" required>
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <button class="btn btn-primary" type="submit">Anlegen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}

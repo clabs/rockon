@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional
+import logging
 
+from django.conf import settings
+from django.contrib.auth.models import Group
 from django.db.models import Prefetch
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template import loader
 from ninja import Router
 from ninja.security import django_auth
 
@@ -15,8 +18,26 @@ from rockon.api.schemas.band import (
     BandPatchOut,
 )
 from rockon.bands.models import Band, BandMedia
+from rockon.library.mailer import get_admin_url, send_mail_async
+
+logger = logging.getLogger(__name__)
 
 bandRouter = Router()
+
+# BandPatchIn fields that belong to the applicant's bid form, as opposed to
+# booking-only fields (bid_status, track) — used to avoid notifying booking
+# about its own bid_status/track edits.
+_BID_FORM_FIELDS = (
+    'name',
+    'genre',
+    'federal_state',
+    'cover_letter',
+    'are_students',
+    'mean_age_under_27',
+    'average_age',
+    'is_coverband',
+    'is_flinta',
+)
 
 # Fields needed for the list serializer — everything else is deferred.
 _BAND_LIST_FIELDS = (
@@ -29,6 +50,7 @@ _BAND_LIST_FIELDS = (
     'are_students',
     'mean_age_under_27',
     'is_coverband',
+    'is_flinta',
     'bid_complete',
     'created_at',
     'updated_at',
@@ -96,6 +118,7 @@ def _serialize_band_list(band):
         'are_students': band.are_students,
         'mean_age_under_27': band.mean_age_under_27,
         'is_coverband': band.is_coverband,
+        'is_flinta': band.is_flinta,
         'bid_complete': band.bid_complete,
         'press_photo': _serialize_media_file(press_photo),
         'logo': _serialize_media_file(logo),
@@ -137,8 +160,9 @@ def _serialize_band_detail(band):
         'federal_state': band.federal_state,
         'are_students': band.are_students,
         'mean_age_under_27': band.mean_age_under_27,
+        'average_age': band.average_age,
         'is_coverband': band.is_coverband,
-        'has_management': band.has_management,
+        'is_flinta': band.is_flinta,
         'repeated': band.repeated,
         'bid_complete': band.bid_complete,
         'genre': band.genre,
@@ -161,7 +185,7 @@ def _serialize_band_detail(band):
     url_name='band_list',
     auth=django_auth,
 )
-def list_bands(request, event: Optional[str] = None):
+def list_bands(request, event: str | None = None):
     """List all bands, optionally filtered by event slug."""
     media_qs = BandMedia.objects.filter(
         media_type__in=_MEDIA_LIST_TYPES,
@@ -211,6 +235,11 @@ def patch_band(request, band_id: str, data: BandPatchIn):
     if not (is_admin or is_owner or is_crew):
         return 403, None
 
+    had_complete = band.bid_complete
+    bid_fields_touched = any(
+        getattr(data, field) is not None for field in _BID_FORM_FIELDS
+    )
+
     # bid_status requires 'booking' group
     if data.bid_status is not None:
         if not user.groups.filter(name='booking').exists():
@@ -231,14 +260,21 @@ def patch_band(request, band_id: str, data: BandPatchIn):
         band.cover_letter = data.cover_letter
     if data.are_students is not None:
         band.are_students = data.are_students
-    if data.has_management is not None:
-        band.has_management = data.has_management
     if data.mean_age_under_27 is not None:
         band.mean_age_under_27 = data.mean_age_under_27
+    if data.average_age is not None:
+        band.average_age = data.average_age
     if data.is_coverband is not None:
         band.is_coverband = data.is_coverband
+    if data.is_flinta is not None:
+        band.is_flinta = data.is_flinta
 
     band.save()
+
+    if bid_fields_touched and band.bid_complete:
+        _send_booking_notification(
+            band, notification_type='updated' if had_complete else 'created'
+        )
 
     return {
         'id': str(band.id),
@@ -247,3 +283,51 @@ def patch_band(request, band_id: str, data: BandPatchIn):
         'bid_complete': band.bid_complete,
         'updated_at': band.updated_at,
     }
+
+
+def _send_booking_notification(band, notification_type: str = 'created'):
+    """Notify booking about a new or updated complete band bid. Failures are logged, never block the response."""
+    try:
+        recipients = list(
+            Group.objects.get(name='booking').user_set.values_list('email', flat=True)
+        )
+        if not recipients:
+            return
+
+        admin_url = get_admin_url(band)
+        is_update = notification_type == 'updated'
+        intro_text = (
+            f'eine bestehende Bandbewerbung bei {band.event.name} wurde aktualisiert.'
+            if is_update
+            else f'es gibt eine neue vollständige Bandbewerbung bei {band.event.name}.'
+        )
+        subject = (
+            f'{settings.EMAIL_SUBJECT_PREFIX} Bandbewerbung aktualisiert'
+            if is_update
+            else f'{settings.EMAIL_SUBJECT_PREFIX} Neue Bandbewerbung'
+        )
+
+        template = loader.get_template('mail/band_bid.html')
+        extra_context = {
+            'event_name': band.event.name,
+            'band_name': band.name,
+            'genre': band.genre,
+            'admin_url': admin_url,
+            'is_update': is_update,
+        }
+
+        message = f'Hallo Booking,\n{intro_text}\nBand: {band.name}'
+        if band.genre:
+            message += f'\nGenre: {band.genre}'
+        message += f'\n\nIm Admin ansehen: {admin_url}'
+
+        send_mail_async(
+            subject=subject,
+            message=message,
+            recipient_list=recipients,
+            html_message=template.render(extra_context),
+        )
+    except Group.DoesNotExist:
+        pass  # No booking group configured
+    except Exception:
+        logger.exception('Error sending band bid notification')

@@ -25,10 +25,10 @@ class EmailVerification(CustomModel):
         return str(self.id)
 
     class Meta:
-        ordering = ['user']
+        ordering = ('user',)
 
     @classmethod
-    def create_and_send(cls, user: User, new_email: str = None) -> None:
+    def create_and_send(cls, user: User, new_email: str | None = None) -> None:
         """Creates a verification link and sends email to the user."""
 
         email_verifcation = cls.objects.create(user=user, new_email=new_email)
@@ -48,6 +48,6 @@ class EmailVerification(CustomModel):
         send_mail_async(
             subject=extra_context['subject'],
             message=f'Hallo {user.first_name},\nbitte bestätige deine E-Mail-Adresse in dem du diesen Link aufrufst:\n{extra_context["url"]}\n\nSolltest du dich nicht bei unserem rockon-System angemeldet haben, kannst du diese Mail einfach ignorieren, wir werden dir keine weiteren Nachrichten senden.\n\nBis dahin, rockon',
-            recipient_list=[f'{user.email}'],
+            recipient_list=[new_email or user.email],
             html_message=template.render(extra_context),
         )

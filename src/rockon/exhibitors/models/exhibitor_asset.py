@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from rockon.library.custom_model import CustomModel, models
+
 from .asset import Asset
 
 
@@ -17,4 +18,4 @@ class ExhibitorAsset(CustomModel):
         return self.asset.name
 
     class Meta:
-        ordering = ['asset']
+        ordering = ('asset',)

@@ -23,6 +23,11 @@ const CREW_STATE_ALERTS = {
         title: 'Status: Abgelehnt.',
         message: 'Deine Anmeldung wurde aktuell nicht bestätigt. Du kannst deine Angaben weiterhin bearbeiten und erneut absenden.',
     },
+    declined: {
+        className: 'alert-danger',
+        title: 'Status: Zurückgezogen.',
+        message: 'Deine Anmeldung wurde zurückgezogen. Du kannst deine Angaben weiterhin bearbeiten und erneut absenden.',
+    },
 }
 
 const READ_ONLY_STATES = ['confirmed']

@@ -8,10 +8,12 @@ from .band import (
     BandPatchOut,
     UserOut,
 )
-from .band_media import BandMediaIn, BandMediaOut as BandMediaFullOut
+from .band_media import BandMediaIn
+from .band_media import BandMediaOut as BandMediaFullOut
 from .band_vote import BandVoteIn, BandVoteOut
 from .bandmember import BandMemberSignupIn, PersonIn
 from .comment import CommentIn, CommentOut, CommentUserOut
+from .crew_date_response import CrewDateResponseIn, CrewDateResponseOut
 from .crew_signup import CrewSignupIn
 from .exhibitor_signup import ExhibitorSignupIn, ExhibitorSignupOut
 from .mark_voucher import MarkVoucherIn
@@ -46,6 +48,8 @@ __all__ = [
     'CommentIn',
     'CommentOut',
     'CommentUserOut',
+    'CrewDateResponseIn',
+    'CrewDateResponseOut',
     'CrewSignupIn',
     'ExhibitorSignupIn',
     'ExhibitorSignupOut',

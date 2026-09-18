@@ -4478,5 +4478,33 @@
         ]
       ]
     }
+  },
+  {
+    "model": "auth.group",
+    "fields": {
+      "name": "news_editors",
+      "permissions": [
+        [
+          "add_newspost",
+          "rockonnews",
+          "newspost"
+        ],
+        [
+          "change_newspost",
+          "rockonnews",
+          "newspost"
+        ],
+        [
+          "delete_newspost",
+          "rockonnews",
+          "newspost"
+        ],
+        [
+          "view_newspost",
+          "rockonnews",
+          "newspost"
+        ]
+      ]
+    }
   }
 ]

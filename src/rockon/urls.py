@@ -34,6 +34,7 @@ urlpatterns = [
     path('event/<slug:slug>/bands/', include('rockon.bands.urls', namespace='bands')),
     path('event/<slug:slug>/crew/', include('rockon.crew.urls', namespace='crew')),
     path('account/', include('rockon.base.urls', namespace='base')),
+    path('news/', include('rockon.news.urls', namespace='news')),
     path(
         'event/<slug:slug>/exhibitors/',
         include('rockon.exhibitors.urls', namespace='exhibitors'),

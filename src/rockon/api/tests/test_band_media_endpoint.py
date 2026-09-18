@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from rockon.bands.models import Band, BandMedia
@@ -227,6 +229,94 @@ class BandMediaUploadEndpointTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 201)
+
+    def test_upload_rejects_file_content_not_matching_media_type(self):
+        self.client.force_login(self.owner)
+        # PNG magic bytes, but claimed as an mp3 audio upload.
+        fake_audio = SimpleUploadedFile(
+            'track.mp3', b'\x89PNG\r\n\x1a\n' + b'\x00' * 32, content_type='audio/mpeg'
+        )
+
+        response = self.client.post(
+            '/api/v2/band-media/upload/',
+            data={'band': str(self.band.id), 'media_type': 'audio', 'file': fake_audio},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(BandMedia.objects.filter(band=self.band).exists())
+
+    def test_upload_rejects_extension_mismatching_sniffed_content(self):
+        self.client.force_login(self.owner)
+        # Real PNG bytes, but with a .jpg extension and claimed as a logo.
+        mislabeled_logo = SimpleUploadedFile(
+            'logo.jpg', b'\x89PNG\r\n\x1a\n' + b'\x00' * 32, content_type='image/jpeg'
+        )
+
+        response = self.client.post(
+            '/api/v2/band-media/upload/',
+            data={
+                'band': str(self.band.id),
+                'media_type': 'logo',
+                'file': mislabeled_logo,
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_upload_accepts_file_matching_media_type(self):
+        self.client.force_login(self.owner)
+        real_logo = SimpleUploadedFile(
+            'logo.png', b'\x89PNG\r\n\x1a\n' + b'\x00' * 32, content_type='image/png'
+        )
+
+        response = self.client.post(
+            '/api/v2/band-media/upload/',
+            data={'band': str(self.band.id), 'media_type': 'logo', 'file': real_logo},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(
+            BandMedia.objects.filter(band=self.band, media_type='logo').exists()
+        )
+
+    @patch('rockon.api.endpoints.band_media.sentry_sdk.metrics.distribution')
+    def test_upload_with_file_reports_size_metric(self, distribution):
+        self.client.force_login(self.owner)
+        real_logo = SimpleUploadedFile(
+            'logo.png', b'\x89PNG\r\n\x1a\n' + b'\x00' * 32, content_type='image/png'
+        )
+
+        response = self.client.post(
+            '/api/v2/band-media/upload/',
+            data={'band': str(self.band.id), 'media_type': 'logo', 'file': real_logo},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        distribution.assert_called_once_with(
+            'media.upload.size',
+            real_logo.size,
+            unit='byte',
+            attributes={'media_type': 'logo'},
+        )
+
+    @patch('rockon.api.endpoints.band_media.sentry_sdk.metrics.distribution')
+    def test_upload_url_only_does_not_report_size_metric(self, distribution):
+        self.client.force_login(self.owner)
+
+        response = self.client.post(
+            '/api/v2/band-media/upload/',
+            data=json.dumps(
+                {
+                    'band': str(self.band.id),
+                    'media_type': 'link',
+                    'url': 'https://example.com/link',
+                }
+            ),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        distribution.assert_not_called()
 
 
 class BandMediaDeleteEndpointTests(TestCase):

@@ -26,7 +26,9 @@ def update_user_profile(request, data: UserProfileIn):
     profile = user.profile
 
     profile.nick_name = data.nick_name
+    profile.pronouns = data.pronouns
     profile.phone = data.phone
+    profile.emergency_contact = data.emergency_contact
     profile.address = data.address
     profile.address_extension = data.address_extension
     profile.address_housenumber = data.address_housenumber

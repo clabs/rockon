@@ -4,7 +4,7 @@ import io
 import math
 import tempfile
 import zipfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import openpyxl
 import openpyxl.utils
@@ -61,7 +61,7 @@ def exhibitor_export(request, slug: str):
         .order_by('organisation__org_name')
     )
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     ts = now.strftime('%Y%m%d-%H%M%S')
 
     org_width = min(
@@ -149,7 +149,7 @@ def exhibitor_export(request, slug: str):
     xlsx_buf = io.BytesIO()
     wb.save(xlsx_buf)
 
-    tmp = tempfile.TemporaryFile()
+    tmp = tempfile.TemporaryFile()  # noqa: SIM115 - stays open for FileResponse, closed by Django after streaming
     with zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.writestr('exhibitors.xlsx', xlsx_buf.getvalue())
         zf.writestr(f'export-{ts}.txt', '')

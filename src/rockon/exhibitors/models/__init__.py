@@ -10,7 +10,7 @@ __all__ = [
     'Asset',
     'Attendance',
     'Exhibitor',
-    'ExhibitorStatus',
     'ExhibitorAsset',
     'ExhibitorAttendance',
+    'ExhibitorStatus',
 ]

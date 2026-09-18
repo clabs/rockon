@@ -6,7 +6,7 @@ from rockon.base.services import get_current_event_for_request
 
 
 def is_crewmember(request):
-    if getattr(request, 'user') and request.user.is_authenticated:
+    if request.user and request.user.is_authenticated:
         current_event = get_current_event_for_request(request)
         if current_event is not None:
             try:

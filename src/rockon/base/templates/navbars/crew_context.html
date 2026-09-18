@@ -19,6 +19,7 @@
                 <a class="dropdown-item" href="{% url 'crew:coord_members' slug=current_event.slug %}">Crewmitglieder</a>
                 <a class="dropdown-item" href="{% url 'crew:coord_tshirts' slug=current_event.slug %}">T-Shirts</a>
                 <a class="dropdown-item" href="{% url 'crew:coord_teams' slug=current_event.slug %}">Teamverwaltung</a>
+                <a class="dropdown-item" href="{% url 'crew:coord_dates' slug=current_event.slug %}">Termine verwalten</a>
             </div>
         </li>
     {% endif %}

@@ -399,6 +399,19 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 g-4">
+                        <label for="pronouns">Pronomen</label>
+                        <input type="text" class="form-control" id="pronouns" placeholder="sie/ihr"
+                               value="{{ user.profile.pronouns|default_if_none:"" }}">
+                    </div>
+                    <div class="col-md-6 g-4">
+                        <label for="emergency_contact">Notfallkontakt</label>
+                        <input type="text" class="form-control" id="emergency_contact"
+                               placeholder="Name, Telefonnummer, Beziehung"
+                               value="{{ user.profile.emergency_contact|default_if_none:"" }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 g-4">
                         <label for="address">Adresse</label>
                         <input type="text" class="form-control" id="address" placeholder="Am Geldspeicher"
                                value="{{ user.profile.address|default_if_none:"" }}">

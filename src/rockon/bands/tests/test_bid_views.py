@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
@@ -106,7 +107,8 @@ class BidViewTests(TestCase):
             fetch_redirect_response=False,
         )
 
-    def test_bid_router_creates_band_for_authenticated_user(self):
+    @patch('rockon.bands.views.bid.sentry_sdk.metrics.count')
+    def test_bid_router_creates_band_for_authenticated_user(self, count):
         self.client.force_login(self.other_user)
 
         response = self.client.get(
@@ -121,6 +123,9 @@ class BidViewTests(TestCase):
                 kwargs={'slug': self.event.slug, 'guid': band.guid},
             ),
             fetch_redirect_response=False,
+        )
+        count.assert_called_once_with(
+            'bid.started', 1, attributes={'event': self.event.slug}
         )
 
     def test_bid_router_reuses_existing_band_for_authenticated_user(self):

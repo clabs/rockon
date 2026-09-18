@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import webauthn
 import webauthn.helpers.structs
@@ -196,7 +196,7 @@ def auth_complete(request, data: PasskeyAuthCompleteIn):
         }
 
     stored.sign_count = verification.new_sign_count
-    stored.last_used_at = datetime.now(tz=timezone.utc)
+    stored.last_used_at = datetime.now(tz=UTC)
     stored.save(update_fields=['sign_count', 'last_used_at'])
 
     # Store the verified user ID in the session for the login redirect view.

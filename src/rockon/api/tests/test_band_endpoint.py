@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
@@ -74,6 +75,19 @@ class BandEndpointTests(TestCase):
             event=self.other_event,
             name='Other Band',
             bid_status=BidStatus.UNKNOWN,
+        )
+
+    def _add_required_media(self, band: Band) -> None:
+        """Attach the media BandMedia needs for check_bid_complete() to pass."""
+        for i in range(3):
+            BandMedia.objects.create(
+                band=band, media_type='audio', url=f'https://example.com/song{i}.mp3'
+            )
+        BandMedia.objects.create(
+            band=band, media_type='link', url='https://example.com/link'
+        )
+        BandMedia.objects.create(
+            band=band, media_type='press_photo', url='https://example.com/press.jpg'
         )
 
     def test_list_requires_authentication(self):
@@ -153,9 +167,10 @@ class BandEndpointTests(TestCase):
                     'federal_state': 'berlin',
                     'cover_letter': 'Hello',
                     'are_students': True,
-                    'has_management': True,
                     'mean_age_under_27': True,
+                    'average_age': 24,
                     'is_coverband': False,
+                    'is_flinta': True,
                     'track': str(self.track.id),
                 }
             ),
@@ -168,8 +183,9 @@ class BandEndpointTests(TestCase):
         self.assertEqual(self.band.genre, 'Rock')
         self.assertEqual(self.band.track_id, self.track.id)
         self.assertTrue(self.band.are_students)
-        self.assertTrue(self.band.has_management)
         self.assertTrue(self.band.mean_age_under_27)
+        self.assertEqual(self.band.average_age, 24)
+        self.assertTrue(self.band.is_flinta)
 
     def test_patch_bid_status_requires_booking_group(self):
         self.client.force_login(self.owner)
@@ -223,3 +239,142 @@ class BandEndpointTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    @patch('rockon.api.endpoints.band.send_mail_async')
+    def test_patch_completing_bid_sends_created_notification_to_booking(
+        self, send_mail_async
+    ):
+        self._add_required_media(self.band)
+        booking_group = Group.objects.create(name='booking')
+        notified_user = User.objects.create_user(
+            username='booking-user',
+            email='booking@example.com',
+            password='secret',
+        )
+        booking_group.user_set.add(notified_user)
+        self.client.force_login(self.owner)
+
+        response = self.client.patch(
+            f'/api/v2/bands/{self.band.id}',
+            data=json.dumps(
+                {
+                    'genre': 'Rock',
+                    'federal_state': 'berlin',
+                    'cover_letter': 'Hello',
+                }
+            ),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['bid_complete'])
+        send_mail_async.assert_called_once()
+        call_kwargs = send_mail_async.call_args.kwargs
+        self.assertTrue(call_kwargs['subject'].endswith('Neue Bandbewerbung'))
+        self.assertIn('booking@example.com', call_kwargs['recipient_list'])
+
+    @patch('rockon.api.endpoints.band.send_mail_async')
+    def test_patch_editing_complete_bid_sends_updated_notification(
+        self, send_mail_async
+    ):
+        self._add_required_media(self.band)
+        booking_group = Group.objects.create(name='booking')
+        notified_user = User.objects.create_user(
+            username='booking-user',
+            email='booking@example.com',
+            password='secret',
+        )
+        booking_group.user_set.add(notified_user)
+        self.client.force_login(self.owner)
+
+        self.client.patch(
+            f'/api/v2/bands/{self.band.id}',
+            data=json.dumps(
+                {
+                    'genre': 'Rock',
+                    'federal_state': 'berlin',
+                    'cover_letter': 'Hello',
+                }
+            ),
+            content_type='application/json',
+        )
+        send_mail_async.reset_mock()
+
+        response = self.client.patch(
+            f'/api/v2/bands/{self.band.id}',
+            data=json.dumps({'cover_letter': 'Updated cover letter'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        send_mail_async.assert_called_once()
+        call_kwargs = send_mail_async.call_args.kwargs
+        self.assertTrue(call_kwargs['subject'].endswith('Bandbewerbung aktualisiert'))
+
+    @patch('rockon.api.endpoints.band.send_mail_async')
+    def test_patch_bid_status_only_does_not_notify_booking(self, send_mail_async):
+        self._add_required_media(self.band)
+        self.band.genre = 'Rock'
+        self.band.federal_state = 'berlin'
+        self.band.cover_letter = 'Hello'
+        self.band.save()
+        self.assertTrue(self.band.bid_complete)
+
+        booking_group, _ = Group.objects.get_or_create(name='booking')
+        self.owner.groups.add(booking_group)
+        self.client.force_login(self.owner)
+
+        response = self.client.patch(
+            f'/api/v2/bands/{self.band.id}',
+            data=json.dumps({'bid_status': BidStatus.ACCEPTED}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        send_mail_async.assert_not_called()
+
+    @patch('rockon.api.endpoints.band.send_mail_async')
+    def test_patch_leaving_bid_incomplete_does_not_notify_booking(
+        self, send_mail_async
+    ):
+        booking_group = Group.objects.create(name='booking')
+        notified_user = User.objects.create_user(
+            username='booking-user',
+            email='booking@example.com',
+            password='secret',
+        )
+        booking_group.user_set.add(notified_user)
+        self.client.force_login(self.crew_user)
+
+        response = self.client.patch(
+            f'/api/v2/bands/{self.other_band.id}',
+            data=json.dumps({'name': 'Still Incomplete', 'genre': 'Rock'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()['bid_complete'])
+        send_mail_async.assert_not_called()
+
+    @patch('rockon.api.endpoints.band.send_mail_async')
+    def test_patch_completing_bid_without_booking_group_does_not_notify(
+        self, send_mail_async
+    ):
+        self._add_required_media(self.band)
+        self.client.force_login(self.owner)
+
+        response = self.client.patch(
+            f'/api/v2/bands/{self.band.id}',
+            data=json.dumps(
+                {
+                    'genre': 'Rock',
+                    'federal_state': 'berlin',
+                    'cover_letter': 'Hello',
+                }
+            ),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['bid_complete'])
+        send_mail_async.assert_not_called()

@@ -936,8 +936,6 @@ const BandTags = Vue.defineComponent({
       </template>
       <template v-else>
         <span v-if="!selectedBandDetails.bid_complete" class="badge text-bg-warning m-1">Bewerbung unvollständig!</span>
-        <span v-if="selectedBandDetails.has_management" class="badge text-bg-warning m-1">Management</span>
-        <span v-if="!selectedBandDetails.has_management" class="badge text-bg-success m-1">Kein Management</span>
         <span v-if="selectedBandDetails.is_coverband" class="badge text-bg-warning m-1">Coverband</span>
         <span v-if="selectedBandDetails.repeated" class="badge text-bg-warning m-1">Wiederholer</span>
         <span v-if="!selectedBandDetails.repeated" class="badge text-bg-primary m-1">Neu</span>
@@ -947,6 +945,7 @@ const BandTags = Vue.defineComponent({
       </template>
       <span v-if="selectedBandDetails.are_students" class="badge text-bg-success m-1">Schülerband</span>
       <span v-if="selectedBandDetails.mean_age_under_27" class="badge text-bg-success m-1">Unter 27</span>
+      <span v-if="selectedBandDetails.is_flinta" class="badge text-bg-success m-1">FLINTA</span>
     </div>
   `
 })
