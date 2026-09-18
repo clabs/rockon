@@ -388,6 +388,20 @@ class CrewCoordTeamManagementTests(TestCase):
         self.assertContains(response, 'Alice Member')
         self.assertNotContains(response, 'Other Event')
 
+    def test_coord_members_view_shows_emergency_contact_reminder_until_set(self):
+        self.client.force_login(self.crewcoord_user)
+
+        response = self.client.get(self._members_url(self.event_one.slug))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Notfallkontakt in deinem Profil')
+
+        self.crewcoord_user.profile.emergency_contact = 'Jane Doe, 030987654'
+        self.crewcoord_user.profile.save()
+
+        response = self.client.get(self._members_url(self.event_one.slug))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Notfallkontakt in deinem Profil')
+
     def test_coord_members_view_updates_member_state_for_current_event_only(self):
         self.client.force_login(self.crewcoord_user)
 

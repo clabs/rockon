@@ -115,5 +115,6 @@ def crew_member_management(request, slug):
         'member_states': member_states,
         'selected_state': selected_state,
         'search_query': search_query,
+        'emergency_contact_missing': not request.user.profile.emergency_contact,
     }
     return HttpResponse(template.render(extra_context, request))

@@ -7,7 +7,9 @@ class UserProfileIn(Schema):
     first_name: str
     last_name: str
     nick_name: str = ''
+    pronouns: str = ''
     phone: str = ''
+    emergency_contact: str = ''
     address: str = ''
     address_extension: str = ''
     address_housenumber: str = ''

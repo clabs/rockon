@@ -101,6 +101,25 @@ class JoinViewTests(TestCase):
         self.assertEqual(initial_form_data['skill_ids'], [])
 
     @patch('rockon.crew.views.join.loader.get_template')
+    def test_emergency_contact_missing_flag_reflects_profile_state(self, get_template):
+        self._complete_profile()
+        self.client.force_login(self.user)
+        get_template.return_value.render.return_value = ''
+
+        response = self.client.get(self._url(self.event.slug))
+        self.assertEqual(response.status_code, 200)
+        extra_context, _request = get_template.return_value.render.call_args.args
+        self.assertTrue(extra_context['emergency_contact_missing'])
+
+        self.user.profile.emergency_contact = 'Jane Doe, 030987654'
+        self.user.profile.save()
+
+        response = self.client.get(self._url(self.event.slug))
+        self.assertEqual(response.status_code, 200)
+        extra_context, _request = get_template.return_value.render.call_args.args
+        self.assertFalse(extra_context['emergency_contact_missing'])
+
+    @patch('rockon.crew.views.join.loader.get_template')
     def test_confirmed_signup_is_readonly(self, get_template):
         self._complete_profile()
         self.client.force_login(self.user)

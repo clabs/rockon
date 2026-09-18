@@ -17,8 +17,12 @@ class UserProfile(CustomModel):
         unique=True,
     )
     nick_name = models.CharField(max_length=255, null=True, default=None, blank=True)
+    pronouns = models.CharField(max_length=100, null=True, default=None, blank=True)
     email_is_verified = models.BooleanField(default=False)
     phone = models.CharField(max_length=255, null=True, default=None, blank=True)
+    emergency_contact = models.CharField(
+        max_length=255, null=True, default=None, blank=True
+    )
     address = models.CharField(max_length=255, null=True, default=None, blank=True)
     address_extension = models.CharField(
         max_length=255, null=True, default=None, blank=True

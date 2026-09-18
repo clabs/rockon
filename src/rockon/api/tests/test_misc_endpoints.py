@@ -108,7 +108,9 @@ class MiscApiEndpointsTests(TestCase):
                     'first_name': 'Renamed',
                     'last_name': 'User',
                     'nick_name': 'Rockstar',
+                    'pronouns': 'sie/ihr',
                     'phone': '030123456',
+                    'emergency_contact': 'Jane Doe, 030987654',
                     'address': 'Teststrasse',
                     'address_extension': '2. OG',
                     'address_housenumber': '42',
@@ -129,7 +131,9 @@ class MiscApiEndpointsTests(TestCase):
         self.assertEqual(self.user.first_name, 'Renamed')
         self.assertEqual(self.user.last_name, 'User')
         self.assertEqual(self.user.profile.nick_name, 'Rockstar')
+        self.assertEqual(self.user.profile.pronouns, 'sie/ihr')
         self.assertEqual(self.user.profile.phone, '030123456')
+        self.assertEqual(self.user.profile.emergency_contact, 'Jane Doe, 030987654')
         self.assertEqual(self.user.profile.birthday.isoformat(), '1990-01-01')
 
     def test_verify_email_returns_error_for_unknown_token(self):

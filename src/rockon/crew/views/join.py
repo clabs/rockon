@@ -225,6 +225,7 @@ def join(request, slug):
         'form_is_readonly': form_is_readonly,
         'event_name': event.name,
         'event_image_url': event.get_image_url(),
+        'emergency_contact_missing': not request.user.profile.emergency_contact,
     }
     return HttpResponse(template.render(extra_context, request))
 
