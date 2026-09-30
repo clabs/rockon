@@ -170,6 +170,7 @@
                         <div class="col">
                             <input type="file" id="selectedFileDocument" style="display: none;"/>
                             <button type="button" id="selectNewDocument" class="btn btn-primary">Neues Dokument</button>
+                            <div class="form-text">Alle Dateiformate (z.&nbsp;B. PDF, DOCX, ODT) außer HTML, SVG und JavaScript.</div>
                         </div>
                     </div>
                 </div>
@@ -210,23 +211,23 @@
                     <div>
                         <h4>Pressefoto</h4>
                     </div>
-                    <img id="bandPressPhoto" src="
-
-                            {% static 'assets/4_3_placeholder.webp' as placeholder_image %}{{ media_by_type.press_photo.last.file.url|default:placeholder_image }}"
+                    {% static 'assets/4_3_placeholder.webp' as placeholder_image %}
+                    <img id="bandPressPhoto" src="{{ press_photo.file.url|default:placeholder_image }}"
                          class="img-fluid rounded" style="cursor: pointer;"
                          title="Klick hier, um ein Bild hochzuladen"/>
-                    <input type="file" id="fileInputBandPressPhoto" class="d-none"/>
+                    <input type="file" id="fileInputBandPressPhoto" class="d-none" accept="{{ upload_accept.image }}"/>
+                    <div class="form-text">Erlaubte Formate: JPG, PNG, WEBP</div>
                 </div>
                 <div class="col-lg-4">
                     <div>
                         <h4>Bandlogo</h4>
                     </div>
-                    <img id="bandLogo" src="
-
-                            {% static 'assets/4_3_placeholder.webp' as placeholder_image %}{{ media_by_type.logo.last.file.url|default:placeholder_image }}"
+                    {% static 'assets/4_3_placeholder.webp' as placeholder_image %}
+                    <img id="bandLogo" src="{{ logo.file.url|default:placeholder_image }}"
                          class="img-fluid rounded" style="cursor: pointer;"
                          title="Klick hier, um ein Bild hochzuladen"/>
-                    <input type="file" id="fileInputBandLogo" class="d-none"/>
+                    <input type="file" id="fileInputBandLogo" class="d-none" accept="{{ upload_accept.image }}"/>
+                    <div class="form-text">Erlaubte Formate: JPG, PNG, WEBP</div>
                 </div>
             </div>
         </section>
@@ -252,8 +253,9 @@
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <input type="file" id="selectedSong" style="display: none;"/>
+                                    <input type="file" id="selectedSong" style="display: none;" accept="{{ upload_accept.audio }}"/>
                                     <button type="button" id="selectNewSong" class="btn btn-primary">Neuer Song</button>
+                                    <div class="form-text">Erlaubte Formate: MP3, M4A, AAC, WAV, FLAC, OGG</div>
                                 </div>
                             </div>
                         </div>

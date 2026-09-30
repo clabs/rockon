@@ -13,7 +13,13 @@ from rockon.base.models import Event, PasskeyCredential
 from rockon.base.services import (
     assign_account_context_group,
     get_fallback_event_for_user,
+    get_open_application_event,
 )
+
+
+def _get_band_target_event(user) -> Event | None:
+    """Send band users to the event that currently accepts applications, if any."""
+    return get_open_application_event() or get_fallback_event_for_user(user)
 
 
 @login_required
@@ -76,7 +82,7 @@ def login_token(request, token):
     if not user.groups.all().exists():
         next_url = reverse('base:select_context')
     elif user.groups.filter(name='bands').exists():
-        target_event = get_fallback_event_for_user(user) or current_event
+        target_event = _get_band_target_event(user) or current_event
         next_url = reverse('bands:bid_router', kwargs={'slug': target_event.slug})
     else:
         next_url = reverse('crm_user_home')
@@ -128,7 +134,7 @@ def passkey_login_redirect(request):
         return redirect(reverse('base:select_context'))
 
     if user.groups.filter(name='bands').exists():
-        target_event = get_fallback_event_for_user(user) or current_event
+        target_event = _get_band_target_event(user) or current_event
         return redirect(reverse('bands:bid_router', kwargs={'slug': target_event.slug}))
 
     return redirect(reverse('crm_user_home'))

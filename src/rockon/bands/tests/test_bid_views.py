@@ -4,11 +4,12 @@ from datetime import date, timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
+from django.templatetags.static import static
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from rockon.bands.models import Band
+from rockon.bands.models import Band, BandMedia, MediaType
 from rockon.bands.views.bid import _can_vote_on_bands
 from rockon.base.models import Event
 from rockon.base.models.event import SignUpType
@@ -166,3 +167,54 @@ class BidViewTests(TestCase):
             'Diese Bandbewerbung gehört nicht zu deinem Account',
             status_code=403,
         )
+
+    def test_bid_form_renders_uploaded_press_photo_and_logo(self):
+        band = Band.objects.create(event=self.event, contact=self.other_user)
+        press_photo = BandMedia.objects.create(
+            band=band, media_type=MediaType.PRESS_PHOTO, file='bands/test/photo.webp'
+        )
+        logo = BandMedia.objects.create(
+            band=band, media_type=MediaType.LOGO, file='bands/test/logo.webp'
+        )
+        self.client.force_login(self.other_user)
+
+        response = self.client.get(
+            reverse(
+                'bands:bid_form',
+                kwargs={'slug': self.event.slug, 'guid': band.guid},
+            )
+        )
+
+        self.assertContains(
+            response, f'id="bandPressPhoto" src="{press_photo.file.url}"'
+        )
+        self.assertContains(response, f'id="bandLogo" src="{logo.file.url}"')
+
+    def test_bid_form_renders_placeholder_without_images(self):
+        band = Band.objects.create(event=self.event, contact=self.other_user)
+        self.client.force_login(self.other_user)
+
+        response = self.client.get(
+            reverse(
+                'bands:bid_form',
+                kwargs={'slug': self.event.slug, 'guid': band.guid},
+            )
+        )
+
+        placeholder = static('assets/4_3_placeholder.webp')
+        self.assertContains(response, f'id="bandPressPhoto" src="{placeholder}"')
+        self.assertContains(response, f'id="bandLogo" src="{placeholder}"')
+
+    def test_bid_form_restricts_file_pickers_to_allowed_types(self):
+        band = Band.objects.create(event=self.event, contact=self.other_user)
+        self.client.force_login(self.other_user)
+
+        response = self.client.get(
+            reverse(
+                'bands:bid_form',
+                kwargs={'slug': self.event.slug, 'guid': band.guid},
+            )
+        )
+
+        self.assertContains(response, 'accept=".aac,.flac,.m4a,.mp3,.ogg,.wav"')
+        self.assertContains(response, 'accept=".jpeg,.jpg,.png,.webp"', count=2)

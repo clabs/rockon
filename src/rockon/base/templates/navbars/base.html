@@ -32,7 +32,7 @@
                                 {% endif %}
                                 {% if group.name == 'bands' %}
                                     <a class="dropdown-item"
-                                       href="{% url 'bands:bid_router' slug=current_event.slug %}">Band Bewerbung</a>
+                                       href="{% url 'bands:bid_router' slug=band_application_event.slug %}">Band Bewerbung</a>
                                 {% endif %}
                                 {% if group.name == 'exhibitors' and current_event.sub_events.first.slug %}
                                     <a class="dropdown-item"

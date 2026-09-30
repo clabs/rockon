@@ -18,6 +18,7 @@ from rockon.api.schemas.band import (
     BandPatchOut,
 )
 from rockon.bands.models import Band, BandMedia
+from rockon.bands.services.bids import sync_profile_name
 from rockon.library.mailer import get_admin_url, send_mail_async
 
 logger = logging.getLogger(__name__)
@@ -270,6 +271,8 @@ def patch_band(request, band_id: str, data: BandPatchIn):
         band.is_flinta = data.is_flinta
 
     band.save()
+    if data.name is not None:
+        sync_profile_name(band)
 
     if bid_fields_touched and band.bid_complete:
         _send_booking_notification(
