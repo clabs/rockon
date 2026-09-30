@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .band import Band
 from .band_media import BandMedia, EncodeStatus, MediaType
+from .band_profile import BandProfile
 from .band_reaction import BandReaction
 from .band_vote import BandVote
 from .bandmember import BandMember, BandMemberPosition
@@ -15,6 +16,7 @@ __all__ = [
     'BandMedia',
     'BandMember',
     'BandMemberPosition',
+    'BandProfile',
     'BandReaction',
     'BandVote',
     'Comment',

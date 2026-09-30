@@ -6,6 +6,7 @@ from .event_lookup import (
     get_default_event,
     get_event_by_slug,
     get_fallback_event_for_user,
+    get_open_application_event,
     get_request_account_context,
     get_selectable_event_by_slug,
 )
@@ -18,6 +19,7 @@ __all__ = [
     'get_default_event',
     'get_event_by_slug',
     'get_fallback_event_for_user',
+    'get_open_application_event',
     'get_request_account_context',
     'get_selectable_event_by_slug',
 ]
