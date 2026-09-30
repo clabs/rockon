@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from rockon.bands.models import Band, BandMedia, Track
+from rockon.bands.models import Band, BandMedia, MediaType, Track
 from rockon.bands.models.band import BidStatus
 from rockon.base.models import Event
 from rockon.library.decorators import check_band_application_open, require_group
@@ -99,6 +99,8 @@ def bid_form(request, slug, guid):
     media_by_type: dict = defaultdict(list)
     for m in all_media:
         media_by_type[m.media_type].append(m)
+    press_photos = media_by_type[MediaType.PRESS_PHOTO]
+    logos = media_by_type[MediaType.LOGO]
 
     return render(
         request,
@@ -110,6 +112,8 @@ def bid_form(request, slug, guid):
             'federal_states': FederalState.choices,
             'band': band,
             'media_by_type': media_by_type,
+            'press_photo': press_photos[-1] if press_photos else None,
+            'logo': logos[-1] if logos else None,
             'tracks': Track.objects.filter(events=band.event),
         },
     )
