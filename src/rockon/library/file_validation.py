@@ -5,6 +5,10 @@ from pathlib import Path
 
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
+from django.utils.translation import gettext as _
+
+# ISO base media "ftyp" brands used by .m4a files from common encoders.
+_M4A_BRANDS = {b'M4A ', b'M4B ', b'mp41', b'mp42', b'isom', b'iso2'}
 
 # Each entry is (content_type, signature_matcher, allowed_extensions).
 # Matching is done on the file's leading bytes only (magic-number
@@ -17,6 +21,18 @@ _SIGNATURES: list[tuple[str, Callable[[bytes], bool], set[str]]] = [
     ('image/webp', lambda h: h[:4] == b'RIFF' and h[8:12] == b'WEBP', {'.webp'}),
     ('application/pdf', lambda h: h.startswith(b'%PDF-'), {'.pdf'}),
     ('application/postscript', lambda h: h.startswith(b'%!PS'), {'.eps', '.ps'}),
+    # ADTS frame header: 12-bit sync word, layer bits always 00. Must be
+    # checked before MPEG audio, whose frame-sync test also matches it.
+    (
+        'audio/aac',
+        lambda h: len(h) >= 2 and h[0] == 0xFF and h[1] & 0xF6 == 0xF0,
+        {'.aac'},
+    ),
+    (
+        'audio/mp4',
+        lambda h: h[4:8] == b'ftyp' and h[8:12] in _M4A_BRANDS,
+        {'.m4a'},
+    ),
     (
         'audio/mpeg',
         lambda h: (
@@ -31,6 +47,16 @@ _SIGNATURES: list[tuple[str, Callable[[bytes], bool], set[str]]] = [
 ]
 
 
+def allowed_extensions(allowed_content_types: set[str]) -> list[str]:
+    """Return the sorted file extensions accepted for the given content types."""
+    return sorted(
+        ext
+        for content_type, _matches, extensions in _SIGNATURES
+        if content_type in allowed_content_types
+        for ext in extensions
+    )
+
+
 def validate_upload(file: UploadedFile, allowed_content_types: set[str]) -> None:
     """Reject a file whose sniffed content isn't in the allowed set, or
     whose extension doesn't match its sniffed content type.
@@ -41,16 +67,28 @@ def validate_upload(file: UploadedFile, allowed_content_types: set[str]) -> None
     header = file.read(64)
     file.seek(0)
 
+    allowed = ', '.join(allowed_extensions(allowed_content_types))
+    ext = Path(file.name).suffix.lower()
+
     for content_type, matches, extensions in _SIGNATURES:
         if not matches(header):
             continue
         if content_type not in allowed_content_types:
-            raise ValidationError(f'File type "{content_type}" is not allowed here.')
-        ext = Path(file.name).suffix.lower()
+            raise ValidationError(
+                _('This file type is not allowed here. Allowed: %(allowed)s')
+                % {'allowed': allowed}
+            )
         if ext not in extensions:
             raise ValidationError(
-                f'File extension "{ext}" does not match its content ("{content_type}").'
+                _(
+                    'The file extension "%(ext)s" does not match the file content. '
+                    'Allowed: %(allowed)s'
+                )
+                % {'ext': ext, 'allowed': allowed}
             )
         return
 
-    raise ValidationError('Could not determine a supported file type for this upload.')
+    raise ValidationError(
+        _('The file type could not be recognised. Allowed: %(allowed)s')
+        % {'allowed': allowed}
+    )

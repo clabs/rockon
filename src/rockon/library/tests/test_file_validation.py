@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import SimpleTestCase
 
-from rockon.library.file_validation import validate_upload
+from rockon.library.file_validation import allowed_extensions, validate_upload
 
 
 class ValidateUploadTests(SimpleTestCase):
@@ -35,6 +35,27 @@ class ValidateUploadTests(SimpleTestCase):
         file = SimpleUploadedFile('track.mp3', b'\xff\xfb\x90\x00' + b'\x00' * 16)
         validate_upload(file, {'audio/mpeg'})  # does not raise
 
+    def test_detects_m4a_via_ftyp_brand(self):
+        for brand in (b'M4A ', b'mp42', b'isom'):
+            with self.subTest(brand=brand):
+                file = SimpleUploadedFile(
+                    'track.m4a', b'\x00\x00\x00\x20ftyp' + brand + b'\x00' * 8
+                )
+                validate_upload(file, {'audio/mp4'})  # does not raise
+
+    def test_rejects_heic_image_named_m4a(self):
+        file = SimpleUploadedFile(
+            'track.m4a', b'\x00\x00\x00\x20ftypheic' + b'\x00' * 8
+        )
+        with self.assertRaises(ValidationError):
+            validate_upload(file, {'audio/mp4'})
+
+    def test_detects_aac_adts_and_not_as_mp3(self):
+        file = SimpleUploadedFile('track.aac', b'\xff\xf1\x50\x80' + b'\x00' * 16)
+        validate_upload(file, {'audio/aac'})  # does not raise
+        with self.assertRaises(ValidationError):
+            validate_upload(file, {'audio/mpeg'})
+
     def test_detects_webp_vs_wav_via_riff_subtype(self):
         webp = SimpleUploadedFile(
             'image.webp', b'RIFF\x00\x00\x00\x00WEBP' + b'\x00' * 8
@@ -48,3 +69,14 @@ class ValidateUploadTests(SimpleTestCase):
         file = SimpleUploadedFile('photo.png', b'\x89PNG\r\n\x1a\n' + b'\x00' * 16)
         validate_upload(file, {'image/png'})
         self.assertEqual(file.tell(), 0)
+
+    def test_allowed_extensions_are_sorted_for_content_types(self):
+        self.assertEqual(
+            allowed_extensions({'image/png', 'image/jpeg'}), ['.jpeg', '.jpg', '.png']
+        )
+
+    def test_rejection_message_lists_allowed_extensions(self):
+        file = SimpleUploadedFile('song.m4a', b'\x00\x00\x00\x20ftypM4A ')
+        with self.assertRaises(ValidationError) as ctx:
+            validate_upload(file, {'audio/mpeg', 'audio/ogg'})
+        self.assertIn('.mp3, .ogg', ctx.exception.messages[0])

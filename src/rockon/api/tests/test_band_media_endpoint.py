@@ -243,6 +243,7 @@ class BandMediaUploadEndpointTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
+        self.assertIn('.mp3', response.content.decode())
         self.assertFalse(BandMedia.objects.filter(band=self.band).exists())
 
     def test_upload_rejects_extension_mismatching_sniffed_content(self):
@@ -278,6 +279,39 @@ class BandMediaUploadEndpointTests(TestCase):
         self.assertTrue(
             BandMedia.objects.filter(band=self.band, media_type='logo').exists()
         )
+
+    def _upload_document(self, name, content):
+        self.client.force_login(self.owner)
+        return self.client.post(
+            '/api/v2/band-media/upload/',
+            data={
+                'band': str(self.band.id),
+                'media_type': 'document',
+                'file': SimpleUploadedFile(name, content),
+            },
+        )
+
+    def test_upload_accepts_any_document_type(self):
+        for name, content in [
+            ('bandinfo.docx', b'PK\x03\x04' + b'\x00' * 32),
+            ('bandinfo.txt', b'We are a band.\n'),
+            ('bandinfo.pdf', b'%PDF-1.4\n' + b'\x00' * 32),
+        ]:
+            with self.subTest(name=name):
+                response = self._upload_document(name, content)
+                self.assertEqual(response.status_code, 201)
+
+        self.assertEqual(
+            BandMedia.objects.filter(band=self.band, media_type='document').count(), 3
+        )
+
+    def test_upload_rejects_active_content_documents(self):
+        for name in ['bandinfo.html', 'Logo.SVG', 'script.js']:
+            with self.subTest(name=name):
+                response = self._upload_document(name, b'<script></script>')
+                self.assertEqual(response.status_code, 400)
+
+        self.assertFalse(BandMedia.objects.filter(band=self.band).exists())
 
     @patch('rockon.api.endpoints.band_media.sentry_sdk.metrics.distribution')
     def test_upload_with_file_reports_size_metric(self, distribution):

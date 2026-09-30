@@ -111,7 +111,7 @@ $(document).ready(() => {
         const file = event.target.files[0]
         if (!file) return
         console.debug('file', file)
-        upload_file(file, 'document')
+        upload_file(file, 'document', event.target)
     })
     $('#selectNewDocument').on('click', function () {
         $('#selectedFileDocument').click()
@@ -121,7 +121,7 @@ $(document).ready(() => {
         const file = event.target.files[0]
         if (!file) return
         console.debug('file', file)
-        const new_song = upload_file(file, 'audio')
+        upload_file(file, 'audio', event.target)
     })
     $('#selectNewSong').on('click', function () {
         $('#selectedSong').click()
@@ -144,7 +144,7 @@ $(document).ready(() => {
         const file = event.target.files[0]
         if (!file) return
         console.debug('file', file)
-        upload_file(file, 'press_photo')
+        upload_file(file, 'press_photo', event.target)
     })
     $('#bandPressPhoto').on('click', function () {
         $('#fileInputBandPressPhoto').click()
@@ -154,14 +154,14 @@ $(document).ready(() => {
         const file = event.target.files[0]
         if (!file) return
         console.debug('file', file)
-        upload_file(file, 'logo')
+        upload_file(file, 'logo', event.target)
     })
     $('#bandLogo').on('click', function () {
         $('#fileInputBandLogo').click()
     })
 })
 
-const upload_file = (file, type) => {
+const upload_file = (file, type, input) => {
     const form_data = new FormData()
     form_data.append('file', file)
     form_data.append('media_type', type)
@@ -178,9 +178,32 @@ const upload_file = (file, type) => {
         mode: 'same-origin',
         dataType: 'json',
         success: data => file_upload_success(data, type),
-        error: data => ajax_error(data),
-        complete: data => ajax_complete(data)
+        error: xhr => {
+            if (xhr.status === 400) {
+                upload_rejected(xhr, file)
+            } else {
+                ajax_error(xhr)
+            }
+        },
+        complete: data => {
+            // Allow picking the same file again after a rejected upload.
+            input.value = ''
+            ajax_complete(data)
+        }
     })
+}
+
+const upload_rejected = (xhr, file) => {
+    $('#api_message').html(
+        '<div class="alert alert-warning alert-dismissible fade show" role="alert">'
+        + '<strong id="upload_error_file"></strong> konnte nicht hochgeladen werden: '
+        + '<span id="upload_error_reason"></span>'
+        + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+        + '</div>'
+    )
+    $('#upload_error_file').text(file.name)
+    $('#upload_error_reason').text(xhr.responseText)
+    document.getElementById('api_message').scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 const li_add_url = url => {

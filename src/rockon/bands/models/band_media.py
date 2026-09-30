@@ -30,6 +30,27 @@ class MediaType(models.TextChoices):
     WEB = 'web', 'Webseite'
 
 
+_AUDIO_CONTENT_TYPES = {
+    'audio/mpeg',
+    'audio/wav',
+    'audio/flac',
+    'audio/ogg',
+    'audio/mp4',
+    'audio/aac',
+}
+_IMAGE_CONTENT_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
+
+ALLOWED_UPLOAD_CONTENT_TYPES = {
+    MediaType.AUDIO: _AUDIO_CONTENT_TYPES,
+    MediaType.LOGO: _IMAGE_CONTENT_TYPES,
+    MediaType.PRESS_PHOTO: _IMAGE_CONTENT_TYPES,
+}
+
+# Documents are not content-checked, but uploads are served from our own
+# origin, so file types a browser would execute as active content are refused.
+BLOCKED_DOCUMENT_EXTENSIONS = {'.html', '.htm', '.xhtml', '.svg', '.js', '.mjs'}
+
+
 class EncodeStatus(models.TextChoices):
     """Encode status."""
 

@@ -204,3 +204,17 @@ class BidViewTests(TestCase):
         placeholder = static('assets/4_3_placeholder.webp')
         self.assertContains(response, f'id="bandPressPhoto" src="{placeholder}"')
         self.assertContains(response, f'id="bandLogo" src="{placeholder}"')
+
+    def test_bid_form_restricts_file_pickers_to_allowed_types(self):
+        band = Band.objects.create(event=self.event, contact=self.other_user)
+        self.client.force_login(self.other_user)
+
+        response = self.client.get(
+            reverse(
+                'bands:bid_form',
+                kwargs={'slug': self.event.slug, 'guid': band.guid},
+            )
+        )
+
+        self.assertContains(response, 'accept=".aac,.flac,.m4a,.mp3,.ogg,.wav"')
+        self.assertContains(response, 'accept=".jpeg,.jpg,.png,.webp"', count=2)

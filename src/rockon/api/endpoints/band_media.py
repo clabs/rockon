@@ -1,32 +1,27 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import sentry_sdk
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 from ninja import File, Router, UploadedFile
 from ninja.security import django_auth
 
 from rockon.api.schemas.band_media import BandMediaOut
 from rockon.bands.models import Band, BandMedia, MediaType
+from rockon.bands.models.band_media import (
+    ALLOWED_UPLOAD_CONTENT_TYPES,
+    BLOCKED_DOCUMENT_EXTENSIONS,
+)
 from rockon.library.file_validation import validate_upload
 
 logger = logging.getLogger(__name__)
 
 bandMediaRouter = Router()
-
-_AUDIO_TYPES = {'audio/mpeg', 'audio/wav', 'audio/flac', 'audio/ogg'}
-_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
-_DOCUMENT_TYPES = {'application/pdf'}
-
-_ALLOWED_CONTENT_TYPES_BY_MEDIA_TYPE = {
-    MediaType.AUDIO: _AUDIO_TYPES,
-    MediaType.LOGO: _IMAGE_TYPES,
-    MediaType.PRESS_PHOTO: _IMAGE_TYPES,
-    MediaType.DOCUMENT: _DOCUMENT_TYPES,
-}
 
 
 def _serialize_media(media: BandMedia) -> dict:
@@ -105,8 +100,14 @@ def upload_media(
             status=403, content='You can only upload media for your own band.'
         )
 
-    if file:
-        allowed_content_types = _ALLOWED_CONTENT_TYPES_BY_MEDIA_TYPE.get(media_type)
+    if file and media_type == MediaType.DOCUMENT:
+        if Path(file.name).suffix.lower() in BLOCKED_DOCUMENT_EXTENSIONS:
+            return HttpResponse(
+                status=400,
+                content=_('HTML, SVG and JavaScript files cannot be uploaded.'),
+            )
+    elif file:
+        allowed_content_types = ALLOWED_UPLOAD_CONTENT_TYPES.get(media_type)
         if allowed_content_types:
             try:
                 validate_upload(file, allowed_content_types)

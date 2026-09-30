@@ -11,11 +11,13 @@ from django.urls import reverse
 
 from rockon.bands.models import Band, BandMedia, MediaType, Track
 from rockon.bands.models.band import BidStatus
+from rockon.bands.models.band_media import ALLOWED_UPLOAD_CONTENT_TYPES
 from rockon.bands.services.bids import start_bid
 from rockon.base.models import Event
 from rockon.base.services import get_open_application_event
 from rockon.library.decorators import check_band_application_open, require_group
 from rockon.library.federal_states import FederalState
+from rockon.library.file_validation import allowed_extensions
 from rockon.library.template_json import template_json
 
 
@@ -115,6 +117,16 @@ def bid_form(request, slug, guid):
             'press_photo': press_photos[-1] if press_photos else None,
             'logo': logos[-1] if logos else None,
             'tracks': Track.objects.filter(events=band.event),
+            'upload_accept': {
+                'audio': ','.join(
+                    allowed_extensions(ALLOWED_UPLOAD_CONTENT_TYPES[MediaType.AUDIO])
+                ),
+                'image': ','.join(
+                    allowed_extensions(
+                        ALLOWED_UPLOAD_CONTENT_TYPES[MediaType.PRESS_PHOTO]
+                    )
+                ),
+            },
         },
     )
 
