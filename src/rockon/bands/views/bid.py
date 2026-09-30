@@ -11,7 +11,9 @@ from django.urls import reverse
 
 from rockon.bands.models import Band, BandMedia, MediaType, Track
 from rockon.bands.models.band import BidStatus
+from rockon.bands.services.bids import start_bid
 from rockon.base.models import Event
+from rockon.base.services import get_open_application_event
 from rockon.library.decorators import check_band_application_open, require_group
 from rockon.library.federal_states import FederalState
 from rockon.library.template_json import template_json
@@ -44,19 +46,22 @@ def _can_vote_on_bands(user, event: Event) -> tuple[bool, str | None]:
 @login_required
 def bid_closed(request, slug):
     event = get_object_or_404(Event, slug=slug)
-    band = request.user.bands.filter(
-        event=event,
-        bid_status__in=[BidStatus.LINEUP, BidStatus.REPLACEMENT],
-        slug__isnull=False,
-    ).first()
-    if band:
-        return redirect('bands:bands_members', slug=slug, slug_guid=band.slug)
+    open_event = get_open_application_event()
+    if open_event is None:
+        band = request.user.bands.filter(
+            event=event,
+            bid_status__in=[BidStatus.LINEUP, BidStatus.REPLACEMENT],
+            slug__isnull=False,
+        ).first()
+        if band:
+            return redirect('bands:bands_members', slug=slug, slug_guid=band.slug)
     return render(
         request,
         'bid_closed.html',
         {
             'site_title': 'Bewerbungsphase geschlossen',
             'event': event,
+            'open_event': open_event,
         },
     )
 
@@ -66,16 +71,11 @@ def bid_router(request, slug):
     if not request.user.is_authenticated:
         return redirect(f'{reverse("base:login_request")}?ctx=bands')
 
-    try:
-        band = Band.objects.get(contact=request.user, event__slug=slug)
-        return redirect('bands:bid_form', slug=slug, guid=band.guid)
-    except Band.DoesNotExist:
-        pass
-
     event = get_object_or_404(Event, slug=slug)
-    new_band = Band.objects.create(event=event, contact=request.user)
-    sentry_sdk.metrics.count('bid.started', 1, attributes={'event': event.slug})
-    return redirect('bands:bid_form', slug=slug, guid=new_band.guid)
+    band, created = start_bid(request.user, event)
+    if created:
+        sentry_sdk.metrics.count('bid.started', 1, attributes={'event': event.slug})
+    return redirect('bands:bid_form', slug=slug, guid=band.guid)
 
 
 @login_required

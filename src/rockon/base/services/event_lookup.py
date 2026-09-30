@@ -4,6 +4,8 @@ import re
 from urllib.parse import quote
 
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Q
+from django.utils import timezone
 
 from rockon.base.models import Event
 
@@ -19,6 +21,24 @@ def get_event_by_slug(slug: str) -> Event | None:
 def get_selectable_event_by_slug(slug: str) -> Event | None:
     """Return a top-level event that can be selected in the event switcher."""
     return Event.objects.filter(slug=slug, sub_event_of__isnull=True).first()
+
+
+def get_open_application_event() -> Event | None:
+    """Return the top-level event whose band application window is open right now.
+
+    Independent of `is_current`: next year's application phase usually opens while
+    the running year is still the current event.
+    """
+    now = timezone.now()
+    return (
+        Event.objects.filter(
+            sub_event_of__isnull=True,
+            band_application_start__lte=now,
+            band_application_end__gte=now,
+        )
+        .order_by('-start')
+        .first()
+    )
 
 
 def get_root_event(event: Event | None) -> Event | None:
@@ -69,10 +89,14 @@ def calculate_available_event_ids(user) -> list:
     if user.groups.filter(name='bands').exists():
         from rockon.bands.models import Band
 
-        band_events = Band.objects.filter(band_members__user=user).values_list(
-            'event_id', flat=True
-        )
+        band_events = Band.objects.filter(
+            Q(band_members__user=user) | Q(contact=user)
+        ).values_list('event_id', flat=True)
         event_ids.update(band_events)
+
+        open_application_event = get_open_application_event()
+        if open_application_event:
+            event_ids.add(open_application_event.id)
 
     return list(event_ids)
 

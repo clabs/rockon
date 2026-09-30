@@ -6,6 +6,7 @@ from .models import (
     Band,
     BandMedia,
     BandMember,
+    BandProfile,
     BandReaction,
     BandVote,
     Comment,
@@ -41,6 +42,27 @@ class BandMediaInline(admin.TabularInline):
     )
 
 
+class BandProfileBidInline(admin.TabularInline):
+    model = Band
+    fields = ('name', 'event', 'bid_status', 'contact')
+    readonly_fields = fields
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(BandProfile)
+class BandProfileAdmin(CustomAdminModel):
+    inlines = (BandProfileBidInline,)
+    list_display = ('__str__', 'owner', 'created_at')
+    search_fields = ('name', 'owner__username', 'owner__email')
+    readonly_fields = ('guid',)
+    raw_id_fields = ('owner',)
+
+
 @admin.register(Band)
 class BandAdmin(CustomAdminModel):
     inlines = (BandMediaInline,)
@@ -53,25 +75,27 @@ class BandAdmin(CustomAdminModel):
         'track',
         'slot',
         'event',
+        'profile',
     )
     list_filter = (
         'event__name',
         'bid_status',
         'bid_complete',
     )
-    search_fields = ('name', 'contact__username', 'event__name')
+    search_fields = ('name', 'contact__username', 'event__name', 'profile__name')
     readonly_fields = (
         '_band_members',
         'slot',
         'guid',
     )
+    raw_id_fields = ('profile',)
     show_facets = admin.ShowFacets.ALWAYS
 
     def get_queryset(self, request):
         return (
             super()
             .get_queryset(request)
-            .select_related('track', 'contact', 'event', 'slot')
+            .select_related('track', 'contact', 'event', 'slot', 'profile')
             .prefetch_related('band_members__user')
         )
 

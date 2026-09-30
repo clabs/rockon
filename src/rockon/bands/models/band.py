@@ -8,6 +8,8 @@ from rockon.library.custom_model import CustomModel, models
 from rockon.library.federal_states import FederalState
 from rockon.library.guid import guid
 
+from .band_profile import BandProfile
+
 
 class BidStatus(models.TextChoices):
     """Bid status."""
@@ -57,6 +59,8 @@ class Band(CustomModel):
         db_default=BidStatus.UNKNOWN,
         choices=BidStatus.choices,
     )
+    # Manual link to earlier bids for legacy (profile-less) bids; set automatically
+    # for new bids whose profile already has an earlier bid.
     repeated = models.BooleanField(default=False, db_default=False)
     techrider = models.JSONField(default=dict, blank=True, null=True)
     track = models.ForeignKey(
@@ -67,9 +71,25 @@ class Band(CustomModel):
         related_name='bands',
     )
     bid_complete = models.BooleanField(default=False, db_default=False)
+    # Null for legacy bids created before band profiles existed.
+    profile = models.ForeignKey(
+        BandProfile,
+        on_delete=models.PROTECT,
+        related_name='bids',
+        null=True,
+        default=None,
+        blank=True,
+    )
 
     class Meta:
         ordering = ('name',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('profile', 'event'),
+                condition=models.Q(profile__isnull=False),
+                name='unique_bid_per_profile_event',
+            ),
+        )
 
     def __str__(self):
         if self.name:
