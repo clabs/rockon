@@ -143,7 +143,7 @@ def join(request, slug):
             )
         )
     )
-    allow_overnight = request.user.profile.over_18()
+    allow_overnight = request.user.profile.over_16()
 
     shirts_json = template_json(
         [
